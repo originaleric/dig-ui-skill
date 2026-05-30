@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="zh-CN" data-catalog="wise">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Layout — Onboarding Wizard</title>
+    <link rel="stylesheet" href="../../assets/layout-preview.css" />
+    <style>
+html[data-catalog="dig"] {
+  color-scheme: dark;
+  --dig-bg: #06121a;
+  --dig-bg-soft: #0b1b26;
+  --dig-surface: rgba(11, 27, 38, 0.78);
+  --dig-surface-strong: rgba(16, 32, 44, 0.92);
+  --dig-surface-elevated: rgba(20, 39, 53, 0.96);
+  --dig-text: #ecf3f8;
+  --dig-text-muted: #8aa0b2;
+  --dig-text-soft: #62798c;
+  --dig-accent: #37d67a;
+  --dig-accent-strong: #20bf66;
+  --dig-accent-2: #4fb3ff;
+  --dig-accent-2-strong: #2697eb;
+  --dig-border: rgba(138, 160, 178, 0.16);
+  --dig-border-strong: rgba(138, 160, 178, 0.28);
+  --dig-grid-line: rgba(138, 160, 178, 0.08);
+  --dig-success: #37d67a;
+  --dig-warning: #f3b64c;
+  --dig-danger: #f06a6a;
+  --dig-info: #4fb3ff;
+  --dig-control-bg: rgba(5, 18, 27, 0.68);
+  --dig-control-bg-hover: rgba(16, 32, 44, 0.86);
+  --dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+  --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --dig-font-serif: "Noto Serif SC", serif;
+  --dig-text-xs: 12px;
+  --dig-text-sm: 14px;
+  --dig-text-md: 16px;
+  --dig-text-lg: 18px;
+  --dig-text-xl: 20px;
+  --dig-text-2xl: 24px;
+  --dig-text-3xl: 32px;
+  --dig-text-4xl: 40px;
+  --dig-text-5xl: 56px;
+  --dig-leading-tight: 1.15;
+  --dig-leading-snug: 1.3;
+  --dig-leading-normal: 1.55;
+  --dig-leading-relaxed: 1.72;
+  --dig-tracking-tight: -0.03em;
+  --dig-tracking-normal: 0;
+  --dig-tracking-wide: 0.08em;
+  --dig-space-1: 4px;
+  --dig-space-2: 8px;
+  --dig-space-3: 12px;
+  --dig-space-4: 16px;
+  --dig-space-5: 24px;
+  --dig-space-6: 32px;
+  --dig-space-7: 48px;
+  --dig-space-8: 64px;
+  --dig-radius-sm: 10px;
+  --dig-radius-md: 16px;
+  --dig-radius-lg: 24px;
+  --dig-radius-xl: 32px;
+  --dig-radius-pill: 999px;
+  --dig-stroke-thin: 1px;
+  --dig-stroke-strong: 1.5px;
+  --dig-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.24);
+  --dig-shadow-panel: 0 24px 80px rgba(2, 10, 18, 0.34);
+  --dig-glow-accent: 0 0 0 1px rgba(55, 214, 122, 0.22), 0 0 40px rgba(55, 214, 122, 0.12);
+  --dig-glow-secondary: 0 0 0 1px rgba(79, 179, 255, 0.18), 0 0 36px rgba(79, 179, 255, 0.1);
+  --dig-shell-max: 1440px;
+  --dig-grid-columns: 12;
+  --dig-grid-gutter: 24px;
+  --dig-grid-gutter-mobile: 16px;
+  --dig-grid-cell-min: 72px;
+}
+
+html[data-catalog="mono"] {
+  color-scheme: dark;
+  --dig-bg: #050505;
+  --dig-bg-soft: #101010;
+  --dig-surface: rgba(16, 16, 16, 0.76);
+  --dig-surface-strong: rgba(10, 10, 10, 0.92);
+  --dig-surface-elevated: rgba(22, 22, 22, 0.96);
+  --dig-text: #f2f2f2;
+  --dig-text-muted: #9a9a9a;
+  --dig-text-soft: #6f6f6f;
+  --dig-accent: #f2f2f2;
+  --dig-accent-strong: #ffffff;
+  --dig-accent-2: #6f6f6f;
+  --dig-accent-2-strong: #949494;
+  --dig-border: rgba(255, 255, 255, 0.14);
+  --dig-border-strong: rgba(255, 255, 255, 0.22);
+  --dig-grid-line: rgba(255, 255, 255, 0.07);
+  --dig-success: #d8d8d8;
+  --dig-warning: #b5b5b5;
+  --dig-danger: #8a8a8a;
+  --dig-info: #cfcfcf;
+  --dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+  --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --dig-font-serif: "Noto Serif SC", serif;
+  --dig-text-xs: 12px;
+  --dig-text-sm: 14px;
+  --dig-text-md: 16px;
+  --dig-text-lg: 18px;
+  --dig-text-xl: 20px;
+  --dig-text-2xl: 24px;
+  --dig-text-3xl: 30px;
+  --dig-text-4xl: 38px;
+  --dig-text-5xl: 52px;
+  --dig-leading-tight: 1.15;
+  --dig-leading-snug: 1.3;
+  --dig-leading-normal: 1.58;
+  --dig-leading-relaxed: 1.76;
+  --dig-tracking-tight: -0.025em;
+  --dig-tracking-normal: 0;
+  --dig-tracking-wide: 0.1em;
+  --dig-space-1: 4px;
+  --dig-space-2: 8px;
+  --dig-space-3: 12px;
+  --dig-space-4: 16px;
+  --dig-space-5: 24px;
+  --dig-space-6: 32px;
+  --dig-space-7: 48px;
+  --dig-space-8: 64px;
+  --dig-radius-sm: 8px;
+  --dig-radius-md: 14px;
+  --dig-radius-lg: 20px;
+  --dig-radius-xl: 28px;
+  --dig-radius-pill: 999px;
+  --dig-stroke-thin: 1px;
+  --dig-stroke-strong: 1.5px;
+  --dig-shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.18);
+  --dig-shadow-panel: 0 18px 54px rgba(0, 0, 0, 0.24);
+  --dig-glow-accent: 0 0 0 1px rgba(255, 255, 255, 0.16), 0 0 24px rgba(255, 255, 255, 0.06);
+  --dig-glow-secondary: 0 0 0 1px rgba(148, 148, 148, 0.14), 0 0 18px rgba(148, 148, 148, 0.05);
+  --dig-shell-max: 1360px;
+  --dig-grid-columns: 12;
+  --dig-grid-gutter: 24px;
+  --dig-grid-gutter-mobile: 16px;
+  --dig-grid-cell-min: 68px;
+}
+
+html[data-catalog="editorial"] {
+  color-scheme: light;
+  --dig-bg: #f4efe6;
+  --dig-bg-soft: #ebe3d6;
+  --dig-surface: rgba(255, 255, 255, 0.72);
+  --dig-surface-strong: rgba(255, 255, 255, 0.88);
+  --dig-surface-elevated: rgba(255, 255, 255, 0.94);
+  --dig-text: #161514;
+  --dig-text-muted: #6a655d;
+  --dig-text-soft: #8c857b;
+  --dig-accent: #1f4e46;
+  --dig-accent-strong: #163b35;
+  --dig-accent-2: #9c6b3a;
+  --dig-accent-2-strong: #7f5328;
+  --dig-border: rgba(22, 21, 20, 0.12);
+  --dig-border-strong: rgba(22, 21, 20, 0.2);
+  --dig-grid-line: rgba(22, 21, 20, 0.06);
+  --dig-success: #356b58;
+  --dig-warning: #a87740;
+  --dig-danger: #a35f52;
+  --dig-info: #5e7d96;
+  --dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+  --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --dig-font-serif: "Playfair Display", "Noto Serif SC", serif;
+  --dig-text-xs: 12px;
+  --dig-text-sm: 14px;
+  --dig-text-md: 16px;
+  --dig-text-lg: 18px;
+  --dig-text-xl: 22px;
+  --dig-text-2xl: 28px;
+  --dig-text-3xl: 36px;
+  --dig-text-4xl: 48px;
+  --dig-text-5xl: 64px;
+  --dig-leading-tight: 1.08;
+  --dig-leading-snug: 1.24;
+  --dig-leading-normal: 1.62;
+  --dig-leading-relaxed: 1.8;
+  --dig-tracking-tight: -0.035em;
+  --dig-tracking-normal: 0;
+  --dig-tracking-wide: 0.12em;
+  --dig-space-1: 4px;
+  --dig-space-2: 8px;
+  --dig-space-3: 12px;
+  --dig-space-4: 16px;
+  --dig-space-5: 24px;
+  --dig-space-6: 32px;
+  --dig-space-7: 52px;
+  --dig-space-8: 72px;
+  --dig-radius-sm: 8px;
+  --dig-radius-md: 14px;
+  --dig-radius-lg: 22px;
+  --dig-radius-xl: 30px;
+  --dig-radius-pill: 999px;
+  --dig-stroke-thin: 1px;
+  --dig-stroke-strong: 1.5px;
+  --dig-shadow-soft: 0 12px 34px rgba(44, 32, 18, 0.08);
+  --dig-shadow-panel: 0 22px 56px rgba(44, 32, 18, 0.12);
+  --dig-glow-accent: 0 0 0 1px rgba(31, 78, 70, 0.14), 0 0 24px rgba(31, 78, 70, 0.04);
+  --dig-glow-secondary: 0 0 0 1px rgba(156, 107, 58, 0.14), 0 0 20px rgba(156, 107, 58, 0.04);
+  --dig-shell-max: 1360px;
+  --dig-grid-columns: 12;
+  --dig-grid-gutter: 28px;
+  --dig-grid-gutter-mobile: 16px;
+  --dig-grid-cell-min: 72px;
+}
+
+html[data-catalog="wise"] {
+  color-scheme: light;
+  --dig-bg: #fbfcf5;
+  --dig-bg-soft: #eef4e7;
+  --dig-surface: rgba(255, 255, 255, 0.86);
+  --dig-surface-strong: rgba(247, 249, 242, 0.96);
+  --dig-surface-elevated: rgba(255, 255, 255, 0.98);
+  --dig-text: #07110a;
+  --dig-text-muted: #526052;
+  --dig-text-soft: #8b9488;
+  --dig-accent: #9fe870;
+  --dig-accent-strong: #78d94a;
+  --dig-accent-2: #163300;
+  --dig-accent-2-strong: #0d2400;
+  --dig-border: rgba(7, 17, 10, 0.12);
+  --dig-border-strong: rgba(7, 17, 10, 0.22);
+  --dig-grid-line: rgba(22, 51, 0, 0.06);
+  --dig-success: #2f7d32;
+  --dig-warning: #a66b00;
+  --dig-danger: #c43d3d;
+  --dig-info: #2f6f7e;
+  --dig-font-sans: "Archivo", "Noto Sans SC", sans-serif;
+  --dig-font-display: "Archivo Black", "Noto Sans SC", sans-serif;
+  --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+  --dig-font-serif: "Noto Serif SC", serif;
+  --dig-text-xs: 12px;
+  --dig-text-sm: 14px;
+  --dig-text-md: 16px;
+  --dig-text-lg: 18px;
+  --dig-text-xl: 22px;
+  --dig-text-2xl: 28px;
+  --dig-text-3xl: 38px;
+  --dig-text-4xl: 52px;
+  --dig-text-5xl: 72px;
+  --dig-leading-tight: 0.98;
+  --dig-leading-snug: 1.12;
+  --dig-leading-normal: 1.52;
+  --dig-leading-relaxed: 1.72;
+  --dig-tracking-tight: -0.055em;
+  --dig-tracking-normal: 0;
+  --dig-tracking-wide: 0.08em;
+  --dig-space-1: 4px;
+  --dig-space-2: 8px;
+  --dig-space-3: 12px;
+  --dig-space-4: 16px;
+  --dig-space-5: 24px;
+  --dig-space-6: 34px;
+  --dig-space-7: 56px;
+  --dig-space-8: 80px;
+  --dig-radius-sm: 12px;
+  --dig-radius-md: 20px;
+  --dig-radius-lg: 30px;
+  --dig-radius-xl: 42px;
+  --dig-radius-pill: 999px;
+  --dig-stroke-thin: 1px;
+  --dig-stroke-strong: 1.5px;
+  --dig-shadow-soft: 0 16px 40px rgba(22, 51, 0, 0.08);
+  --dig-shadow-panel: 0 28px 72px rgba(22, 51, 0, 0.12);
+  --dig-shadow-float: 0 18px 44px rgba(7, 17, 10, 0.16);
+  --dig-glow-accent: 0 0 0 1px rgba(159, 232, 112, 0.42), 0 18px 42px rgba(159, 232, 112, 0.22);
+  --dig-glow-secondary: 0 0 0 1px rgba(22, 51, 0, 0.18), 0 18px 44px rgba(22, 51, 0, 0.14);
+  --dig-shell-max: 1280px;
+  --dig-grid-columns: 12;
+  --dig-grid-gutter: 28px;
+  --dig-grid-gutter-mobile: 18px;
+  --dig-grid-cell-min: 76px;
+}
+
+html[data-catalog="apple"] {
+  color-scheme: light;
+  --dig-bg: #f5f5f7;
+  --dig-bg-soft: #ffffff;
+  --dig-surface: rgba(255, 255, 255, 0.72);
+  --dig-surface-strong: rgba(255, 255, 255, 0.9);
+  --dig-surface-elevated: rgba(255, 255, 255, 0.96);
+  --dig-text: #1d1d1f;
+  --dig-text-muted: #6e6e73;
+  --dig-text-soft: #86868b;
+  --dig-accent: #0071e3;
+  --dig-accent-strong: #005bbf;
+  --dig-accent-2: #7d7aff;
+  --dig-accent-2-strong: #5e5ce6;
+  --dig-border: rgba(29, 29, 31, 0.12);
+  --dig-border-strong: rgba(29, 29, 31, 0.2);
+  --dig-grid-line: rgba(29, 29, 31, 0.045);
+  --dig-success: #34c759;
+  --dig-warning: #ff9f0a;
+  --dig-danger: #ff3b30;
+  --dig-info: #007aff;
+  --dig-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+  --dig-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+  --dig-font-mono: "SFMono-Regular", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+  --dig-font-serif: "New York", "Noto Serif SC", Georgia, serif;
+  --dig-text-xs: 12px;
+  --dig-text-sm: 14px;
+  --dig-text-md: 16px;
+  --dig-text-lg: 19px;
+  --dig-text-xl: 22px;
+  --dig-text-2xl: 28px;
+  --dig-text-3xl: 40px;
+  --dig-text-4xl: 56px;
+  --dig-text-5xl: 76px;
+  --dig-leading-tight: 1.02;
+  --dig-leading-snug: 1.12;
+  --dig-leading-normal: 1.48;
+  --dig-leading-relaxed: 1.64;
+  --dig-tracking-tight: 0;
+  --dig-tracking-normal: 0;
+  --dig-tracking-wide: 0.04em;
+  --dig-space-1: 4px;
+  --dig-space-2: 8px;
+  --dig-space-3: 12px;
+  --dig-space-4: 16px;
+  --dig-space-5: 24px;
+  --dig-space-6: 36px;
+  --dig-space-7: 56px;
+  --dig-space-8: 88px;
+  --dig-radius-sm: 10px;
+  --dig-radius-md: 18px;
+  --dig-radius-lg: 28px;
+  --dig-radius-xl: 40px;
+  --dig-radius-pill: 999px;
+  --dig-stroke-thin: 1px;
+  --dig-stroke-strong: 1.5px;
+  --dig-shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --dig-shadow-panel: 0 24px 70px rgba(0, 0, 0, 0.12);
+  --dig-shadow-float: 0 18px 48px rgba(0, 0, 0, 0.16);
+  --dig-glow-accent: 0 0 0 1px rgba(0, 113, 227, 0.2), 0 16px 42px rgba(0, 113, 227, 0.18);
+  --dig-glow-secondary: 0 0 0 1px rgba(125, 122, 255, 0.16), 0 18px 48px rgba(125, 122, 255, 0.16);
+  --dig-glass-blur: 24px;
+  --dig-shell-max: 1240px;
+  --dig-grid-columns: 12;
+  --dig-grid-gutter: 24px;
+  --dig-grid-gutter-mobile: 16px;
+  --dig-grid-cell-min: 72px;
+}
+
+      /* Layout render shell */
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: var(--dig-font-sans, sans-serif);
+        background: linear-gradient(135deg, var(--dig-bg), var(--dig-bg-soft));
+        color: var(--dig-text);
+      }
+
+      .layout-render-shell {
+        width: min(1520px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 64px;
+      }
+
+      .layout-render-header {
+        margin-bottom: 32px;
+      }
+
+      .layout-render-header .eyebrow {
+        display: inline-flex;
+        padding: 4px 12px;
+        border: 1px solid var(--dig-border);
+        border-radius: 999px;
+        font-family: var(--dig-font-mono, monospace);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--dig-text-muted);
+      }
+
+      .layout-render-header h1 {
+        margin: 16px 0 8px;
+        font-size: var(--dig-text-3xl, 32px);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .layout-render-header .desc {
+        margin: 0 0 20px;
+        color: var(--dig-text-muted);
+        max-width: 640px;
+        line-height: 1.55;
+      }
+
+      .layout-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .meta-chip {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--dig-border);
+        font-size: 12px;
+        font-family: var(--dig-font-mono, monospace);
+        color: var(--dig-text-soft);
+      }
+
+      .catalog-switcher {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .catalog-switcher-label {
+        font-size: 13px;
+        color: var(--dig-text-muted);
+        margin-right: 8px;
+      }
+
+      .catalog-btn {
+        min-height: 36px;
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--dig-border);
+        background: var(--dig-surface);
+        color: var(--dig-text-muted);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.18s ease;
+      }
+
+      .catalog-btn.active {
+        background: var(--dig-accent);
+        color: var(--dig-bg);
+        border-color: transparent;
+      }
+
+      .catalog-btn:focus-visible {
+        outline: 2px solid var(--dig-accent);
+        outline-offset: 2px;
+      }
+
+      .viewport-section {
+        margin-bottom: 40px;
+      }
+
+      .viewport-label {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-family: var(--dig-font-mono, monospace);
+        font-size: 12px;
+        color: var(--dig-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .viewport-label span {
+        font-size: 11px;
+        color: var(--dig-text-soft);
+        text-transform: none;
+        letter-spacing: 0;
+      }
+
+      .viewport-preview {
+        border: 1px solid var(--dig-border);
+        border-radius: var(--dig-radius-md, 16px);
+        background: var(--dig-surface-strong);
+        overflow-x: auto;
+        overflow-y: hidden;
+        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0,0,0,0.12));
+      }
+
+      .viewport-frame {
+        margin: 0 auto;
+        background: var(--dig-bg);
+        overflow-x: auto;
+        overflow-y: hidden;
+        container-type: inline-size;
+        container-name: layout-viewport;
+        flex-shrink: 0;
+      }
+
+      .viewport-desktop .viewport-frame { width: 1440px; }
+      .viewport-tablet .viewport-frame { width: 900px; }
+      .viewport-mobile .viewport-frame { width: 390px; }
+
+      .layout-render-notes {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid var(--dig-border);
+      }
+
+      .notes-card {
+        padding: 20px;
+        border: 1px solid var(--dig-border);
+        border-radius: var(--dig-radius-md, 16px);
+        background: var(--dig-surface);
+      }
+
+      .notes-card h3 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .notes-card ul {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        color: var(--dig-text-muted);
+        line-height: 1.55;
+      }
+
+      .slots-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .slots-list li {
+        margin-bottom: 8px;
+        color: var(--dig-text-muted);
+      }
+
+      .slot-badge {
+        font-size: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 4px;
+        font-family: var(--dig-font-mono, monospace);
+      }
+
+      .slot-required { background: color-mix(in srgb, var(--dig-accent) 25%, transparent); color: var(--dig-text); }
+      .slot-optional { background: var(--dig-surface-elevated); color: var(--dig-text-soft); }
+      .slot-role { color: var(--dig-text-soft); font-size: 11px; }
+
+      .catalog-rec-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .catalog-rec-chip {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--dig-border);
+        font-size: 12px;
+        font-family: var(--dig-font-mono, monospace);
+        color: var(--dig-text-muted);
+        background: var(--dig-surface-elevated);
+      }
+
+      .back-link {
+        display: inline-block;
+        margin-bottom: 16px;
+        font-size: 13px;
+        color: var(--dig-accent-2, var(--dig-accent));
+        text-decoration: none;
+      }
+
+      .back-link:hover { text-decoration: underline; }
+
+      /* Per-layout preview CSS from markdown */
+.layout-onboarding-wizard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--dig-space-6);
+  padding: var(--dig-space-7) var(--dig-space-4);
+  min-height: 360px;
+}
+
+.dig-wizard-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--dig-space-2);
+}
+
+.dig-wizard-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--dig-border-strong);
+}
+
+.dig-wizard-dot-active {
+  background: var(--dig-accent);
+  width: 24px;
+  border-radius: 999px;
+}
+
+.dig-wizard-body {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--dig-space-5);
+}
+
+.dig-wizard-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--dig-space-4);
+}
+
+.dig-wizard-actions {
+  display: flex;
+  gap: var(--dig-space-3);
+  justify-content: space-between;
+}
+
+@container layout-viewport (max-width: 480px) {
+  .dig-wizard-actions {
+    flex-direction: column-reverse;
+  }
+
+  .dig-wizard-actions .dig-button-primary,
+  .dig-wizard-actions .dig-button-secondary {
+    width: 100%;
+  }
+}
+    </style>
+  </head>
+  <body>
+    <main class="layout-render-shell">
+      <a class="back-link" href="./index.html">← Layout index</a>
+      <header class="layout-render-header">
+        <span class="eyebrow">Layout / Dig UI</span>
+        <h1>Onboarding Wizard <span style="font-weight:500;color:var(--dig-text-muted);font-size:0.65em;">引导向导</span></h1>
+        <p class="desc" data-zh="分步 onboarding 向导，进度指示 + 单步表单 + 前后导航。" data-en="Step-by-step onboarding with progress, single-step form, and prev/next navigation.">分步 onboarding 向导，进度指示 + 单步表单 + 前后导航。</p>
+        <div class="layout-meta-row">
+          <span class="meta-chip">slug: onboarding-wizard</span>
+          <span class="meta-chip">type: settings</span>
+          <span class="meta-chip">status: draft</span>
+        </div>
+        <div class="catalog-switcher">
+          <span class="catalog-switcher-label">Catalog</span>
+          <button type="button" class="catalog-btn" data-catalog="dig">Dig</button>
+<button type="button" class="catalog-btn" data-catalog="mono">Mono</button>
+<button type="button" class="catalog-btn" data-catalog="editorial">Editorial</button>
+<button type="button" class="catalog-btn active" data-catalog="wise">Wise</button>
+<button type="button" class="catalog-btn" data-catalog="apple">Apple</button>
+        </div>
+      </header>
+
+      <section class="viewport-section viewport-desktop">
+        <div class="viewport-label">Desktop <span>1440px</span></div>
+        <div class="viewport-preview viewport-desktop">
+          <div class="viewport-frame">
+            <section class="layout-preview layout-onboarding-wizard" data-layout="onboarding-wizard">
+  <nav class="dig-wizard-progress" data-slot="progress" aria-label="Progress">
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-meta">Step 2 of 4</span>
+  </nav>
+  <div class="dig-wizard-body">
+    <header data-slot="step_header">
+      <h1 class="dig-panel-title">Connect your repository</h1>
+      <p class="dig-body">Link GitHub or GitLab to deploy from your existing codebase.</p>
+    </header>
+    <div class="dig-wizard-content" data-slot="step_content">
+      <div class="dig-form-field">
+        <label class="dig-label" for="repo">Repository URL</label>
+        <input class="dig-input" id="repo" type="url" placeholder="https://github.com/org/repo" />
+      </div>
+      <button class="dig-button-secondary" style="width:100%;">Browse repositories</button>
+    </div>
+    <footer class="dig-wizard-actions" data-slot="step_actions">
+      <button class="dig-button-secondary">Back</button>
+      <button class="dig-button-primary">Continue</button>
+    </footer>
+  </div>
+</section>
+          </div>
+        </div>
+      </section>
+
+      <section class="viewport-section viewport-tablet">
+        <div class="viewport-label">Tablet <span>900px</span></div>
+        <div class="viewport-preview viewport-tablet">
+          <div class="viewport-frame">
+            <section class="layout-preview layout-onboarding-wizard" data-layout="onboarding-wizard">
+  <nav class="dig-wizard-progress" data-slot="progress" aria-label="Progress">
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-meta">Step 2 of 4</span>
+  </nav>
+  <div class="dig-wizard-body">
+    <header data-slot="step_header">
+      <h1 class="dig-panel-title">Connect your repository</h1>
+      <p class="dig-body">Link GitHub or GitLab to deploy from your existing codebase.</p>
+    </header>
+    <div class="dig-wizard-content" data-slot="step_content">
+      <div class="dig-form-field">
+        <label class="dig-label" for="repo">Repository URL</label>
+        <input class="dig-input" id="repo" type="url" placeholder="https://github.com/org/repo" />
+      </div>
+      <button class="dig-button-secondary" style="width:100%;">Browse repositories</button>
+    </div>
+    <footer class="dig-wizard-actions" data-slot="step_actions">
+      <button class="dig-button-secondary">Back</button>
+      <button class="dig-button-primary">Continue</button>
+    </footer>
+  </div>
+</section>
+          </div>
+        </div>
+      </section>
+
+      <section class="viewport-section viewport-mobile">
+        <div class="viewport-label">Mobile <span>390px</span></div>
+        <div class="viewport-preview viewport-mobile">
+          <div class="viewport-frame">
+            <section class="layout-preview layout-onboarding-wizard" data-layout="onboarding-wizard">
+  <nav class="dig-wizard-progress" data-slot="progress" aria-label="Progress">
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot dig-wizard-dot-active"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-wizard-dot"></span>
+    <span class="dig-meta">Step 2 of 4</span>
+  </nav>
+  <div class="dig-wizard-body">
+    <header data-slot="step_header">
+      <h1 class="dig-panel-title">Connect your repository</h1>
+      <p class="dig-body">Link GitHub or GitLab to deploy from your existing codebase.</p>
+    </header>
+    <div class="dig-wizard-content" data-slot="step_content">
+      <div class="dig-form-field">
+        <label class="dig-label" for="repo">Repository URL</label>
+        <input class="dig-input" id="repo" type="url" placeholder="https://github.com/org/repo" />
+      </div>
+      <button class="dig-button-secondary" style="width:100%;">Browse repositories</button>
+    </div>
+    <footer class="dig-wizard-actions" data-slot="step_actions">
+      <button class="dig-button-secondary">Back</button>
+      <button class="dig-button-primary">Continue</button>
+    </footer>
+  </div>
+</section>
+          </div>
+        </div>
+      </section>
+
+      <aside class="layout-render-notes">
+        <div class="notes-card">
+          <h3>Recommended Catalogs</h3>
+          <div class="catalog-rec-row"><span class="catalog-rec-chip">Wise</span><span class="catalog-rec-chip">Apple</span><span class="catalog-rec-chip">Dig</span></div>
+        </div>
+        <div class="notes-card">
+          <h3>Applicable Scenarios</h3>
+          <ul class="rules-list"><li>新用户首次配置 workspace</li><li>连接集成、选 plan、邀请团队的引导流</li><li>3-5 步 wizard，每步单一决策</li></ul>
+        </div>
+        <div class="notes-card">
+          <h3>Avoid When</h3>
+          <ul class="rules-list"><li>单页可完成的简单设置（用 settings-form）</li><li>无顺序的多 tab 配置</li><li>营销向 storytelling（用 marketing-hero）</li></ul>
+        </div>
+        <div class="notes-card">
+          <h3>Slots</h3>
+          <ul class="slots-list"><li><strong>progress</strong> <span class="slot-badge slot-required">required</span> <span class="slot-role">navigation</span> — 步骤进度条或 step indicator。</li><li><strong>step_header</strong> <span class="slot-badge slot-required">required</span> <span class="slot-role">main</span> — 当前步骤标题与说明。</li><li><strong>step_content</strong> <span class="slot-badge slot-required">required</span> <span class="slot-role">main</span> — 当前步骤表单或选择区。</li><li><strong>step_actions</strong> <span class="slot-badge slot-required">required</span> <span class="slot-role">control</span> — Back / Continue / Skip。</li></ul>
+        </div>
+        <div class="notes-card">
+          <h3>Layout Rules</h3>
+          <ul class="rules-list"><li>一次只展示一个 step，不并排多步。</li><li>progress 始终在顶部，当前步高亮。</li><li>Continue 是主 CTA，Back 是 secondary；Skip 仅可选步骤显示。</li><li>step_content 最大宽度约 480px，居中。</li><li>不在每步外包大 card 套小 card。</li></ul>
+        </div>
+        <div class="notes-card">
+          <h3>Responsive Rules</h3>
+          <ul class="rules-list"><li>全 viewport 单列居中。</li><li>Mobile：progress 简化为 dots；CTA 全宽 stack。</li></ul>
+        </div>
+        <div class="notes-card">
+          <h3>QA Notes</h3>
+          <ul class="rules-list"><li>当前步骤是否明确。</li><li>Continue 是否足够突出。</li><li>移动端 progress 是否仍可读。</li><li>wise catalog 下是否像 app onboarding。</li></ul>
+        </div>
+      </aside>
+    </main>
+    <script>
+      (function () {
+        const root = document.documentElement;
+        const saved = localStorage.getItem('dig-layout-catalog');
+        if (saved && document.querySelector('[data-catalog="' + saved + '"]')) {
+          root.dataset.catalog = saved;
+        }
+        document.querySelectorAll('.catalog-btn').forEach(function (btn) {
+          btn.classList.toggle('active', btn.dataset.catalog === root.dataset.catalog);
+          btn.addEventListener('click', function () {
+            root.dataset.catalog = btn.dataset.catalog;
+            localStorage.setItem('dig-layout-catalog', btn.dataset.catalog);
+            document.querySelectorAll('.catalog-btn').forEach(function (b) {
+              b.classList.toggle('active', b.dataset.catalog === root.dataset.catalog);
+            });
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

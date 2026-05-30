@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "build:loader": "esbuild assets/dig-3d-loader-entry.js --bundle --format=iife --global-name=Dig3DLoader --outfile=assets/dig-3d-loader.bundle.js",
+    "check:react-loader": "esbuild react/Dig3DLogoLoader.jsx --bundle --format=esm --external:react --external:three --outfile=/private/tmp/dig3d-react-check.js",
+    "sync:layouts": "./sync-renders.sh --layouts",
+    "validate:layouts": "node validate-dig-layout-preview.mjs renders/layouts"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "dependencies": {
+    "esbuild": "^0.21.5",
+    "three": "^0.164.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

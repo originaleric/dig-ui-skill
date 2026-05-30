@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Apple Render</title>
+    <link rel="stylesheet" href="../../assets/catalog-preview.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --dig-bg: #f5f5f7;
+        --dig-bg-soft: #ffffff;
+        --dig-surface: rgba(255, 255, 255, 0.72);
+        --dig-surface-strong: rgba(255, 255, 255, 0.9);
+        --dig-surface-elevated: rgba(255, 255, 255, 0.96);
+        --dig-text: #1d1d1f;
+        --dig-text-muted: #6e6e73;
+        --dig-text-soft: #86868b;
+        --dig-accent: #0071e3;
+        --dig-accent-strong: #005bbf;
+        --dig-accent-2: #7d7aff;
+        --dig-accent-2-strong: #5e5ce6;
+        --dig-border: rgba(29, 29, 31, 0.12);
+        --dig-border-strong: rgba(29, 29, 31, 0.2);
+        --dig-grid-line: rgba(29, 29, 31, 0.045);
+        --dig-success: #34c759;
+        --dig-warning: #ff9f0a;
+        --dig-danger: #ff3b30;
+        --dig-info: #007aff;
+        --dig-font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+        --dig-font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Noto Sans SC", "Helvetica Neue", Arial, sans-serif;
+        --dig-font-mono: "SFMono-Regular", "SF Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+        --dig-font-serif: "New York", "Noto Serif SC", Georgia, serif;
+        --dig-text-xs: 12px;
+        --dig-text-sm: 14px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 19px;
+        --dig-text-xl: 22px;
+        --dig-text-2xl: 28px;
+        --dig-text-3xl: 40px;
+        --dig-text-4xl: 56px;
+        --dig-text-5xl: 76px;
+        --dig-leading-tight: 1.02;
+        --dig-leading-snug: 1.12;
+        --dig-leading-normal: 1.48;
+        --dig-leading-relaxed: 1.64;
+        --dig-tracking-tight: 0;
+        --dig-tracking-normal: 0;
+        --dig-tracking-wide: 0.04em;
+        --dig-space-1: 4px;
+        --dig-space-2: 8px;
+        --dig-space-3: 12px;
+        --dig-space-4: 16px;
+        --dig-space-5: 24px;
+        --dig-space-6: 36px;
+        --dig-space-7: 56px;
+        --dig-space-8: 88px;
+        --dig-radius-sm: 10px;
+        --dig-radius-md: 18px;
+        --dig-radius-lg: 28px;
+        --dig-radius-xl: 40px;
+        --dig-radius-pill: 999px;
+        --dig-stroke-thin: 1px;
+        --dig-stroke-strong: 1.5px;
+        --dig-shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.08);
+        --dig-shadow-panel: 0 24px 70px rgba(0, 0, 0, 0.12);
+        --dig-shadow-float: 0 18px 48px rgba(0, 0, 0, 0.16);
+        --dig-glow-accent: 0 0 0 1px rgba(0, 113, 227, 0.2), 0 16px 42px rgba(0, 113, 227, 0.18);
+        --dig-glow-secondary: 0 0 0 1px rgba(125, 122, 255, 0.16), 0 18px 48px rgba(125, 122, 255, 0.16);
+        --dig-glass-blur: 24px;
+        --dig-shell-max: 1240px;
+        --dig-grid-columns: 12;
+        --dig-grid-gutter: 24px;
+        --dig-grid-gutter-mobile: 16px;
+        --dig-grid-cell-min: 72px;
+    }
+
+      body {
+        background:
+          linear-gradient(180deg, #ffffff 0%, var(--dig-bg) 38%, #eef2f8 100%);
+      }
+
+      body::before {
+        background:
+          linear-gradient(var(--dig-grid-line) 1px, transparent 1px),
+          linear-gradient(90deg, var(--dig-grid-line) 1px, transparent 1px);
+        background-size: 44px 44px;
+        opacity: 0.52;
+      }
+
+      .surface {
+        backdrop-filter: blur(24px) saturate(1.4);
+      }
+
+      .hero h1,
+      .type-hero,
+      .type-section,
+      .section-head h3,
+      .value {
+        font-family: var(--dig-font-display);
+        letter-spacing: 0;
+      }
+
+      .hero h1 {
+        line-height: 1.02;
+      }
+
+      .apple-stage {
+        min-height: 100%;
+        overflow: hidden;
+        border-radius: 40px;
+        background:
+          radial-gradient(circle at 50% 0%, rgba(125, 122, 255, 0.24), transparent 18rem),
+          linear-gradient(180deg, #fbfbfd, #e9edf5);
+      }
+
+      .device-frame {
+        position: relative;
+        min-height: 240px;
+        border: 1px solid rgba(29, 29, 31, 0.12);
+        border-radius: 34px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.56)),
+          linear-gradient(135deg, rgba(0, 113, 227, 0.14), rgba(125, 122, 255, 0.12));
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.16);
+      }
+
+      .device-frame::before {
+        position: absolute;
+        inset: 18px;
+        border: 1px solid rgba(29, 29, 31, 0.1);
+        border-radius: 24px;
+        background:
+          linear-gradient(90deg, rgba(29, 29, 31, 0.05) 1px, transparent 1px),
+          linear-gradient(rgba(29, 29, 31, 0.05) 1px, transparent 1px);
+        background-size: 28px 28px;
+        content: "";
+      }
+
+      .device-copy {
+        position: absolute;
+        right: 28px;
+        bottom: 26px;
+        left: 28px;
+      }
+
+      .device-copy strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 22px;
+      }
+
+      .device-copy span {
+        color: var(--dig-text-muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .btn-primary {
+        background: var(--dig-accent);
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background: var(--dig-accent-strong);
+      }
+
+      .btn-secondary {
+        color: var(--dig-accent);
+      }
+
+      .chip {
+        background: rgba(255, 255, 255, 0.58);
+        font-family: var(--dig-font-sans);
+        letter-spacing: 0;
+        text-transform: none;
+      }
+
+      .dark-theater {
+        background:
+          radial-gradient(circle at 70% 0%, rgba(125, 122, 255, 0.2), transparent 20rem),
+          #09090b;
+        color: #f5f5f7;
+      }
+
+      .dark-theater p,
+      .dark-theater .status {
+        color: rgba(245, 245, 247, 0.68);
+      }
+    
+      /* Floating Language Switcher */
+      .lang-switch-capsule {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
+        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 8px;
+        border-radius: 99px;
+        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
+        z-index: 9999;
+      }
+      .lang-btn {
+        background: transparent;
+        border: none;
+        color: var(--dig-text-soft, #62798c);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 99px;
+        transition: all 0.2s ease;
+        font-family: var(--dig-font-sans), sans-serif;
+      }
+      .lang-btn.active {
+        background: var(--dig-accent, #37d67a);
+        color: var(--dig-bg, #06121a);
+      }
+      .lang-btn:hover:not(.active) {
+        color: var(--dig-text, #ecf3f8);
+      }
+      .lang-split {
+        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
+        font-size: 12px;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating Language Switcher Capsule -->
+    <div class="lang-switch-capsule">
+      <button class="lang-btn" data-lang="zh">中</button>
+      <span class="lang-split">/</span>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <main class="preview-shell">
+      <section class="hero">
+        <div class="surface hero-main">
+          <span class="eyebrow"><span class="brand-name-label">Apple</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1">Apple</h1>
+          <p class="brand-description-p" data-zh="标准 Apple 设计系统目录，具有专门的组件和版式架构。" data-en="Standard Apple design system catalog featuring specialized components and typography schemas.">标准 Apple 设计系统目录，具有专门的组件和版式架构。</p>
+        </div>
+        <aside class="surface surface-strong hero-side apple-stage">
+          <div class="device-frame">
+            <div class="device-copy">
+              <strong>Dig App Preview</strong>
+              <span>Glass panels, system controls, real product states.</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#type" data-zh="字体层级" data-en="Typography">字体层级</a>
+            <a href="#buttons" data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</a>
+            <a href="#panels" data-zh="面板与状态" data-en="Panels & Status">面板与状态</a>
+            <a href="#tokens" data-zh="关键 token" data-en="Key Tokens">关键 token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p>浅灰底、白色内容区、系统蓝强调和轻紫辅助光泽</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:#f5f5f7"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono">#F5F5F7</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:#ffffff"></div><div class="swatch-meta"><strong>Background Soft</strong><div class="meta-small mono">#FFFFFF</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:#0071e3"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono">#0071E3</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:#7d7aff"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono">#7D7AFF</div></div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="type">
+            <div class="section-head">
+              <h3 data-zh="字体层级" data-en="Typography Hierarchy">字体层级</h3>
+              <p>system font、无负字距，靠尺寸和留白建立高级感</p>
+            </div>
+            <div class="type-grid">
+              <article class="type-card">
+                <strong>Hero Display</strong>
+                <div class="type-showcase type-hero">Built for what is next.</div>
+                <div class="meta-small mono">76px / 1.02 / 700 / 0</div>
+              </article>
+              <article class="type-card">
+                <strong>Section Title</strong>
+                <div class="type-showcase type-section">把复杂能力放进熟悉界面</div>
+                <div class="meta-small mono">40px / 1.1 / 700 / 0</div>
+              </article>
+              <article class="type-card">
+                <strong>Panel Title</strong>
+                <div class="type-showcase type-panel">Liquid Glass panel</div>
+                <div class="meta-small mono">22px / 1.22 / 650 / 0</div>
+              </article>
+              <article class="type-card">
+                <strong>Body + Meta</strong>
+                <div class="type-showcase type-body">产品状态、功能说明和下一步动作应该像系统 UI 一样清楚、安静、可靠。</div>
+                <div class="type-meta">Version / Device / Capability / State</div>
+              </article>
+            </div>
+          </section>
+
+          <section class="surface section" id="buttons">
+            <div class="section-head">
+              <h3 data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</h3>
+              <p>系统蓝胶囊、透明次按钮、小型能力标签</p>
+            </div>
+            <div class="button-grid">
+              <article class="button-card"><strong data-zh="主动作" data-en="Primary">Primary</strong><button class="btn btn-primary">立即开始</button></article>
+              <article class="button-card"><strong data-zh="次要动作" data-en="Secondary">Secondary</strong><button class="btn btn-secondary">查看演示</button></article>
+              <article class="button-card"><strong data-zh="幽灵按钮" data-en="Ghost">Ghost</strong><button class="btn btn-ghost">了解更多</button></article>
+            </div>
+            <div class="chip-row">
+              <span class="chip">Liquid Glass</span>
+              <span class="chip">System Native</span>
+              <span class="chip">App Preview</span>
+              <span class="chip">Product Theater</span>
+            </div>
+          </section>
+
+          <section class="surface section" id="panels">
+            <div class="section-head">
+              <h3 data-zh="面板与状态" data-en="Panels & Statuses">面板与状态</h3>
+              <p>glass panel 负责轻量控制，深色舞台负责沉浸式产品展示</p>
+            </div>
+            <div class="panel-grid">
+              <article class="panel-card">
+                <div class="panel-top"><strong>Glass control</strong><span class="status">READY</span></div>
+                <p>半透明面板用于导航、设置、功能列表和状态确认。blur 是材质，不是装饰。</p>
+              </article>
+              <article class="panel-card dark-theater">
+                <div class="panel-top"><strong>Product theater</strong><span class="status">LIVE</span></div>
+                <p>深色舞台只用于重点 reveal，必须让产品视觉、状态数据和 CTA 成为第一焦点。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="surface section">
+            <div class="section-head">
+              <h3 data-zh="数字表达" data-en="Numeric Focus">数字表达</h3>
+              <p>用安静的大数字表达性能、状态和覆盖范围</p>
+            </div>
+            <div class="stat-grid">
+              <article class="stat-card"><strong>Latency</strong><div class="value">12ms</div><div class="note">实时反馈</div></article>
+              <article class="stat-card"><strong>Uptime</strong><div class="value">99.9</div><div class="note">稳定运行</div></article>
+              <article class="stat-card"><strong>Devices</strong><div class="value">5</div><div class="note">多端协同</div></article>
+              <article class="stat-card"><strong>Build</strong><div class="value">26</div><div class="note">版本清晰</div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档" data-en="This section serves as a direct reference for your catalog document definitions">这部分方便你对照 HTML 直接回写 catalog 文档</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <strong data-zh="颜色" data-en="Color Tokens">颜色</strong>
+                <table class="token-table">
+                  <tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr>
+                  <tr><td class="mono">--dig-bg</td><td class="mono">#f5f5f7</td></tr>
+                  <tr><td class="mono">--dig-accent</td><td class="mono">#0071e3</td></tr>
+                  <tr><td class="mono">--dig-accent-2</td><td class="mono">#7d7aff</td></tr>
+                  <tr><td class="mono">--dig-border</td><td class="mono">rgba(29,29,31,0.12)</td></tr>
+                </table>
+              </article>
+              <article class="table-card">
+                <strong data-zh="排版与组件 (YAML)" data-en="Typography & Components (YAML)">排版与组件 (YAML)</strong>
+                <p style="font-size: 13px; opacity: 0.8; margin-top: 8px; margin-bottom: 0;" data-zh="已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。" data-en="Upgraded to strict YAML mapping syntax (see catalog markdown), controlling components via `{typography.xxx}` directly.">已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。</p>
+                <pre style="background: rgba(0,0,0,0.05); border: 1px solid var(--dig-border); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; opacity: 0.8; font-family: var(--dig-font-mono); overflow-x: auto; margin-bottom: 0;">typography:
+  hero-title:
+    fontSize: var(...)
+components:
+  button-primary:
+    padding: 12px 24px</pre>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  
+    <script>
+
+      // Interactive Language Switcher Controller
+      function setLanguage(lang) {
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        
+        // Toggle active classes on switcher buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+        
+        // Translate all data-zh/data-en text nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+
+      // Initialise state
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+
+        // Dynamic Token Visualizer
+        const rootStyles = getComputedStyle(document.documentElement);
+        document.querySelectorAll('.token-val').forEach(el => {
+          const tokenName = el.getAttribute('data-token');
+          if (tokenName) {
+            let value = rootStyles.getPropertyValue(tokenName).trim();
+            if (value) {
+              if (value.startsWith('#')) {
+                value = value.toUpperCase();
+              }
+              el.textContent = value;
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+
+</html>

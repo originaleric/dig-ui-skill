@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Design System Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #070a13;
+        --bg-soft: #0e1326;
+        --panel: rgba(17, 22, 43, 0.72);
+        --panel-hover: rgba(25, 32, 61, 0.85);
+        --text: #f3f5f9;
+        --muted: #8fa0b5;
+        --accent: #37d67a;
+        --accent-glow: rgba(55, 214, 122, 0.15);
+        --border: rgba(143, 161, 185, 0.12);
+        --border-hover: rgba(143, 161, 185, 0.24);
+      }
+      * {
+        box-sizing: border-box;
+        transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: 
+          radial-gradient(circle at 10% 10%, rgba(55, 214, 122, 0.15), transparent 30rem),
+          radial-gradient(circle at 90% 15%, rgba(79, 179, 255, 0.12), transparent 35rem),
+          radial-gradient(circle at 50% 80%, rgba(204, 120, 92, 0.08), transparent 35rem),
+          var(--bg);
+        color: var(--text);
+        overflow-x: hidden;
+      }
+      .shell {
+        width: min(1320px, calc(100% - 48px));
+        margin: 0 auto;
+        padding: 56px 0 80px;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 48px;
+      }
+      .logo-area {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .logo-circle {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #37d67a, #2697eb);
+        box-shadow: 0 8px 24px rgba(55, 214, 122, 0.3);
+      }
+      .logo-text {
+        font-family: "Outfit", sans-serif;
+        font-size: 26px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        background: linear-gradient(135deg, #ffffff, var(--muted));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      h1 {
+        font-family: "Outfit", sans-serif;
+        font-size: 54px;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        margin: 0 0 12px;
+        background: linear-gradient(135deg, #ffffff, #8fa0b5);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      header p {
+        color: var(--muted);
+        font-size: 18px;
+        max-width: 640px;
+        margin: 0 auto 32px;
+        line-height: 1.6;
+      }
+
+      .layout-hub-banner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin: 0 auto 32px;
+        max-width: 720px;
+        padding: 18px 22px;
+        border-radius: 18px;
+        border: 1px solid rgba(79, 179, 255, 0.28);
+        background: linear-gradient(135deg, rgba(79, 179, 255, 0.12), rgba(55, 214, 122, 0.08));
+        text-align: left;
+      }
+      .layout-hub-banner strong {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+      .layout-hub-banner span {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+      .layout-hub-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 18px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .layout-hub-link:hover {
+        border-color: rgba(79, 179, 255, 0.5);
+        background: rgba(79, 179, 255, 0.12);
+      }
+      
+      /* Search and Filter Area */
+      .control-panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 20px 24px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .search-box {
+        position: relative;
+        width: 100%;
+      }
+      .search-box input {
+        width: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px 20px 14px 48px;
+        font-size: 16px;
+        color: var(--text);
+        outline: none;
+      }
+      .search-box input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-glow);
+        background: rgba(0, 0, 0, 0.3);
+      }
+      .search-box svg {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        pointer-events: none;
+      }
+      
+      /* Category Navigation */
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .tab {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        border-radius: 99px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        cursor: pointer;
+        user-select: none;
+      }
+      .tab:hover {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        border-color: var(--border-hover);
+      }
+      .tab.active {
+        background: var(--accent);
+        color: #070a13;
+        border-color: var(--accent);
+        box-shadow: 0 8px 20px var(--accent-glow);
+      }
+      
+      /* Dynamic Grid System */
+      .category-section {
+        margin-bottom: 56px;
+      }
+      .category-title {
+        font-family: "Outfit", sans-serif;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .category-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg, var(--border), transparent);
+      }
+      .category-count {
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        padding: 4px 10px;
+        border-radius: 99px;
+        border: 1px solid var(--border);
+      }
+      
+      .brand-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 20px;
+      }
+      
+      /* Premium Brand Cards */
+      .brand-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 24px;
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+      }
+      .brand-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: var(--accent-color, var(--accent));
+        opacity: 0.8;
+      }
+      .brand-card:hover {
+        background: var(--panel-hover);
+        border-color: var(--border-hover);
+        transform: translateY(-5px);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4), 0 0 24px rgba(var(--accent-rgb), 0.08);
+      }
+      
+      .brand-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .brand-name {
+        font-family: "Outfit", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .brand-accent-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent-color, var(--accent));
+        box-shadow: 0 0 12px var(--accent-color, var(--accent));
+      }
+      
+      .brand-keywords {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 20px 0;
+      }
+      .keyword-badge {
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        padding: 4px 8px;
+        border-radius: 6px;
+        text-transform: capitalize;
+      }
+      
+      .brand-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+      }
+      .open-btn {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-color, var(--accent));
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .brand-card:hover .open-btn {
+        gap: 10px;
+      }
+      .brand-card:hover .open-btn svg {
+        transform: translateX(4px);
+      }
+      
+      .empty-state {
+        text-align: center;
+        padding: 80px 0;
+        color: var(--muted);
+        display: none;
+      }
+      
+      /* Responsive */
+      @media (max-width: 1200px) {
+        .brand-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+      @media (max-width: 860px) {
+        .brand-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        h1 { font-size: 40px; }
+      }
+      @media (max-width: 580px) {
+        .brand-grid { grid-template-columns: 1fr; }
+        .control-panel { padding: 16px; }
+      }
+      
+      /* Floating Language Switcher Capsule */
+      .lang-switch-capsule {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(17, 22, 43, 0.85);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 8px;
+        border-radius: 99px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
+        z-index: 9999;
+      }
+      .lang-btn {
+        background: transparent;
+        border: none;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 99px;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      .lang-btn.active {
+        background: var(--accent);
+        color: #070a13;
+      }
+      .lang-btn:hover:not(.active) {
+        color: var(--text);
+      }
+      .lang-split {
+        color: var(--border);
+        font-size: 12px;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating Language Switcher Capsule -->
+    <div class="lang-switch-capsule">
+      <button class="lang-btn" data-lang="zh">中</button>
+      <span class="lang-split">/</span>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+
+    <main class="shell">
+      <header>
+        <div class="logo-area">
+          <div class="logo-circle"></div>
+          <span class="logo-text">Dig UI Skill</span>
+        </div>
+        <h1 data-zh="设计系统可视化手册" data-en="Design System Handbook">设计系统可视化手册</h1>
+        <p data-zh="这里汇集了全量导入的 71 套顶级品牌设计系统。每套风格都已严格编译为标准的 CSS Tokens，并提供高可用的交互式 HTML 渲染预览。" data-en="A curated collection of 71 premium design systems. Each system is compiled into standard CSS Tokens with live, highly interactive HTML preview pages.">这里汇集了全量导入的 71 套顶级品牌设计系统。每套风格都已严格编译为标准的 CSS Tokens，并提供高可用的交互式 HTML 渲染预览。</p>
+      </header>
+
+      <div class="layout-hub-banner">
+        <div>
+          <strong data-zh="Layout 结构手册（20 recipes）" data-en="Layout Recipes (20)">Layout 结构手册（20 recipes）</strong>
+          <span data-zh="与 Catalog 平级的信息架构资产：slot、响应式、三 viewport 预览与 catalog 切换。" data-en="Structure assets parallel to catalogs: slots, responsive rules, tri-viewport previews, and catalog switching.">与 Catalog 平级的信息架构资产：slot、响应式、三 viewport 预览与 catalog 切换。</span>
+        </div>
+        <a class="layout-hub-link" href="./layouts/index.html" data-zh="打开 Layout Index →" data-en="Open Layout Index →">打开 Layout Index →</a>
+      </div>
+      
+      <div class="control-panel">
+        <div class="search-box">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="brand-search" placeholder="在 71 套顶级品牌设计系统中搜索（例如 Vercel, Stripe, Claude...）" />
+        </div>
+        
+        <div class="tabs" id="cat-tabs">
+          <div class="tab active" data-cat="all">全部模版 (71)</div>
+        </div>
+      </div>
+      
+      <div id="brands-container">
+        <!-- Dynamic categories and brands will be injected here -->
+      </div>
+      
+      <div class="empty-state" id="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.6;"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <div style="font-size: 18px; font-weight: 600;">未找到符合过滤条件的设计系统</div>
+        <div style="font-size: 14px; margin-top: 6px;">请尝试输入其它搜索词，或切换不同的分类标签。</div>
+      </div>
+    </main>
+    
+    <script>
+      const catalogData = {"ai-llm": {"name": "AI & LLM Platforms", "brands": [{"slug": "ollama", "name": "Ollama", "name_zh": "Ollama", "name_en": "Ollama", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["一个几乎毫无疑问的最小文档优先系统，将主页视为 Markdown 自述文件 - 纸白色画布，36px 中心对齐标题，单个黑色药丸 CTA，内联终端安装片段，以及手绘的美洲驼吉祥物作为唯一的装饰元素。没有渐变，没有英雄摄影，没有营销烟火。镀铬是一个由纯黑色、纯白色和三种中性灰色组成的小型实用调色板；每个交互元素都完全舍入为一个药丸（“{rounded.full}”）；标题的排版为 SF Pro Rounded，正文为 system sans，代码为 ui-monospace。定价等级、常见问题解答和“您的数据归您所有”保证所有内容都位于薄边框卡内的同一平面画布上 - 系统就是文档，文档就是系统。"], "keywords_en": ["An almost defiantly minimal documentation-first system that treats the home page like a Markdown README — paper-white canvas, 36px center-aligned heading, a single black pill CTA, an inline terminal install snippet, and a hand-drawn llama mascot as the only ornamental element.", "No gradient, no hero photography, no marketing pyrotechnics.", "The chrome is a tiny utility palette of pure black, pure white, and three neutral grays; every interactive element is fully rounded into a pill (`{rounded.full}`); typography is SF Pro Rounded for headings paired with system sans for body and ui-monospace for code.", "Pricing tiers, FAQs, and \"your data stays yours\" guarantees all sit on the same flat canvas inside thin-border cards — the system is the documentation, and the documentation is the system."], "link": "./ai-llm/ollama.html"}, {"slug": "together.ai", "name": "Together AI Inspired", "name_zh": "Together AI Inspired", "name_en": "Together AI Inspired", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["对Together AI设计语言的灵感诠释——一个人工智能基础设施平台，其表面在近乎黑色的英雄带（具有橙色-洋红色-长春花三色渐变作为单块品牌镀铬）和亮白色的研究/定价/文档带之间交替，通过定制的显示无衬线和大写的单色眉面编织在一起。"], "keywords_en": ["An inspired interpretation of Together AI's design language — an AI infrastructure platform whose surface alternates between near-black hero bands (with a three-color orange-magenta-periwinkle gradient as the single piece of brand chrome) and bright white research / pricing / docs bands, knit together by a custom display sans and an uppercase mono eyebrow face."], "link": "./ai-llm/together.ai.html"}, {"slug": "elevenlabs", "name": "ElevenLabs", "name_zh": "ElevenLabs", "name_en": "ElevenLabs", "accent": "#292524", "bg": "#f5f5f5", "keywords_zh": ["一个语音人工智能品牌，其营销表面读起来就像一本安静的社论印刷杂志。基础画布是灰白色的（“#f5f5f5”）​​，带有温暖的近乎黑色的墨水（“#292524”）；品牌电压是照相的，而不是彩色的——柔和柔和的大气渐变球体（薄荷→桃子→薰衣草→天空）作为唯一的“色彩”时刻飘过页面。", "Display 运行 Waldenburg Light，重量为 300——这是编辑的签名。", "Inter 带有正文、导航和字幕。", "CTA 很微妙：近乎黑色的墨水丸是主要的，透明的轮廓是次要的。该品牌相信大气摄影和适度的字重来完成所有的品牌工作；没有霓虹灯口音，没有饱和的 CTA 颜色，没有开发人员工具深色画布。"], "keywords_en": ["A voice-AI brand whose marketing surfaces read like a quietly editorial print magazine.", "The base canvas is off-white (`#f5f5f5`) holding warm near-black ink (`#292524`); the brand voltage is photographic, not chromatic — soft pastel atmospheric gradient orbs (mint → peach → lavender → sky) drift through the page as the only \"color\" moments.", "Display runs Waldenburg Light at weight 300 — the editorial signature.", "Inter carries body, navigation, captions.", "CTAs are subtle: a near-black ink pill is the primary, a transparent outline is the secondary.", "The brand trusts atmospheric photography and modest type weights to do all of the brand work; there is no neon accent, no saturated CTA color, no developer-tools dark canvas."], "link": "./ai-llm/elevenlabs.html"}, {"slug": "cohere", "name": "Cohere", "name_zh": "Cohere", "name_en": "Cohere", "accent": "#17171c", "bg": "#ffffff", "keywords_zh": ["Cohere 的 2026 Web 系统是一个受控的企业 AI 界面，由纯白色编辑空间、深绿黑色产品带、柔软的矿物表面、圆形媒体卡以及等宽感觉显示标题和精确的 Unica77 UI 文本之间的独特类型分割构建而成。"], "keywords_en": ["Cohere's 2026 web system is a controlled enterprise AI interface built from stark white editorial space, deep green-black product bands, soft mineral surfaces, rounded media cards, and a distinctive type split between monospaced-feeling display headlines and precise Unica77 UI text."], "link": "./ai-llm/cohere.html"}, {"slug": "x.ai", "name": "xAI Inspired", "name_zh": "xAI Inspired", "name_en": "xAI Inspired", "accent": "#ffffff", "bg": "#0a0a0a", "keywords_zh": ["对 xAI 设计语言的灵感诠释——埃隆·马斯克 (Elon Musk) 的前沿人工智能公司，其网络表面是严格的近乎黑色画布，仅由白色药丸轮廓、偶尔温暖的日落/黄昏渐变口音、用于显示的自定义几何 sans (Universal Sans) 和大写跟踪等宽标题面打破；整个系统看起来像是精心设计的宇宙，未上市。"], "keywords_en": ["An inspired interpretation of xAI's design language — Elon Musk's frontier-AI company whose web surface is a strict near-black canvas broken only by white pill outlines, occasional warm sunset / dusk gradient accents, a custom geometric sans (Universal Sans) for display, and an uppercase tracked monospace caption face; the whole system reads as engineered-cosmic, unmarketed."], "link": "./ai-llm/x.ai.html"}, {"slug": "runwayml", "name": "Runwayml", "name_zh": "Runwayml", "name_en": "Runwayml", "accent": "#6b7280", "bg": "#767d88", "keywords_zh": ["标准 Runwayml 设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Runwayml design system catalog featuring specialized components and typography schemas."], "link": "./ai-llm/runwayml.html"}, {"slug": "minimax", "name": "MiniMax", "name_zh": "MiniMax", "name_en": "MiniMax", "accent": "#0a0a0a", "bg": "#ffffff", "keywords_zh": ["MiniMax 通过引人注目的二元性将自己呈现为高端人工智能基础设施品牌——大胆的黑色药丸 CTA 和用于营销的纯白色画布，搭配充满活力的渐变产品卡（橙红、洋红粉红、紫色、蓝色），将每个模型发布变成独特的视觉标识。该系统在所有表面上都使用 DM Sans，采用超大的 80 像素英雄显示屏，将主要动作锚定在深近乎黑色的药丸中，并通过带有侧边栏导航、散文正文和 TOC 的 3 列文档网格来分层内容密度。覆盖范围涵盖营销主页、模型展示页面、开发人员文档和平台定价界面。"], "keywords_en": ["MiniMax presents itself as a premium AI infrastructure brand through a striking duality — bold black-pill CTAs and stark white canvas for marketing, paired with vibrant gradient product cards (orange-red, magenta-pink, purple, blue) that turn each model release into a distinctive visual identity.", "The system uses DM Sans across all surfaces, employs an oversized 80px hero display, anchors major actions in deep near-black pills, and layers content density via a 3-column documentation grid with sidebar nav, prose body, and TOC.", "Coverage spans the marketing homepage, model showcase pages, developer documentation, and platform pricing surfaces."], "link": "./ai-llm/minimax.html"}, {"slug": "opencode.ai", "name": "OpenCode", "name_zh": "OpenCode", "name_en": "OpenCode", "accent": "#201d1d", "bg": "#fdfcfc", "keywords_zh": ["完全用 Berkeley Mono 呈现的终端原生营销系统 - 页面上的每个单词，从英雄标题到页脚细则，都是等宽的。该页面本身读起来就像一个手册页或一个静态站点自述文件：温暖的奶油色画布（`#fdfcfc`），近乎黑色的墨水（`#201d1d`），几个交互元素的 4px 半径矩形，以及用作项目符号的括号内的 `[+]`/`[-]` ASCII 标记。该品牌唯一的“视觉时刻”是一张模拟 OpenCode TUI 本身的黑色英雄卡 — 黑色背景、等宽终端输出、ASCII 管道字符和呈现为块像素 ASCII 的文字标记。每个部分都作为奶油色画布上的细线边框文本块，没有阴影，没有渐变，没有装饰图像，并且系统中任何地方都没有非等宽字符。"], "keywords_en": ["A terminal-native marketing system rendered entirely in Berkeley Mono — every word on the page, from the hero headline down to the footer fine print, is monospaced.", "The page itself reads like a manpage or a static-site README: warm cream canvas (`#fdfcfc`), nearly-black ink (`#201d1d`), 4px-radius rectangles for the few interactive elements, and bracketed `[+]`/`[-]` ASCII markers used as bullets.", "The brand's only \"visual moment\" is a single dark hero card that mocks up the OpenCode TUI itself — black background, monospaced terminal output, ASCII pipe characters, and a wordmark rendered as block-pixel ASCII.", "Every section sits as a hairline-bordered text block on the cream canvas with no shadows, no gradients, no decorative imagery, and no non-monospaced character anywhere in the system."], "link": "./ai-llm/opencode.ai.html"}, {"slug": "mistral.ai", "name": "Mistral AI", "name_zh": "Mistral AI", "name_en": "Mistral AI", "accent": "#fa520f", "bg": "#ffffff", "keywords_zh": ["Mistral AI 品牌拥有一个独特的标志——大气的日落渐变（芥末色、橙色、深红色）层叠在山脉摄影上，加上关闭每一页的水平“日落条纹”栏。该系统将温暖的奶油黄色表面 ({colors.cream}) 与饱和的橙色主 CTA ({colors.primary}) 配对，并使用优雅的近衬线声音进行英雄显示。覆盖范围涵盖主页（Frontier AI 英雄）、Le Studio 产品页面、编码解决方案、新闻文章表面、联系表格和服务层页面 - 所有这些都由标志性渐变结束带锚定。"], "keywords_en": ["Mistral AI brands itself with a singular signature — atmospheric sunset gradients (mustard, orange, deep red) layered over photography of mountains, plus a horizontal \"sunset stripe\" bar that closes every page.", "The system pairs warm cream-yellow surfaces ({colors.cream}) with a saturated orange primary CTA ({colors.primary}) and uses an elegant near-serif voice for hero displays.", "Coverage spans homepage (Frontier AI hero), Le Studio product page, Coding solutions, news article surfaces, contact form, and services tier page — all anchored by the signature gradient closing band."], "link": "./ai-llm/mistral.ai.html"}, {"slug": "voltagent", "name": "Voltagent Inspired", "name_zh": "Voltagent Inspired", "name_en": "Voltagent Inspired", "accent": "#00d992", "bg": "#101010", "keywords_zh": ["对Voltagent设计语言的灵感诠释——一个以开发人员为中心的人工智能代理工程平台，其表面是无情的近乎黑色的画布，仅被一个电绿色品牌口音打破，英雄内部的代码编辑器模型，以及一个精确的黑色功能卡网格，读起来就像一个装扮成营销的文档网站。"], "keywords_en": ["An inspired interpretation of Voltagent's design language — a developer-focused AI agent engineering platform whose surface is an unrelenting near-black canvas broken only by a single electric-green brand accent, code-editor mockups inside the hero, and a precise grid of dark feature cards that read like a documentation site dressed as marketing."], "link": "./ai-llm/voltagent.html"}, {"slug": "claude", "name": "Claude", "name_zh": "Claude", "name_en": "Claude", "accent": "#cc785c", "bg": "#faf9f5", "keywords_zh": ["Anthropic 的 Claude 产品的温暖画布编辑界面。该系统锚定在有色奶油色画布上，带有衬线显示标题、温暖的珊瑚色 CTA 和深海军蓝产品表面（代码编辑器模型、模型展示卡）。品牌电压来自奶油色/珊瑚色的搭配——刻意营造温暖和人文主义氛围，而大多数人工智能品牌则使用冷蓝色+石板色。语音类型为 h1/h2 运行平板衬线显示（“Copernicus”/Tiempos Headline），正文为人文主义无衬线。标志性的 Anthropic 黑色径向尖刺标记锚定了文字标记。"], "keywords_en": ["A warm-canvas editorial interface for Anthropic's Claude product.", "The system anchors on a tinted cream canvas with serif display headlines, warm coral CTAs, and dark navy product surfaces (code editor mockups, model showcase cards).", "Brand voltage comes from the cream/coral pairing — deliberately warm and humanist where most AI brands use cool blue + slate.", "Type voice runs a slab-serif display (\"Copernicus\" / Tiempos Headline) for h1/h2 and a humanist sans for body.", "The signature Anthropic black-radial-spike mark anchors the wordmark."], "link": "./ai-llm/claude.html"}, {"slug": "replicate", "name": "Replicate", "name_zh": "Replicate", "name_en": "Replicate", "accent": "#ea2804", "bg": "#f9f7f3", "keywords_zh": ["Replicate 的营销界面将独立 ML 游乐场的暖奶油色开发工具美学与自信的热橙色品牌口音和尺寸超大（72 像素以上）的标志性显示字体 (rb-freigeist-neue) 相结合。该系统读起来就像“人工智能实验室笔记本与印刷杂志交叉”：奶油色和骨色表面、深色墨水类型、等宽代码井、不规则的手绘感觉图表，以及在最重要的 CTA 上几乎不使用的丰富橙色。贡献者和示例输出的照片是带有中半径角的方形；其他一切都是无国界或发际线的。"], "keywords_en": ["Replicate's marketing surfaces pair the warm-cream developer-tools aesthetic of an indie ML playground with a confident hot-orange brand accent and a signature display typeface (rb-freigeist-neue) sized aggressively large at 72px+.", "The system reads as \"AI lab notebook crossed with print magazine\": cream and bone surfaces, dark ink type, monospace code wells, irregular hand-drawn-feeling diagrams, and a rich orange used scarcely on the most consequential CTA.", "Photography of contributors and example outputs is square-ish with mid-radius corners; everything else is borderless or hairline."], "link": "./ai-llm/replicate.html"}]}, "dev-tools": {"name": "Developer Tools & IDEs", "brands": [{"slug": "warp", "name": "Warp Inspired", "name_zh": "Warp Inspired", "name_en": "Warp Inspired", "accent": "#f7f5f0", "bg": "#2b2622", "keywords_zh": ["对 Warp 设计语言的灵感诠释——一个代理终端和开发环境品牌，其表面是温暖的近木炭画布（比纯黑色更温暖的色调），只有干净的 Inter 排版、偶尔出现的 Instrument Serif 斜体时刻和密集的终端模型图像才能打破； CTA 异常低调，其形状几何形状比大多数营销网站更紧凑。"], "keywords_en": ["An inspired interpretation of Warp's design language — an agentic terminal-and-development-environment brand whose surface is a warm near-charcoal canvas (a tint warmer than pure black), broken only by clean Inter typography, the occasional Instrument Serif italic moment, and dense terminal-mockup imagery; CTAs are unusually understated, with shape geometry running tighter than most marketing sites."], "link": "./dev-tools/warp.html"}, {"slug": "superhuman", "name": "Superhumon Inspired", "name_zh": "Superhumon Inspired", "name_en": "Superhumon Inspired", "accent": "#1b1938", "bg": "#ffffff", "keywords_zh": ["对 Superhumon 设计语言的灵感诠释 - 一个快速电子邮件生产力品牌，分为社论黑暗英雄（深靛蓝海军蓝，紫罗兰天空大气背景和肖像主题）和安静的白色内容主体，带有暖灰色墨水。该系统使用单个专有的可变显示 sans、重量级 460-540 和紧密跟踪，以及深青色的结束 CTA 频段，以温暖的黑暗插曲打破靛蓝/白色的节奏。按钮是紧密的圆角矩形，定价冷静而密集，该品牌读起来更像是一份高端新闻通讯，而不是 SaaS 应用程序。"], "keywords_en": ["An inspired interpretation of Superhumon's design language — a fast-email productivity brand split between an editorial dark hero (deep indigo navy with violet-sky atmospheric backdrop and a portrait subject) and a quiet white content body with off-warm-grey ink.", "The system uses a single proprietary variable display sans, heavy weight 460–540 with tight tracking, and a deep-teal closing CTA band that breaks the indigo/white rhythm with a warm dark interlude.", "Buttons are tight rounded rectangles, pricing is sober and dense, and the brand reads more like a high-end newsletter than a SaaS app."], "link": "./dev-tools/superhuman.html"}, {"slug": "cursor", "name": "Cursor", "name_zh": "Cursor", "name_en": "Cursor", "accent": "#f54e00", "bg": "#f7f7f4", "keywords_zh": ["一个人工智能优先的代码编辑器，其营销网站读起来就像一个安静自信的开发工具品牌，带有温暖的奶油色编辑画布（“#f7f7f4”），而不是典型的黑暗 IDE 氛围。近乎黑色的暖墨水 (#26251e`) 的机身和显示屏非常相似 — 显示屏的重量为 400，字母间距为负，给人一种杂志的感觉，而不是一种大胆的科技声音。单一品牌电压是**光标橙色** (`#f54e00`)，保留用于主要 CTA 和文字标记。标志性的柔和时间线调色板（桃色、薄荷色、蓝色、薰衣草色、金色）标记了 AI 操作阶段（思考/阅读/编辑/Grepping/完成）——仅在产品时间线可视化内部。卡片使用最少的发际线，无阴影，宽大的 80 像素截面节奏。", "CursorGothic 用于显示/正文，JetBrains Mono 用于每个代码表面（大约是页面的一半）。"], "keywords_en": ["An AI-first code editor whose marketing site reads like a quietly-confident developer-tools brand with a warm-cream editorial canvas (`#f7f7f4`) instead of the typical dark IDE atmosphere.", "Near-black warm ink (`#26251e`) carries body and display alike — display sits at weight 400 with negative letter-spacing for a magazine feel rather than a bold tech voice.", "The single brand voltage is **Cursor Orange** (`#f54e00`) reserved for primary CTAs and the wordmark.", "A signature pastel timeline palette (peach, mint, blue, lavender, gold) marks AI-action stages (Thinking / Reading / Editing / Grepping / Done) — only inside in-product timeline visualizations.", "Cards use minimal hairlines, no shadows, generous 80px section rhythm.", "CursorGothic for display/body, JetBrains Mono on every code surface (which is roughly half the page)."], "link": "./dev-tools/cursor.html"}, {"slug": "raycast", "name": "Raycast", "name_zh": "Raycast", "name_en": "Raycast", "accent": "#57c1ff", "bg": "#07080a", "keywords_zh": ["Raycast 的营销系统读起来就像一个扩展的产品屏幕截图。铬是营销规模上的产品内铬：纯近乎黑色的画布、细线 1px 边框、命令调色板风格的卡片、在站点范围内启用 ss03 风格集的 Inter 排版、白色 CTA 药丸，以及为扩展和功能插图保留的一小组饱和类别强调色（黄色/红色/绿色/蓝色）。章节节奏很宽裕（~96px），但页面永远不会破坏色调的连续性——整个网站处于一种连续的黑暗模式。"], "keywords_en": ["Raycast's marketing system reads like an extended product screenshot.", "The chrome IS the in-product chrome at marketing scale: pure-near-black canvas, hairline 1px borders, command-palette-style cards, Inter typography with the ss03 stylistic set enabled site-wide, white CTA pill, and a small set of saturated category accent colors (yellow / red / green / blue) reserved for extension and feature illustrations.", "Section rhythm is generous (~96px) but the page never breaks tonal continuity — the whole site sits in one continuous dark mode."], "link": "./dev-tools/raycast.html"}, {"slug": "expo", "name": "Expo", "name_zh": "Expo", "name_en": "Expo", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["一个 React Native 开发者平台，其营销网站读起来就像一个安静自信的基础设施品牌。底色画布为纯白色，英雄身后有柔和的天蓝色渐变大气水洗；近乎黑色的墨水（“#171717”）具有相似的机身和显示屏。单一品牌电压是**纯黑色**（`#000000`），用于主要 CTA - 最小和编辑的感觉，搭配为内联正文链接保留的小蓝色文本链接口音（`#0d74ce`）。在每个代码表面上以适中的权重（显示 600，正文 400）对 Inter 与 JetBrains Mono 进行类型配对。该品牌最强烈的视觉标志是**设备模型英雄** - 一个居中的 MacBook + iPhone 复合材料，显示真实的世博会开发表面 - 在渐变的天空洗刷上。"], "keywords_en": ["A React Native developer-platform whose marketing site reads like a quietly-confident infrastructure brand.", "The base canvas is pure white with a soft sky-blue gradient atmospheric wash behind the hero; near-black ink (`#171717`) carries body and display alike.", "The single brand voltage is **pure black** (`#000000`) for primary CTAs — minimal and editorial-feeling, paired with a small blue text-link accent (`#0d74ce`) reserved for inline body links.", "Type pairs Inter at modest weights (display 600, body 400) with JetBrains Mono on every code surface.", "The brand's strongest visual signature is the **device-mockup hero** — a centered MacBook + iPhone composite showing real Expo dev surfaces — over the gradient sky wash."], "link": "./dev-tools/expo.html"}, {"slug": "vercel", "name": "Vercel Inspired", "name_zh": "Vercel Inspired", "name_en": "Vercel Inspired", "accent": "#171717", "bg": "#ffffff", "keywords_zh": ["对 Vercel 设计语言的灵感诠释——一个开发者平台品牌，其表面是近乎白色画布上的鲜明黑白二重奏，在英雄尺度上被多色网格渐变（青色/蓝色/洋红色/琥珀色）打破，充当整个装饰系统，搭配用于标题的定制几何无衬线和用于技术标签的等宽标题面。"], "keywords_en": ["An inspired interpretation of Vercel's design language — a developer-platform brand whose surface is a stark black-and-ink duet on near-white canvas, broken at hero scale by a multi-color mesh gradient (cyan / blue / magenta / amber) that acts as the entire decorative system, paired with a custom geometric sans for headlines and a monospaced caption face for technical labels."], "link": "./dev-tools/vercel.html"}, {"slug": "lovable", "name": "Lovable", "name_zh": "Lovable", "name_en": "Lovable", "accent": "#3b82f6", "bg": "#f7f4ed", "keywords_zh": ["标准可爱的设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Lovable design system catalog featuring specialized components and typography schemas."], "link": "./dev-tools/lovable.html"}]}, "devops": {"name": "Backend, Database & DevOps", "brands": [{"slug": "composio", "name": "Composio", "name_zh": "Composio", "name_en": "Composio", "accent": "#0007cd", "bg": "#0f0f0f", "keywords_zh": ["一个用于人工智能代理工具集成的开发者工具品牌，其营销表面倾向于带有单一深电蓝色电压（“#0007cd”）的黑暗技术美学。页面底部接近黑色（`#0f0f0f`）；卡片漂浮在微妙的灰色表面上。", "abcDiatype 在一个 sans 系列中承载显示和正文，字重为 400-600。该品牌最强烈的视觉标志是一个四窗格终端式模型（深色代码/输出面板的 2×2 网格），中央有蓝色聚光灯 - 用作主页英雄锚。"], "keywords_en": ["A developer-tools brand for AI-agent tool integration whose marketing surfaces lean into a dark, technical aesthetic with a single deep-electric-blue voltage (`#0007cd`).", "The page floor is near-black (`#0f0f0f`); cards float above on subtle gray-tinted surfaces.", "abcDiatype carries display and body in a single sans family with weights 400-600.", "The brand's strongest visual signature is a four-pane terminal-style mockup (a 2×2 grid of dark code/output panels) with a central blue spotlight glow — used as the homepage hero anchor."], "link": "./devops/composio.html"}, {"slug": "sentry", "name": "Sentri Inspired", "name_zh": "Sentri Inspired", "name_en": "Sentri Inspired", "accent": "#150f23", "bg": "#ffffff", "keywords_zh": ["对 Sentri 设计语言的灵感诠释——一个开发者工具品牌，建立在深紫色午夜画布、电动石灰色调和略带颠覆性的插图个性之上。该系统将自定义显示 sans（厚重、俏皮、近乎压缩）与用于 UI 复制的开放 Rubik 系列和用于代码的 Monaco 配对，然后依靠明暗定价表面、贴纸式吉祥物和单色 CTA 层次结构，其中黑紫色按钮被视为针对任一极性的主要操作。"], "keywords_en": ["An inspired interpretation of Sentri's design language — a developer-tools brand built on a deep purple-violet midnight canvas, electric lime accents, and a slightly subversive illustrated personality.", "The system pairs a custom display sans (chunky, playful, near-condensed) with the open Rubik family for UI copy and Monaco for code, then leans on dark-on-light pricing surfaces, sticker-style mascots, and a single-color CTA hierarchy where black-violet buttons read as the primary action against either polarity."], "link": "./devops/sentry.html"}, {"slug": "clickhouse", "name": "ClickHouse", "name_zh": "ClickHouse", "name_en": "ClickHouse", "accent": "#faff69", "bg": "#0a0a0a", "keywords_zh": ["高性能数据库界面锚定在近乎纯黑色的画布上，以电黄色作为品牌电压。自信的 sans 白色字体、黄色 CTA 和黄色文本统计数字在每一页上传递着品牌声音。代码块和产品 UI 片段直接嵌入暗卡中。黄+黑的搭配（黄色几乎不用作强调色）是该系统的标志——没有大气装饰的品牌标识。"], "keywords_en": ["A high-performance database interface anchored on near-pure black canvas with electric yellow as the brand voltage.", "White typography in confident sans, yellow CTAs, and yellow-text stat numbers carry the brand voice across every page.", "Code blocks and product UI fragments embed directly in dark cards.", "The yellow + black pairing (and yellow used scarcely as accent) is the system's signature — brand identity without atmospheric decoration."], "link": "./devops/clickhouse.html"}, {"slug": "supabase", "name": "Supabaze Inspired", "name_zh": "Supabaze Inspired", "name_en": "Supabaze Inspired", "accent": "#3ecf8e", "bg": "#ffffff", "keywords_zh": ["对 Supabaze 设计语言的灵感诠释——一个开源数据库平台，建立在干净的白色和近黑色系统上，具有单一签名的翠绿 CTA、定制的人文主义无显示层以及在英雄上方合成的密集产品 UI 模型。该品牌读起来很技术性：最少的铬、近乎单色的调色板以及作为页面上唯一的色彩事件的绿色主色。"], "keywords_en": ["An inspired interpretation of Supabaze's design language — an open-source database platform built on a clean white-and-near-black system with a single signature emerald-green CTA, a custom humanist sans display tier, and dense product UI mockups composited above the hero.", "The brand reads as quietly technical: minimal chrome, a near-monochrome palette, and the green primary acting as the only chromatic event on the page."], "link": "./devops/supabase.html"}, {"slug": "sanity", "name": "Sanity", "name_zh": "Sanity", "name_en": "Sanity", "accent": "#0052ef", "bg": "#0b0b0b", "keywords_zh": ["标准 Sanity 设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Sanity design system catalog featuring specialized components and typography schemas."], "link": "./devops/sanity.html"}, {"slug": "posthog", "name": "PostHog", "name_zh": "PostHog", "name_en": "PostHog", "accent": "#f7a501", "bg": "#eeefe9", "keywords_zh": ["一个有趣的开发工具系统呈现在温暖的奶油色画布上，手绘的刺猬吉祥物点缀在每一页上，就像素描簿中的旁注一样。", "chrome 读起来就像一个友好的工程博客：正文为橄榄灰色墨水 (#4d4f46)，标题为深橄榄木炭色 (#23251d)，在紧凑的 1.43 行高段落中使用 IBM Plex Sans Variable 排版，以及一个包含所有主要操作的饱和黄橙色 CTA 药丸 (#f7a501)。该系统积极拒绝该类型典型的阴郁黑暗科技美学，转而采用奶油色、教科书插图的感觉——半径为 4-6 像素的奶油色画布上堆叠有边框的卡片，文档侧边栏使用圆形轮廓图标迷你插图，主页则以卡通人物（穿着实验室外套的刺猬、终端上的刺猬、躺椅上的刺猬）作为其标志性装饰。代码示例和产品分析图表位于带有细橄榄色边框的奶油色白色卡片内；有趣的插图和数据密集的产品图像之间的对比是该品牌的标志性声音。"], "keywords_en": ["A playful developer-tools system rendered on a warm cream canvas with hand-drawn hedgehog mascots dotted across every page like marginalia in a sketchbook.", "The chrome reads like a friendly engineering blog: olive-gray ink (#4d4f46) for body, deep olive-charcoal (#23251d) for headlines, IBM Plex Sans Variable typography in tight 1.43-line-height paragraphs, and a single saturated yellow-orange CTA pill (#f7a501) carrying every primary action.", "The system actively rejects the genre's typical somber dark-tech aesthetic in favor of a creamy, textbook-illustration sensibility — bordered cards stack on the cream canvas with 4–6px radii, doc sidebars use rounded outline-icon mini-illustrations, and the home page leans on cartoon characters (hedgehogs in lab coats, hedgehogs at terminals, hedgehogs in lounge chairs) as its signature decoration.", "Code samples and product analytics charts live inside white-on-cream cards with thin olive borders; the contrast between the playful illustration and the data-dense product imagery is the brand's signature voice."], "link": "./devops/posthog.html"}, {"slug": "mongodb", "name": "MongoDB", "name_zh": "MongoDB", "name_en": "MongoDB", "accent": "#00ed64", "bg": "#ffffff", "keywords_zh": ["MongoDB 具有强烈的双模式视觉标识 — 深色深青色英雄带与明亮的 MongoDB 绿色 ({colors.brand-green}) CTA 搭配鲜明的白色文档表面。标志性的绿色药丸按钮在产品、定价、学习和人工智能用例表面上都是明确无误的。该系统使用 Euclid Circular A 作为显示面，锚定 3 层定价比较（免费/灵活/专用），并在带有彩色类别标签的卡片网格中显示广泛的课程目录。覆盖范围涵盖主页、Atlas 产品页面、社区版、MongoDB 大学、AI 用例和定价。"], "keywords_en": ["MongoDB carries a strong dual-mode visual identity — dark deep-teal hero bands with bright MongoDB green ({colors.brand-green}) CTAs paired with stark white documentation surfaces.", "The signature green pill button is unmistakable across product, pricing, learning, and AI use-case surfaces.", "The system uses Euclid Circular A as its display face, anchors a 3-tier pricing comparison (Free / Flex / Dedicated), and presents extensive course catalogs in card grids with colored category tags.", "Coverage spans homepage, Atlas product page, Community Edition, MongoDB University, AI use cases, and pricing."], "link": "./devops/mongodb.html"}, {"slug": "hashicorp", "name": "HashiCorp", "name_zh": "HashiCorp", "name_en": "HashiCorp", "accent": "#000000", "bg": "#000000", "keywords_zh": ["围绕近乎黑色的底色 (#000000) 和每个产品的强调色系统（Terraform 紫色、Vault 黄色、Consul 粉色、Waypoint 青色、Vagrant 蓝色）构建的企业基础设施营销画布，充当身份标记而不是装饰调色板。显示类型为 hashicorpSans，设置为 600/700，行高严格为 1.17–1.21；体型属于同一个系列，重量为 500，线高为 1.50-1.71。卡片就像木炭表面一样，带有 1 像素半透明灰色边框；产品展示卡提升到每个产品的色彩渐变。该系统读起来充满自信、技术性强、有意打造多产品——每个部分都悄悄地表明了它所代表的 HashiCorp 工具。”"], "keywords_en": ["An enterprise-infrastructure marketing canvas built around a near-black ground (#000000) and a system of per-product accent colors — Terraform purple, Vault yellow, Consul pink, Waypoint cyan, Vagrant blue — that act as identity tokens rather than decorative palette.", "Display type is hashicorpSans set in 600/700 with tight 1.17–1.21 line-heights; body type runs the same family at 500 weight with relaxed 1.50–1.71 line-heights.", "Cards live as charcoal surfaces with 1px translucent gray borders; product showcase cards lift into per-product chromatic gradients.", "The system reads as confident, technical, and intentionally multi-product — every section quietly signals which HashiCorp tool it represents.\""], "link": "./devops/hashicorp.html"}]}, "saas": {"name": "Productivity & SaaS", "brands": [{"slug": "resend", "name": "Resend", "name_zh": "Resend", "name_en": "Resend", "accent": "#fcfdff", "bg": "#000000", "keywords_zh": ["Resend 的营销界面位于近乎纯黑色的画布上，带有灰白色文本和单一标志色（深社论衬线 Domaine Display 标题标记），这为原本功利的开发工具品牌带来了印刷杂志的信心。该系统将 Domaine Display（超大 76px–96px 衬线，ss01/ss04/ss11 功能打开）与用于正文的 ABC Favorit 和用于 UI 的 Inter 配对。表面依赖于微妙的 6-9% 不透明度渐变发光、由半透明白色制成的细线 1px 边框以及严格的圆形 12px 容器词汇。没有装饰性的镀铬——只有类型、代码和大气深度。"], "keywords_en": ["Resend's marketing surfaces sit on a near-pure black canvas with off-white text and a single signature color — the deep editorial-serif Domaine Display headline mark — that gives an otherwise utilitarian developer-tool brand its print-magazine confidence.", "The system pairs Domaine Display (oversized 76px–96px serif, ss01/ss04/ss11 features on) with ABC Favorit for body and Inter for UI.", "Surfaces rely on subtle 6–9% opacity gradient glows, hairline 1px borders made from translucent white, and a strict rounded-12px container vocabulary.", "There is no decorative chrome — just type, code, and atmospheric depth."], "link": "./saas/resend.html"}, {"slug": "intercom", "name": "Intercom", "name_zh": "Intercom", "name_en": "Intercom", "accent": "#111111", "bg": "#f5f1ec", "keywords_zh": ["编辑客户服务营销画布围绕柔软的乳白色底色、Saans 木炭字体（Intercom 专有的几何无衬线）以及为 Fin AI 品牌保留的单一自信 Fin 橙色 (#ff5600) 构建。卡片就像浮动的白色瓷砖一样，具有细细的边框和最小的半径（8-16 像素）。显示标题以权重 500 运行 Saans，并测量负跟踪。该系统读起来就像是一份谨慎的、以产品为主导的出版物：产品屏幕截图占主导地位，装饰很少，唯一进入彩色能量的地方是 Fin Orange CTA。”"], "keywords_en": ["An editorial customer-service marketing canvas built around a soft cream-white ground, charcoal type set in Saans (Intercom's proprietary geometric sans), and a single confident Fin Orange (#ff5600) reserved for the Fin AI brand.", "Cards live as floating white tiles with thin hairline borders and minimal radii (8–16px).", "Display headlines run Saans at weight 500 with measured negative tracking.", "The system reads as a careful, product-led publication: product screenshots dominate, ornament is rare, and the only place chromatic energy enters is the Fin Orange CTA.\""], "link": "./saas/intercom.html"}, {"slug": "linear.app", "name": "Linear", "name_zh": "Linear", "name_en": "Linear", "accent": "#5e6ad2", "bg": "#010102", "keywords_zh": ["围绕 #010102（该系列中所有工具中最深的深色表面）、浅灰色文本 (#f7f8f8) 和用作单一色彩强调的标志性线性薰衣草蓝色 (#5e6ad2) 构建的近乎黑色的以产品为中心的营销画布。该系统读起来就像软件工艺文档：密集、技术性强、低调奢华。显示类型在线性自定义 sans（SF Pro Display 后备）中设置为 500–700，并测量负跟踪。卡片就像木炭面板 (#0f1011) 一样，带有细线边框。薰衣草色的重点出现在品牌标志、聚焦环和一些特意的 CTA 上，而不是装饰性的。页面节奏依赖于深色面板中的产品 UI 屏幕截图，而不是大气颜色。”"], "keywords_en": ["A near-black product-focused marketing canvas built around #010102 (the deepest dark surface of any tool in this collection), light gray text (#f7f8f8), and the signature Linear lavender-blue (#5e6ad2) used as the single chromatic accent.", "The system reads as software-craft documentation: dense, technical, and quietly luxurious.", "Display type is set in the Linear custom sans (SF Pro Display fallback) at 500–700 with measured negative tracking.", "Cards live as charcoal panels (#0f1011) with hairline borders.", "The accent lavender appears on the brand mark, focus rings, and a few intentional CTAs — never decoratively.", "Page rhythm leans on product UI screenshots framed in dark panels rather than atmospheric color.\""], "link": "./saas/linear.app.html"}, {"slug": "notion", "name": "Notion", "name_zh": "Notion", "name_en": "Notion", "accent": "#5645d4", "bg": "#ffffff", "keywords_zh": ["Notion 通过自信、插图丰富的品牌声音将自己呈现为一体化工作空间，以深海军蓝英雄乐队 ({colors.brand-navy}) 为基础，装饰有品牌颜色的便签点和网线插图、标志性的紫色药丸主 CTA ({colors.primary}) 以及丰富的柔和色彩功能卡调色板，与实时产品的丰富多彩的数据库属性相呼应。该系统在每个 UI 表面上都使用 Notion-Sans（基于 Inter 的）字体，锚定 4 层定价比较（免费/Plus/商业/企业），并直接在英雄带内呈现实时工作区 UI 模型。覆盖范围涵盖主页、企业、产品人工智能、产品代理、初创公司和定价界面。"], "keywords_en": ["Notion presents itself as the all-in-one workspace through a confident, illustration-rich brand voice — anchored by a deep navy hero band ({colors.brand-navy}) decorated with brand-colored sticky-note dots and mesh wire illustrations, a signature purple pill primary CTA ({colors.primary}), and a rich palette of pastel-tinted feature cards that echo the colorful database properties of the live product.", "The system uses a Notion-Sans (Inter-based) typeface across every UI surface, anchors a 4-tier pricing comparison (Free / Plus / Business / Enterprise), and presents the live workspace UI mockup directly inside the hero band.", "Coverage spans homepage, Enterprise, Product AI, Product Agents, Startups, and Pricing surfaces."], "link": "./saas/notion.html"}, {"slug": "zapier", "name": "Zapier Inspired", "name_zh": "Zapier Inspired", "name_en": "Zapier Inspired", "accent": "#ff4f00", "bg": "#fffefb", "keywords_zh": ["对 Zapier 设计语言的灵感诠释——一个工作流程自动化平台，其表面结合了暖奶油色中性色（“#fffefb”帆布、“#f8f4f0”软奶油）与深咖啡墨水（“#201515”）和单一饱和橙色 CTA 口音（“#ff4f00”）；排版将英雄级的专有 Degular Display 系列与 Inter 的子显示屏和机身相结合，赋予该品牌自信温暖的声音，而不是酷炫的科技声音。"], "keywords_en": ["An inspired interpretation of Zapier's design language — a workflow-automation platform whose surface combines warm-cream neutrals (`#fffefb` canvas, `#f8f4f0` soft cream) with deep coffee ink (`#201515`) and a single saturated orange CTA accent (`#ff4f00`); typography pairs the proprietary Degular Display family at hero scale with Inter for sub-displays and body, giving the brand a confident-warm rather than cool-tech voice."], "link": "./saas/zapier.html"}, {"slug": "mintlify", "name": "Mintlify", "name_zh": "Mintlify", "name_en": "Mintlify", "accent": "#0a0a0a", "bg": "#ffffff", "keywords_zh": ["Mintlify 呈现了具有双模式美学的文档基础架构 - 大气的天空渐变营销英雄（云插图背景、柔和的奶油色到蓝色水洗）与密集的开发人员级文档表面相结合。该系统使用 Inter 表示 UI 散文，使用 Geist Mono 表示代码，并使用为强调 CTA 和活动状态保留的签名 Mintlify 绿色 ({colors.brand-green})。黑色药丸主按钮主导营销，深色英雄带上出现黑白反转，三栏文档布局（侧边栏/散文/目录）锚定了开发人员体验。覆盖范围涵盖主页、初创公司计划、定价比较和实时选项卡文档页面。"], "keywords_en": ["Mintlify presents documentation infrastructure with a dual-mode aesthetic — atmospheric sky-gradient marketing heroes (cloud illustration backdrops, soft cream-to-blue washes) paired with dense developer-grade documentation surfaces.", "The system uses Inter for UI prose, Geist Mono for code, and a signature Mintlify green ({colors.brand-green}) reserved for accent CTAs and active states.", "Black-pill primary buttons dominate marketing, white-on-dark inversions appear on dark hero bands, and a 3-column documentation layout (sidebar / prose / TOC) anchors the developer experience.", "Coverage spans homepage, startups program, pricing comparison, and the live tabs documentation page."], "link": "./saas/mintlify.html"}, {"slug": "cal", "name": "Cal.com", "name_zh": "Cal.com", "name_en": "Cal.com", "accent": "#111111", "bg": "#ffffff", "keywords_zh": ["干净、日历软件优先的界面，锚定在白色画布上，带有黑色主 CTA 和自定义 Cal Sans 显示排版。该系统读起来就像友好的现代 SaaS — 大量的空白、软圆形卡片 (~12px)、直接显示在卡片内的产品 UI 片段以及在视觉上关闭长滚动页面的深海军色页脚。品牌电压来自 Cal Sans 显示标题（自定义几何面）和卡片中显示的产品 UI 工件，而不是强调色。"], "keywords_en": ["A clean, calendar-software-first interface anchored on white canvas with black primary CTAs and custom Cal Sans display typography.", "The system reads as friendly modern SaaS — generous whitespace, soft-rounded cards (~12px), product UI fragments shown directly inside cards, and a dark navy footer that visually closes long-scroll pages.", "Brand voltage comes from the Cal Sans display headline (a custom geometric face) and from product UI artifacts shown in-card rather than from accent colors."], "link": "./saas/cal.html"}]}, "creative-tools": {"name": "Design & Creative Tools", "brands": [{"slug": "framer", "name": "Framer", "name_zh": "Framer", "name_en": "Framer", "accent": "#ffffff", "bg": "#090909", "keywords_zh": ["一个自信的深色画布构建器营销网站，将页面视为工作画板 - 纯黑色表面，GT Walsheim Medium 中设置的白色显示类型，具有积极的负跟踪，以及为超链接和选择状态保留的单个自信蓝色 (#0099ff)。超大的充满活力的渐变氛围面板（洋红色、紫色、橙色聚光灯）打破了页面节奏，它们充当了活生生的展示瓷砖，而不是装饰。每个 CTA 都是深色背景上的白色药丸；每张卡片都是半透明或木炭表面；每个部分的标题都将字母间距拉得足够紧，感觉就像一张海报。”"], "keywords_en": ["A confident dark-canvas builder marketing site that treats the page like a working artboard — pure black surfaces, white display type set in GT Walsheim Medium with aggressive negative tracking, and a single confident blue (#0099ff) reserved for hyperlinks and selection states.", "The page rhythm is broken by oversized vibrant gradient atmosphere panels — magenta, violet, orange spotlights — that act as living showcase tiles, not decoration.", "Every CTA is a white pill on dark; every card is a translucent or charcoal surface; every section title pulls letter-spacing tight enough to feel like a poster.\""], "link": "./creative-tools/framer.html"}, {"slug": "clay", "name": "Clay", "name_zh": "Clay", "name_en": "Clay", "accent": "#0a0a0a", "bg": "#fffaf0", "keywords_zh": ["Clay.com（GTM 数据编排平台）的充满活力的粘土动画与数据接口。锚定在白色画布上，带有深海军蓝主色 CTA、定制圆形显示类型和饱和单色功能卡（亮粉色、深青色、薰衣草色、桃色、赭色），点缀长卷轴解释页面。品牌电压来自于用作全出血英雄文物的 3D 渲染粘土动画插图（山、人物、吉祥物）以及显示产品 UI 片段的明亮多色卡片表面。"], "keywords_en": ["A vibrant claymation-meets-data interface for Clay.com (GTM data-orchestration platform).", "Anchors on white canvas with dark-navy primary CTAs, custom rounded display type, and saturated single-color feature cards — hot pink, deep teal, lavender, peach, ochre — that punctuate long-scroll explainer pages.", "Brand voltage comes from 3D-rendered claymation illustrations (mountains, characters, mascots) used as full-bleed hero artifacts and the bright multi-color card surfaces showing product UI fragments."], "link": "./creative-tools/clay.html"}, {"slug": "miro", "name": "Miro", "name_zh": "Miro", "name_en": "Miro", "accent": "#1c1c1e", "bg": "#ffffff", "keywords_zh": ["Miro 通过自信、近乎俏皮的品牌声音将自己呈现为人工智能驱动的视觉工作空间，其标志性的金丝雀黄色 ({colors.brand-yellow}) 文字标记位于白色画布上，并被彩色柔和的特色色调（玫瑰色、青色、珊瑚色、橙色、薄荷色）打破，与实时白板上使用的实际便签调色板相呼应。黑色药丸主按钮主导营销，真正的 Miro-board 模型作为功能插图，4 层定价网格通向密集的比较表。", "Roobert PRO 带有显示标题；该系统支持主页、定价、人工智能工作流程产品页面、敏捷垂直和客户故事界面。"], "keywords_en": ["Miro presents itself as the AI-powered visual workspace through a confident, almost playful brand voice — anchored by its signature canary yellow ({colors.brand-yellow}) wordmark over white canvas, broken open by colorful pastel feature tints (rose, teal, coral, orange, mint) that echo the actual sticky-note color palette used on the live whiteboard.", "Black-pill primary buttons dominate marketing, real Miro-board mockups serve as feature illustrations, and a 4-tier pricing grid leads into a dense comparison table.", "Roobert PRO carries display headlines; the system supports homepage, pricing, AI Workflows product page, agile vertical, and customer stories surfaces."], "link": "./creative-tools/miro.html"}, {"slug": "figma", "name": "Figma", "name_zh": "Figma", "name_en": "Figma", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["自信的黑白编辑框架被超大的手工切割柔和色块打断。营销画布是严格的单色——figmaSans可变类型、纯白色表面、纯黑色墨水、药丸状的CTA——而每个故事部分都将页面放入饱和的石灰、薰衣草、奶油色、薄荷或粉色面板中，读起来就像一张放在干净桌子上的便利贴。结果是一个既具有技术性又充满乐趣的设计系统——一个由喜欢色彩的人制作的严肃工作的工具。”"], "keywords_en": ["A confident black-and-white editorial frame interrupted by oversized, hand-cut pastel color blocks.", "The marketing canvas is rigorously monochrome — figmaSans variable type, pure white surfaces, pure black ink, pill-shaped CTAs — while each story section drops the page into a saturated lime, lavender, cream, mint, or pink panel that reads like a sticky note placed on a clean desk.", "The result is a design system that feels both technical and joyful — a tool for serious work, made by people who like color.\""], "link": "./creative-tools/figma.html"}, {"slug": "webflow", "name": "Webflow Inspired", "name_zh": "Webflow Inspired", "name_en": "Webflow Inspired", "accent": "#080808", "bg": "#ffffff", "keywords_zh": ["对 Webflow 设计语言的灵感诠释——一个视觉网络开发平台，其表面对比深近乎黑色的“#080808”主色与宽大的白色画布，由映射到该品牌产品类别的五级彩色强调系统（紫色/粉色/蓝色/橙色/绿色）打破，并以专有的 WF Visual Sans 系列为基础，用于限制 500 / 600 重量并带有负跟踪。"], "keywords_en": ["An inspired interpretation of Webflow's design language — a visual web development platform whose surface contrasts a deep near-black `#080808` primary against a generous white canvas, broken by a five-stop chromatic accent system (purple / pink / blue / orange / green) that maps to the brand's product categories, and anchored by the proprietary WF Visual Sans family used at restrained 500 / 600 weights with negative tracking."], "link": "./creative-tools/webflow.html"}, {"slug": "airtable", "name": "Airtable", "name_zh": "Airtable", "name_en": "Airtable", "accent": "#181d26", "bg": "#ffffff", "keywords_zh": ["一个冷静的编辑工作流程软件界面，锚定在白色画布和深色墨水类型上，品牌电压来自珊瑚色、深绿色、桃色和深海军蓝的全出血签名卡，这些签名卡点缀着长卷轴解释页面。主要动作使用近乎黑色的药丸 CTA；次要操作位于白色轮廓按钮中。", "Type 的 Haas Grotesk 重量适中，绝不是为了本身而大胆。"], "keywords_en": ["A sober, editorial workflow-software interface anchored on white canvas and dark-ink type, where brand voltage comes from full-bleed signature cards in coral, dark green, peach, and dark navy that punctuate long-scroll explainer pages.", "Primary actions use a near-black pill CTA; secondary actions sit in a white outlined button.", "Type runs Haas Grotesk in modest weights — never bold for its own sake."], "link": "./creative-tools/airtable.html"}]}, "fintech": {"name": "Fintech & Crypto", "brands": [{"slug": "wise", "name": "Wise", "name_zh": "Wise", "name_en": "Wise", "accent": "#9fe870", "bg": "#fbfcf5", "keywords_zh": ["标准 Wise 设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Wise design system catalog featuring specialized components and typography schemas."], "link": "./fintech/wise.html"}, {"slug": "mastercard", "name": "Mastercard", "name_zh": "Mastercard", "name_en": "Mastercard", "accent": "#EB001B", "bg": "#F3F0EE", "keywords_zh": ["标准万事达卡设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Mastercard design system catalog featuring specialized components and typography schemas."], "link": "./fintech/mastercard.html"}, {"slug": "binance", "name": "Binance", "name_zh": "Binance", "name_en": "Binance", "accent": "#fcd535", "bg": "#ffffff", "keywords_zh": ["自信的金融平台界面锚定在深近乎黑色的画布上，币安标志性的黄色 (#FCD535) 承载着每一个主要的 CTA、品牌口音和价值主张时刻。", "Type 以适度的权重运行 Binance 的自定义 BinanceNova / BinancePlex 堆栈 - 系统更信任大小和黄色电压而不是大胆的权重。营销和产品界面默认为深色主题；交易界面（购买加密货币、存款、兑换）转向浅色主题，共享相同的黄色 CTA 和灰蓝色细线。交易绿色（向上）和红色（向下）强调贯穿两种模式以获取价格方向信号。"], "keywords_en": ["A confident financial-platform interface anchored on a deep near-black canvas, where Binance's iconic yellow (#FCD535) carries every primary CTA, brand accent, and value-claim moment.", "Type runs Binance's custom BinanceNova / BinancePlex stack at modest weights — the system trusts size and yellow voltage over bold weight.", "Marketing and product surfaces default to the dark theme; transactional surfaces (buy crypto, deposit, exchange) flip to a light theme that shares the same yellow CTAs and gray-blue hairlines.", "Trading green (up) and red (down) accents thread through both modes for price-direction signals."], "link": "./fintech/binance.html"}, {"slug": "stripe", "name": "Stripi Inspired", "name_zh": "Stripi Inspired", "name_en": "Stripi Inspired", "accent": "#533afd", "bg": "#ffffff", "keywords_zh": ["对 Stripi 设计语言的灵感诠释——一个金融基础设施品牌，建立在深海军墨水、电靛蓝原色和占据几乎每个营销页面上三分之一的循环大气梯度网格的基础上。该系统将专有的 Sohne 系列的细 (300) 字重与负字母间距配对，以实现编辑密度显示标题，并在金钱和数字很重要的情况下使用表格图形正文类型。按钮是半径很小的药丸，卡片位于接近白色的表面上，仪表板轨道将极性翻转为熟悉的深色应用程序外壳。"], "keywords_en": ["An inspired interpretation of Stripi's design language — a financial-infrastructure brand built on a deep navy ink, an electric indigo primary, and a recurring atmospheric gradient mesh that occupies the upper third of nearly every marketing page.", "The system pairs the proprietary Sohne family at thin (300) weights with negative letter-spacing for editorial-density display headlines, and uses tabular-figure body type where money and numerics matter.", "Buttons are tight-radius pills, cards live on near-white surfaces, and the dashboard track flips polarity to a familiar dark-app shell."], "link": "./fintech/stripe.html"}, {"slug": "kraken", "name": "Kraken", "name_zh": "Kraken", "name_en": "Kraken", "accent": "#7132f5", "bg": "#7132f5", "keywords_zh": ["标准 Kraken 设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Kraken design system catalog featuring specialized components and typography schemas."], "link": "./fintech/kraken.html"}, {"slug": "revolut", "name": "Revolut", "name_zh": "Revolut", "name_en": "Revolut", "accent": "#494fdf", "bg": "#ffffff", "keywords_zh": ["Revolut 的营销表面将纯黑色帆布与品牌的钴紫 (#494fdf) 以及深、完全饱和的产品颜色的宽色调调色板 — 青色、浅蓝色、深粉色、浅绿色、警告橙色。该系统读起来就像金融科技与产品宣传册一样：超大的 80 像素 - 136 像素 Aeonik Pro 显示标题、慷慨的空白、摄影主导的英雄带以及全宽产品模型（卡片、电话、终端）在近乎黑色的部分中显示为英雄对象。大多数表面是黑色或灰白色；药丸形按钮和圆形 12/20px 内容卡带有消费者金融应用程序的感觉，但又不会进入有趣的领域。"], "keywords_en": ["Revolut's marketing surfaces pair a stark black canvas with the brand's cobalt-violet (`#494fdf`) and a wide accent palette of deep, fully-saturated product colours — teal, light-blue, deep pink, light-green, warning orange.", "The system reads as fintech-meets-product-brochure: oversized 80px–136px Aeonik Pro display headlines, generous whitespace, photography-led hero bands, and full-width product mockups (cards, phones, terminals) shown as hero objects inside near-black sections.", "Most surfaces are either black or off-white; pill-shaped buttons and rounded-12/20px content cards carry the consumer-financial-app feel without crossing into playful territory."], "link": "./fintech/revolut.html"}, {"slug": "coinbase", "name": "Coinbase", "name_zh": "Coinbase", "name_en": "Coinbase", "accent": "#0052ff", "bg": "#ffffff", "keywords_zh": ["一个机构级的加密货币交易所，其营销表面看起来就像一个安静自信的金融服务品牌。底布为纯白色； Coinbase Blue (`#0052ff`) 是单一品牌电压，几乎不用于主要 CTA、签名字形和内联重音时刻。", "Type 以适中的权重运行 Coinbase 许可的 CoinbaseDisplay（显示）和 CoinbaseSans（主体）——显示的权重为 400，而不是 700，这表明编辑的冷静而不是金融科技的夸大其词。页面节奏在亮白色部分、柔和的灰色立面带和携带产品 UI 样机卡的全出血深色编辑英雄 (“#0a0b0d”) 之间轮换。图像是几何的、最小的；深度来自卡片上的分层，而不是装饰性阴影。"], "keywords_en": ["An institutional-grade crypto exchange whose marketing surfaces read like a quietly-confident financial-services brand.", "The base canvas is pure white; Coinbase Blue (`#0052ff`) is the single brand voltage, used scarcely on primary CTAs, signature glyphs, and inline accent moments.", "Type runs Coinbase's licensed CoinbaseDisplay (display) and CoinbaseSans (body) at modest weights — display sits at weight 400 not 700, signaling editorial calm rather than fintech-bombastic.", "Page rhythm rotates between bright white sections, soft gray elevation bands, and full-bleed dark editorial heroes (`#0a0b0d`) carrying product-ui mockup cards.", "Iconography is geometric and minimal; depth comes from card-on-card layering, never decorative shadows."], "link": "./fintech/coinbase.html"}]}, "ecommerce": {"name": "E-commerce & Retail", "brands": [{"slug": "starbucks", "name": "Starbucks", "name_zh": "Starbucks", "name_en": "Starbucks", "accent": "#006241", "bg": "#f2f0eb", "keywords_zh": ["标准星巴克设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Starbucks design system catalog featuring specialized components and typography schemas."], "link": "./ecommerce/starbucks.html"}, {"slug": "meta", "name": "Meta", "name_zh": "Meta", "name_en": "Meta", "accent": "#0064e0", "bg": "#ffffff", "keywords_zh": ["Meta 的设计系统涵盖硬件商务（Quest VR、Ray-Ban Meta AI 眼镜）和品牌表面，并具有自信的产品营销声音。该系统将纯白色画布与全出血摄影产品卡、自信的乐观 VF 文字标记/标题面孔、双 CTA 英雄图案（黑色主色 + 轮廓辅助色）以及用于产品内购买操作的饱和钴蓝色 (#0064E0) 配对。药丸形状的 100 像素半径按钮、宽大的 24-32 像素卡片圆角和紧凑的三层文本层次结构贯穿主页、产品详细信息 (PDP)、立即购买配置器和附件子页面。"], "keywords_en": ["Meta's design system spans hardware commerce (Quest VR, Ray-Ban Meta AI glasses) and brand surfaces with a confident product-merchandising voice.", "The system pairs a stark white canvas with full-bleed photographic product cards, a confident Optimistic VF wordmark/headline face, dual-CTA hero patterns (black primary + outlined secondary), and a saturated cobalt blue (#0064E0) for in-product purchase actions.", "Pill-shaped 100px-radius buttons, generous 24-32px card rounding, and tight three-tier text hierarchy carry across homepage, product detail (PDP), buy-now configurator, and accessory subpages."], "link": "./ecommerce/meta.html"}, {"slug": "airbnb", "name": "Airbnb", "name_zh": "Airbnb", "name_en": "Airbnb", "accent": "#ff385c", "bg": "#ffffff", "keywords_zh": ["一个温暖、慷慨的消费市场，以干净的白色画布和 Airbnb Rausch (#ff385c) 为基础，单一品牌电压承载着每个主要的 CTA、搜索按钮球和评级点。", "Type 以适中的权重运行 Airbnb Cereal VF — 显示尺寸为 22-28 像素，权重为 500/600，而不是金融科技和企业系统使用的沉重的 700+；该品牌相信摄影和慷慨的空白而不是印刷力量。三个产品条目（住宅、体验、服务）位于顶部导航栏，带有手绘的 32 个图标字形和“新”徽章，标志着市场扩张而不是功能转储。药丸形状的搜索栏 (`{rounded.full}`)、柔和的圆形属性卡 (`{rounded.lg}` ~14px) 和 32px 按钮半径读起来友好且人性化——除了主体网格之外，没有任何硬角。"], "keywords_en": ["A warm, generous consumer marketplace anchored on a clean white canvas and Airbnb Rausch (#ff385c), the single brand voltage that carries every primary CTA, search-button orb, and rating dot.", "Type runs Airbnb Cereal VF at modest weights — display sits at 22–28px in weight 500/600 rather than the heavy 700+ that fintech and enterprise systems use; the brand trusts photography and generous whitespace over typographic muscle.", "Three product entries (Homes, Experiences, Services) sit in the top nav with hand-illustrated 32-icon glyphs and \"NEW\" badges, signaling a marketplace expansion rather than a feature dump.", "Pill-shaped search bars (`{rounded.full}`), softly rounded property cards (`{rounded.lg}` ~14px), and 32px button radii read as friendly and human — there is no hard corner anywhere except the body grid."], "link": "./ecommerce/airbnb.html"}, {"slug": "shopify", "name": "Shopifi Inspired", "name_zh": "Shopifi Inspired", "name_en": "Shopifi Inspired", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["对 Shopifi 设计语言的灵感诠释——一个运行两条并行设计轨道的电影商务平台。营销英雄和产品叙述页面呈现在近乎黑色的画布上，上面有商人的全出血照片、巨大的 Neue Haas Grotesk 字体、较薄的字体以及一个用白色描边的黑色药丸 CTA。交易页面（定价、注册、仪表板）翻转到奶油薄荷画布，上面有柔和的芦荟和开心果绿，相同的药丸按钮词汇，以及 UI 主体的 Inter。这两首歌拥有相同的版式 DNA，但在画布极性上却截然不同——而这个选择就是品牌。"], "keywords_en": ["An inspired interpretation of Shopifi's design language — a cinematic commerce platform that runs two parallel design tracks.", "The marketing-hero and product-narrative pages live on near-black canvases with full-bleed photography of merchants, giant Neue Haas Grotesk display type at thin weights, and a single black-pill CTA stroked in white.", "The transactional pages (pricing, signup, dashboards) flip to a cream-mint canvas with pastel aloe and pistachio greens, the same pill button vocabulary, and Inter for UI body.", "The two tracks share typographic DNA but diverge sharply in canvas polarity — and that choice is the brand."], "link": "./ecommerce/shopify.html"}, {"slug": "nike", "name": "Nike", "name_zh": "Nike", "name_en": "Nike", "accent": "#111111", "bg": "#ffffff", "keywords_zh": ["摄影优先的商业系统建立在极端的排版对比度上——高耸的大写 Futura 显示锁定被融入到编辑活动图像中，位于密集、中性、近乎单色的零售镀铬药丸状黑色 CTA、灰色搜索和标签药丸以及紧密的 8 像素网格产品卡之上。该品牌的声音是运动的、动感的和绝对的：纯黑、纯白、单一的柔和表面灰色，以及一组刻意的小语义强调（销售红、成功绿、克制的类别色调）——每一个色彩时刻都是为编辑摄影或定价信号而保留的，而不是装饰性的镀铬。"], "keywords_en": ["A photography-first commerce system built on extreme typographic contrast — towering uppercase Futura display lockups burned into editorial campaign imagery, sitting above a dense, neutral, near-monochrome retail chrome of pill-shaped black CTAs, gray search and tag pills, and tight 8px-grid product cards.", "The brand's voice is athletic, kinetic, and absolute: pure black, pure white, a single soft surface gray, and a deliberately small set of semantic accents (sale red, success green, restrained category tints) — every chromatic moment is reserved for editorial photography or pricing signal, never decorative chrome."], "link": "./ecommerce/nike.html"}]}, "media-consumer": {"name": "Media & Consumer Tech", "brands": [{"slug": "playstation", "name": "PlayStation", "name_zh": "PlayStation", "name_en": "PlayStation", "accent": "#0070d1", "bg": "#ffffff", "keywords_zh": ["围绕交替的黑色、白色和 PlayStation Blue 章节组织的三面营销系统，这些章节像游戏机发布预告片一样滚动经过观众。每个部分都有一个单一的编辑目的——英雄摄影、控制台产品渲染、PS Plus 层标注、新闻报道——并且每个部分都拥有三种全出血画布模式之一。对于游戏品牌来说，铬合金异常安静：明亮的 PlayStation Blue (#0070d1`) 将每个主 CTA 都作为一个全圆形药丸进行承载，专有的 SST 表面以标志性重量 300（轻）渲染显示副本，营造出通风、优质的感觉，而清晰的 8 像素半径辅助卡系统则在任一画布模式上承载产品信息。该系统从不装饰——镀铬上没有渐变背景，没有大气网格，除了微弱的部分之外没有阴影。图像完成了所有繁重的工作：控制台魅力镜头、游戏关键艺术和 PS Plus 级插图占据了每个部分的 60-90%，副本被压缩到一个小的编辑位置。"], "keywords_en": ["A three-surface marketing system organized around alternating black, white, and PlayStation Blue chapters that scroll past the viewer like a console launch trailer.", "Each section has a single editorial purpose — hero photography, console product render, PS Plus tier callout, news strip — and each owns one of three full-bleed canvas modes.", "The chrome is unusually quiet for a gaming brand: bright PlayStation Blue (`#0070d1`) carries every primary CTA as a fully-rounded pill, the proprietary SST face renders display copy at a signature weight 300 (light) for an airy, premium feel, and a crisp 8px-radius secondary card system carries product info on either canvas mode.", "The system never decorates — no gradient backgrounds on chrome, no atmospheric mesh, no drop shadows beyond a faint section-divide.", "Imagery does all the heavy lifting: console glamour shots, game key art, and PS Plus tier illustrations occupy 60-90% of every section, with copy compressed into a small editorial slot."], "link": "./media-consumer/playstation.html"}, {"slug": "uber", "name": "Uber Inspired", "name_zh": "Uber Inspired", "name_en": "Uber Inspired", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["对 Uber 设计语言的灵感诠释——一个运输和配送超级应用程序品牌，其网络表面是黑白二重奏，由定制的几何显示 sans 框住，每个交互元素上都有一个标志性的药丸形状（半径 999 像素），并仅以乘客、司机和城市物体的社论 4:3 插图进行装饰。"], "keywords_en": ["An inspired interpretation of Uber's design language — a transportation-and-delivery super-app brand whose web surface is a black-and-white duet, framed by a custom geometric display sans, accented by a single signature pill shape (radius 999px) on every interactive element, and decorated only by editorial 4:3 illustrations of riders, drivers, and city objects."], "link": "./media-consumer/uber.html"}, {"slug": "apple", "name": "Apple", "name_zh": "Apple", "name_en": "Apple", "accent": "#0071e3", "bg": "#f5f5f7", "keywords_zh": ["标准 Apple 设计系统目录，具有专门的组件和版式架构。"], "keywords_en": ["Standard Apple design system catalog featuring specialized components and typography schemas."], "link": "./media-consumer/apple.html"}, {"slug": "wired", "name": "Wired Inspired", "name_zh": "Wired Inspired", "name_en": "Wired Inspired", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["对《连线》设计语言的灵感诠释——旗舰科技杂志品牌，其表面是白色画布上纯黑色文字标记的严格社论二重奏，以用于英雄标题的高窄定制显示衬线、用于长篇阅读的人文主义衬线体字体和用于元数据的干净无字体；布局读起来就像一本印刷杂志移植到网络上，几乎没有任何营销镶边。"], "keywords_en": ["An inspired interpretation of Wired's design language — a flagship technology-magazine brand whose surface is a strict editorial duet of stark black wordmark on white canvas, anchored by a tall narrow custom display serif for hero headlines, a humanist serif body face for long-form reading, and a clean sans face for metadata; layout reads like a printed magazine ported to the web with very little marketing chrome."], "link": "./media-consumer/wired.html"}, {"slug": "spotify", "name": "Spotify", "name_zh": "Spotify", "name_en": "Spotify", "accent": "#1ed760", "bg": "#121212", "keywords_zh": ["标准 Spotify 设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Spotify design system catalog featuring specialized components and typography schemas."], "link": "./media-consumer/spotify.html"}, {"slug": "ibm", "name": "IBM", "name_zh": "IBM", "name_en": "IBM", "accent": "#0f62fe", "bg": "#ffffff", "keywords_zh": ["忠实于 Carbon 设计系统的企业营销画布：白色表面、木炭类型、IBM 蓝色 (#0f62fe) 作为唯一的自信口音，以及刻意的平面方形美学，其中角保持在 0-4 像素。", "Type 运行 IBM Plex Sans，显示尺寸为轻量级 300（品牌标志），正文和强调尺寸为 400/600。卡片就像薄边瓷砖一样，没有阴影；部分通过微妙的灰色行分开。镀铬是方形的，排版是浅色的，系统中唯一的颜色是一种自信的蓝色——结果读起来就像是为云时代重新设计的旧世界企业的庄严。”"], "keywords_en": ["An enterprise-marketing canvas faithful to Carbon Design System: white surfaces, charcoal type, IBM Blue (#0f62fe) as the single confident accent, and a deliberately flat-square aesthetic where corners stay at 0–4px.", "Type runs IBM Plex Sans at light weight 300 for display sizes (a brand signature) and 400/600 for body and emphasis.", "Cards live as thin-bordered tiles with no shadow; sections separate via subtle gray rows.", "The chrome is square, the typography is light, and the only color in the system is one assertive blue — the result reads as old-world enterprise gravitas reframed for the cloud era.\""], "link": "./media-consumer/ibm.html"}, {"slug": "vodafone", "name": "Vodafone Inspired", "name_zh": "Vodafone Inspired", "name_en": "Vodafone Inspired", "accent": "#e60000", "bg": "#ffffff", "keywords_zh": ["对沃达丰设计语言的灵感诠释——一个电信超级品牌，其网页表面在带有大写大写显示标题的编辑摄影英雄带和干净的白色内容带之间交替，以该公司标志性的猩红色 CTA 和专有的沃达丰显示屏 sans 为基础，重量设置为难以置信的重 800。"], "keywords_en": ["An inspired interpretation of Vodafone's design language — a telecom super-brand whose web surface alternates between editorial photography hero bands with massive uppercase display headlines and clean white content bands, anchored by the company's signature scarlet red CTA and the proprietary Vodafone display sans set at impossibly heavy 800 weight."], "link": "./media-consumer/vodafone.html"}, {"slug": "spacex", "name": "Spasex Inspired", "name_zh": "Spasex Inspired", "name_en": "Spasex Inspired", "accent": "#000000", "bg": "#ffffff", "keywords_zh": ["对 Spasex 设计语言的灵感诠释——一个以任务为导向的航空航天品牌，建立在纯黑色画布上，火箭和火星景观的全出血摄影和视频英雄，以及紧密垂直引导的大写 D-DIN 显示类型。", "UI 镶边有意做到极简：每个区域有一个幽灵轮廓的药丸按钮、全部大写的眉毛微缩文本以及摄影上方的固定顶部导航。这个系统毫无疑问是严峻的——黑色、白色和图像本身。"], "keywords_en": ["An inspired interpretation of Spasex's design language — a mission-oriented aerospace brand built on pure black canvas, full-bleed photographic and video heroes of rockets and Mars landscapes, and uppercase D-DIN display type set in tight vertical leading.", "UI chrome is intentionally minimal: a single ghost outlined pill button per band, all-caps eyebrow microtext, and a fixed top nav over photography.", "The system is unapologetically austere — black, white, and the imagery itself."], "link": "./media-consumer/spacex.html"}, {"slug": "nvidia", "name": "NVIDIA", "name_zh": "NVIDIA", "name_en": "NVIDIA", "accent": "#76b900", "bg": "#ffffff", "keywords_zh": ["工程级营销系统围绕两种表面模式组织起来——用于英雄和页脚章节的深黑色画布和用于正文内容的平面纸白色画布——通过一个几乎饱和的 NVIDIA 绿色口音连接，该口音带有每个 CTA、每个活动选项卡以及标记卡片的小装饰角方块。该系统的角度无可挑剔：每个表面的半径均为 2 像素，采用 NVIDIA 专有的 EMEA 剪裁的紧密粗体无衬线字体，以及分隔密集多列技术内容的细线灰色规则。没有装饰渐变，没有大气网格，没有柔和的阴影——只有黑色、白色、灰色和绿色堆叠成结构化的编辑网格，可以从产品卡扩展到大量的行业登陆页面，而不改变其规则。"], "keywords_en": ["An engineering-grade marketing system organized around two surface modes — a deep black canvas for hero and footer chapters and a flat paper-white canvas for body content — connected by a single, almost violently saturated NVIDIA Green accent that carries every CTA, every active tab, and the small decorative corner squares that mark out cards.", "The system is unapologetically angular: 2px radius across every surface, tight bold sans-serif typography in NVIDIA's proprietary EMEA cut, and a hairline gray rule that separates dense multi-column technical content.", "There is no decorative gradient, no atmospheric mesh, no soft drop shadow — just black, white, gray, and green stacked into a structured editorial grid that scales from product cards to massive industry landing pages without bending its rules."], "link": "./media-consumer/nvidia.html"}, {"slug": "pinterest", "name": "Pinterest", "name_zh": "Pinterest", "name_en": "Pinterest", "accent": "#e60023", "bg": "#ffffff", "keywords_zh": ["摄影优先的发现系统围绕 Pinterest 红色 CTA、砖石针网格和不妨碍图像的柔和暖奶油色铬合金组织而成。主页是一个内容发现工具，采用杂志出版商的镀铬设计：70 像素的显示标题、友好的 Pin Sans 版式、奶油色中性调色板上的全圆形药丸按钮 (16 像素)，以及固定每个视口的粘性红色“注册”CTA。图钉图像是系统的承重视觉元素 - 方形、纵向和横向图钉平铺在基于列的砖石网格中，其中每个图块都是一个全圆形的 16px 半径卡片，由紧密的 8px 间距分隔。铬合金在其他方面很安静：温暖的灰色、纯白色和单一的饱和红色——没有装饰渐变，没有大气背景，除了柔软的莫代尔稀松布之外没有阴影。"], "keywords_en": ["A photography-first discovery system organized around the Pinterest Red CTA, the masonry pin grid, and a soft warm-cream chrome that gets out of the imagery's way.", "The home page is a content-discovery tool wearing the chrome of a magazine publisher: 70px display headlines, friendly Pin Sans typography, fully-rounded pill buttons (16px) on a cream-tinted neutral palette, and a sticky red \"Sign up\" CTA that anchors every viewport.", "Pin imagery is the system's load-bearing visual element — square, portrait, and landscape pins tile in a column-based masonry grid where each tile is a fully-rounded 16px-radius card, separated by tight 8px gutters.", "The chrome is otherwise quiet: warm grays, true whites, and a single saturated red — no decorative gradients, no atmospheric backgrounds, no shadows beyond a soft modal scrim."], "link": "./media-consumer/pinterest.html"}, {"slug": "theverge", "name": "Theverge", "name_zh": "Theverge", "name_en": "Theverge", "accent": "#3cffd0", "bg": "#131313", "keywords_zh": ["标准 Theverge 设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Theverge design system catalog featuring specialized components and typography schemas."], "link": "./media-consumer/theverge.html"}]}, "automotive": {"name": "Automotive", "brands": [{"slug": "bmw-m", "name": "BMW M", "name_zh": "BMW M", "name_en": "BMW M", "accent": "#ffffff", "bg": "#000000", "keywords_zh": ["赛车运动工程界面固定在近乎黑色的画布上，白色 BMW Type Next Latin 显示大写字母标题。该品牌没有任何装饰性的电压——它的能量来自于全出血的汽车摄影（赛道上的汽车、驾驶员驾驶舱的照片、碳纤维细节）和标志性的 M 三色条纹（浅蓝色 → 深蓝色 → 红色），在标志、分隔线和赛车镀铬上很少用作品牌标志。字体保持轻到中等的重量，给人一种欧洲设计的感觉，而不是美国式的浮夸。"], "keywords_en": ["A motorsport-engineering interface anchored on a near-black canvas with white BMW Type Next Latin display headlines in confident UPPERCASE.", "The brand carries no decorative voltage — its energy comes from full-bleed automotive photography (cars on tracks, driver-cockpit shots, carbon-fiber detail) and the iconic M tricolor stripe (light blue → dark blue → red) used sparingly as a brand signature on logos, dividers, and motorsport chrome.", "Type stays light to medium weight to feel European-engineered, never American-bombastic."], "link": "./automotive/bmw-m.html"}, {"slug": "ferrari", "name": "Ferrari", "name_zh": "Ferrari", "name_en": "Ferrari", "accent": "#da291c", "bg": "#181818", "keywords_zh": ["一个豪华汽车品牌，其营销表面看起来就像电影社论。基础画布是**近黑色**（`#181818`），保持纯白色显示类型；白色帆布带仅出现在特定的编辑环境中（二手列表、定价表）。单一品牌电压是 **Rosso Corsa** (`#da291c`) - 标志性的法拉利赛车红色 - 几乎不用于主要 CTA、卡瓦利诺标志和一级方程式赛车位置亮点。类型以适中的重量（显示 500，车身 400）运行 **FerrariSans** — 绝不浮夸。间距遵循明确的 8 像素标记阶梯（“xxxs”4 像素到“超级”128 像素）；整个编辑节奏慷慨。该品牌最强烈的视觉标志是**全出血电影英雄照片**，它在视口顶部填充了汽车摄影、模型细节或赛道旁制服，然后是下面更紧凑的编辑主体布局。"], "keywords_en": ["A luxury-automotive brand whose marketing surfaces read as cinematic editorial.", "The base canvas is **near-black** (`#181818`) holding pure white display type; white-canvas bands appear only inside specific editorial contexts (preowned listings, pricing tables).", "The single brand voltage is **Rosso Corsa** (`#da291c`) — the iconic Ferrari racing red — used scarcely on primary CTAs, the Cavallino mark, and Formula 1 race-position highlights.", "Type runs **FerrariSans** at modest weights (display 500, body 400) — never bombastic.", "Spacing follows an explicit 8px token ladder (`xxxs` 4px through `super` 128px); generous editorial pacing throughout.", "The brand's strongest visual signature is the **full-bleed cinematic hero photograph** that fills the viewport top with car photography, model details, or trackside livery — followed by a tighter editorial body layout below."], "link": "./automotive/ferrari.html"}, {"slug": "bmw", "name": "BMW", "name_zh": "BMW", "name_en": "BMW", "accent": "#1c69d4", "bg": "#ffffff", "keywords_zh": ["BMW 的公司网站 — 与 BMW M 的赛车运动夸张版本不同，这是一个经过深思熟虑且稳定的公司汽车界面。在浅色（奶油色白色）画布上，BMW 企业蓝 (#1c69d4) 包含所有主要 CTA；暗海军英雄乐队框架模型摄影。", "BMW Type Next Latin 将整个层次结构设置在两个重量上：重型 700 显示屏和轻型 300 车身。配置和预订流程采用基于卡片的 4-up 网格，其中每张卡片都包含模型渲染、名称和“了解更多”链接。"], "keywords_en": ["BMW's corporate site — distinct from BMW M's motorsport-bombastic variant, this is a measured and settled corporate-automotive interface.", "On a light (cream-tinted white) canvas, BMW corporate blue (#1c69d4) carries every primary CTA; dark navy hero bands frame model photography.", "BMW Type Next Latin sets the entire hierarchy on two weights — heavy 700 display and Light 300 body.", "Configuration and reservation flows ride a card-based 4-up grid, where each card holds a model render, a name, and a \"Learn More\" link."], "link": "./automotive/bmw.html"}, {"slug": "tesla", "name": "Tesla", "name_zh": "Tesla", "name_en": "Tesla", "accent": "#3E6AE1", "bg": "#3E6AE1", "keywords_zh": ["标准特斯拉设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Tesla design system catalog featuring specialized components and typography schemas."], "link": "./automotive/tesla.html"}, {"slug": "renault", "name": "Renault", "name_zh": "Renault", "name_en": "Renault", "accent": "#ffed00", "bg": "#ffffff", "keywords_zh": ["雷诺的网络形象将新近现代化的雷诺菱形（2021 年平线菱形标记）与鲜明的黑白画布、标志性的阳光黄口音和专有的 NouvelR 显示字体搭配在一起。该系统读起来是自信的、摄影优先的汽车——中性或大气背景下的大型英雄汽车、方形边缘或几乎圆形的容器，以及一个纪律严明的小调色板，其中每个颜色元素都是有意的。瓷砖网格、全出血横幅和反复出现的“配置器”表面（白卡、黄色强调点、中性产品镀铬）承载着大众市场经销商的基调，但又不会陷入奢华。"], "keywords_en": ["Renault's web presence pairs the freshly-modernised Renault diamond (the 2021 flat-line rhombus mark) with a stark black-and-white canvas, a signature Sunlight Yellow accent, and the proprietary NouvelR display typeface.", "The system reads as confident, photography-first automotive — large hero cars on neutral or atmospheric backdrops, square-edged or barely-rounded containers, and a small disciplined palette where every coloured element is intentional.", "Tile grids, full-bleed banners, and a recurring \"configurator\" surface (white card, yellow accent dots, neutral product chrome) carry the mass-market dealership tone without crossing into luxury."], "link": "./automotive/renault.html"}, {"slug": "bugatti", "name": "Bugatti", "name_zh": "Bugatti", "name_en": "Bugatti", "accent": "#ffffff", "bg": "#000000", "keywords_zh": ["朴素的豪华汽车界面，使用近乎纯黑色的画布、白色大写字母间隔显示屏和全出血汽车摄影作为唯一的电压。该系统运行三种定制的布加迪字体——布加迪显示、布加迪文本常规和布加迪等宽字体——并将它们以适度的粗细与宽跟踪结合起来，给人一种欧洲设计的、超简约的和悄然昂贵的感觉。没有强调色、没有装饰元素、没有镀铬——只有摄影、排版和品牌文字标记。"], "keywords_en": ["An austere luxury-automotive interface that uses near-pure black canvas, white uppercase letterspaced display, and full-bleed automotive photography as the only voltage.", "The system runs three custom Bugatti typefaces — Bugatti Display, Bugatti Text Regular, and Bugatti Monospace — and combines them at modest weights with wide tracking to feel European-engineered, hyper-minimal, and quietly expensive.", "There is no accent color, no decorative element, no chrome — only photography, typography, and the brand wordmark."], "link": "./automotive/bugatti.html"}, {"slug": "lamborghini", "name": "Lamborghini", "name_zh": "Lamborghini", "name_en": "Lamborghini", "accent": "#FFC000", "bg": "#000000", "keywords_zh": ["标准兰博基尼设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Lamborghini design system catalog featuring specialized components and typography schemas."], "link": "./automotive/lamborghini.html"}]}, "other": {"name": "General / Core Layouts", "brands": [{"slug": "editorial", "name": "Editorial", "name_zh": "Editorial", "name_en": "Editorial", "accent": "#1f4e46", "bg": "#f4efe6", "keywords_zh": ["标准编辑设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Editorial design system catalog featuring specialized components and typography schemas."], "link": "./other/editorial.html"}, {"slug": "mono", "name": "Mono", "name_zh": "Mono", "name_en": "Mono", "accent": "#f2f2f2", "bg": "#050505", "keywords_zh": ["标准 Mono 设计系统目录，具有专门的组件和排版模式。"], "keywords_en": ["Standard Mono design system catalog featuring specialized components and typography schemas."], "link": "./other/mono.html"}, {"slug": "dig", "name": "Dig", "name_zh": "Dig", "name_en": "Dig", "accent": "#37d67a", "bg": "#06121a", "keywords_zh": ["标准 Dig 设计系统目录具有专门的组件和排版模式。"], "keywords_en": ["Standard Dig design system catalog featuring specialized components and typography schemas."], "link": "./other/dig.html"}]}};
+      
+      // Compute global total count
+      let globalCount = 0;
+      for (const cat in catalogData) {
+        globalCount += catalogData[cat].brands.length;
+      }
+      
+      // Helper function to extract RGB from hex for shadow hover
+      function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) {
+          hex = hex.split('').map(c => c + c).join('');
+        }
+        const num = parseInt(hex, 16);
+        return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+      }
+      
+      // Bilingual constants
+      const categoryNames = {
+        "ai-llm": { zh: "AI & 大语言模型平台", en: "AI & LLM Platforms" },
+        "dev-tools": { zh: "开发者工具与 IDE", en: "Developer Tools & IDEs" },
+        "devops": { zh: "后端、数据库与运维 DevOps", en: "Backend, Database & DevOps" },
+        "saas": { zh: "生产力与 SaaS", en: "Productivity & SaaS" },
+        "creative-tools": { zh: "设计与创意工具", en: "Design & Creative Tools" },
+        "fintech": { zh: "金融科技与加密货币", en: "Fintech & Crypto" },
+        "ecommerce": { zh: "电子商务与零售", en: "E-commerce & Retail" },
+        "media-consumer": { zh: "媒体与消费科技", en: "Media & Consumer Tech" },
+        "automotive": { zh: "汽车工业", en: "Automotive" },
+        "other": { zh: "通用与核心布局", en: "General & Core Layouts" }
+      };
+
+      const searchPlaceholder = {
+        zh: "在 71 套顶级品牌设计系统中搜索（例如 Vercel, Stripe, Claude...）",
+        en: "Search in 71 premium brand design systems (e.g. Vercel, Stripe, Claude...)"
+      };
+
+      const allTemplatesLabel = {
+        zh: "全部模版",
+        en: "All Templates"
+      };
+
+      const previewBtnLabel = {
+        zh: "预览渲染页",
+        en: "Preview Render"
+      };
+
+      // State tracking
+      let activeLanguage = 'zh';
+      let activeCategory = 'all';
+      let searchQuery = '';
+
+      // Helper function to extract RGB from hex for shadow hover
+      function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        if (hex.length === 3) {
+          hex = hex.split('').map(c => c + c).join('');
+        }
+        const num = parseInt(hex, 16);
+        return `${(num >> 16) & 255}, ${(num >> 8) & 255}, ${num & 255}`;
+      }
+
+      // Render category tabs dynamically
+      const tabsContainer = document.getElementById('cat-tabs');
+      function renderTabs() {
+        const lang = activeLanguage;
+        tabsContainer.innerHTML = `<div class="tab ${activeCategory === 'all' ? 'active' : ''}" data-cat="all">${allTemplatesLabel[lang]} (${globalCount})</div>`;
+        
+        for (const cat in catalogData) {
+          if (catalogData[cat].brands.length > 0) {
+            const tab = document.createElement('div');
+            tab.className = `tab ${activeCategory === cat ? 'active' : ''}`;
+            tab.setAttribute('data-cat', cat);
+            const catName = categoryNames[cat] ? categoryNames[cat][lang] : catalogData[cat].name;
+            tab.textContent = `${catName} (${catalogData[cat].brands.length})`;
+            tabsContainer.appendChild(tab);
+          }
+        }
+      }
+
+      // Render layout based on search, category and language filters
+      const container = document.getElementById('brands-container');
+      const searchInput = document.getElementById('brand-search');
+
+      function render() {
+        const lang = activeLanguage;
+        container.innerHTML = '';
+        let totalRendered = 0;
+
+        for (const cat in catalogData) {
+          if (activeCategory !== 'all' && activeCategory !== cat) continue;
+
+          // Filter brands based on search
+          const filteredBrands = catalogData[cat].brands.filter(b => {
+            const nameToSearch = (b[`name_${lang}`] || b.name || '').toLowerCase();
+            const slugToSearch = (b.slug || '').toLowerCase();
+            
+            // Search all keyword fields across both languages
+            const keywordsArray = b[`keywords_${lang}`] || b.keywords || [];
+            const keywordsToSearch = keywordsArray.some(k => k.toLowerCase().includes(searchQuery.toLowerCase()));
+            
+            return nameToSearch.includes(searchQuery.toLowerCase()) || 
+                   slugToSearch.includes(searchQuery.toLowerCase()) || 
+                   keywordsToSearch;
+          });
+
+          if (filteredBrands.length === 0) continue;
+
+          totalRendered += filteredBrands.length;
+
+          // Create category section
+          const section = document.createElement('section');
+          section.className = 'category-section';
+          section.id = `section-${cat}`;
+
+          const catName = categoryNames[cat] ? categoryNames[cat][lang] : catalogData[cat].name;
+          const sectionTitle = document.createElement('div');
+          sectionTitle.className = 'category-title';
+          sectionTitle.innerHTML = `
+            <span>${catName}</span>
+            <span class="category-count">${filteredBrands.length}</span>
+          `;
+          section.appendChild(sectionTitle);
+
+          const grid = document.createElement('div');
+          grid.className = 'brand-grid';
+
+          filteredBrands.forEach(b => {
+            const card = document.createElement('a');
+            card.className = 'brand-card';
+            card.href = b.link;
+            card.target = '_blank';
+            card.style.setProperty('--accent-color', b.accent);
+            card.style.setProperty('--accent-rgb', hexToRgb(b.accent));
+
+            const name = b[`name_${lang}`] || b.name;
+            const keywords = b[`keywords_${lang}`] || b.keywords || [];
+
+            // Build keywords html
+            const keywordsHtml = keywords.map(k => `<span class="keyword-badge">${k}</span>`).join('');
+
+            card.innerHTML = `
+              <div class="brand-header">
+                <h3 class="brand-name">${name}</h3>
+                <div class="brand-accent-dot"></div>
+              </div>
+              <div class="brand-keywords">
+                ${keywordsHtml}
+              </div>
+              <div class="brand-footer">
+                <span class="open-btn">
+                  ${previewBtnLabel[lang]}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </span>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+
+          section.appendChild(grid);
+          container.appendChild(section);
+        }
+
+        // Show/hide empty state
+        const emptyState = document.getElementById('empty-state');
+        if (totalRendered === 0) {
+          emptyState.style.display = 'block';
+        } else {
+          emptyState.style.display = 'none';
+        }
+      }
+
+      // Language Switcher handler
+      function setLanguage(lang) {
+        activeLanguage = lang;
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+        // Toggle button states
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+
+        // Translate headers and static nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+
+        // Update search placeholder
+        searchInput.placeholder = searchPlaceholder[lang];
+
+        // Re-render tabs and brands
+        renderTabs();
+        render();
+      }
+
+      // Initialise listeners
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+      });
+
+      // Set up tabs listeners
+      tabsContainer.addEventListener('click', (e) => {
+        const tab = e.target.closest('.tab');
+        if (!tab) return;
+
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        activeCategory = tab.getAttribute('data-cat');
+        render();
+      });
+
+      // Set up search listener
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        render();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Dig UI"
+  short_description: "Dig 视觉语言与 CSS Token"
+  default_prompt: "使用 $dig-ui 定义或审查 Dig 专属的 UI token、字体、网格与 CSS 样式规则。"
+
+policy:
+  allow_implicit_invocation: true

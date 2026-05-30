@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Dig Render</title>
+    <link rel="stylesheet" href="../../assets/catalog-preview.css" />
+    <style>
+      :root {
+        color-scheme: dark;
+        --dig-bg: #06121a;
+        --dig-bg-soft: #0b1b26;
+        --dig-surface: rgba(11, 27, 38, 0.78);
+        --dig-surface-strong: rgba(16, 32, 44, 0.92);
+        --dig-surface-elevated: rgba(20, 39, 53, 0.96);
+        --dig-text: #ecf3f8;
+        --dig-text-muted: #8aa0b2;
+        --dig-text-soft: #62798c;
+        --dig-accent: #37d67a;
+        --dig-accent-strong: #20bf66;
+        --dig-accent-2: #4fb3ff;
+        --dig-accent-2-strong: #2697eb;
+        --dig-border: rgba(138, 160, 178, 0.16);
+        --dig-border-strong: rgba(138, 160, 178, 0.28);
+        --dig-grid-line: rgba(138, 160, 178, 0.08);
+        --dig-success: #37d67a;
+        --dig-warning: #f3b64c;
+        --dig-danger: #f06a6a;
+        --dig-info: #4fb3ff;
+        --dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+        --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        --dig-font-serif: "Noto Serif SC", serif;
+        --dig-text-xs: 12px;
+        --dig-text-sm: 14px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 18px;
+        --dig-text-xl: 20px;
+        --dig-text-2xl: 24px;
+        --dig-text-3xl: 32px;
+        --dig-text-4xl: 40px;
+        --dig-text-5xl: 56px;
+        --dig-leading-tight: 1.15;
+        --dig-leading-snug: 1.3;
+        --dig-leading-normal: 1.55;
+        --dig-leading-relaxed: 1.72;
+        --dig-tracking-tight: -0.03em;
+        --dig-tracking-normal: 0;
+        --dig-tracking-wide: 0.08em;
+        --dig-space-1: 4px;
+        --dig-space-2: 8px;
+        --dig-space-3: 12px;
+        --dig-space-4: 16px;
+        --dig-space-5: 24px;
+        --dig-space-6: 32px;
+        --dig-space-7: 48px;
+        --dig-space-8: 64px;
+        --dig-radius-sm: 10px;
+        --dig-radius-md: 16px;
+        --dig-radius-lg: 24px;
+        --dig-radius-xl: 32px;
+        --dig-radius-pill: 999px;
+        --dig-stroke-thin: 1px;
+        --dig-stroke-strong: 1.5px;
+        --dig-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.24);
+        --dig-shadow-panel: 0 24px 80px rgba(2, 10, 18, 0.34);
+        --dig-glow-accent: 0 0 0 1px rgba(55, 214, 122, 0.22), 0 0 40px rgba(55, 214, 122, 0.12);
+        --dig-glow-secondary: 0 0 0 1px rgba(79, 179, 255, 0.18), 0 0 36px rgba(79, 179, 255, 0.1);
+        --dig-shell-max: 1440px;
+        --dig-grid-columns: 12;
+        --dig-grid-gutter: 24px;
+        --dig-grid-gutter-mobile: 16px;
+        --dig-grid-cell-min: 72px;
+    }
+
+      body::before {
+        background:
+          radial-gradient(circle, #52525b 1px, transparent 1px);
+        background-size: 8px 8px;
+        opacity: 0.62;
+      }
+      
+      /* Floating Language Switcher */
+      .lang-switch-capsule {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
+        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 8px;
+        border-radius: 99px;
+        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
+        z-index: 9999;
+      }
+      .lang-btn {
+        background: transparent;
+        border: none;
+        color: var(--dig-text-soft, #62798c);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 99px;
+        transition: all 0.2s ease;
+        font-family: var(--dig-font-sans), sans-serif;
+      }
+      .lang-btn.active {
+        background: var(--dig-accent, #37d67a);
+        color: var(--dig-bg, #06121a);
+      }
+      .lang-btn:hover:not(.active) {
+        color: var(--dig-text, #ecf3f8);
+      }
+      .lang-split {
+        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
+        font-size: 12px;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Floating Language Switcher Capsule -->
+    <div class="lang-switch-capsule">
+      <button class="lang-btn" data-lang="zh">中</button>
+      <span class="lang-split">/</span>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+
+    <main class="preview-shell">
+      <section class="hero">
+        <div class="surface hero-main">
+          <span class="eyebrow"><span class="brand-name-label">Dig</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1">Dig</h1>
+          <p class="brand-description-p" data-zh="标准 Dig 设计系统目录具有专门的组件和排版模式。" data-en="Standard Dig design system catalog featuring specialized components and typography schemas.">标准 Dig 设计系统目录具有专门的组件和排版模式。</p>
+        </div>
+        <aside class="surface surface-strong hero-side">
+          <div class="hero-meta">
+            <div class="meta-row"><span data-zh="强调色" data-en="Accent">Accent</span><span class="token-val" data-token="--dig-accent">#37D67A</span></div>
+            <div class="meta-row"><span data-zh="辅助色" data-en="Support">Support</span><span class="token-val" data-token="--dig-accent-2">#4FB3FF</span></div>
+            <div class="meta-row"><span data-zh="正文" data-en="Body">Body</span><span><span class="token-val" data-token="--dig-text-md">16px</span> / <span class="token-val" data-token="--dig-leading-normal">1.55</span></span></div>
+            <div class="meta-row"><span data-zh="标题" data-en="Title">Title</span><span><span class="token-val" data-token="--dig-text-5xl">56px</span> / <span class="token-val" data-token="--dig-leading-tight">1.03</span></span></div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#type" data-zh="字体层级" data-en="Typography">字体层级</a>
+            <a href="#buttons" data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</a>
+            <a href="#panels" data-zh="面板与状态" data-en="Panels & Status">面板与状态</a>
+            <a href="#tokens" data-zh="关键 token" data-en="Key Tokens">关键 token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p data-zh="深矿物背景 + run green 主动作 + cool blue 技术辅助色" data-en="Dark mineral background + run green primary + cool blue technical accent">深矿物背景 + run green 主动作 + cool blue 技术辅助色</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong data-zh="背景底色" data-en="Background">Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">#06121A</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg-soft)"></div><div class="swatch-meta"><strong data-zh="次级底色" data-en="Background Soft">Background Soft</strong><div class="meta-small mono token-val" data-token="--dig-bg-soft">#0B1B26</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong data-zh="强调色" data-en="Accent">Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">#37D67A</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong data-zh="辅助强调色" data-en="Accent 2">Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">#4FB3FF</div></div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="type">
+            <div class="section-head">
+              <h3 data-zh="字体层级" data-en="Typography Hierarchy">字体层级</h3>
+              <p data-zh="sans 为默认 UI 字体，mono 用于元信息和状态" data-en="sans is the default UI font, mono is for meta information and status">sans 为默认 UI 字体，mono 用于元信息和状态</p>
+            </div>
+            <div class="type-grid">
+              <article class="type-card">
+                <strong data-zh="大屏主标题" data-en="Hero Title">Hero Title</strong>
+                <div class="type-showcase type-hero" data-zh="部署 Agent，掌控一切" data-en="Deploy Agents With Control">Deploy Agents With Control</div>
+                <div class="meta-small mono">56px / 1.03 / 800 / -0.04em</div>
+              </article>
+              <article class="type-card">
+                <strong data-zh="栏目正标题" data-en="Section Title">Section Title</strong>
+                <div class="type-showcase type-section" data-zh="把工作流变成运行中的系统" data-en="Turn workflows into running systems">把工作流变成运行中的系统</div>
+                <div class="meta-small mono">32px / 1.15 / 800 / -0.03em</div>
+              </article>
+              <article class="type-card">
+                <strong data-zh="卡片内标题" data-en="Panel Title">Panel Title</strong>
+                <div class="type-showcase type-panel" data-zh="智能代理执行总览" data-en="Agent Execution Overview">Agent Execution Overview</div>
+                <div class="meta-small mono">20px / 1.3 / 700</div>
+              </article>
+              <article class="type-card">
+                <strong data-zh="正文与元数据" data-en="Body + Meta">Body + Meta</strong>
+                <div class="type-showcase type-body" data-zh="Dig 风格要让人感到系统已经在运行，而不是还停留在概念说明阶段。" data-en="The Dig style should make people feel that the system is already running, rather than staying in a conceptual stage.">Dig 风格要让人感到系统已经在运行，而不是还停留在概念说明阶段。</div>
+                <div class="type-meta" data-zh="延迟 / 状态 / 触发器 / 日志" data-en="Latency / State / Trigger / Logs">Latency / State / Trigger / Logs</div>
+              </article>
+            </div>
+          </section>
+
+          <section class="surface section" id="buttons">
+            <div class="section-head">
+              <h3 data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</h3>
+              <p data-zh="强调动作清晰度，不做夸张位移" data-en="Focus on clear action cues, no excessive layouts">强调动作清晰度，不做夸张位移</p>
+            </div>
+            <div class="button-grid">
+              <article class="button-card"><strong data-zh="主动作" data-en="Primary">Primary</strong><button class="btn btn-primary" data-zh="应用 Dig" data-en="Apply Dig">Apply Dig</button></article>
+              <article class="button-card"><strong data-zh="次要动作" data-en="Secondary">Secondary</strong><button class="btn btn-secondary" data-zh="打开控制台" data-en="Open Console">Open Console</button></article>
+              <article class="button-card"><strong data-zh="幽灵按钮" data-en="Ghost">Ghost</strong><button class="btn btn-ghost" data-zh="查看日志" data-en="View Logs">View Logs</button></article>
+            </div>
+            <div class="chip-row">
+              <span class="chip" data-zh="活动中" data-en="Active">Active</span>
+                      </div>
+            <div class="panel-grid">
+              <article class="panel-card">
+                <div class="panel-top"><strong data-zh="Dig 健康度" data-en="Dig Health">Dig Health</strong><span class="status" data-zh="健康" data-en="Healthy">Healthy</span></div>
+                <p data-zh="面板应有明确的组织结构、细边框和轻 glow，像控制平面，而不是毛玻璃社交卡片。" data-en="Panels should have clear organization, thin borders, and subtle glows like a control plane, rather than frosted social cards.">面板应有明确的组织结构、细边框和轻 glow，像控制平面，而不是毛玻璃社交卡片。</p>
+              </article>
+              <article class="panel-card">
+                <div class="panel-top"><strong data-zh="执行流追踪" data-en="Execution Trace">Execution Trace</strong><span class="status" data-zh="流式传输中" data-en="Streaming">Streaming</span></div>
+                <p data-zh="支持状态色，但状态色必须服务信息表达，不要出现高饱和多色抢主导的问题。" data-en="Support semantic states, but state colors must serve info expression without high-saturation color clashing.">支持状态色，但状态色必须服务信息表达，不要出现高饱和多色抢主导的问题。</p>
+              </article>
+            </div>
+          </section>
+
+          <section class="surface section">
+            <div class="section-head">
+              <h3 data-zh="数字表达" data-en="Numeric Focus">数字表达</h3>
+              <p data-zh="数字是关键视觉锚点，可以比正文更有力量" data-en="Numerics are critical visual anchors, expressing stronger priority than body text">数字是关键视觉锚点，可以比正文更有力量</p>
+            </div>
+            <div class="stat-grid">
+              <article class="stat-card"><strong data-zh="P95 延迟" data-en="P95 Latency">P95 Latency</strong><div class="value">182ms</div><div class="note" data-zh="稳定、克制、可读" data-en="Stable, restrained, highly readable">稳定、克制、可读</div></article>
+              <article class="stat-card"><strong data-zh="活动中 Agent" data-en="Active Agents">Active Agents</strong><div class="value">128</div><div class="note" data-zh="支持主视觉聚焦" data-en="Supports primary center focus">支持主视觉聚焦</div></article>
+              <article class="stat-card"><strong data-zh="部署成功率" data-en="Success Rate">Success Rate</strong><div class="value">99.2%</div><div class="note" data-zh="使用主色或正文色即可" data-en="Use primary accent or body text tint">使用主色或正文色即可</div></article>
+              <article class="stat-card"><strong data-zh="平均部署耗时" data-en="Deploy Time">Deploy Time</strong><div class="value">43s</div><div class="note" data-zh="避免装饰性过强" data-en="Avoid over-decoration and noise">避免装饰性过强</div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档" data-en="This section helps you cross-reference and write back to your catalog markdown">这部分方便你对照 HTML 直接回写 catalog 文档</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <strong data-zh="常见颜色" data-en="Color Tokens">常见颜色</strong>
+                <table class="token-table">
+                  <tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr>
+                  <tr><td class="mono">--dig-bg</td><td class="mono token-val" data-token="--dig-bg">#06121a</td></tr>
+                  <tr><td class="mono">--dig-accent</td><td class="mono token-val" data-token="--dig-accent">#37d67a</td></tr>
+                  <tr><td class="mono">--dig-accent-2</td><td class="mono token-val" data-token="--dig-accent-2">#4fb3ff</td></tr>
+                  <tr><td class="mono">--dig-border</td><td class="mono token-val" data-token="--dig-border">rgba(138,160,178,0.16)</td></tr>
+                </table>
+              </article>
+              <article class="table-card">
+                <strong data-zh="排版与组件 (YAML)" data-en="Typography & Components (YAML)">排版与组件 (YAML)</strong>
+                <p style="font-size: 13px; opacity: 0.8; margin-top: 8px; margin-bottom: 0;" data-zh="已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 {typography.xxx} 等直接控制组件。" data-en="Upgraded to strict YAML mapping syntax (see catalog markdown), controlling components via {typography.xxx} directly.">已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。</p>
+                <pre style="background: rgba(0,0,0,0.1); border: 1px solid var(--dig-border); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; opacity: 0.8; font-family: var(--dig-font-mono); overflow-x: auto; margin-bottom: 0;">typography:
+  hero-title:
+    fontSize: var(...)
+components:
+  button-primary:
+    padding: 12px 24px</pre>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  
+    <script>
+
+      // Interactive Language Switcher Controller
+      function setLanguage(lang) {
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+        
+        // Toggle active classes on switcher buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+        
+        // Translate all data-zh/data-en text nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+
+      // Initialise state
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+        
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+
+        // Dynamic Token Visualizer
+        const rootStyles = getComputedStyle(document.documentElement);
+        document.querySelectorAll('.token-val').forEach(el => {
+          const tokenName = el.getAttribute('data-token');
+          if (tokenName) {
+            let value = rootStyles.getPropertyValue(tokenName).trim();
+            if (value) {
+              if (value.startsWith('#')) {
+                value = value.toUpperCase();
+              }
+              el.textContent = value;
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
