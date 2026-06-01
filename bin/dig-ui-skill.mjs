@@ -43,6 +43,10 @@ const SKILL_DIRS = ["references", "assets", "renders", "agents", "react"];
 
 const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
 
+const USER_CONFIG_DIR = path.join(os.homedir(), ".config", "dig-ui-skill");
+const USER_LOCAL_RULES_PATH = path.join(USER_CONFIG_DIR, "global-rules.local.md");
+const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
+
 const CURSOR_RULE_TEMPLATE = path.join(
   PACKAGE_ROOT,
   "adapters",
@@ -56,6 +60,9 @@ function printHelp() {
 Usage:
   dig-ui-skill install <target> [options]
   dig-ui-skill update <target> [options]
+  dig-ui-skill init-local [options]
+  dig-ui-skill sync-local <target> [options]
+  dig-ui-skill import-local <target> [options]
   dig-ui-skill status
 
 Targets:
@@ -63,9 +70,18 @@ Targets:
   cursor        Install to ~/.cursor/skills/dig-ui
   claude-code   Install to ~/.claude/skills/dig-ui (alias: claude)
 
+User config (local rules source of truth):
+  ~/.config/dig-ui-skill/global-rules.local.md
+
 Options:
-  --all                 Install/update all supported targets
-  --link                Use symlink instead of copy (good for local dev)
+  --all                 Install/update/sync all supported targets
+  --link                Use symlink instead of copy for skill install (local dev)
+  --link-local          Use symlink instead of copy when syncing local rules
+  --with-local          After update, sync user local rules to targets
+  --from-config         On conflict, overwrite target with user config
+  --from-target         On conflict, import target local rules into user config
+  --backup              Before overwrite, create a .backup file
+  --skip-conflicts      Skip conflicting targets and continue
   --source <path>       Source repo path (default: package root)
   --project <path>      Cursor only: also install .cursor/rules/dig-ui.mdc
   -h, --help            Show this help
@@ -74,7 +90,10 @@ Examples:
   npx dig-ui-skill install cursor
   npx dig-ui-skill install cursor --project .
   npx dig-ui-skill install --all --source .
-  npx dig-ui-skill update codex
+  npx dig-ui-skill update --all --with-local --from-config
+  npx dig-ui-skill init-local
+  npx dig-ui-skill sync-local --all --from-config
+  npx dig-ui-skill import-local cursor
   npx dig-ui-skill status
 `);
 }
@@ -86,6 +105,12 @@ function parseArgs(argv) {
     targets: [],
     all: false,
     link: false,
+    linkLocal: false,
+    withLocal: false,
+    fromConfig: false,
+    fromTarget: false,
+    backup: false,
+    skipConflicts: false,
     source: PACKAGE_ROOT,
     project: null,
     help: false,
@@ -108,6 +133,42 @@ function parseArgs(argv) {
 
     if (arg === "--link") {
       options.link = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--link-local") {
+      options.linkLocal = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--with-local") {
+      options.withLocal = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--from-config") {
+      options.fromConfig = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--from-target") {
+      options.fromTarget = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--backup") {
+      options.backup = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--skip-conflicts") {
+      options.skipConflicts = true;
       index += 1;
       continue;
     }
@@ -190,6 +251,210 @@ async function removePath(targetPath) {
 
 async function ensureDir(dirPath) {
   await fsp.mkdir(dirPath, { recursive: true });
+}
+
+function getTargetLocalRulesPath(targetKey) {
+  return path.join(TARGETS[targetKey].skillDir(), LOCAL_RULES_RELATIVE);
+}
+
+async function readFileIfExists(filePath) {
+  if (!(await pathExists(filePath))) {
+    return null;
+  }
+  return fsp.readFile(filePath, "utf8");
+}
+
+async function filesContentEqual(pathA, pathB) {
+  const contentA = await readFileIfExists(pathA);
+  const contentB = await readFileIfExists(pathB);
+  if (contentA === null && contentB === null) {
+    return true;
+  }
+  if (contentA === null || contentB === null) {
+    return false;
+  }
+  return contentA === contentB;
+}
+
+async function isSymlinkTo(filePath, expectedTarget) {
+  if (!(await pathExists(filePath))) {
+    return false;
+  }
+  const stat = await fsp.lstat(filePath);
+  if (!stat.isSymbolicLink()) {
+    return false;
+  }
+  const linkTarget = await fsp.readlink(filePath);
+  return (
+    path.resolve(path.dirname(filePath), linkTarget) ===
+    path.resolve(expectedTarget)
+  );
+}
+
+async function backupFile(filePath) {
+  const backupPath = `${filePath}.backup`;
+  await fsp.copyFile(filePath, backupPath);
+  return backupPath;
+}
+
+async function copyOrLinkLocalRules(sourcePath, destPath, { link = false } = {}) {
+  await ensureDir(path.dirname(destPath));
+  if (await pathExists(destPath)) {
+    await removePath(destPath);
+  }
+
+  if (link) {
+    await fsp.symlink(sourcePath, destPath);
+    return;
+  }
+
+  await fsp.copyFile(sourcePath, destPath);
+}
+
+async function runInitLocal(options) {
+  validateSource(options.source);
+  const examplePath = path.join(
+    options.source,
+    "references",
+    "global-rules.local.example.md",
+  );
+
+  if (!(await pathExists(examplePath))) {
+    throw new Error(`Missing example file: ${examplePath}`);
+  }
+
+  await ensureDir(USER_CONFIG_DIR);
+
+  if (await pathExists(USER_LOCAL_RULES_PATH)) {
+    console.log(`Already exists: ${USER_LOCAL_RULES_PATH}`);
+    console.log("Skipped (will not overwrite existing file).");
+    return;
+  }
+
+  await fsp.copyFile(examplePath, USER_LOCAL_RULES_PATH);
+  console.log(`Created: ${USER_LOCAL_RULES_PATH}`);
+  console.log("Edit this file as your personal rules source of truth.");
+  console.log("Run `dig-ui-skill sync-local --all --from-config` to sync to all tools.");
+}
+
+async function syncLocalToTarget(targetKey, options) {
+  const target = TARGETS[targetKey];
+  const targetPath = getTargetLocalRulesPath(targetKey);
+  const configPath = USER_LOCAL_RULES_PATH;
+  const configExists = await pathExists(configPath);
+  const targetExists = await pathExists(targetPath);
+
+  if (options.fromTarget) {
+    if (!targetExists) {
+      console.warn(`${target.label}: skipped — no local rules at ${targetPath}`);
+      return { status: "skipped", reason: "no-target" };
+    }
+
+    if (configExists && !(await filesContentEqual(configPath, targetPath))) {
+      if (options.backup) {
+        const backup = await backupFile(configPath);
+        console.log(`  backed up config to ${backup}`);
+      }
+    }
+
+    await ensureDir(USER_CONFIG_DIR);
+    await fsp.copyFile(targetPath, configPath);
+    console.log(`${target.label}: imported to ${configPath}`);
+    return { status: "imported" };
+  }
+
+  if (!configExists) {
+    console.warn(`${target.label}: skipped — user config not found`);
+    console.warn(`  Run \`dig-ui-skill init-local\` to create ${configPath}`);
+    return { status: "skipped", reason: "no-config" };
+  }
+
+  if (options.linkLocal && (await isSymlinkTo(targetPath, configPath))) {
+    console.log(`${target.label}: already linked to user config`);
+    return { status: "synced" };
+  }
+
+  if (
+    !options.linkLocal &&
+    targetExists &&
+    (await filesContentEqual(configPath, targetPath))
+  ) {
+    const stat = await fsp.lstat(targetPath);
+    if (!stat.isSymbolicLink()) {
+      console.log(`${target.label}: already in sync`);
+      return { status: "synced" };
+    }
+  }
+
+  // Safe-by-default: content differs → conflict unless --from-config.
+  // Never infer "newer" from mtime (unreliable after copy/unpack).
+  if (targetExists && !(await filesContentEqual(configPath, targetPath))) {
+    if (!options.fromConfig) {
+      if (options.skipConflicts) {
+        console.warn(`${target.label}: conflict skipped (files differ)`);
+        return { status: "skipped", reason: "conflict" };
+      }
+
+      console.warn(`${target.label}: conflict — config and target differ`);
+      console.warn(`  config: ${configPath}`);
+      console.warn(`  target: ${targetPath}`);
+      console.warn(
+        "  Use --from-config to overwrite, --from-target to import, or --skip-conflicts",
+      );
+      return { status: "conflict" };
+    }
+
+    if (options.backup) {
+      const backup = await backupFile(targetPath);
+      console.log(`  backed up target to ${backup}`);
+    }
+  }
+
+  await copyOrLinkLocalRules(configPath, targetPath, { link: options.linkLocal });
+  const mode = options.linkLocal ? "linked" : "synced";
+  console.log(`${target.label}: ${mode} ${configPath} -> ${targetPath}`);
+  return { status: "synced" };
+}
+
+function resolveSyncTargets(options) {
+  if (options.all) {
+    return Object.keys(TARGETS);
+  }
+
+  if (options.targets.length === 0) {
+    throw new Error("sync-local requires a target (codex, cursor, claude-code) or --all");
+  }
+
+  return options.targets;
+}
+
+async function runSyncLocal(options) {
+  const targets = resolveSyncTargets(options);
+  let conflicts = 0;
+
+  console.log(`User config: ${USER_LOCAL_RULES_PATH}`);
+  console.log(`Mode: ${options.linkLocal ? "symlink" : "copy"}`);
+  console.log("");
+
+  for (const targetKey of targets) {
+    const result = await syncLocalToTarget(targetKey, options);
+    if (result.status === "conflict") {
+      conflicts += 1;
+    }
+  }
+
+  if (conflicts > 0) {
+    process.exitCode = 1;
+  }
+}
+
+async function runImportLocal(options) {
+  if (options.targets.length !== 1) {
+    throw new Error("import-local requires exactly one target (codex, cursor, claude-code)");
+  }
+
+  options.fromTarget = true;
+  await runSyncLocal(options);
 }
 
 async function copyFileSafe(sourcePath, destPath) {
@@ -285,14 +550,14 @@ async function installSkillTarget(targetKey, sourceRoot, { link = false } = {}) 
   if (hadLocalRules) {
     console.log("  kept existing references/global-rules.local.md");
   } else {
-    const examplePath = path.join(
-      destRoot,
-      "references",
-      "global-rules.local.example.md",
-    );
-    if (await pathExists(examplePath)) {
+    const configExists = await pathExists(USER_LOCAL_RULES_PATH);
+    if (configExists) {
       console.log(
-        "  tip: copy references/global-rules.local.example.md to references/global-rules.local.md for personal overrides",
+        "  tip: run `dig-ui-skill sync-local --all --from-config` to sync user config local rules",
+      );
+    } else {
+      console.log(
+        "  tip: run `dig-ui-skill init-local` then `sync-local --all --from-config` for personal overrides",
       );
     }
   }
@@ -356,6 +621,13 @@ async function runInstall(options) {
 async function runUpdate(options) {
   options.link = false;
   await runInstall(options);
+
+  if (options.withLocal) {
+    console.log("");
+    console.log("Syncing local rules...");
+    await runSyncLocal(options);
+  }
+
   console.log("Update complete.");
 }
 
@@ -379,6 +651,19 @@ async function getTargetStatus(targetKey) {
     mode = stat.isSymbolicLink() ? "symlink" : "copy";
   }
 
+  let localRulesLinked = false;
+  let localRulesInSync = false;
+
+  if (installed && (await pathExists(localRulesPath))) {
+    localRulesLinked = await isSymlinkTo(localRulesPath, USER_LOCAL_RULES_PATH);
+    if (!localRulesLinked && (await pathExists(USER_LOCAL_RULES_PATH))) {
+      localRulesInSync = await filesContentEqual(
+        USER_LOCAL_RULES_PATH,
+        localRulesPath,
+      );
+    }
+  }
+
   return {
     target: targetKey,
     label: target.label,
@@ -387,12 +672,23 @@ async function getTargetStatus(targetKey) {
     version,
     mode,
     localRules: installed ? await pathExists(localRulesPath) : false,
+    localRulesLinked,
+    localRulesInSync,
     localExample: installed ? await pathExists(examplePath) : false,
   };
 }
 
 async function runStatus() {
   console.log("dig-ui-skill status\n");
+
+  const configExists = await pathExists(USER_LOCAL_RULES_PATH);
+  console.log("User config (local rules source of truth)");
+  console.log(`  path:    ${USER_LOCAL_RULES_PATH}`);
+  console.log(`  present: ${configExists ? "yes" : "no"}`);
+  if (!configExists) {
+    console.log("  tip: run `dig-ui-skill init-local` to create personal rules");
+  }
+  console.log("");
 
   for (const targetKey of Object.keys(TARGETS)) {
     const status = await getTargetStatus(targetKey);
@@ -402,9 +698,21 @@ async function runStatus() {
     if (status.installed) {
       console.log(`  version:   ${status.version}`);
       console.log(`  mode:      ${status.mode}`);
-      console.log(`  local rules: ${status.localRules ? "present" : "missing"}`);
-      if (!status.localRules && status.localExample) {
-        console.log("  tip: copy references/global-rules.local.example.md to references/global-rules.local.md");
+
+      let localRulesStatus = status.localRules ? "present" : "missing";
+      if (status.localRulesLinked) {
+        localRulesStatus = "linked to user config";
+      } else if (status.localRulesInSync) {
+        localRulesStatus = "in sync with user config";
+      } else if (status.localRules && configExists) {
+        localRulesStatus = "present (differs from user config)";
+      }
+      console.log(`  local rules: ${localRulesStatus}`);
+
+      if (!status.localRules && configExists) {
+        console.log("  tip: run `dig-ui-skill sync-local " + status.target + " --from-config`");
+      } else if (!status.localRules && !configExists && status.localExample) {
+        console.log("  tip: run `dig-ui-skill init-local` then `sync-local --all --from-config`");
       }
     }
     console.log("");
@@ -434,11 +742,22 @@ async function main() {
       case "update":
         await runUpdate(options);
         break;
+      case "init-local":
+        await runInitLocal(options);
+        break;
+      case "sync-local":
+        await runSyncLocal(options);
+        break;
+      case "import-local":
+        await runImportLocal(options);
+        break;
       case "status":
         await runStatus();
         break;
       default:
-        throw new Error(`Unknown command "${options.command}". Use install, update, or status.`);
+        throw new Error(
+          `Unknown command "${options.command}". Use install, update, init-local, sync-local, import-local, or status.`,
+        );
     }
   } catch (error) {
     console.error(`Error: ${error.message}`);

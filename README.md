@@ -11,7 +11,7 @@
 ## 🎯 核心架构理念
 
 1. **Markdown 即编译器**：设计系统的核心逻辑存在于 `references/global-rules.md`、`references/catalogs/` 与 `references/layouts/` 中。它不是给人类看的说明书，而是提供给 AI 的语法边界、变量词典与页面结构 recipe。
-2. **Global Rules 管跨项目行为**：Global Rules 回答“所有 Dig UI 默认都必须遵循什么行为”，例如 i18n、dark/light、按钮形态、React 组件化 select/option 等。
+2. **Global Rules 管跨项目行为**：Global Rules 回答“所有 Dig UI 默认都必须遵循什么行为”，例如 i18n、dark/light、按钮形态、React 组件化 select/option、React alert/dialog 等。
 3. **Catalog 管视觉气质，Layout 管信息结构**：Catalog 回答“界面看起来像什么品牌”，Layout 回答“内容区域怎么摆、slot 如何组织、响应式顺序是否合理”。
 4. **HTML 为视觉快照**：通过 `renders/` 提供纯静态的、所见即所得的视觉预览。人类在这里确认“美”和“结构可操作”，AI 在 Markdown 里学习“理”。
 5. **动态运行时 Token 化**：Catalog 渲染预览页通过原生 JS 动态解耦 `:root` CSS 变量；Layout 渲染页可在同一个结构上切换 `dig`、`mono`、`editorial`、`wise`、`apple` 多套 catalog，并默认注入 Global Rules，可用 `--no-global` 生成审查对照版。
@@ -22,7 +22,7 @@
 
 `dig-ui-skill` 采用“四层协议”：global rules 行为约束 + 全局 primitive / token 总规范 + catalog 视觉落地规范 + layout 结构 recipe。
 
-- `references/global-rules.md` 是 Dig UI 的**跨 catalog 行为规则层**，用于约定 i18n、dark/light、按钮药丸形态、React 组件化 select/option、交互与图标纪律等默认行为。个人可创建被 `.gitignore` 忽略的 `references/global-rules.local.md` 进行本地覆写。
+- `references/global-rules.md` 是 Dig UI 的**跨 catalog 行为规则层**，用于约定 i18n、dark/light、按钮药丸形态、React 组件化 select/option、React alert/dialog、交互与图标纪律等默认行为。个人偏好建议放在仓库外的 `~/.config/dig-ui-skill/global-rules.local.md`，再通过 CLI 同步到各工具 skill 目录。
 - `references/tokens.md` 是 Dig UI 的**总规范 / 字段协议**，用于约定公开 token 的命名方式和基础结构，例如 `--dig-bg`、`--dig-text`、`--dig-accent`、`--dig-radius-pill` 等。它负责回答“Dig UI 都有哪些通用字段”。
 - `references/primitives.md` 是**基础 primitive 规则**，用于约定布局、grid、字体纪律、交互行为、图标系统等跨 catalog 复用的底层语言。
 - `references/catalogs/**/<name>.md` 是**具体 catalog 模版**，用于定义某套风格如何给 token 赋值、如何组织组件、有哪些专属规则。比如 `other/dig.md` 定义 Dig 默认产品语言的深色矿物背景、运行状态感、表单药丸、header 控制条等。
@@ -33,7 +33,7 @@
 当前有两条可维护资产链：
 
 ```text
-Global Rules：references/global-rules.md（+ 可选 global-rules.local.md）→ layout render manifest / notes / global CSS
+Global Rules：references/global-rules.md（+ 用户配置中心 global-rules.local.md）→ layout render manifest / notes / global CSS
 Catalog：      references/catalogs/**/*.md → renders/<category>/<slug>.html
 Layout：       references/layouts/<slug>.md → renders/layouts/<slug>.html
 ```
@@ -140,6 +140,22 @@ npx dig-ui-skill update --all
 
 更新会覆盖标准资产，但不会覆盖 `references/global-rules.local.md`。更多安装选项见 [INSTALL.md](./INSTALL.md)。
 
+如果你有个人 Global Rules 偏好，建议先初始化仓库外配置中心，再同步到三端：
+
+```bash
+# 创建 ~/.config/dig-ui-skill/global-rules.local.md（已存在则不覆盖）
+npx dig-ui-skill init-local
+
+# 首次同步到 Codex / Cursor / Claude Code
+npx dig-ui-skill sync-local --all
+
+# 编辑配置中心后，显式推送覆盖各端副本
+npx dig-ui-skill sync-local --all --from-config
+
+# 日常更新标准资产，并同步个人规则
+npx dig-ui-skill update --all --with-local --from-config
+```
+
 ### 2. 让 AI 替你生成具有特定品牌质感的 UI 代码
 
 直接在你的 AI 编辑器中引用 `references/catalogs/` 下对应的风格字典文件（例如给上下文添加 `@claude.md`），然后在 Prompt 中下发要求：
@@ -183,13 +199,20 @@ npm run validate:layouts
 
 ### 5. 配置个人 Global Rules
 
-如果你希望在本地长期保留个人偏好，例如“所有页面都要中/英 i18n、必须支持 dark/light、按钮药丸型、React 表单 select/option 使用项目内组件”，复制示例文件并编辑：
+如果你希望长期保留个人偏好，例如“所有页面都要中/英 i18n、必须支持 dark/light、按钮药丸型、React 表单 select/option 使用项目内组件、alert/confirm 使用 React 组件”，使用 CLI 创建仓库外配置中心：
 
 ```bash
-cp references/global-rules.local.example.md references/global-rules.local.md
+npx dig-ui-skill init-local
+npx dig-ui-skill sync-local --all
 ```
 
-`references/global-rules.local.md` 已加入 `.gitignore`，只影响本机 AI 生成 / 审查与 layout render，不会被提交到仓库。默认优先级为：
+个人规则的唯一真源是：
+
+```text
+~/.config/dig-ui-skill/global-rules.local.md
+```
+
+各工具 skill 目录中的 `references/global-rules.local.md` 只是同步副本或软链接。普通 `install` / `update` 不会覆盖它；内容不一致时默认报告冲突，需显式使用 `--from-config` 或 `--from-target`。默认优先级为：
 
 ```text
 用户当前 prompt > global-rules.local.md > global-rules.md > catalog > layout/primitives

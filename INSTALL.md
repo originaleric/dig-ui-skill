@@ -92,8 +92,14 @@ npx dig-ui-skill update --all
 
 | 选项 | 说明 |
 |------|------|
-| `--all` | 一次安装/更新三端 |
-| `--link` | 使用 symlink（适合本机开发调试） |
+| `--all` | 一次安装/更新/同步三端 |
+| `--link` | skill 安装使用 symlink（适合本机开发调试） |
+| `--link-local` | local 规则同步使用 symlink |
+| `--with-local` | `update` 后同步用户 local 规则 |
+| `--from-config` | 冲突时用配置中心覆盖目标 |
+| `--from-target` | 冲突时把目标导入配置中心 |
+| `--backup` | 覆盖前生成 `.backup` |
+| `--skip-conflicts` | 跳过冲突目标 |
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
 
@@ -109,13 +115,70 @@ npx dig-ui-skill status
 
 ## 个人 Global Rules
 
-团队默认规则在 `references/global-rules.md`。个人偏好请放在 **不被更新覆盖** 的本地文件：
+团队默认规则在 `references/global-rules.md`。个人偏好请放在 **用户配置中心**（仓库外，不会被 git 跟踪）：
+
+```bash
+~/.config/dig-ui-skill/global-rules.local.md
+```
+
+这是个人规则的唯一真源。各工具 skill 目录里的 `references/global-rules.local.md` 只是同步副本（或通过 `--link-local` 软链接指向配置中心）。
+
+### 初始化与同步
+
+```bash
+# 从示例初始化用户配置（已存在则不会覆盖）
+npx dig-ui-skill init-local
+
+# 同步到 Cursor / Codex / Claude Code（目标尚无 local 文件时）
+npx dig-ui-skill sync-local --all
+
+# 编辑配置中心后，显式推送覆盖各端副本
+npx dig-ui-skill sync-local --all --from-config
+
+# 只同步某一端
+npx dig-ui-skill sync-local cursor --from-config
+
+# 更新标准资产后一并同步 local 规则（内容不一致时需加 --from-config）
+npx dig-ui-skill update --all --with-local --from-config
+```
+
+### 冲突处理
+
+当配置中心与某工具目录的 local 文件内容不一致时，默认 **不覆盖** 并提示冲突。可显式选择：
+
+| 选项 | 说明 |
+|------|------|
+| `--from-config` | 用配置中心覆盖目标工具 |
+| `--from-target` | 把目标工具的 local 文件导入为配置中心主版本 |
+| `--backup` | 覆盖前生成 `.backup` 文件 |
+| `--skip-conflicts` | 跳过冲突目标，继续处理其他工具 |
+
+```bash
+# 从 Cursor 导入已有 local 规则到配置中心
+npx dig-ui-skill import-local cursor
+
+# 强制用配置中心覆盖，并备份目标文件
+npx dig-ui-skill sync-local --all --from-config --backup
+```
+
+### 高级：软链接模式
+
+本机开发调试时，可让各工具直接指向配置中心文件：
+
+```bash
+npx dig-ui-skill sync-local --all --link-local
+npx dig-ui-skill update --all --with-local --link-local
+```
+
+### 手动方式（无 CLI）
+
+若无法使用 CLI，仍可在各工具 skill 目录手动复制：
 
 ```bash
 cp references/global-rules.local.example.md references/global-rules.local.md
 ```
 
-编辑 `global-rules.local.md` 后，AI 会优先应用 local 规则；layout render 同步脚本也会合并 local manifest。
+编辑后，AI 会优先应用 local 规则；layout render 同步脚本也会合并 local manifest。
 
 ## 手动安装（无 CLI）
 

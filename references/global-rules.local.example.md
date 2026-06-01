@@ -4,6 +4,15 @@
 
 ## 使用方式
 
+推荐通过 CLI 管理个人规则（配置中心在仓库外，不会进入 git）：
+
+```bash
+npx dig-ui-skill init-local
+npx dig-ui-skill sync-local --all --from-config
+```
+
+也可在各工具 skill 目录手动复制：
+
 ```bash
 cp references/global-rules.local.example.md references/global-rules.local.md
 ```
