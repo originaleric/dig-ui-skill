@@ -154,6 +154,120 @@ async function checkCatalogFocusVisible(page) {
   });
 }
 
+function isGlobalRulesEnabled(page) {
+  return page.evaluate(() => {
+    const attr = document.documentElement.getAttribute("data-global-rules-enabled");
+    return attr !== "false";
+  });
+}
+
+async function loadGlobalManifest(page) {
+  return page.evaluate(() => {
+    const el = document.getElementById("dig-global-rules-manifest");
+    if (!el) return null;
+    try {
+      return JSON.parse(el.textContent);
+    } catch {
+      return null;
+    }
+  });
+}
+
+function resolveManifestChecks(manifest) {
+  const checks = {
+    buttonPillRadius: false,
+    requireDigSelectClass: false,
+    selectPillRadius: false,
+  };
+  if (!manifest?.enabled || !Array.isArray(manifest.rules)) {
+    return checks;
+  }
+  for (const rule of manifest.rules) {
+    const validate = rule.validate || {};
+    for (const [key, value] of Object.entries(validate)) {
+      if (key in checks && typeof value === "boolean") {
+        checks[key] = value;
+      }
+    }
+  }
+  return checks;
+}
+
+async function checkGlobalRules(page, frameSelector, viewportLabel, checks) {
+  const issues = [];
+  const frame = page.locator(frameSelector).first();
+  const frameCount = await frame.count();
+  if (!frameCount) return issues;
+
+  if (checks.buttonPillRadius) {
+    const pillButtons = await frame.evaluate((root) => {
+      const bad = [];
+      root.querySelectorAll(".dig-button-primary, .dig-button-secondary").forEach((el) => {
+        const style = getComputedStyle(el);
+        const radius = parseFloat(style.borderRadius);
+        const height = el.getBoundingClientRect().height;
+        if (height > 0 && (Number.isNaN(radius) || radius < height / 2 - 1)) {
+          bad.push(el.textContent?.trim().slice(0, 24) || "button");
+        }
+      });
+      return bad.slice(0, 5);
+    });
+    if (pillButtons.length) {
+      issues.push({
+        level: "WARN",
+        message: `Buttons should use pill radius (global rule): ${pillButtons.join(", ")}`,
+        viewport: viewportLabel,
+        fix: "Use border-radius: var(--dig-radius-pill) on .dig-button-primary / .dig-button-secondary",
+      });
+    }
+  }
+
+  if (checks.requireDigSelectClass) {
+    const bareSelects = await frame.evaluate((root) => {
+      const bad = [];
+      root.querySelectorAll("select").forEach((el) => {
+        if (!el.classList.contains("dig-select")) {
+          bad.push(el.getAttribute("name") || el.id || "select");
+        }
+      });
+      return bad.slice(0, 5);
+    });
+    if (bareSelects.length) {
+      issues.push({
+        level: "WARN",
+        message: `Native select missing .dig-select class: ${bareSelects.join(", ")}`,
+        viewport: viewportLabel,
+        fix: "Add class=\"dig-select\" to native <select> elements",
+      });
+    }
+  }
+
+  if (checks.selectPillRadius) {
+    const selectPill = await frame.evaluate((root) => {
+      const bad = [];
+      root.querySelectorAll("select.dig-select").forEach((el) => {
+        const style = getComputedStyle(el);
+        const radius = parseFloat(style.borderRadius);
+        const height = el.getBoundingClientRect().height;
+        if (height > 0 && (Number.isNaN(radius) || radius < height / 2 - 1)) {
+          bad.push(el.getAttribute("name") || el.id || "select");
+        }
+      });
+      return bad.slice(0, 3);
+    });
+    if (selectPill.length) {
+      issues.push({
+        level: "WARN",
+        message: `.dig-select should use pill radius: ${selectPill.join(", ")}`,
+        viewport: viewportLabel,
+        fix: "Use border-radius: var(--dig-radius-pill) on .dig-select",
+      });
+    }
+  }
+
+  return issues;
+}
+
 async function checkRequiredSlots(page, layoutName) {
   const issues = [];
   const notesSlots = page.locator(".notes-card").filter({ hasText: "Slots" }).first();
@@ -199,6 +313,10 @@ async function validateFile(browser, filePath) {
   try {
     await page.goto(url, { waitUntil: "domcontentloaded" });
 
+    const globalEnabled = await isGlobalRulesEnabled(page);
+    const manifest = globalEnabled ? await loadGlobalManifest(page) : null;
+    const manifestChecks = resolveManifestChecks(manifest);
+
     allIssues.push(...(await checkRequiredSlots(page, layoutName)));
 
     for (const [label, selector] of [
@@ -211,6 +329,14 @@ async function validateFile(browser, filePath) {
         i.layout = layoutName;
         allIssues.push(i);
       });
+
+      if (globalEnabled) {
+        const globalIssues = await checkGlobalRules(page, selector, label, manifestChecks);
+        globalIssues.forEach((i) => {
+          i.layout = layoutName;
+          allIssues.push(i);
+        });
+      }
     }
 
     if (!(await checkCatalogFocusVisible(page))) {

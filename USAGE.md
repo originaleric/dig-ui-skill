@@ -118,10 +118,11 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 ## 📐 Layout 结构资产（与 Catalog 平级）
 
-除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。Catalog 决定“看起来像什么风格”，Layout 决定“内容怎么摆、页面是否好扫、移动端是否可用”。
+除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`）规定 i18n、dark/light、药丸按钮、原生 select 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
 
 | 资产链 | 源文件 | 预览 |
 | ------ | ------ | ---- |
+| Global Rules | `references/global-rules.md`（+ 可选 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
 | Layout | `references/layouts/<slug>.md` | `renders/layouts/<slug>.html` |
 
@@ -133,14 +134,21 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 ### 同步命令
 
 ```bash
-# 同步全部 layout 预览（20 recipes）
+# 同步全部 layout 预览（20 recipes，含 global rules）
 ./sync-renders.sh --layouts
 
 # 同步单个 layout
 ./sync-renders.sh layout dashboard-overview
 
-# Playwright 结构校验
+# 审查对照：生成不含 global rules 的版本（覆盖同路径 HTML）
+./sync-renders.sh layout dashboard-overview --no-global
+./sync-renders.sh --layouts --no-global
+
+# Playwright 结构校验（默认 render 含 global 规则检查）
 npm run validate:layouts
+
+# 校验无 global 版本时，可指定单个 HTML
+node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 ```
 
 ### Layout Markdown 协议
@@ -172,9 +180,42 @@ npm run validate:layouts
 
 三层职责要保持清楚：
 
+- **Global rules = 跨 catalog 行为**：i18n、dark/light、药丸按钮、原生 select、交互纪律。
 - **Layout recipe = 骨架**：决定 slot、grid、信息密度、响应式顺序。
 - **Catalog = 皮肤 / 品牌气质**：决定颜色、字体、圆角、surface、按钮和组件视觉。
 - **Primitive = 底层纪律**：决定 shell、grid、间距、focus、触控高度、基础 class。
+
+**Global rules 优先级**：用户 prompt > `global-rules.local.md` > `global-rules.md` > catalog > layout/primitives。用户说「不使用 global」时跳过 global rules。
+
+### 个人本地 Global Rules
+
+如果你希望长期保留个人生成偏好，可以创建本地覆写文件：
+
+```bash
+cp references/global-rules.local.example.md references/global-rules.local.md
+```
+
+`references/global-rules.local.md` 已加入 `.gitignore`，不会进入仓库提交；它只影响本机 AI 生成 / 审查与 layout render。适合写入这类个人默认规则：
+
+- 所有界面必须支持 i18n，默认至少有中文 / 英文（`zh-CN` / `en`）。
+- 所有界面必须支持 dark / light 主题切换，并通过 token 或主题变量实现。
+- 所有按钮默认使用药丸形态，保持 `44px` 以上可点击高度。
+- React 表单中的 select / option 默认使用原生 `<select>` / `<option>`，可封装为受控组件，但 DOM 层保持原生语义。
+
+编辑 local 文件后，重新同步 layout 即可在 render notes 和 manifest 中看到 local 来源：
+
+```bash
+./sync-renders.sh layout dashboard-overview
+```
+
+如果本次审查只想看 layout 原始结构，不希望加载 global rules：
+
+```bash
+./sync-renders.sh layout dashboard-overview --no-global
+node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
+```
+
+local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons` 和 `native-select` 的 validator 开启，也可以在本地关闭某一项校验。
 
 推荐工作流：
 

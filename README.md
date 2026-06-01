@@ -10,17 +10,19 @@
 
 ## 🎯 核心架构理念
 
-1. **Markdown 即编译器**：设计系统的核心逻辑存在于 `references/catalogs/` 与 `references/layouts/` 中。它不是给人类看的说明书，而是提供给 AI 的语法边界、变量词典与页面结构 recipe。
-2. **Catalog 管视觉气质，Layout 管信息结构**：Catalog 回答“界面看起来像什么品牌”，Layout 回答“内容区域怎么摆、slot 如何组织、响应式顺序是否合理”。
-3. **HTML 为视觉快照**：通过 `renders/` 提供纯静态的、所见即所得的视觉预览。人类在这里确认“美”和“结构可操作”，AI 在 Markdown 里学习“理”。
-4. **动态运行时 Token 化**：Catalog 渲染预览页通过原生 JS 动态解耦 `:root` CSS 变量；Layout 渲染页可在同一个结构上切换 `dig`、`mono`、`editorial`、`wise`、`apple` 多套 catalog。
+1. **Markdown 即编译器**：设计系统的核心逻辑存在于 `references/global-rules.md`、`references/catalogs/` 与 `references/layouts/` 中。它不是给人类看的说明书，而是提供给 AI 的语法边界、变量词典与页面结构 recipe。
+2. **Global Rules 管跨项目行为**：Global Rules 回答“所有 Dig UI 默认都必须遵循什么行为”，例如 i18n、dark/light、按钮形态、React 原生 select/option 等。
+3. **Catalog 管视觉气质，Layout 管信息结构**：Catalog 回答“界面看起来像什么品牌”，Layout 回答“内容区域怎么摆、slot 如何组织、响应式顺序是否合理”。
+4. **HTML 为视觉快照**：通过 `renders/` 提供纯静态的、所见即所得的视觉预览。人类在这里确认“美”和“结构可操作”，AI 在 Markdown 里学习“理”。
+5. **动态运行时 Token 化**：Catalog 渲染预览页通过原生 JS 动态解耦 `:root` CSS 变量；Layout 渲染页可在同一个结构上切换 `dig`、`mono`、`editorial`、`wise`、`apple` 多套 catalog，并默认注入 Global Rules，可用 `--no-global` 生成审查对照版。
 
 ---
 
 ## 🧩 Token 总规范与 Catalog 扩展
 
-`dig-ui-skill` 采用“三层协议”：全局 primitive / token 总规范 + catalog 视觉落地规范 + layout 结构 recipe。
+`dig-ui-skill` 采用“四层协议”：global rules 行为约束 + 全局 primitive / token 总规范 + catalog 视觉落地规范 + layout 结构 recipe。
 
+- `references/global-rules.md` 是 Dig UI 的**跨 catalog 行为规则层**，用于约定 i18n、dark/light、按钮药丸形态、React 原生 select/option、交互与图标纪律等默认行为。个人可创建被 `.gitignore` 忽略的 `references/global-rules.local.md` 进行本地覆写。
 - `references/tokens.md` 是 Dig UI 的**总规范 / 字段协议**，用于约定公开 token 的命名方式和基础结构，例如 `--dig-bg`、`--dig-text`、`--dig-accent`、`--dig-radius-pill` 等。它负责回答“Dig UI 都有哪些通用字段”。
 - `references/primitives.md` 是**基础 primitive 规则**，用于约定布局、grid、字体纪律、交互行为、图标系统等跨 catalog 复用的底层语言。
 - `references/catalogs/**/<name>.md` 是**具体 catalog 模版**，用于定义某套风格如何给 token 赋值、如何组织组件、有哪些专属规则。比如 `other/dig.md` 定义 Dig 默认产品语言的深色矿物背景、运行状态感、表单药丸、header 控制条等。
@@ -31,8 +33,9 @@
 当前有两条可维护资产链：
 
 ```text
-Catalog：references/catalogs/**/*.md → renders/<category>/<slug>.html
-Layout： references/layouts/<slug>.md → renders/layouts/<slug>.html
+Global Rules：references/global-rules.md（+ 可选 global-rules.local.md）→ layout render manifest / notes / global CSS
+Catalog：      references/catalogs/**/*.md → renders/<category>/<slug>.html
+Layout：       references/layouts/<slug>.md → renders/layouts/<slug>.html
 ```
 
 每个 catalog 可以定义自己的扩展 attribute / component mapping，但建议遵循下面原则：
@@ -59,6 +62,8 @@ dig-ui-skill/
 ├── references/
 │   ├── tokens.md           # [总规范] Dig UI 全局 token 命名、基础字段与共享协议
 │   ├── primitives.md       # [基础规则] 布局、grid、字体纪律、交互与图标 primitive
+│   ├── global-rules.md     # [全局规则] i18n、dark/light、药丸按钮、原生 select 等跨 catalog 行为
+│   ├── global-rules.local.example.md # [示例] 个人本地 global rules 覆写模板
 │   ├── layouts/            # [结构资产] 20 个页面 layout recipe，可编译为三 viewport 预览
 │   │   ├── README.md       # Layout 维护说明与索引
 │   │   ├── _template.md    # 新增 layout 的标准模板
@@ -78,7 +83,7 @@ dig-ui-skill/
 │   ├── index.html          # [手册中心] 史诗级毛玻璃导航 Hub，支持实时搜索与分类过滤
 │   ├── layouts/            # [结构验证] Layout recipe 的 desktop / tablet / mobile HTML 预览
 │   └── <category>/         # 各品牌的 HTML 渲染页面（内嵌动态 JS 参数读取器）
-├── assets/                 # 渲染器所用到的基础 CSS、layout preview primitive 及 Contours 资源
+├── assets/                 # 渲染器所用到的基础 CSS、global CSS、layout preview primitive 及 Contours 资源
 ├── updates/                # 系统的版本迭代与架构更新日志
 ├── sync_renders.py         # [引擎] Python 核心编译同步引擎 (提取 MD 参数、原厂描述注入 HTML)
 ├── sync_layout_renders.py  # [引擎] Layout Markdown → HTML preview 编译器
@@ -124,10 +129,29 @@ dig-ui-skill/
 # 只同步单个 layout，并刷新 renders/layouts/index.html
 ./sync-renders.sh layout dashboard-overview
 
+# 审查对照：生成不含 global rules 的版本
+./sync-renders.sh layout dashboard-overview --no-global
+
 # 运行 Playwright 结构校验
 npm run validate:layouts
 ```
 
 打开 `renders/layouts/index.html` 可以查看全部 layout；打开单个 `renders/layouts/<slug>.html` 可以检查 desktop 1440px、tablet 900px、mobile 390px 三个 viewport，并切换 `dig`、`mono`、`editorial`、`wise`、`apple` catalog 验证结构稳定性。
+
+### 4. 配置个人 Global Rules
+
+如果你希望在本地长期保留个人偏好，例如“所有页面都要中/英 i18n、必须支持 dark/light、按钮药丸型、React 表单 select/option 使用原生组件”，复制示例文件并编辑：
+
+```bash
+cp references/global-rules.local.example.md references/global-rules.local.md
+```
+
+`references/global-rules.local.md` 已加入 `.gitignore`，只影响本机 AI 生成 / 审查与 layout render，不会被提交到仓库。默认优先级为：
+
+```text
+用户当前 prompt > global-rules.local.md > global-rules.md > catalog > layout/primitives
+```
+
+如果某次审查不想使用 global rules，可在命令中加 `--no-global`，或在对话中明确说明“不使用 global”。
 
 详细的工作流与 SOP 规范请参阅 **[USAGE.md](./USAGE.md)**。

@@ -86,8 +86,13 @@ description: 用于 Dig 网页与产品界面的设计系统 skill。适用于�
 
 需要时读取：
 
+- [references/global-rules.md](references/global-rules.md)：跨 catalog 的 i18n、dark/light、药丸按钮、原生 select 等全局规则（若存在则再读 [references/global-rules.local.md](references/global-rules.local.md)）
 - [references/tokens.md](references/tokens.md)：token 结构与建议值
 - [references/primitives.md](references/primitives.md)：基础 CSS 语言与 primitive 约定
+
+**Global Rules 优先级**：用户当前 prompt > `global-rules.local.md` > `global-rules.md` > catalog > layout/primitives。
+
+若用户明确说「不使用 global / skip global / no global rules」，本次任务跳过 global rules，只按 catalog / layout / primitives 执行。
 
 ### 5. 应用 Dig 专属样式约束
 
@@ -137,6 +142,6 @@ description: 用于 Dig 网页与产品界面的设计系统 skill。适用于�
 - 详细内容策略与文案撰写
 - 纯一次性的装饰型艺术指导
 
-但 **layout recipe** 已覆盖常见产品页面的信息架构骨架；实现时应组合 `layout + catalog + primitive`。
+但 **layout recipe** 已覆盖常见产品页面的信息架构骨架；实现时应组合 `layout + catalog + primitive + global rules`（默认开启，可显式关闭）。
 
 如果任务需要具体页面编排，应先建立 `dig-ui` token 体系，再在其上做页面实现。

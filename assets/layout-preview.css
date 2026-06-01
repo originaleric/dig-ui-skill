@@ -217,7 +217,7 @@
   width: 100%;
   min-height: 44px;
   padding: 0 var(--dig-space-4);
-  border-radius: var(--dig-radius-pill);
+  border-radius: var(--dig-radius-sm);
   border: var(--dig-stroke-thin, 1px) solid var(--dig-border);
   background: var(--dig-control-bg, var(--dig-surface-strong));
   color: var(--dig-text);

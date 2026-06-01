@@ -12,6 +12,8 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 LAYOUT_DIR = os.path.join(PROJECT_DIR, "references", "layouts")
 CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
 RENDER_DIR = os.path.join(PROJECT_DIR, "renders", "layouts")
+GLOBAL_RULES_FILE = os.path.join(PROJECT_DIR, "references", "global-rules.md")
+GLOBAL_RULES_LOCAL_FILE = os.path.join(PROJECT_DIR, "references", "global-rules.local.md")
 
 CATALOG_MAP = {
     "dig": os.path.join(CATALOG_DIR, "other", "dig.md"),
@@ -89,6 +91,206 @@ def rules_to_list(rules_md):
         if line.startswith("- "):
             items.append(line[2:].strip())
     return items
+
+
+def parse_global_rules_manifest(content):
+    """Extract YAML manifest block from a global rules markdown file."""
+    section = extract_markdown_section(content, "Manifest（供 render 注入）")
+    if not section:
+        return []
+    yaml_block = extract_fenced_block_from_text(section, "yaml")
+    if not yaml_block:
+        return []
+    rules = []
+    current = None
+    in_validate = False
+    for line in yaml_block.split("\n"):
+        id_match = re.match(r"^\s{2}-\s+id:\s*(.+)$", line)
+        if id_match:
+            current = {"id": id_match.group(1).strip().strip("\"'"), "summary": ""}
+            rules.append(current)
+            in_validate = False
+            continue
+        summary_match = re.match(r"^\s{4}summary:\s*(.+)$", line)
+        if summary_match and current is not None:
+            current["summary"] = summary_match.group(1).strip().strip("\"'")
+            continue
+        validate_start = re.match(r"^\s{4}validate:\s*$", line)
+        if validate_start and current is not None:
+            current["validate"] = {}
+            in_validate = True
+            continue
+        validate_bool = re.match(r"^\s{6}(\w+):\s*(true|false)\s*$", line)
+        if validate_bool and current is not None and in_validate:
+            key, val = validate_bool.groups()
+            current.setdefault("validate", {})[key] = val == "true"
+    return rules
+
+
+RULE_VALIDATE_DEFAULTS = {
+    "pill-buttons": {"buttonPillRadius": True},
+    "native-select": {"requireDigSelectClass": True, "selectPillRadius": True},
+}
+
+
+def enrich_rule_validate(rule):
+    rule = dict(rule)
+    defaults = RULE_VALIDATE_DEFAULTS.get(rule.get("id"), {})
+    validate = dict(defaults)
+    validate.update(rule.get("validate") or {})
+    rule["validate"] = validate
+    return rule
+
+
+def merge_manifest_rules(base_rules, local_rules):
+    merged = {}
+    for rule in base_rules:
+        merged[rule["id"]] = enrich_rule_validate(rule)
+    for rule in local_rules:
+        rid = rule["id"]
+        if rid in merged:
+            existing = merged[rid]
+            if rule.get("summary"):
+                existing["summary"] = rule["summary"]
+            merged_validate = dict(existing.get("validate", {}))
+            merged_validate.update(rule.get("validate") or {})
+            existing["validate"] = merged_validate
+            merged[rid] = enrich_rule_validate(existing)
+        else:
+            merged[rid] = enrich_rule_validate(rule)
+    return list(merged.values())
+
+
+def resolve_manifest_checks(manifest_rules):
+    checks = {
+        "buttonPillRadius": False,
+        "requireDigSelectClass": False,
+        "selectPillRadius": False,
+    }
+    for rule in manifest_rules:
+        for key, val in (rule.get("validate") or {}).items():
+            if key in checks and isinstance(val, bool):
+                checks[key] = val
+    return checks
+
+
+def build_global_rules_css_overrides(manifest_rules):
+    checks = resolve_manifest_checks(manifest_rules)
+    blocks = []
+    if not checks["buttonPillRadius"]:
+        blocks.append(
+            "html[data-global-rules-enabled=\"true\"] .dig-button-primary,\n"
+            "html[data-global-rules-enabled=\"true\"] .dig-button-secondary {\n"
+            "  border-radius: var(--dig-radius-sm);\n"
+            "}"
+        )
+    if not checks["selectPillRadius"]:
+        blocks.append(
+            "html[data-global-rules-enabled=\"true\"] .dig-input,\n"
+            "html[data-global-rules-enabled=\"true\"] .dig-select {\n"
+            "  border-radius: var(--dig-radius-sm);\n"
+            "}"
+        )
+    if not blocks:
+        return ""
+    return "\n\n".join(blocks) + "\n"
+
+
+def load_global_rules_section_summaries(path):
+    if not os.path.exists(path):
+        return []
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    summaries = []
+    skip = {"优先级", "跳过条件", "Manifest（供 render 注入）"}
+    for match in re.finditer(r"^## (.+)$", content, re.MULTILINE):
+        heading = match.group(1).strip()
+        if heading in skip:
+            continue
+        section = extract_markdown_section(content, heading)
+        items = rules_to_list(section)
+        if items:
+            summaries.append({"section": heading, "items": items[:3]})
+    return summaries
+
+
+def extract_fenced_block_from_text(text, lang=None):
+    fence = rf"```{lang}\s*\n(.*?)\n```" if lang else r"```(?:html|css|yaml)?\s*\n(.*?)\n```"
+    match = re.search(fence, text, re.DOTALL)
+    return match.group(1).strip() if match else ""
+
+
+def load_merged_section_summaries():
+    skip = {"优先级", "跳过条件", "Manifest（供 render 注入）", "使用方式", "示例覆写"}
+    by_section = {}
+
+    for path in (GLOBAL_RULES_FILE, GLOBAL_RULES_LOCAL_FILE):
+        if not os.path.exists(path):
+            continue
+        for entry in load_global_rules_section_summaries(path):
+            if entry["section"] in skip:
+                continue
+            by_section[entry["section"]] = entry
+
+    return list(by_section.values())
+
+
+def build_global_rules_context(no_global=False):
+    if no_global:
+        return {
+            "enabled": False,
+            "sources": [],
+            "manifest": {"enabled": False, "rules": []},
+            "summary_html": (
+                '<p class="global-rules-disabled">Global Rules: disabled for review</p>'
+            ),
+        }
+
+    sources = []
+    manifest_rules = []
+
+    if os.path.exists(GLOBAL_RULES_FILE):
+        sources.append("references/global-rules.md")
+        with open(GLOBAL_RULES_FILE, "r", encoding="utf-8") as f:
+            base_content = f.read()
+        manifest_rules = parse_global_rules_manifest(base_content)
+
+    local_rules = []
+    if os.path.exists(GLOBAL_RULES_LOCAL_FILE):
+        sources.append("references/global-rules.local.md")
+        with open(GLOBAL_RULES_LOCAL_FILE, "r", encoding="utf-8") as f:
+            local_content = f.read()
+        local_rules = parse_global_rules_manifest(local_content)
+
+    manifest_rules = merge_manifest_rules(manifest_rules, local_rules)
+    summary_sections = load_merged_section_summaries()
+
+    manifest = {"enabled": True, "sources": sources, "rules": manifest_rules}
+
+    summary_parts = ['<ul class="global-rules-summary">']
+    for entry in summary_sections:
+        summary_parts.append(f"<li><strong>{html_lib.escape(entry['section'])}</strong>")
+        summary_parts.append("<ul>")
+        for item in entry["items"]:
+            summary_parts.append(f"<li>{html_lib.escape(item)}</li>")
+        summary_parts.append("</ul></li>")
+    summary_parts.append("</ul>")
+
+    if sources:
+        source_labels = ", ".join(html_lib.escape(s) for s in sources)
+        summary_parts.append(f'<p class="global-rules-sources">Sources: {source_labels}</p>')
+
+    return {
+        "enabled": True,
+        "sources": sources,
+        "manifest": manifest,
+        "summary_html": "".join(summary_parts),
+        "css_overrides": build_global_rules_css_overrides(manifest_rules),
+    }
+
+
+def build_global_rules_html(global_ctx):
+    return global_ctx["summary_html"]
 
 
 def extract_catalog_tokens(catalog_path):
@@ -178,7 +380,7 @@ def build_rules_html(items):
     ) + "</ul>"
 
 
-def render_layout_page(md_path):
+def render_layout_page(md_path, no_global=False):
     with open(md_path, "r", encoding="utf-8") as f:
         content = f.read()
 
@@ -212,6 +414,7 @@ def render_layout_page(md_path):
 
     catalog_css = build_catalog_css_blocks()
     switcher = build_catalog_switcher(default_catalog)
+    global_ctx = build_global_rules_context(no_global=no_global)
 
     viewport_block = preview_html
 
@@ -238,6 +441,10 @@ def render_layout_page(md_path):
             applicable_html=build_rules_html(applicable),
             avoid_when_html=build_rules_html(avoid_when),
             recommended_catalogs_html=build_recommended_catalogs_html(recommended_catalogs),
+            global_rules_enabled=global_ctx["enabled"],
+            global_rules_html=build_global_rules_html(global_ctx),
+            global_rules_manifest=json.dumps(global_ctx["manifest"], ensure_ascii=False),
+            global_rules_css_overrides=global_ctx.get("css_overrides", ""),
         ),
     }
 
@@ -262,18 +469,34 @@ def generate_full_html(
     applicable_html,
     avoid_when_html,
     recommended_catalogs_html,
+    global_rules_enabled=True,
+    global_rules_html="",
+    global_rules_manifest="{}",
+    global_rules_css_overrides="",
 ):
     desc = desc_zh or desc_en
+    global_enabled_attr = "true" if global_rules_enabled else "false"
+    global_stylesheet = (
+        '    <link rel="stylesheet" href="../../assets/layout-preview-global.css" />\n'
+        if global_rules_enabled
+        else ""
+    )
+    global_css_override_block = ""
+    if global_rules_enabled and global_rules_css_overrides.strip():
+        global_css_override_block = f"""
+      /* Global rules manifest overrides */
+{global_rules_css_overrides}"""
     return f"""<!doctype html>
-<html lang="zh-CN" data-catalog="{default_catalog}">
+<html lang="zh-CN" data-catalog="{default_catalog}" data-global-rules-enabled="{global_enabled_attr}">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dig UI Layout — {html_lib.escape(name)}</title>
     <link rel="stylesheet" href="../../assets/layout-preview.css" />
+{global_stylesheet}    <script type="application/json" id="dig-global-rules-manifest">{global_rules_manifest}</script>
     <style>
 {catalog_css}
-
+{global_css_override_block}
       /* Layout render shell */
       body {{
         margin: 0;
@@ -499,6 +722,33 @@ def generate_full_html(
 
       .back-link:hover {{ text-decoration: underline; }}
 
+      .global-rules-summary {{
+        margin: 0;
+        padding-left: 18px;
+        font-size: 13px;
+        color: var(--dig-text-muted);
+        line-height: 1.55;
+      }}
+
+      .global-rules-summary ul {{
+        margin: 4px 0 8px;
+        padding-left: 16px;
+      }}
+
+      .global-rules-sources {{
+        margin: 8px 0 0;
+        font-size: 11px;
+        font-family: var(--dig-font-mono, monospace);
+        color: var(--dig-text-soft);
+      }}
+
+      .global-rules-disabled {{
+        margin: 0;
+        font-size: 13px;
+        font-family: var(--dig-font-mono, monospace);
+        color: var(--dig-warning, #f3b64c);
+      }}
+
       /* Per-layout preview CSS from markdown */
 {preview_css}
     </style>
@@ -549,6 +799,10 @@ def generate_full_html(
       </section>
 
       <aside class="layout-render-notes">
+        <div class="notes-card global-rules-card">
+          <h3>Global Rules</h3>
+          {global_rules_html}
+        </div>
         <div class="notes-card">
           <h3>Recommended Catalogs</h3>
           {recommended_catalogs_html}
@@ -731,8 +985,23 @@ def write_layout_index(entries=None):
     print("🎉 Updated renders/layouts/index.html")
 
 
+def parse_cli_args():
+    args = sys.argv[1:]
+    no_global = False
+    target = None
+    for arg in args:
+        if arg == "--no-global":
+            no_global = True
+        elif not arg.startswith("-"):
+            target = arg
+    return target, no_global
+
+
 def main():
-    target = sys.argv[1] if len(sys.argv) > 1 else None
+    target, no_global = parse_cli_args()
+
+    if no_global:
+        print("ℹ️  Global rules disabled for this render (--no-global)")
 
     md_files = []
     if target:
@@ -754,7 +1023,7 @@ def main():
 
     entries = []
     for md_file in md_files:
-        result = render_layout_page(md_file)
+        result = render_layout_page(md_file, no_global=no_global)
         if not result:
             continue
         out_path = os.path.join(RENDER_DIR, f"{result['slug']}.html")
