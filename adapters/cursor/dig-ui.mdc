@@ -1,0 +1,21 @@
+---
+description: Use Dig UI design system, catalogs, layouts, CSS tokens, typography, spacing, dashboard/runtime/marketing/docs visual language, and frontend UI review.
+globs:
+alwaysApply: false
+---
+
+Use the Dig UI skill installed at `{{SKILL_DIR}}`.
+
+Start from `SKILL.md`, then load only the references you need:
+
+- Always read `references/global-rules.md`, then `references/global-rules.local.md` when present unless the user explicitly says no global rules.
+- Choose one catalog from `references/catalogs/` before writing styles.
+- Choose a layout recipe from `references/layouts/` when structuring pages.
+- Use `references/tokens.md`, `references/primitives.md`, and `references/checklist.md` as needed.
+
+When implementing or reviewing UI:
+
+- Default to the `dig` catalog unless the page clearly needs another catalog such as `wise` or `apple`.
+- Layout defines structure; catalog defines visual language. Do not mix multiple catalogs on one page.
+- Prefer tokenized CSS variables over hard-coded colors, radii, and shadows.
+- Avoid generic purple SaaS gradients and noisy neon palettes.

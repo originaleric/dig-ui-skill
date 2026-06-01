@@ -36,10 +36,10 @@
 - 按钮最小触控高度 `44px`；hover / focus 只改变 color、border、background、glow，不改变高度、padding 或圆角。
 - 表单、select、控制条背景使用 `--dig-control-bg` / `--dig-control-bg-hover`，不使用固定 rgba 暗色值。
 
-## 原生 Select（HTML / React）
+## Select（HTML Preview / React）
 
 - HTML layout 预览：使用原生 `<select class="dig-select">` + `<option>`，配合 `assets/layout-preview-global.css` 中的 `.dig-select` 样式（仅在 `data-global-rules-enabled="true"` 且 layout render 引入该文件时生效；`assets/layout-preview.css` 只保留不含 global 覆盖的基础 primitive）。
-- React 实现：优先使用原生 `<select>` + `<option>`，或封装为受控组件但 DOM 层保持原生 select；避免引入重型第三方 select 库替代基础下拉。
+- React 产品实现：使用项目内 React 组件（例如 `Select`、`SelectTrigger`、`SelectContent`、`SelectOption`）表达下拉，不在产品 UI 中直接写裸 `<select>` / `<option>`；避免引入重型第三方 select 库替代基础下拉。
 - select 与 input 同样使用 pill 圆角与 `--dig-control-bg` token。
 - option 列表背景使用 `--dig-surface-strong`；active / hover option 使用 accent tint，不改变 option 高度。
 
@@ -61,8 +61,8 @@ rules:
     summary: 主/次按钮与表单控件默认 pill 圆角，min-height 44px
     validate:
       buttonPillRadius: true
-  - id: native-select
-    summary: HTML 用 .dig-select；React 优先原生 select/option
+  - id: react-select
+    summary: HTML preview 用 .dig-select；React 产品 UI 用项目内 Select 组件
     validate:
       requireDigSelectClass: true
       selectPillRadius: true

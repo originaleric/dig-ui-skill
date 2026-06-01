@@ -3,4 +3,5 @@ node_modules/
 __pycache__/
 .specstory/
 references/global-rules.local.md
+.cursor/rules/dig-ui.mdc
 

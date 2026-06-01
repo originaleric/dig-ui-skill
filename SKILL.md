@@ -1,6 +1,6 @@
 ---
 name: dig-ui
-description: 用于 Dig 网页与产品界面的设计系统 skill。适用于定义或审查 Dig 专属的 CSS token、catalog 配色体系、layout 信息结构、字体、间距、网格、surface 与界面样式规则，覆盖营销页、文档页、dashboard 和 runtime 控制台。
+description: 用于 Dig 网页与产品界面的设计系统 skill。Use when the user mentions dig-ui, dig-ui-skill, Dig UI, catalog/wise, catalog/dig, CSS token, layout recipe, dashboard, runtime, marketing, docs, or frontend UI review. Always read global-rules.md and then global-rules.local.md when present unless the user explicitly says no global rules.
 ---
 
 # dig-ui

@@ -11,7 +11,7 @@
 ## 🎯 核心架构理念
 
 1. **Markdown 即编译器**：设计系统的核心逻辑存在于 `references/global-rules.md`、`references/catalogs/` 与 `references/layouts/` 中。它不是给人类看的说明书，而是提供给 AI 的语法边界、变量词典与页面结构 recipe。
-2. **Global Rules 管跨项目行为**：Global Rules 回答“所有 Dig UI 默认都必须遵循什么行为”，例如 i18n、dark/light、按钮形态、React 原生 select/option 等。
+2. **Global Rules 管跨项目行为**：Global Rules 回答“所有 Dig UI 默认都必须遵循什么行为”，例如 i18n、dark/light、按钮形态、React 组件化 select/option 等。
 3. **Catalog 管视觉气质，Layout 管信息结构**：Catalog 回答“界面看起来像什么品牌”，Layout 回答“内容区域怎么摆、slot 如何组织、响应式顺序是否合理”。
 4. **HTML 为视觉快照**：通过 `renders/` 提供纯静态的、所见即所得的视觉预览。人类在这里确认“美”和“结构可操作”，AI 在 Markdown 里学习“理”。
 5. **动态运行时 Token 化**：Catalog 渲染预览页通过原生 JS 动态解耦 `:root` CSS 变量；Layout 渲染页可在同一个结构上切换 `dig`、`mono`、`editorial`、`wise`、`apple` 多套 catalog，并默认注入 Global Rules，可用 `--no-global` 生成审查对照版。
@@ -22,7 +22,7 @@
 
 `dig-ui-skill` 采用“四层协议”：global rules 行为约束 + 全局 primitive / token 总规范 + catalog 视觉落地规范 + layout 结构 recipe。
 
-- `references/global-rules.md` 是 Dig UI 的**跨 catalog 行为规则层**，用于约定 i18n、dark/light、按钮药丸形态、React 原生 select/option、交互与图标纪律等默认行为。个人可创建被 `.gitignore` 忽略的 `references/global-rules.local.md` 进行本地覆写。
+- `references/global-rules.md` 是 Dig UI 的**跨 catalog 行为规则层**，用于约定 i18n、dark/light、按钮药丸形态、React 组件化 select/option、交互与图标纪律等默认行为。个人可创建被 `.gitignore` 忽略的 `references/global-rules.local.md` 进行本地覆写。
 - `references/tokens.md` 是 Dig UI 的**总规范 / 字段协议**，用于约定公开 token 的命名方式和基础结构，例如 `--dig-bg`、`--dig-text`、`--dig-accent`、`--dig-radius-pill` 等。它负责回答“Dig UI 都有哪些通用字段”。
 - `references/primitives.md` 是**基础 primitive 规则**，用于约定布局、grid、字体纪律、交互行为、图标系统等跨 catalog 复用的底层语言。
 - `references/catalogs/**/<name>.md` 是**具体 catalog 模版**，用于定义某套风格如何给 token 赋值、如何组织组件、有哪些专属规则。比如 `other/dig.md` 定义 Dig 默认产品语言的深色矿物背景、运行状态感、表单药丸、header 控制条等。
@@ -62,7 +62,7 @@ dig-ui-skill/
 ├── references/
 │   ├── tokens.md           # [总规范] Dig UI 全局 token 命名、基础字段与共享协议
 │   ├── primitives.md       # [基础规则] 布局、grid、字体纪律、交互与图标 primitive
-│   ├── global-rules.md     # [全局规则] i18n、dark/light、药丸按钮、原生 select 等跨 catalog 行为
+│   ├── global-rules.md     # [全局规则] i18n、dark/light、药丸按钮、React select 等跨 catalog 行为
 │   ├── global-rules.local.example.md # [示例] 个人本地 global rules 覆写模板
 │   ├── layouts/            # [结构资产] 20 个页面 layout recipe，可编译为三 viewport 预览
 │   │   ├── README.md       # Layout 维护说明与索引
@@ -84,7 +84,10 @@ dig-ui-skill/
 │   ├── layouts/            # [结构验证] Layout recipe 的 desktop / tablet / mobile HTML 预览
 │   └── <category>/         # 各品牌的 HTML 渲染页面（内嵌动态 JS 参数读取器）
 ├── assets/                 # 渲染器所用到的基础 CSS、global CSS、layout preview primitive 及 Contours 资源
+├── adapters/               # 各 AI 工具的适配模板，例如 Cursor project rule
+├── bin/                    # dig-ui-skill CLI 入口
 ├── updates/                # 系统的版本迭代与架构更新日志
+├── INSTALL.md              # Codex / Cursor / Claude Code 安装指南
 ├── sync_renders.py         # [引擎] Python 核心编译同步引擎 (提取 MD 参数、原厂描述注入 HTML)
 ├── sync_layout_renders.py  # [引擎] Layout Markdown → HTML preview 编译器
 ├── sync-renders.sh         # [工具] 本地同步入口脚本，支持一键热重载
@@ -97,13 +100,53 @@ dig-ui-skill/
 
 ## 🚀 快速开始
 
-### 1. 让 AI 替你生成具有特定品牌质感的 UI 代码
+### 1. 安装到 Codex / Cursor / Claude Code
+
+推荐通过 CLI 将同一套 Dig UI skill 安装到不同 AI 编程工具的个人 skill 目录：
+
+```bash
+npx dig-ui-skill install codex
+npx dig-ui-skill install cursor
+npx dig-ui-skill install claude-code
+npx dig-ui-skill status
+```
+
+本地开发或从当前仓库安装时：
+
+```bash
+node bin/dig-ui-skill.mjs install cursor --source .
+node bin/dig-ui-skill.mjs install --all --source .
+```
+
+默认安装路径：
+
+```text
+Codex：       ~/.codex/skills/dig-ui
+Cursor：      ~/.cursor/skills/dig-ui
+Claude Code： ~/.claude/skills/dig-ui
+```
+
+Cursor 如果需要在某个项目里稳定触发 Dig UI，可额外写入项目 rule：
+
+```bash
+npx dig-ui-skill install cursor --project /path/to/your/repo
+```
+
+更新已安装 skill：
+
+```bash
+npx dig-ui-skill update --all
+```
+
+更新会覆盖标准资产，但不会覆盖 `references/global-rules.local.md`。更多安装选项见 [INSTALL.md](./INSTALL.md)。
+
+### 2. 让 AI 替你生成具有特定品牌质感的 UI 代码
 
 直接在你的 AI 编辑器中引用 `references/catalogs/` 下对应的风格字典文件（例如给上下文添加 `@claude.md`），然后在 Prompt 中下发要求：
 
 > “请严格遵循 `claude.md` 中 `## Dig UI CSS Tokens` 代码块下的标准 CSS 变量，并参考其 YAML 规范设计一套具有人文 typesetting 美感的登录表单。”
 
-### 2. 本地微调与热编译同步
+### 3. 本地微调与热编译同步
 
 1. 打开 `references/catalogs/` 下任意一个 `.md` 字典，修改以 `--dig-` 开头的 CSS 变量（或 Frontmatter 描述）。
 2. 在终端运行一键同步脚本完成 HTML 预览热重载：
@@ -118,7 +161,7 @@ dig-ui-skill/
 
 3. 打开并刷新 [renders/index.html](file:///Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/renders/index.html) 导航中心，即可看到最新渲染的视觉效果！
 
-### 3. 维护 Layout 结构资产
+### 4. 维护 Layout 结构资产
 
 当你要新增或调整页面骨架时，优先编辑 `references/layouts/<slug>.md`，然后同步生成结构预览：
 
@@ -138,9 +181,9 @@ npm run validate:layouts
 
 打开 `renders/layouts/index.html` 可以查看全部 layout；打开单个 `renders/layouts/<slug>.html` 可以检查 desktop 1440px、tablet 900px、mobile 390px 三个 viewport，并切换 `dig`、`mono`、`editorial`、`wise`、`apple` catalog 验证结构稳定性。
 
-### 4. 配置个人 Global Rules
+### 5. 配置个人 Global Rules
 
-如果你希望在本地长期保留个人偏好，例如“所有页面都要中/英 i18n、必须支持 dark/light、按钮药丸型、React 表单 select/option 使用原生组件”，复制示例文件并编辑：
+如果你希望在本地长期保留个人偏好，例如“所有页面都要中/英 i18n、必须支持 dark/light、按钮药丸型、React 表单 select/option 使用项目内组件”，复制示例文件并编辑：
 
 ```bash
 cp references/global-rules.local.example.md references/global-rules.local.md

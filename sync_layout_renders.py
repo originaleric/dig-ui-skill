@@ -14,6 +14,7 @@ CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
 RENDER_DIR = os.path.join(PROJECT_DIR, "renders", "layouts")
 GLOBAL_RULES_FILE = os.path.join(PROJECT_DIR, "references", "global-rules.md")
 GLOBAL_RULES_LOCAL_FILE = os.path.join(PROJECT_DIR, "references", "global-rules.local.md")
+SKIP_LOCAL_RULES = os.environ.get("DIG_UI_SKIP_LOCAL_RULES") == "1"
 
 CATALOG_MAP = {
     "dig": os.path.join(CATALOG_DIR, "other", "dig.md"),
@@ -129,6 +130,7 @@ def parse_global_rules_manifest(content):
 
 RULE_VALIDATE_DEFAULTS = {
     "pill-buttons": {"buttonPillRadius": True},
+    "react-select": {"requireDigSelectClass": True, "selectPillRadius": True},
     "native-select": {"requireDigSelectClass": True, "selectPillRadius": True},
 }
 
@@ -256,7 +258,7 @@ def build_global_rules_context(no_global=False):
         manifest_rules = parse_global_rules_manifest(base_content)
 
     local_rules = []
-    if os.path.exists(GLOBAL_RULES_LOCAL_FILE):
+    if not SKIP_LOCAL_RULES and os.path.exists(GLOBAL_RULES_LOCAL_FILE):
         sources.append("references/global-rules.local.md")
         with open(GLOBAL_RULES_LOCAL_FILE, "r", encoding="utf-8") as f:
             local_content = f.read()

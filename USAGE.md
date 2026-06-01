@@ -10,6 +10,59 @@
 
 ---
 
+## 📦 多工具安装与更新
+
+`dig-ui-skill` 提供统一 CLI，可将当前 skill 安装到 Codex、Cursor、Claude Code 的个人 skill 目录。日常使用优先通过 CLI 安装，避免手动复制时漏掉 `references/`、`assets/`、`renders/` 或适配模板。
+
+```bash
+npx dig-ui-skill install codex
+npx dig-ui-skill install cursor
+npx dig-ui-skill install claude-code
+npx dig-ui-skill status
+```
+
+默认安装路径：
+
+| 工具 | 安装目录 |
+| ---- | -------- |
+| Codex | `~/.codex/skills/dig-ui` |
+| Cursor | `~/.cursor/skills/dig-ui` |
+| Claude Code | `~/.claude/skills/dig-ui` |
+
+本仓库开发调试时建议从当前目录安装：
+
+```bash
+node bin/dig-ui-skill.mjs install cursor --source .
+node bin/dig-ui-skill.mjs install --all --source .
+```
+
+需要持续跟随本地仓库改动时，可使用 symlink 模式：
+
+```bash
+node bin/dig-ui-skill.mjs install cursor --link --source .
+```
+
+更新已安装的 skill：
+
+```bash
+npx dig-ui-skill update cursor
+npx dig-ui-skill update --all
+```
+
+`update` 会刷新标准资产，但会保留目标目录中已有的 `references/global-rules.local.md`。如果还没有 local rules，CLI 只会提示从 `references/global-rules.local.example.md` 手动复制，不会自动生成。
+
+Cursor 个人 skill 安装到 `~/.cursor/skills/dig-ui`。如果某个业务仓库需要更稳定地触发 Dig UI，可额外安装项目 rule：
+
+```bash
+npx dig-ui-skill install cursor --project /path/to/your/repo
+```
+
+该命令会写入 `<repo>/.cursor/rules/dig-ui.mdc`，指向个人 skill 目录。Cursor 内置托管目录 `~/.cursor/skills-cursor` 不应手动写入，也不是本 CLI 的目标目录。
+
+更多安装细节见 [INSTALL.md](./INSTALL.md)。
+
+---
+
 ## 🤖 方式一：AI 辅助极速工作流 (推荐)
 
 这是最高效的现代工程师工作流，让 AI 帮你处理文件之间的同步。
@@ -118,7 +171,7 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 ## 📐 Layout 结构资产（与 Catalog 平级）
 
-除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`）规定 i18n、dark/light、药丸按钮、原生 select 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
+除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`）规定 i18n、dark/light、药丸按钮、React 组件化 select 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
 
 | 资产链 | 源文件 | 预览 |
 | ------ | ------ | ---- |
@@ -180,7 +233,7 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 
 三层职责要保持清楚：
 
-- **Global rules = 跨 catalog 行为**：i18n、dark/light、药丸按钮、原生 select、交互纪律。
+- **Global rules = 跨 catalog 行为**：i18n、dark/light、药丸按钮、React 组件化 select、交互纪律。
 - **Layout recipe = 骨架**：决定 slot、grid、信息密度、响应式顺序。
 - **Catalog = 皮肤 / 品牌气质**：决定颜色、字体、圆角、surface、按钮和组件视觉。
 - **Primitive = 底层纪律**：决定 shell、grid、间距、focus、触控高度、基础 class。
@@ -200,7 +253,7 @@ cp references/global-rules.local.example.md references/global-rules.local.md
 - 所有界面必须支持 i18n，默认至少有中文 / 英文（`zh-CN` / `en`）。
 - 所有界面必须支持 dark / light 主题切换，并通过 token 或主题变量实现。
 - 所有按钮默认使用药丸形态，保持 `44px` 以上可点击高度。
-- React 表单中的 select / option 默认使用原生 `<select>` / `<option>`，可封装为受控组件，但 DOM 层保持原生语义。
+- React 表单中的 select / option 默认使用项目内 React 组件（例如 `Select`、`SelectTrigger`、`SelectContent`、`SelectOption`），不要在产品 UI 中直接写裸 `<select>` / `<option>`；HTML layout 预览可继续用 `.dig-select` 表达结构和视觉。
 
 编辑 local 文件后，重新同步 layout 即可在 render notes 和 manifest 中看到 local 来源：
 
@@ -215,7 +268,7 @@ cp references/global-rules.local.example.md references/global-rules.local.md
 node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 ```
 
-local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons` 和 `native-select` 的 validator 开启，也可以在本地关闭某一项校验。
+local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons` 和 `react-select` 的 validator 开启，也可以在本地关闭某一项校验。
 
 推荐工作流：
 
