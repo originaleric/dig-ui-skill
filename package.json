@@ -2,6 +2,7 @@
   "name": "dig-ui-skill",
   "version": "0.1.0",
   "description": "Dig UI design system skill for Codex, Cursor, and Claude Code",
+  "license": "Apache-2.0",
   "type": "module",
   "bin": {
     "dig-ui-skill": "bin/dig-ui-skill.mjs"
@@ -9,6 +10,7 @@
   "files": [
     "SKILL.md",
     "README.md",
+    "README.zh-CN.md",
     "USAGE.md",
     "INSTALL.md",
     "bin/",
