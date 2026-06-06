@@ -13,7 +13,7 @@
 
 AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很容易在颜色、间距、信息密度、响应式顺序和交互细节上漂移。Dig UI Skill 把这些隐性规则显性化：
 
-- **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、select 用法和交互纪律。
+- **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、页面/组件一致性、select 用法和交互纪律。规则以英文为主规范，并提供中文翻译对照。
 - **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮和组件映射。
 - **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
 - **Rendered Previews**：提供静态 HTML 预览，便于人类先确认视觉和结构。
@@ -27,6 +27,21 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - `renders/layouts/index.html` Layout 结构预览 Hub。
 - `npm run validate:layouts` Playwright 结构校验。
 - 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
+
+## Highlight：通过 AI Agent 沉淀个人规则
+
+Dig UI 允许用户直接把长期 UI 偏好教给 Codex、Cursor 或 Claude Code，不需要额外配置任何 AI API key。你可以这样说：
+
+```text
+使用 dig-ui。把这个加入我的本地 global rules：
+Header 保持紧凑并固定顶部，右侧放语言切换、主题切换和用户菜单。
+```
+
+Agent 会读取 `references/local-rules-builder.md`，写入 `~/.config/dig-ui-skill/global-rules.local.md`，再同步到已安装工具。也可以用 CLI helper 做机械写入：
+
+```bash
+npx dig-ui-skill local add --section "Header / Topbar" "Header stays compact and sticky."
+```
 
 ## 快速开始
 
@@ -161,6 +176,7 @@ dig-ui-skill/
 ├── SKILL.md                         # Codex 兼容工具读取的 skill 入口
 ├── references/
 │   ├── global-rules.md              # 跨 catalog 行为规则
+│   ├── global-rules.zh-CN.md        # global rules 中文翻译
 │   ├── global-rules.local.example.md
 │   ├── tokens.md                    # 共享 token 协议
 │   ├── primitives.md                # 基础布局与交互规则
@@ -186,6 +202,12 @@ dig-ui-skill/
 references/global-rules.md
 ```
 
+该文件是英文主规范。中文翻译在：
+
+```text
+references/global-rules.zh-CN.md
+```
+
 个人覆写规则建议放在仓库外：
 
 ```text
@@ -197,6 +219,16 @@ references/global-rules.md
 ```bash
 npx dig-ui-skill init-local
 npx dig-ui-skill sync-local --all --from-config
+```
+
+宿主 Agent 可以帮你写个人偏好，不需要额外配置 API key。你可以直接要求 Codex、Cursor 或 Claude Code 使用 Dig UI 更新本地 global rules；Agent 会读取 `references/local-rules-builder.md`，写入 `~/.config/dig-ui-skill/global-rules.local.md`，再同步到各工具。
+
+也可以使用 CLI helper：
+
+```bash
+npx dig-ui-skill local path
+npx dig-ui-skill local show
+npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
 ```
 
 仓库已忽略 `references/global-rules.local.md`，避免个人偏好进入公开发布。

@@ -1,48 +1,62 @@
-# Dig UI Global Rules — Local Override（示例）
+# Dig UI Global Rules — Local Override Example
 
-复制本文件为同目录下的 `global-rules.local.md`（已加入 `.gitignore`），即可在本地覆写或补充 global rules，无需修改仓库内的 `global-rules.md`。
+Copy or sync this file as `global-rules.local.md` to override or extend global rules locally without editing the shared canonical file.
 
-## 使用方式
+`references/global-rules.md` is the canonical English source. `references/global-rules.zh-CN.md` is a Chinese translation. Local rules may be written in any language, but using the same English section headings and stable rule ids is recommended for cross-tool consistency.
 
-推荐通过 CLI 管理个人规则（配置中心在仓库外，不会进入 git）：
+## Usage
+
+Prefer the CLI-managed user config outside the repository:
 
 ```bash
 npx dig-ui-skill init-local
 npx dig-ui-skill sync-local --all --from-config
 ```
 
-也可在各工具 skill 目录手动复制：
+Manual copy is also supported inside a tool skill directory:
 
 ```bash
 cp references/global-rules.local.example.md references/global-rules.local.md
 ```
 
-编辑 `global-rules.local.md` 后：
+After editing `global-rules.local.md`:
 
-- AI 生成 / 审查时：local 规则优先于 `global-rules.md`。
-- layout render：`./sync-renders.sh layout <slug>` 会在 HTML notes 区展示 local 来源，manifest 按 rule id 合并。
-- `--no-global` render 会跳过 local 与默认 global rules（不加载 global CSS、不注入 manifest 校验项）。
+- AI generation / review: local rules take priority over `global-rules.md`.
+- Layout render: `./sync-renders.sh layout <slug>` shows local sources in the Global Rules notes card, and the manifest merges by rule id.
+- `--no-global` skips both local and default global rules.
 
-## 示例覆写
+## Example Overrides
 
-在下方用与 `global-rules.md` 相同的 `##` 章节标题覆写规则；同标题下 local 条目覆盖默认条目。
+Use the same section headings as `global-rules.md` when possible. Add only the local preference you want to override or extend.
 
-## 按钮与表单控件
+## Buttons / Form Controls
 
-- 内部工具页允许次按钮使用 `var(--dig-radius-sm)` 方角变体（仅 internal admin）。
+- Internal admin pages may use `var(--dig-radius-sm)` for secondary buttons, while primary actions remain pill-shaped.
+
+## Layout / Components Consistency
+
+### Header / Topbar
+
+- Internal tools prefer a compact topbar height and keep environment switcher, theme switcher, and user menu in one right-aligned control group.
+
+### Collections / Lists / Tables / Grids
+
+- Back-office data tables default to `compact` density; marketing and docs collections default to `comfortable` density.
 
 ## i18n
 
-- 默认语言改为 `en`；仍保留 zh-CN 切换。
+- Default language is `en`, while `zh-CN` switching remains available.
 
-## Manifest（供 render 注入）
+## Manifest (For Render Injection)
 
-本地 manifest 按 `id` 与默认规则合并；`validate` 字段可关闭对应校验。
+Local manifests merge with the default manifest by `id`. Use `validate` fields to turn local validation behavior on or off.
 
 ```yaml
 rules:
   - id: pill-buttons
-    summary: 内部工具页允许次按钮方角变体
+    summary: Internal secondary buttons may use a smaller radius
     validate:
       buttonPillRadius: false
+  - id: consistency
+    summary: Internal tools default to compact tables and compact topbars
 ```

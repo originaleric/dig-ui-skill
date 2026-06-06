@@ -13,7 +13,7 @@ Dig UI Skill is an AI-first design system packaged as structured Markdown, stati
 
 AI agents are good at producing UI quickly, but they drift when a project does not give them a durable design language. Dig UI Skill makes that design language explicit:
 
-- **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, select usage, and interaction discipline.
+- **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, layout/component consistency, select usage, and interaction discipline. The canonical rules are English-first, with a Chinese translation for review.
 - **Catalogs** define visual taste through tokens, typography, surface rules, and component mappings.
 - **Layout recipes** define information architecture, slots, responsive order, and QA notes.
 - **Rendered previews** give humans a fast way to inspect the design assets before using them in production code.
@@ -27,6 +27,21 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - Layout preview hub at `renders/layouts/index.html`.
 - Playwright-based layout validation via `npm run validate:layouts`.
 - Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
+
+## Highlight: Personal Rules Through Your AI Agent
+
+Dig UI lets users teach their IDE agent long-term UI preferences without configuring another AI API key. Ask Codex, Cursor, or Claude Code to update your local global rules:
+
+```text
+Use dig-ui. Add this to my local global rules:
+Header stays compact and sticky, with language switcher, theme switcher, and user menu on the right.
+```
+
+The agent reads `references/local-rules-builder.md`, writes `~/.config/dig-ui-skill/global-rules.local.md`, then syncs it across installed tools. CLI helpers are available for mechanical writes:
+
+```bash
+npx dig-ui-skill local add --section "Header / Topbar" "Header stays compact and sticky."
+```
 
 ## Quick Start
 
@@ -161,6 +176,7 @@ dig-ui-skill/
 ├── SKILL.md                         # Skill entry used by Codex-compatible tools
 ├── references/
 │   ├── global-rules.md              # Cross-catalog behavior rules
+│   ├── global-rules.zh-CN.md        # Chinese translation of global rules
 │   ├── global-rules.local.example.md
 │   ├── tokens.md                    # Shared token contract
 │   ├── primitives.md                # Base layout and interaction rules
@@ -186,6 +202,12 @@ Team defaults live in:
 references/global-rules.md
 ```
 
+This English file is the canonical source. A Chinese translation is available at:
+
+```text
+references/global-rules.zh-CN.md
+```
+
 Personal overrides should live outside the repository:
 
 ```text
@@ -197,6 +219,16 @@ Create and sync them with:
 ```bash
 npx dig-ui-skill init-local
 npx dig-ui-skill sync-local --all --from-config
+```
+
+Host agents can help write personal preferences without any extra API key. Ask Codex, Cursor, or Claude Code to use Dig UI and update your local global rules; the agent should read `references/local-rules-builder.md`, write `~/.config/dig-ui-skill/global-rules.local.md`, then sync it.
+
+CLI helpers are also available:
+
+```bash
+npx dig-ui-skill local path
+npx dig-ui-skill local show
+npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
 ```
 
 The repository ignores `references/global-rules.local.md` so personal preferences do not leak into public releases.

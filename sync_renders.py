@@ -217,7 +217,7 @@ def main():
         accent_match = re.search(r'--dig-accent:\s*([^;]+);', md_content)
         accent_color = accent_match.group(1).strip() if accent_match else "#37d67a"
         bg_match = re.search(r'--dig-bg:\s*([^;]+);', md_content)
-        bg_color = bg_match.group(1).strip() if bg_match else "#06121a"
+        bg_color = bg_match.group(1).strip() if bg_match else "#f5f5f5"
 
         # Register brand in catalog data
         keywords_zh = description_to_sentences(description_zh)
@@ -392,7 +392,7 @@ def main():
       }
       .lang-btn.active {
         background: var(--dig-accent, #37d67a);
-        color: var(--dig-bg, #06121a);
+        color: var(--dig-bg, #0f1115);
       }
       .lang-btn:hover:not(.active) {
         color: var(--dig-text, #ecf3f8);

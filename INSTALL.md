@@ -115,7 +115,7 @@ npx dig-ui-skill status
 
 ## 个人 Global Rules
 
-团队默认规则在 `references/global-rules.md`。个人偏好请放在 **用户配置中心**（仓库外，不会被 git 跟踪）：
+团队默认规则在 `references/global-rules.md`，该文件是英文主规范；中文翻译在 `references/global-rules.zh-CN.md`。个人偏好请放在 **用户配置中心**（仓库外，不会被 git 跟踪）：
 
 ```bash
 ~/.config/dig-ui-skill/global-rules.local.md
@@ -140,6 +140,24 @@ npx dig-ui-skill sync-local cursor --from-config
 
 # 更新标准资产后一并同步 local 规则（内容不一致时需加 --from-config）
 npx dig-ui-skill update --all --with-local --from-config
+```
+
+### Local Rules Helper
+
+宿主 Agent 可以读取 `references/local-rules-builder.md`，再调用以下机械 helper 写入个人偏好：
+
+```bash
+# 查看用户配置中心路径
+npx dig-ui-skill local path
+
+# 查看当前个人规则
+npx dig-ui-skill local show
+
+# 按 canonical section 添加一条偏好，并默认同步到各端
+npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
+
+# 只同步个人规则
+npx dig-ui-skill local sync
 ```
 
 ### 冲突处理

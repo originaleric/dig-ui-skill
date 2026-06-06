@@ -8,7 +8,8 @@ Use the Dig UI skill installed at `{{SKILL_DIR}}`.
 
 Start from `SKILL.md`, then load only the references you need:
 
-- Always read `references/global-rules.md`, then `references/global-rules.local.md` when present unless the user explicitly says no global rules.
+- Always read `references/global-rules.md` as the canonical English rules. If the user works in Chinese or asks for Chinese context, also read `references/global-rules.zh-CN.md`. Then read `references/global-rules.local.md` when present unless the user explicitly says no global rules.
+- When the user asks to add, update, remove, or refine personal UI preferences, read `references/local-rules-builder.md` and update the user local rules source of truth instead of editing shared global rules.
 - Choose one catalog from `references/catalogs/` before writing styles.
 - Choose a layout recipe from `references/layouts/` when structuring pages.
 - Use `references/tokens.md`, `references/primitives.md`, and `references/checklist.md` as needed.

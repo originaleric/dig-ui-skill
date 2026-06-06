@@ -96,7 +96,11 @@ def rules_to_list(rules_md):
 
 def parse_global_rules_manifest(content):
     """Extract YAML manifest block from a global rules markdown file."""
-    section = extract_markdown_section(content, "Manifest（供 render 注入）")
+    section = ""
+    for heading in ("Manifest (For Render Injection)", "Manifest（供 render 注入）"):
+        section = extract_markdown_section(content, heading)
+        if section:
+            break
     if not section:
         return []
     yaml_block = extract_fenced_block_from_text(section, "yaml")
@@ -204,7 +208,14 @@ def load_global_rules_section_summaries(path):
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
     summaries = []
-    skip = {"优先级", "跳过条件", "Manifest（供 render 注入）"}
+    skip = {
+        "Priority",
+        "Opt-Out",
+        "Manifest (For Render Injection)",
+        "优先级",
+        "跳过条件",
+        "Manifest（供 render 注入）",
+    }
     for match in re.finditer(r"^## (.+)$", content, re.MULTILINE):
         heading = match.group(1).strip()
         if heading in skip:
@@ -223,7 +234,18 @@ def extract_fenced_block_from_text(text, lang=None):
 
 
 def load_merged_section_summaries():
-    skip = {"优先级", "跳过条件", "Manifest（供 render 注入）", "使用方式", "示例覆写"}
+    skip = {
+        "Priority",
+        "Opt-Out",
+        "Manifest (For Render Injection)",
+        "Usage",
+        "Example Overrides",
+        "优先级",
+        "跳过条件",
+        "Manifest（供 render 注入）",
+        "使用方式",
+        "示例覆写",
+    }
     by_section = {}
 
     for path in (GLOBAL_RULES_FILE, GLOBAL_RULES_LOCAL_FILE):

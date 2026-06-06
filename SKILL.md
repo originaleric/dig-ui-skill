@@ -1,6 +1,6 @@
 ---
 name: dig-ui
-description: 用于 Dig 网页与产品界面的设计系统 skill。Use when the user mentions dig-ui, dig-ui-skill, Dig UI, catalog/wise, catalog/dig, CSS token, layout recipe, dashboard, runtime, marketing, docs, or frontend UI review. Always read global-rules.md and then global-rules.local.md when present unless the user explicitly says no global rules.
+description: 用于 Dig 网页与产品界面的设计系统 skill。Use when the user mentions dig-ui, dig-ui-skill, Dig UI, catalog/wise, catalog/dig, CSS token, layout recipe, dashboard, runtime, marketing, docs, or frontend UI review. Always read global-rules.md as the English canonical rules, read global-rules.zh-CN.md when Chinese context is useful, and then read global-rules.local.md when present unless the user explicitly says no global rules.
 ---
 
 # dig-ui
@@ -86,11 +86,14 @@ description: 用于 Dig 网页与产品界面的设计系统 skill。Use when th
 
 需要时读取：
 
-- [references/global-rules.md](references/global-rules.md)：跨 catalog 的 i18n、dark/light、药丸按钮、原生 select 等全局规则（若存在则再读 [references/global-rules.local.md](references/global-rules.local.md)）
+- [references/global-rules.md](references/global-rules.md)：英文主规范，定义跨 catalog 的 i18n、dark/light、控件形态、一致性、select 与交互规则
+- [references/global-rules.zh-CN.md](references/global-rules.zh-CN.md)：中文翻译；当用户使用中文或需要中文对照时读取
+- [references/global-rules.local.md](references/global-rules.local.md)：若存在则最后读取，作为个人或项目偏好覆写
+- [references/local-rules-builder.md](references/local-rules-builder.md)：当用户要求新增、更新、删除或整理个人 global rules 偏好时读取；宿主 Agent 负责理解偏好，CLI 只负责机械写入与同步
 - [references/tokens.md](references/tokens.md)：token 结构与建议值
 - [references/primitives.md](references/primitives.md)：基础 CSS 语言与 primitive 约定
 
-**Global Rules 优先级**：用户当前 prompt > `global-rules.local.md` > `global-rules.md` > catalog > layout/primitives。
+**Global Rules 优先级**：用户当前 prompt > `global-rules.local.md` > `global-rules.md`（英文 canonical；中文文件仅作翻译对照） > catalog > layout/primitives。
 
 若用户明确说「不使用 global / skip global / no global rules」，本次任务跳过 global rules，只按 catalog / layout / primitives 执行。
 

@@ -47,6 +47,25 @@ const USER_CONFIG_DIR = path.join(os.homedir(), ".config", "dig-ui-skill");
 const USER_LOCAL_RULES_PATH = path.join(USER_CONFIG_DIR, "global-rules.local.md");
 const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
 
+const LOCAL_RULE_SECTIONS = [
+  "Layout / Components Consistency",
+  "Header / Topbar",
+  "Footer",
+  "Sidebar / Navigation",
+  "Main Content / Page Sections",
+  "Toolbars / Filters / Actions",
+  "Collections / Lists / Tables / Grids",
+  "Cards / Panels / Empty States",
+  "Forms / Settings Rows",
+  "Responsive Behavior",
+  "CSS / Primitive Discipline",
+  "Buttons / Form Controls",
+  "i18n",
+  "Dark / Light Theme",
+  "Select (HTML Preview / React)",
+  "Interaction / Icons",
+];
+
 const CURSOR_RULE_TEMPLATE = path.join(
   PACKAGE_ROOT,
   "adapters",
@@ -60,6 +79,7 @@ function printHelp() {
 Usage:
   dig-ui-skill install <target> [options]
   dig-ui-skill update <target> [options]
+  dig-ui-skill local <action> [options]
   dig-ui-skill init-local [options]
   dig-ui-skill sync-local <target> [options]
   dig-ui-skill import-local <target> [options]
@@ -73,10 +93,19 @@ Targets:
 User config (local rules source of truth):
   ~/.config/dig-ui-skill/global-rules.local.md
 
+Local actions:
+  local path                         Print the user local rules path
+  local show                         Print user local rules
+  local init                         Create user local rules from the example
+  local sync [target|--all]          Sync user local rules to installed tools
+  local add --section <heading> <bullet>
+                                     Add a preference bullet under a canonical section
+
 Options:
   --all                 Install/update/sync all supported targets
   --link                Use symlink instead of copy for skill install (local dev)
   --link-local          Use symlink instead of copy when syncing local rules
+  --no-sync             With local add, write only; do not sync to installed tools
   --with-local          After update, sync user local rules to targets
   --from-config         On conflict, overwrite target with user config
   --from-target         On conflict, import target local rules into user config
@@ -93,6 +122,8 @@ Examples:
   npx dig-ui-skill update --all --with-local --from-config
   npx dig-ui-skill init-local
   npx dig-ui-skill sync-local --all --from-config
+  npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
+  npx dig-ui-skill local show
   npx dig-ui-skill import-local cursor
   npx dig-ui-skill status
 `);
@@ -110,9 +141,13 @@ function parseArgs(argv) {
     fromConfig: false,
     fromTarget: false,
     backup: false,
+    noSync: false,
     skipConflicts: false,
     source: PACKAGE_ROOT,
     project: null,
+    localAction: null,
+    section: null,
+    values: [],
     help: false,
   };
 
@@ -145,6 +180,12 @@ function parseArgs(argv) {
 
     if (arg === "--with-local") {
       options.withLocal = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--no-sync") {
+      options.noSync = true;
       index += 1;
       continue;
     }
@@ -185,6 +226,12 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--section") {
+      options.section = args[index + 1] ?? "";
+      index += 2;
+      continue;
+    }
+
     if (arg === "-h" || arg === "--help") {
       options.help = true;
       return options;
@@ -194,7 +241,13 @@ function parseArgs(argv) {
       throw new Error(`Unknown option: ${arg}`);
     }
 
-    options.targets.push(normalizeTarget(arg));
+    if (options.command === "local" && !options.localAction) {
+      options.localAction = arg;
+    } else if (options.command === "local") {
+      options.values.push(arg);
+    } else {
+      options.targets.push(normalizeTarget(arg));
+    }
     index += 1;
   }
 
@@ -455,6 +508,175 @@ async function runImportLocal(options) {
 
   options.fromTarget = true;
   await runSyncLocal(options);
+}
+
+function normalizeLocalSection(section) {
+  const trimmed = (section ?? "").trim();
+  if (!trimmed) {
+    throw new Error("local add requires --section <canonical heading>");
+  }
+
+  const matched = LOCAL_RULE_SECTIONS.find(
+    (candidate) => candidate.toLowerCase() === trimmed.toLowerCase(),
+  );
+  if (!matched) {
+    throw new Error(
+      `Unknown local rules section "${section}". Expected one of:\n  ${LOCAL_RULE_SECTIONS.join("\n  ")}`,
+    );
+  }
+
+  return matched;
+}
+
+function normalizeBullet(rawBullet) {
+  const text = rawBullet.join(" ").trim();
+  if (!text) {
+    throw new Error("local add requires a preference bullet");
+  }
+
+  return text.replace(/^\s*[-*]\s+/, "").trim();
+}
+
+function ensureTrailingNewline(content) {
+  return content.endsWith("\n") ? content : `${content}\n`;
+}
+
+function createLocalRulesDocument() {
+  return `# Dig UI Global Rules — Local Override
+
+Personal preferences for Dig UI generation. This file is the user source of truth and should not be committed to shared repositories.
+
+Use canonical English section headings from \`references/global-rules.md\`; bullets may be written in any language.
+`;
+}
+
+function addBulletToMarkdownSection(content, section, bullet) {
+  const normalizedContent = ensureTrailingNewline(content.trim() ? content : createLocalRulesDocument());
+  const bulletLine = `- ${bullet}`;
+  const escapedSection = section.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const headingPattern = new RegExp(`^## ${escapedSection}\\s*$`, "m");
+  const headingMatch = normalizedContent.match(headingPattern);
+
+  if (!headingMatch || headingMatch.index === undefined) {
+    return {
+      content: `${normalizedContent}\n## ${section}\n\n${bulletLine}\n`,
+      added: true,
+    };
+  }
+
+  const sectionStart = headingMatch.index;
+  const afterHeadingIndex = sectionStart + headingMatch[0].length;
+  const nextHeadingMatch = normalizedContent
+    .slice(afterHeadingIndex)
+    .match(/\n## .+$/m);
+  const sectionEnd =
+    nextHeadingMatch && nextHeadingMatch.index !== undefined
+      ? afterHeadingIndex + nextHeadingMatch.index
+      : normalizedContent.length;
+
+  const beforeSectionEnd = normalizedContent.slice(0, sectionEnd);
+  const sectionBody = normalizedContent.slice(afterHeadingIndex, sectionEnd);
+  const afterSection = normalizedContent.slice(sectionEnd);
+  const existingBullets = new Set(
+    sectionBody
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.startsWith("- "))
+      .map((line) => line.slice(2).trim().toLowerCase()),
+  );
+
+  if (existingBullets.has(bullet.toLowerCase())) {
+    return { content: normalizedContent, added: false };
+  }
+
+  const separator = beforeSectionEnd.endsWith("\n\n")
+    ? ""
+    : beforeSectionEnd.endsWith("\n")
+      ? "\n"
+      : "\n\n";
+
+  return {
+    content: `${beforeSectionEnd}${separator}${bulletLine}\n${afterSection}`,
+    added: true,
+  };
+}
+
+async function runLocalAdd(options) {
+  const section = normalizeLocalSection(options.section);
+  const bullet = normalizeBullet(options.values);
+
+  await ensureDir(USER_CONFIG_DIR);
+  const existing = (await readFileIfExists(USER_LOCAL_RULES_PATH)) ?? "";
+  const result = addBulletToMarkdownSection(existing, section, bullet);
+
+  if (!result.added) {
+    console.log("Skipped duplicate preference");
+    console.log(`  section: ${section}`);
+    console.log(`  file: ${USER_LOCAL_RULES_PATH}`);
+    return;
+  }
+
+  await fsp.writeFile(USER_LOCAL_RULES_PATH, result.content, "utf8");
+  console.log("Added local preference");
+  console.log(`  section: ${section}`);
+  console.log(`  file: ${USER_LOCAL_RULES_PATH}`);
+
+  if (options.noSync) {
+    console.log("  synced: no (--no-sync)");
+    return;
+  }
+
+  const syncOptions = {
+    ...options,
+    all: options.all || options.targets.length === 0,
+    fromConfig: true,
+    targets: options.targets,
+  };
+  await runSyncLocal(syncOptions);
+}
+
+async function runLocalShow() {
+  const content = await readFileIfExists(USER_LOCAL_RULES_PATH);
+  if (content === null) {
+    console.log(`No local rules found: ${USER_LOCAL_RULES_PATH}`);
+    console.log("Run `dig-ui-skill local init` to create one.");
+    return;
+  }
+
+  process.stdout.write(content);
+  if (!content.endsWith("\n")) {
+    process.stdout.write("\n");
+  }
+}
+
+async function runLocalCommand(options) {
+  const action = options.localAction;
+  switch (action) {
+    case "path":
+      console.log(USER_LOCAL_RULES_PATH);
+      break;
+    case "show":
+      await runLocalShow();
+      break;
+    case "init":
+      await runInitLocal(options);
+      break;
+    case "sync":
+      await runSyncLocal({
+        ...options,
+        all: options.all || options.values.length === 0,
+        targets: options.values.map(normalizeTarget),
+        fromConfig: true,
+      });
+      break;
+    case "add":
+      await runLocalAdd(options);
+      break;
+    default:
+      throw new Error(
+        "local requires an action: path, show, init, sync, or add",
+      );
+  }
 }
 
 async function copyFileSafe(sourcePath, destPath) {
@@ -742,6 +964,9 @@ async function main() {
       case "update":
         await runUpdate(options);
         break;
+      case "local":
+        await runLocalCommand(options);
+        break;
       case "init-local":
         await runInitLocal(options);
         break;
@@ -756,7 +981,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use install, update, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use install, update, local, init-local, sync-local, import-local, or status.`,
         );
     }
   } catch (error) {

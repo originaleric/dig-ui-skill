@@ -189,11 +189,11 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 ## 📐 Layout 结构资产（与 Catalog 平级）
 
-除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`）规定 i18n、dark/light、药丸按钮、React 组件化 select、React alert/dialog 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
+除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`，英文主规范；`references/global-rules.zh-CN.md` 为中文翻译）规定 i18n、dark/light、控件形态、一致性、React 组件化 select 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
 
 | 资产链 | 源文件 | 预览 |
 | ------ | ------ | ---- |
-| Global Rules | `references/global-rules.md`（+ 用户配置中心 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
+| Global Rules | `references/global-rules.md` canonical（+ `references/global-rules.zh-CN.md` 翻译 + 用户配置中心 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
 | Layout | `references/layouts/<slug>.md` | `renders/layouts/<slug>.html` |
 
@@ -251,12 +251,12 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 
 三层职责要保持清楚：
 
-- **Global rules = 跨 catalog 行为**：i18n、dark/light、药丸按钮、React 组件化 select、React alert/dialog、交互纪律。
+- **Global rules = 跨 catalog 行为**：i18n、dark/light、控件形态、一致性、React 组件化 select、交互纪律。`references/global-rules.md` 是英文主规范，`references/global-rules.zh-CN.md` 是中文翻译。
 - **Layout recipe = 骨架**：决定 slot、grid、信息密度、响应式顺序。
 - **Catalog = 皮肤 / 品牌气质**：决定颜色、字体、圆角、surface、按钮和组件视觉。
 - **Primitive = 底层纪律**：决定 shell、grid、间距、focus、触控高度、基础 class。
 
-**Global rules 优先级**：用户 prompt > `global-rules.local.md` > `global-rules.md` > catalog > layout/primitives。用户说「不使用 global」时跳过 global rules。
+**Global rules 优先级**：用户 prompt > `global-rules.local.md` > `global-rules.md`（英文 canonical；中文文件仅作翻译对照） > catalog > layout/primitives。用户说「不使用 global」时跳过 global rules。
 
 ### 个人本地 Global Rules
 
@@ -289,7 +289,37 @@ npx dig-ui-skill sync-local --all --from-config
 node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 ```
 
-local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons` 和 `react-select` 的 validator 开启，也可以在本地关闭某一项校验。
+local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons`、`consistency` 和 `react-select` 的 validator 开启，也可以在本地关闭某一项校验。个人规则可用中文或英文书写，但建议保留英文主规范中的 section heading 与 rule id，便于跨工具稳定合并。
+
+### 让宿主 Agent 写入个人偏好
+
+不需要为 `dig-ui-skill` 配置额外 AI API key。Codex / Cursor / Claude Code 本身已经具备自然语言理解能力；当用户要求更新个人 UI 偏好时，Agent 应读取：
+
+```text
+references/local-rules-builder.md
+```
+
+然后把偏好写入：
+
+```text
+~/.config/dig-ui-skill/global-rules.local.md
+```
+
+用户可以这样说：
+
+```text
+使用 dig-ui。把我的本地 global rules 更新一下：
+Header 固定在顶部，高度紧凑，右侧放语言切换、主题切换和用户菜单。
+```
+
+Agent 可使用这些机械 helper：
+
+```bash
+npx dig-ui-skill local path
+npx dig-ui-skill local show
+npx dig-ui-skill local add --section "Header / Topbar" "Header stays sticky at the top with compact height."
+npx dig-ui-skill local sync
+```
 
 推荐工作流：
 
