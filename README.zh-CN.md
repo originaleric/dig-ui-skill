@@ -186,7 +186,6 @@ dig-ui-skill/
 ├── assets/                          # 预览 CSS 与 Dig 视觉资产
 ├── adapters/                        # 工具适配模板
 ├── agents/                          # Agent 元数据
-├── react/                           # React 3D Logo Loader
 ├── bin/dig-ui-skill.mjs             # 安装与同步 CLI
 ├── sync-renders.sh                  # Render 同步入口
 ├── sync_renders.py                  # Catalog 预览编译器
@@ -239,12 +238,6 @@ npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact heig
 
 ```bash
 npm install
-```
-
-构建 3D loader bundle：
-
-```bash
-npm run build:loader
 ```
 
 同步 catalog 预览：

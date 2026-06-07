@@ -186,7 +186,6 @@ dig-ui-skill/
 ├── assets/                          # Preview CSS and Dig visual assets
 ├── adapters/                        # Tool-specific adapters
 ├── agents/                          # Agent metadata
-├── react/                           # React 3D logo loader
 ├── bin/dig-ui-skill.mjs             # Installer and sync CLI
 ├── sync-renders.sh                  # Render synchronization entry point
 ├── sync_renders.py                  # Catalog preview compiler
@@ -239,12 +238,6 @@ Install dependencies:
 
 ```bash
 npm install
-```
-
-Build the 3D loader bundle:
-
-```bash
-npm run build:loader
 ```
 
 Sync catalog previews:

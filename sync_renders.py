@@ -111,7 +111,7 @@ def main():
                 html_candidates = []
                 for r, d, fs in os.walk(RENDER_DIR):
                     for f in fs:
-                        if f.endswith(".html") and f not in ["index.html", "README.html", "dig-coin-loader.html"]:
+                        if f.endswith(".html") and f not in ["index.html", "README.html"]:
                             html_candidates.append(os.path.join(r, f))
                 if html_candidates:
                     template_path = html_candidates[0]

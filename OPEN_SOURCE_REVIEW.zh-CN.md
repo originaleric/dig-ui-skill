@@ -39,7 +39,6 @@ Review 日期：2026-06-05
 
    ```bash
    npm ci
-   npm run build:loader
    npm run validate:layouts
    npm pack --dry-run
    ```
