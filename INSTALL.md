@@ -78,6 +78,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `references/`（**除** `global-rules.local.md`）
 - `assets/`
 - `renders/`
+- `bin/`
 - `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs`
 - `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
