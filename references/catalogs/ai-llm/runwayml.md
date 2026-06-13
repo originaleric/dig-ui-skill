@@ -1,14 +1,14 @@
 ## Dig UI CSS Tokens
 
 ```css
---dig-bg: #767d88;
---dig-bg-soft: #767d88;
---dig-surface: #767d88;
---dig-surface-strong: #767d88;
---dig-surface-elevated: #767d88;
---dig-text: #7d848e;
---dig-text-muted: #7d848e;
---dig-text-soft: #7d848e;
+--dig-bg: #0e1116;
+--dig-bg-soft: #171b22;
+--dig-surface: #1f242b;
+--dig-surface-strong: #252b33;
+--dig-surface-elevated: #2d343d;
+--dig-text: #f4f7fb;
+--dig-text-muted: #c5cbd3;
+--dig-text-soft: #8f98a4;
 --dig-accent: #6b7280;
 --dig-accent-strong: #6b7280;
 --dig-accent-2: #6b7280;

@@ -3,6 +3,12 @@ version: alpha
 name: Superhumon Inspired
 description: An inspired interpretation of Superhumon's design language — a fast-email productivity brand split between an editorial dark hero (deep indigo navy with violet-sky atmospheric backdrop and a portrait subject) and a quiet white content body with off-warm-grey ink. The system uses a single proprietary variable display sans, heavy weight 460–540 with tight tracking, and a deep-teal closing CTA band that breaks the indigo/white rhythm with a warm dark interlude. Buttons are tight rounded rectangles, pricing is sober and dense, and the brand reads more like a high-end newsletter than a SaaS app.
 
+render:
+  archetype: inbox-productivity
+  page_type: saas
+  density: compact
+  canvas: editorial-productivity
+
 colors:
   primary: "#1b1938"
   primary-deep: "#0e0c1f"

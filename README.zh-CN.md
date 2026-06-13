@@ -7,7 +7,7 @@
 
 `dig-ui-skill` 是一套 AI-first 的前端设计系统。它不以传统组件库的方式发布，而是把设计规则、视觉 catalog、layout recipe、token 协议和静态预览组织成结构化 Markdown，让 AI 编程 Agent 能稳定生成符合 Dig 气质的产品 UI。
 
-[English README](./README.md) · [安装指南](./INSTALL.md) · [使用指南](./USAGE.md) · [React Loader](./react/README.md)
+[English README](./README.md) · [安装指南](./INSTALL.md) · [使用指南](./USAGE.md)
 
 ## 为什么需要它
 

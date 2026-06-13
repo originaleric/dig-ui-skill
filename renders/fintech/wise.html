@@ -161,7 +161,7 @@
       }
     </style>
   </head>
-  <body>
+  <body data-render-archetype="finance-mobile-app">
     <!-- Floating Language Switcher Capsule -->
     <div class="lang-switch-capsule">
       <button class="lang-btn" data-lang="zh">中</button>
@@ -173,7 +173,7 @@
         <div class="surface hero-main">
           <span class="eyebrow"><span class="brand-name-label">Wise</span> Catalog / Dig UI</span>
           <h1 class="brand-title-h1">Wise</h1>
-          <p class="brand-description-p" data-zh="标准 Wise 设计系统目录，具有专门的组件和排版模式。" data-en="Standard Wise design system catalog featuring specialized components and typography schemas.">标准 Wise 设计系统目录，具有专门的组件和排版模式。</p>
+          <p class="brand-description-p" data-zh="Standard Wise design system catalog featuring specialized components and typography schemas." data-en="Standard Wise design system catalog featuring specialized components and typography schemas.">Standard Wise design system catalog featuring specialized components and typography schemas.</p>
         </div>
         <aside class="surface surface-strong hero-side wise-phone">
           <div class="hero-meta">
@@ -189,130 +189,64 @@
         <aside class="surface side-rail">
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
             <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
-            <a href="#type" data-zh="字体层级" data-en="Typography">字体层级</a>
-            <a href="#buttons" data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</a>
-            <a href="#panels" data-zh="面板与状态" data-en="Panels & Status">面板与状态</a>
-            <a href="#tokens" data-zh="关键 token" data-en="Key Tokens">关键 token</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
         </aside>
 
         <div class="content">
+
+          <section class="surface section archetype-section finance-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="金融移动样张" data-en="Finance App Sample">金融移动样张</h3>
+              <p data-zh="验证余额、转账、汇率和卡片控制在移动优先界面中的表现。" data-en="Validates balance, transfer, rate, and card controls in a mobile-first interface.">验证余额、转账、汇率和卡片控制在移动优先界面中的表现。</p>
+            </div>
+            <div class="finance-shell">
+              <article class="phone-card"><span>Wise Balance</span><strong>$12,480.20</strong><button class="btn btn-primary">Send money</button></article>
+              <div class="rate-grid"><article><strong>USD → EUR</strong><span>0.9234</span></article><article><strong>Card</strong><span>Active</span></article></div>
+            </div>
+          </section>
+
           <section class="surface section" id="colors">
             <div class="section-head">
               <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
-              <p>暖白底 + acid green 主动作 + deep moss 品牌块</p>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
             </div>
             <div class="swatch-grid">
-              <article class="swatch"><div class="swatch-tone" style="background:#fbfcf5"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono">#FBFCF5</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:#eef4e7"></div><div class="swatch-meta"><strong>Background Soft</strong><div class="meta-small mono">#EEF4E7</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:#9fe870"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono">#9FE870</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:#163300"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono">#163300</div></div></article>
-            </div>
-          </section>
-
-          <section class="surface section" id="type">
-            <div class="section-head">
-              <h3 data-zh="字体层级" data-en="Typography Hierarchy">字体层级</h3>
-              <p>display 用于强记忆标题，sans 保持金融信息清晰</p>
-            </div>
-            <div class="type-grid">
-              <article class="type-card">
-                <strong>Hero Display</strong>
-                <div class="type-showcase type-hero">Money Without Lag</div>
-                <div class="meta-small mono">72px / 0.98 / 900 / -0.06em</div>
-              </article>
-              <article class="type-card">
-                <strong>Section Title</strong>
-                <div class="type-showcase type-section">把转账做得更快、更明白</div>
-                <div class="meta-small mono">38px / 1.08 / 850 / -0.04em</div>
-              </article>
-              <article class="type-card">
-                <strong>Panel Title</strong>
-                <div class="type-showcase type-panel">主账户</div>
-                <div class="meta-small mono">22px / 1.18 / 800</div>
-              </article>
-              <article class="type-card">
-                <strong>Body + Meta</strong>
-                <div class="type-showcase type-body">费用、到账时间和收款金额必须放在用户一眼能确认的位置。</div>
-                <div class="type-meta">Rate / Fee / Arrival / Recipient</div>
-              </article>
-            </div>
-          </section>
-
-          <section class="surface section" id="buttons">
-            <div class="section-head">
-              <h3 data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</h3>
-              <p>大胶囊、强字重、低噪声，像移动端可直接点击</p>
-            </div>
-            <div class="button-grid">
-              <article class="button-card"><strong data-zh="主动作" data-en="Primary">Primary</strong><button class="btn btn-primary">发送汇款</button></article>
-              <article class="button-card"><strong data-zh="次要动作" data-en="Secondary">Secondary</strong><button class="btn btn-secondary">追踪邀请</button></article>
-              <article class="button-card"><strong data-zh="幽灵按钮" data-en="Ghost">Ghost</strong><button class="btn btn-ghost">查看费率</button></article>
-            </div>
-            <div class="chip-row">
-              <span class="chip">汇款</span>
-              <span class="chip">充值</span>
-              <span class="chip">请求收款</span>
-              <span class="chip">扫描</span>
-            </div>
-          </section>
-
-          <section class="surface section" id="panels">
-            <div class="section-head">
-              <h3 data-zh="面板与状态" data-en="Panels & Statuses">面板与状态</h3>
-              <p>浅绿账户卡与深绿邀请卡共同建立消费级 fintech 记忆点</p>
-            </div>
-            <div class="panel-grid">
-              <article class="panel-card">
-                <div class="panel-top"><strong>主账户</strong><span class="status">¥0.00</span></div>
-                <p>账户卡保持大圆角和低对比 surface，金额、币种、下一步动作要比装饰更重要。</p>
-              </article>
-              <article class="panel-card" style="background:#163300;color:#f4ffe9">
-                <div class="panel-top"><strong>分享 Dig 并赚取奖励</strong><span class="status">US$125</span></div>
-                <p style="color:rgba(244,255,233,0.72)">深苔绿 promo 卡使用酸绿标题和真实人味，但需要避免复制任何 Wise 专属资产。</p>
-              </article>
-            </div>
-          </section>
-
-          <section class="surface section">
-            <div class="section-head">
-              <h3 data-zh="数字表达" data-en="Numeric Focus">数字表达</h3>
-              <p>金额、速度、费用是视觉锚点，必须比普通正文更醒目</p>
-            </div>
-            <div class="stat-grid">
-              <article class="stat-card"><strong>Arrives</strong><div class="value">20s</div><div class="note">强调速度</div></article>
-              <article class="stat-card"><strong>Fee</strong><div class="value">$0</div><div class="note">透明定价</div></article>
-              <article class="stat-card"><strong>Reward</strong><div class="value">$125</div><div class="note">推荐奖励</div></article>
-              <article class="stat-card"><strong>Countries</strong><div class="value">140+</div><div class="note">全球覆盖</div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
             </div>
           </section>
 
           <section class="surface section" id="tokens">
             <div class="section-head">
               <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
-              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档" data-en="This section serves as a direct reference for your catalog document definitions">这部分方便你对照 HTML 直接回写 catalog 文档</p>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
             </div>
             <div class="table-grid">
               <article class="table-card">
-                <strong data-zh="颜色" data-en="Color Tokens">颜色</strong>
                 <table class="token-table">
-                  <tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr>
-                  <tr><td class="mono">--dig-bg</td><td class="mono">#fbfcf5</td></tr>
-                  <tr><td class="mono">--dig-accent</td><td class="mono">#9fe870</td></tr>
-                  <tr><td class="mono">--dig-accent-2</td><td class="mono">#163300</td></tr>
-                  <tr><td class="mono">--dig-border</td><td class="mono">rgba(7,17,10,0.12)</td></tr>
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+                <tr><td><code>--dig-bg</code></td><td class="mono token-val" data-token="--dig-bg">--dig-bg</td></tr>
+                <tr><td><code>--dig-bg-soft</code></td><td class="mono token-val" data-token="--dig-bg-soft">--dig-bg-soft</td></tr>
+                <tr><td><code>--dig-surface</code></td><td class="mono token-val" data-token="--dig-surface">--dig-surface</td></tr>
+                <tr><td><code>--dig-surface-strong</code></td><td class="mono token-val" data-token="--dig-surface-strong">--dig-surface-strong</td></tr>
+                <tr><td><code>--dig-text</code></td><td class="mono token-val" data-token="--dig-text">--dig-text</td></tr>
+                <tr><td><code>--dig-text-muted</code></td><td class="mono token-val" data-token="--dig-text-muted">--dig-text-muted</td></tr>
+                <tr><td><code>--dig-accent</code></td><td class="mono token-val" data-token="--dig-accent">--dig-accent</td></tr>
+                <tr><td><code>--dig-accent-2</code></td><td class="mono token-val" data-token="--dig-accent-2">--dig-accent-2</td></tr>
+                <tr><td><code>--dig-border</code></td><td class="mono token-val" data-token="--dig-border">--dig-border</td></tr>
+                <tr><td><code>--dig-border-strong</code></td><td class="mono token-val" data-token="--dig-border-strong">--dig-border-strong</td></tr>
+                <tr><td><code>--dig-grid-line</code></td><td class="mono token-val" data-token="--dig-grid-line">--dig-grid-line</td></tr>
+                <tr><td><code>--dig-radius-md</code></td><td class="mono token-val" data-token="--dig-radius-md">--dig-radius-md</td></tr>
+                <tr><td><code>--dig-text-5xl</code></td><td class="mono token-val" data-token="--dig-text-5xl">--dig-text-5xl</td></tr>
+                <tr><td><code>--dig-shadow-panel</code></td><td class="mono token-val" data-token="--dig-shadow-panel">--dig-shadow-panel</td></tr>
+                  </tbody>
                 </table>
-              </article>
-              <article class="table-card">
-                <strong data-zh="排版与组件 (YAML)" data-en="Typography & Components (YAML)">排版与组件 (YAML)</strong>
-                <p style="font-size: 13px; opacity: 0.8; margin-top: 8px; margin-bottom: 0;" data-zh="已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。" data-en="Upgraded to strict YAML mapping syntax (see catalog markdown), controlling components via `{typography.xxx}` directly.">已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。</p>
-                <pre style="background: rgba(0,0,0,0.05); border: 1px solid var(--dig-border); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; opacity: 0.8; font-family: var(--dig-font-mono); overflow-x: auto; margin-bottom: 0;">typography:
-  hero-title:
-    fontSize: var(...)
-components:
-  button-primary:
-    padding: 12px 24px</pre>
               </article>
             </div>
           </section>
@@ -349,6 +283,16 @@ components:
           });
         });
 
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
         // Dynamic Token Visualizer
         const rootStyles = getComputedStyle(document.documentElement);
         document.querySelectorAll('.token-val').forEach(el => {
@@ -359,7 +303,14 @@ components:
               if (value.startsWith('#')) {
                 value = value.toUpperCase();
               }
-              el.textContent = value;
+              el.textContent = '';
+              if (/^#[0-9A-F]{3}(?:[0-9A-F]{3})?$/.test(value)) {
+                const dot = document.createElement('span');
+                dot.className = 'token-color-dot';
+                dot.style.background = value;
+                el.appendChild(dot);
+              }
+              el.appendChild(document.createTextNode(value));
             }
           }
         });

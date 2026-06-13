@@ -23,11 +23,13 @@
     "sync-renders.sh",
     "sync_renders.py",
     "sync_layout_renders.py",
+    "validate-dig-catalog-preview.mjs",
     "validate-dig-layout-preview.mjs"
   ],
   "scripts": {
     "sync:layouts": "./sync-renders.sh --layouts",
-    "validate:layouts": "node validate-dig-layout-preview.mjs renders/layouts"
+    "validate:layouts": "node validate-dig-layout-preview.mjs renders/layouts",
+    "validate:catalogs": "node validate-dig-catalog-preview.mjs renders"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

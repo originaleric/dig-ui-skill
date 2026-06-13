@@ -3,6 +3,12 @@ version: alpha
 name: Figma
 description: "A confident black-and-white editorial frame interrupted by oversized, hand-cut pastel color blocks. The marketing canvas is rigorously monochrome — figmaSans variable type, pure white surfaces, pure black ink, pill-shaped CTAs — while each story section drops the page into a saturated lime, lavender, cream, mint, or pink panel that reads like a sticky note placed on a clean desk. The result is a design system that feels both technical and joyful — a tool for serious work, made by people who like color."
 
+render:
+  archetype: creative-canvas-workspace
+  page_type: creative-tools
+  density: comfortable
+  canvas: light-editorial
+
 colors:
   primary: "#000000"
   on-primary: "#ffffff"

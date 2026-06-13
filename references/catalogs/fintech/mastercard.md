@@ -1,7 +1,6 @@
 ## Dig UI CSS Tokens
 
 ```css
-css
 --dig-bg: #F3F0EE;
 --dig-bg-soft: #F3F0EE;
 --dig-surface: #F3F0EE;

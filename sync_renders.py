@@ -10,6 +10,7 @@ import re
 import urllib.request
 import urllib.parse
 import json
+import html
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
@@ -52,6 +53,250 @@ def description_to_sentences(desc):
     # Split on sentence terminals like period, question mark, exclamation, or semicolons
     sentences = re.split(r'(?<=[.!?。！？])\s+', desc)
     return [s.strip() for s in sentences if s.strip()]
+
+def escape_attr(value):
+    return html.escape(value or "", quote=True)
+
+def parse_render_intent(md_content, category_slug, brand_slug):
+    archetype = None
+    render_match = re.search(r'\nrender:\s*\n(.*?)(?:\n[a-zA-Z0-9_-]+:\s|\n---|\n##|\Z)', md_content, re.DOTALL)
+    if render_match:
+        archetype_match = re.search(r'^\s*archetype:\s*["\']?([^"\'\n]+)', render_match.group(1), re.MULTILINE)
+        if archetype_match:
+            archetype = archetype_match.group(1).strip()
+
+    brand_defaults = {
+        "raycast": "command-palette-marketing",
+        "cursor": "command-palette-marketing",
+        "warp": "command-palette-marketing",
+        "spotify": "media-player-shell",
+        "apple": "media-player-shell",
+        "figma": "creative-canvas-workspace",
+        "miro": "creative-canvas-workspace",
+        "webflow": "creative-canvas-workspace",
+        "shopify": "commerce-dual-track",
+        "airbnb": "commerce-dual-track",
+        "nike": "commerce-dual-track",
+        "superhuman": "inbox-productivity",
+        "notion": "inbox-productivity",
+        "linear.app": "inbox-productivity",
+        "wise": "finance-mobile-app",
+        "revolut": "finance-mobile-app",
+        "coinbase": "finance-mobile-app",
+    }
+    category_defaults = {
+        "dev-tools": "command-palette-marketing",
+        "creative-tools": "creative-canvas-workspace",
+        "media-consumer": "media-player-shell",
+        "ecommerce": "commerce-dual-track",
+        "fintech": "finance-mobile-app",
+        "saas": "inbox-productivity",
+    }
+    return archetype or brand_defaults.get(brand_slug) or category_defaults.get(category_slug) or "token-sheet"
+
+def build_color_section():
+    return """
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
+            </div>
+          </section>"""
+
+def build_token_section():
+    rows = [
+        "--dig-bg",
+        "--dig-bg-soft",
+        "--dig-surface",
+        "--dig-surface-strong",
+        "--dig-text",
+        "--dig-text-muted",
+        "--dig-accent",
+        "--dig-accent-2",
+        "--dig-border",
+        "--dig-border-strong",
+        "--dig-grid-line",
+        "--dig-radius-md",
+        "--dig-text-5xl",
+        "--dig-shadow-panel",
+    ]
+    row_html = "\n".join([
+        f'                <tr><td><code>{token}</code></td><td class="mono token-val" data-token="{token}">{token}</td></tr>'
+        for token in rows
+    ])
+    return f"""
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <table class="token-table">
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+{row_html}
+                  </tbody>
+                </table>
+              </article>
+            </div>
+          </section>"""
+
+def build_archetype_section(archetype, brand_name):
+    brand = html.escape(brand_name)
+    templates = {
+        "command-palette-marketing": f"""
+          <section class="surface section archetype-section command-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="命令面板样张" data-en="Command Palette Sample">命令面板样张</h3>
+              <p data-zh="展示开发工具 catalog 的快捷入口、扩展卡片和键盘优先体验。" data-en="Shows shortcut-driven entry points, extension cards, and keyboard-first product chrome.">展示开发工具 catalog 的快捷入口、扩展卡片和键盘优先体验。</p>
+            </div>
+            <div class="command-shell">
+              <div class="command-search"><span>⌘ K</span><strong>{brand} Command Center</strong><em>Search actions, extensions, and docs</em></div>
+              <div class="command-list">
+                <div class="command-row active"><strong>Open AI Chat</strong><span>⌘ ⇧ A</span></div>
+                <div class="command-row"><strong>Install Extension</strong><span>⌘ E</span></div>
+                <div class="command-row"><strong>Run Workflow</strong><span>⌘ R</span></div>
+              </div>
+              <div class="mini-grid">
+                <article><strong>Store</strong><span>842 extensions</span></article>
+                <article><strong>Automation</strong><span>12 active flows</span></article>
+                <article><strong>Focus</strong><span>3 pinned commands</span></article>
+              </div>
+            </div>
+          </section>""",
+        "media-player-shell": f"""
+          <section class="surface section archetype-section media-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="媒体应用样张" data-en="Media App Sample">媒体应用样张</h3>
+              <p data-zh="用侧栏、播放上下文、曲目列表和底部控制条验证沉浸式媒体应用 UI。" data-en="Uses sidebar, playback context, track list, and player controls to validate immersive media app UI.">用侧栏、播放上下文、曲目列表和底部控制条验证沉浸式媒体应用 UI。</p>
+            </div>
+            <div class="media-shell">
+              <aside class="media-nav"><strong>{brand}</strong><span class="active">Home</span><span>Search</span><span>Your Library</span><span>Made for you</span></aside>
+              <div class="media-main">
+                <div class="media-hero-card">
+                  <div class="album-art art-1"><span></span></div>
+                  <div>
+                    <span class="media-kicker">Playlist</span>
+                    <h4>Midnight Signal</h4>
+                    <p>Daily Mix · 42 songs · Updated today</p>
+                    <button class="play-btn">▶</button>
+                  </div>
+                </div>
+                <div class="track-list">
+                  <div class="track-row active"><span>01</span><strong>Green Room</strong><em>Editorial Pick</em><b>3:18</b></div>
+                  <div class="track-row"><span>02</span><strong>Soft Circuit</strong><em>Focus Radio</em><b>4:02</b></div>
+                  <div class="track-row"><span>03</span><strong>Midnight Signal</strong><em>Daily Mix</em><b>2:47</b></div>
+                </div>
+              </div>
+              <aside class="media-queue">
+                <strong>Queue</strong>
+                <div><span>Up next</span><b>Soft Circuit</b></div>
+                <div><span>Device</span><b>Studio Display</b></div>
+              </aside>
+              <footer class="player-bar"><button class="play-btn">▶</button><strong>Now Playing</strong><span>03:18 / 04:42</span><div class="progress"><i></i></div></footer>
+            </div>
+          </section>""",
+        "creative-canvas-workspace": f"""
+          <section class="surface section archetype-section canvas-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="创作画布样张" data-en="Creative Canvas Sample">创作画布样张</h3>
+              <p data-zh="展示工具栏、图层、画布对象和多人协作状态。" data-en="Shows toolbar, layers, canvas objects, and collaborative presence.">展示工具栏、图层、画布对象和多人协作状态。</p>
+            </div>
+            <div class="canvas-shell">
+              <div class="tool-strip"><span>Move</span><span>Frame</span><span>Pen</span><span>Comment</span></div>
+              <div class="canvas-board">
+                <article class="artboard"><strong>{brand} Workspace</strong><p>Component set · Variant preview</p></article>
+                <article class="floating-node">Prototype</article>
+              </div>
+              <aside><strong>Layers</strong><span>Hero frame</span><span>Button / Primary</span><span>Token swatches</span></aside>
+            </div>
+          </section>""",
+        "commerce-dual-track": f"""
+          <section class="surface section archetype-section commerce-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="商业双轨样张" data-en="Commerce Dual-Track Sample">商业双轨样张</h3>
+              <p data-zh="同时验证营销首屏和交易卡片，避免只看到 token 表。" data-en="Validates both marketing presence and transactional cards beyond the token sheet.">同时验证营销首屏和交易卡片，避免只看到 token 表。</p>
+            </div>
+            <div class="commerce-shell">
+              <article class="commerce-hero"><span>{brand}</span><strong>Sell everywhere with a calmer storefront.</strong><button class="btn btn-primary">Start free</button></article>
+              <article class="checkout-card"><strong>Growth plan</strong><div class="price">$29</div><span>Inventory, checkout, analytics</span><button class="btn btn-secondary">Compare plans</button></article>
+            </div>
+          </section>""",
+        "inbox-productivity": f"""
+          <section class="surface section archetype-section inbox-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="收件箱效率样张" data-en="Inbox Productivity Sample">收件箱效率样张</h3>
+              <p data-zh="展示高频列表、阅读面板和快捷动作的密度关系。" data-en="Shows density relationships across lists, reading panes, and quick actions.">展示高频列表、阅读面板和快捷动作的密度关系。</p>
+            </div>
+            <div class="inbox-shell">
+              <div class="inbox-list">
+                <article class="active"><strong>Launch review</strong><span>Design system notes · 8m</span></article>
+                <article><strong>Team digest</strong><span>5 updates · 24m</span></article>
+                <article><strong>Follow up</strong><span>Customer thread · 1h</span></article>
+              </div>
+              <div class="inbox-detail"><span>{brand}</span><h4>Make repeated work feel lighter.</h4><p>Fast triage, crisp hierarchy, and calm controls share one surface vocabulary.</p><button class="btn btn-primary">Archive</button></div>
+            </div>
+          </section>""",
+        "finance-mobile-app": f"""
+          <section class="surface section archetype-section finance-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="金融移动样张" data-en="Finance App Sample">金融移动样张</h3>
+              <p data-zh="验证余额、转账、汇率和卡片控制在移动优先界面中的表现。" data-en="Validates balance, transfer, rate, and card controls in a mobile-first interface.">验证余额、转账、汇率和卡片控制在移动优先界面中的表现。</p>
+            </div>
+            <div class="finance-shell">
+              <article class="phone-card"><span>{brand} Balance</span><strong>$12,480.20</strong><button class="btn btn-primary">Send money</button></article>
+              <div class="rate-grid"><article><strong>USD → EUR</strong><span>0.9234</span></article><article><strong>Card</strong><span>Active</span></article></div>
+            </div>
+          </section>""",
+    }
+    return templates.get(archetype, f"""
+          <section class="surface section archetype-section token-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="Catalog 样张" data-en="Catalog Sample">Catalog 样张</h3>
+              <p data-zh="当前 catalog 尚未声明专属 render intent，因此使用通用 token 样张。" data-en="This catalog has not declared a dedicated render intent yet, so it uses the generic token sample.">当前 catalog 尚未声明专属 render intent，因此使用通用 token 样张。</p>
+            </div>
+            <div class="type-grid">
+              <article class="type-card"><strong>Hero Title</strong><div class="type-showcase type-hero">{brand}</div><div class="meta-small mono">var(--dig-text-5xl)</div></article>
+              <article class="type-card"><strong>Body</strong><div class="type-showcase type-body">Tokenized typography, color, radius, and elevation should remain coherent across reusable components.</div><div class="meta-small mono">var(--dig-text-md)</div></article>
+            </div>
+          </section>""")
+
+def build_page_grid(archetype, brand_name):
+    return f"""
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+{build_archetype_section(archetype, brand_name)}
+{build_color_section()}
+{build_token_section()}
+        </div>
+      </div>"""
+
+def build_hero_side():
+    return """
+        <aside class="surface surface-strong hero-side">
+          <div class="hero-meta">
+            <div class="meta-row"><span>Accent</span><span class="token-val" data-token="--dig-accent">--dig-accent</span></div>
+            <div class="meta-row"><span>Support</span><span class="token-val" data-token="--dig-accent-2">--dig-accent-2</span></div>
+            <div class="meta-row"><span>Body</span><span><span class="token-val" data-token="--dig-text-md">--dig-text-md</span> / <span class="token-val" data-token="--dig-leading-normal">--dig-leading-normal</span></span></div>
+            <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
+          </div>
+        </aside>"""
 
 def main():
     target_catalog = sys.argv[1] if len(sys.argv) > 1 else None
@@ -151,6 +396,7 @@ def main():
             brand_name_zh = brand_name
         if not brand_name_en:
             brand_name_en = brand_name
+        render_archetype = parse_render_intent(md_content, category_slug, brand_slug)
 
         # Parse bilingual descriptions
         description_zh = ""
@@ -200,8 +446,9 @@ def main():
         if css_block_match:
             tokens_raw = css_block_match.group(1).strip()
             for line in tokens_raw.split("\n"):
-                if line.strip():
-                    tokens_block.append("        " + line.strip())
+                clean_line = line.strip()
+                if clean_line.startswith("--dig-"):
+                    tokens_block.append("        " + clean_line)
         else:
             for line in md_content.split("\n"):
                 if line.strip().startswith("--dig-"):
@@ -268,13 +515,28 @@ def main():
         # Update description <p> (supports data-zh and data-en translation attributes)
         html_content = re.sub(
             r'</h1>\s*<p class="brand-description-p"[^>]*>.*?</p>',
-            f'</h1>\n          <p class="brand-description-p" data-zh="{description_zh}" data-en="{description_en}">{description_zh}</p>',
+            f'</h1>\n          <p class="brand-description-p" data-zh="{escape_attr(description_zh)}" data-en="{escape_attr(description_en)}">{html.escape(description_zh)}</p>',
             html_content
         )
         html_content = re.sub(
             r'</h1>\s*<p>.*?</p>',
-            f'</h1>\n          <p class="brand-description-p" data-zh="{description_zh}" data-en="{description_en}">{description_zh}</p>',
+            f'</h1>\n          <p class="brand-description-p" data-zh="{escape_attr(description_zh)}" data-en="{escape_attr(description_en)}">{html.escape(description_zh)}</p>',
             html_content
+        )
+
+        # Rebuild the central preview body from the selected catalog render archetype.
+        page_grid = build_page_grid(render_archetype, brand_name)
+        html_content = re.sub(
+            r'\n\s*<div class="page-grid">.*?\n\s*</main>',
+            f"\n{page_grid}\n    </main>",
+            html_content,
+            flags=re.DOTALL
+        )
+        html_content = re.sub(
+            r'\n\s*<aside class="surface surface-strong hero-side">.*?\n\s*</aside>\s*\n\s*</section>',
+            f"\n{build_hero_side()}\n      </section>",
+            html_content,
+            flags=re.DOTALL
         )
 
         # Align relative assets path based on subfolder depth
@@ -467,6 +729,16 @@ def main():
           });
         });
 
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
         // Dynamic Token Visualizer
         const rootStyles = getComputedStyle(document.documentElement);
         document.querySelectorAll('.token-val').forEach(el => {
@@ -477,7 +749,14 @@ def main():
               if (value.startsWith('#')) {
                 value = value.toUpperCase();
               }
-              el.textContent = value;
+              el.textContent = '';
+              if (/^#[0-9A-F]{3}(?:[0-9A-F]{3})?$/.test(value)) {
+                const dot = document.createElement('span');
+                dot.className = 'token-color-dot';
+                dot.style.background = value;
+                el.appendChild(dot);
+              }
+              el.appendChild(document.createTextNode(value));
             }
           }
         });
@@ -491,6 +770,12 @@ def main():
                 )
             else:
                 html_content = html_content.replace("</body>", f"<script>\n{bilingual_js}\n    </script>\n  </body>")
+
+        html_content = re.sub(
+            r'<body(?:\s+data-render-archetype="[^"]*")?>',
+            f'<body data-render-archetype="{escape_attr(render_archetype)}">',
+            html_content
+        )
 
         # Save HTML page
         with open(html_file, "w", encoding="utf-8") as f:

@@ -123,7 +123,7 @@
       }
     </style>
   </head>
-  <body>
+  <body data-render-archetype="token-sheet">
     <!-- Floating Language Switcher Capsule -->
     <div class="lang-switch-capsule">
       <button class="lang-btn" data-lang="zh">中</button>
@@ -136,14 +136,15 @@
         <div class="surface hero-main">
           <span class="eyebrow"><span class="brand-name-label">Editorial</span> Catalog / Dig UI</span>
           <h1 class="brand-title-h1">Editorial</h1>
-          <p class="brand-description-p" data-zh="标准编辑设计系统目录，具有专门的组件和排版模式。" data-en="Standard Editorial design system catalog featuring specialized components and typography schemas.">标准编辑设计系统目录，具有专门的组件和排版模式。</p>
+          <p class="brand-description-p" data-zh="Standard Editorial design system catalog featuring specialized components and typography schemas." data-en="Standard Editorial design system catalog featuring specialized components and typography schemas.">Standard Editorial design system catalog featuring specialized components and typography schemas.</p>
         </div>
+
         <aside class="surface surface-strong hero-side">
           <div class="hero-meta">
-            <div class="meta-row"><span data-zh="强调色" data-en="Accent">Accent</span><span class="token-val" data-token="--dig-accent">#1F4E46</span></div>
-            <div class="meta-row"><span data-zh="辅助色" data-en="Support">Support</span><span class="token-val" data-token="--dig-accent-2">#9C6B3A</span></div>
-            <div class="meta-row"><span data-zh="正文" data-en="Body">Body</span><span><span class="token-val" data-token="--dig-text-md">16px</span> / <span class="token-val" data-token="--dig-leading-normal">1.62</span></span></div>
-            <div class="meta-row"><span data-zh="标题" data-en="Title">Title</span><span><span class="token-val" data-token="--dig-text-5xl">64px</span> / <span class="token-val" data-token="--dig-leading-tight">1.02</span></span></div>
+            <div class="meta-row"><span>Accent</span><span class="token-val" data-token="--dig-accent">--dig-accent</span></div>
+            <div class="meta-row"><span>Support</span><span class="token-val" data-token="--dig-accent-2">--dig-accent-2</span></div>
+            <div class="meta-row"><span>Body</span><span><span class="token-val" data-token="--dig-text-md">--dig-text-md</span> / <span class="token-val" data-token="--dig-leading-normal">--dig-leading-normal</span></span></div>
+            <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
           </div>
         </aside>
       </section>
@@ -152,130 +153,64 @@
         <aside class="surface side-rail">
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
             <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
-            <a href="#type" data-zh="字体层级" data-en="Typography">字体层级</a>
-            <a href="#buttons" data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</a>
-            <a href="#panels" data-zh="面板与状态" data-en="Panels & Status">面板与状态</a>
-            <a href="#tokens" data-zh="关键 token" data-en="Key Tokens">关键 token</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
         </aside>
 
         <div class="content">
+
+          <section class="surface section archetype-section token-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="Catalog 样张" data-en="Catalog Sample">Catalog 样张</h3>
+              <p data-zh="当前 catalog 尚未声明专属 render intent，因此使用通用 token 样张。" data-en="This catalog has not declared a dedicated render intent yet, so it uses the generic token sample.">当前 catalog 尚未声明专属 render intent，因此使用通用 token 样张。</p>
+            </div>
+            <div class="type-grid">
+              <article class="type-card"><strong>Hero Title</strong><div class="type-showcase type-hero">Editorial</div><div class="meta-small mono">var(--dig-text-5xl)</div></article>
+              <article class="type-card"><strong>Body</strong><div class="type-showcase type-body">Tokenized typography, color, radius, and elevation should remain coherent across reusable components.</div><div class="meta-small mono">var(--dig-text-md)</div></article>
+            </div>
+          </section>
+
           <section class="surface section" id="colors">
             <div class="section-head">
               <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
-              <p data-zh="温暖纸感底色 + 深墨绿主强调 + 棕金辅助色" data-en="Warm paper canvas + deep forest-green accent + golden-brown support">温暖纸感底色 + 深墨绿主强调 + 棕金辅助色</p>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
             </div>
             <div class="swatch-grid">
-              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong data-zh="背景底色" data-en="Background">Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">#f4efe6</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg-soft)"></div><div class="swatch-meta"><strong data-zh="次级底色" data-en="Background Soft">Background Soft</strong><div class="meta-small mono token-val" data-token="--dig-bg-soft">#ebe3d6</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong data-zh="强调色" data-en="Accent">Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">#1f4e46</div></div></article>
-              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong data-zh="辅助强调色" data-en="Accent 2">Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">#9c6b3a</div></div></article>
-            </div>
-          </section>
-
-          <section class="surface section" id="type">
-            <div class="section-head">
-              <h3 data-zh="字体层级" data-en="Typography Hierarchy">字体层级</h3>
-              <p data-zh="serif 用于重音与气质，正文与 UI 仍以 sans 为主" data-en="serif sets the tone and atmosphere, while sans remains the primary voice for body and UI">serif 用于重音与气质，正文与 UI 仍以 sans 为主</p>
-            </div>
-            <div class="type-grid">
-              <article class="type-card">
-                <strong data-zh="衬线主标题" data-en="Hero Serif Title">Hero Serif Title</strong>
-                <div class="type-showcase type-hero serif" data-zh="叙事张力与设计品味" data-en="Designed With Narrative Tension">Designed With Narrative Tension</div>
-                <div class="meta-small mono">64px / 1.02 / 700 / -0.04em</div>
-              </article>
-              <article class="type-card">
-                <strong data-zh="衬线栏目标题" data-en="Section Serif Title">Section Serif Title</strong>
-                <div class="type-showcase type-section serif" data-zh="不是模板感，是有判断力的样式" data-en="Beyond template feelings, styling with solid judgement">不是模板感，是有判断力的样式</div>
-                <div class="meta-small mono">36px / 1.08 / 700 / -0.03em</div>
-              </article>
-              <article class="type-card">
-                <strong data-zh="卡片内标题" data-en="Panel Title">Panel Title</strong>
-                <div class="type-showcase type-panel" data-zh="有特定形状的发布说明" data-en="Release Notes With Shape">Release Notes With Shape</div>
-                <div class="meta-small mono">22px / 1.24 / 650</div>
-              </article>
-              <article class="type-card">
-                <strong data-zh="正文与元数据" data-en="Body + Meta">Body + Meta</strong>
-                <div class="type-showcase type-body" data-zh="Editorial 的关键不是把一切都做成衬线，而是在正确的地方给出重音，让品牌表达更有记忆点。" data-en="Editorial's secret is not turning everything into a serif, but giving accents at the exact right places to make brand expression memorable.">Editorial 的关键不是把一切都做成衬线，而是在正确的地方给出重音，让品牌表达更有记忆点。</div>
-                <div class="type-meta" data-zh="卷册 / 章节 / 系统 / 附注" data-en="Volume / Chapter / System / Note">Volume / Chapter / System / Note</div>
-              </article>
-            </div>
-          </section>
-
-          <section class="surface section" id="buttons">
-            <div class="section-head">
-              <h3 data-zh="按钮与标签" data-en="Buttons & Badges">按钮与标签</h3>
-              <p data-zh="动作不吵闹，主要依靠颜色加深、边界强化和留白气质" data-en="Actions remain calm, relying on deeper accents, border reinforcement and breathing space">动作不吵闹，主要依靠颜色加深、边界强化和留白气质</p>
-            </div>
-            <div class="button-grid">
-              <article class="button-card"><strong data-zh="主动作" data-en="Primary">Primary</strong><button class="btn btn-primary" data-zh="阅读发布故事" data-en="Read Launch Story">Read Launch Story</button></article>
-              <article class="button-card"><strong data-zh="次要动作" data-en="Secondary">Secondary</strong><button class="btn btn-secondary" data-zh="打开注释" data-en="Open Notes">Open Notes</button></article>
-              <article class="button-card"><strong data-zh="幽灵按钮" data-en="Ghost">Ghost</strong><button class="btn btn-ghost" data-zh="检查细节" data-en="Inspect Details">Inspect Details</button></article>
-            </div>
-            <div class="chip-row">
-              <span class="chip" data-zh="第 03 卷" data-en="Vol. 03">Vol. 03</span>
-              <span class="chip" data-zh="叙事页面" data-en="Narrative Page">Narrative Page</span>
-              <span class="chip" data-zh="启动系统" data-en="Launch System">Launch System</span>
-              <span class="chip" data-zh="精选" data-en="Curated">Curated</span>
-            </div>
-          </section>
-
-          <section class="surface section" id="panels">
-            <div class="section-head">
-              <h3 data-zh="面板与状态" data-en="Panels & Statuses">面板与状态</h3>
-              <p data-zh="像嵌入页面中的资料卡，而不是 glowing console widget" data-en="Reads like reference cards embedded inside the page, not a glowing console widget">像嵌入页面中的资料卡，而不是 glowing console widget</p>
-            </div>
-            <div class="panel-grid">
-              <article class="panel-card">
-                <div class="panel-top"><strong data-zh="章节注解" data-en="Chapter Note">Chapter Note</strong><span class="status" data-zh="精选" data-en="Curated">Curated</span></div>
-                <p data-zh="这类面板适合承载补充说明、引用、旁注和延伸信息，既有页面感，又保留产品清晰度。" data-en="Such panels are suitable for carrying side notes, quotes, extra explanations, retaining a page-like breathing space with clear boundaries.">这类面板适合承载补充说明、引用、旁注和延伸信息，既有页面感，又保留产品清晰度。</p>
-              </article>
-              <article class="panel-card">
-                <div class="panel-top"><strong data-zh="启动总结" data-en="Launch Summary">Launch Summary</strong><span class="status" data-zh="已发布" data-en="Published">Published</span></div>
-                <p data-zh="Glow 只作为极轻的呼吸感存在，真正的层次应来自留白、边框、字距和色温关系。" data-en="Glow only exists as the subtlest breathing hint; genuine hierarchy stems from negative space, borders, and color warmth.">Glow 只作为极轻的呼吸感存在，真正的层次应来自留白、边框、字距和色温关系。</p>
-              </article>
-            </div>
-          </section>
-
-          <section class="surface section">
-            <div class="section-head">
-              <h3 data-zh="数字表达" data-en="Numeric Focus">数字表达</h3>
-              <p data-zh="数字可以带 serif 重音，但标签要保持信息清晰" data-en="Numbers carry serif gravity, while descriptions maintain absolute scannability">数字可以带 serif 重音，但标签要保持信息清晰</p>
-            </div>
-            <div class="stat-grid">
-              <article class="stat-card"><strong data-zh="发布页面" data-en="Launch Pages">Launch Pages</strong><div class="value serif">12</div><div class="note" data-zh="作者感来自克制重音" data-en="Editorial confidence via restrained accents">作者感来自克制重音</div></article>
-              <article class="stat-card"><strong data-zh="故事区块" data-en="Story Blocks">Story Blocks</strong><div class="value serif">36</div><div class="note" data-zh="留白必须更大胆" data-en="Negative spaces must run bolder">留白必须更大胆</div></article>
-              <article class="stat-card"><strong data-zh="阅读耗时" data-en="Read Time">Read Time</strong><div class="value serif">8m</div><div class="note" data-zh="仍保持产品边界" data-en="Retain clean product boundaries">仍保持产品边界</div></article>
-              <article class="stat-card"><strong data-zh="信号点数" data-en="Signal Points">Signal Points</strong><div class="value serif">24</div><div class="note" data-zh="不变成杂志封面" data-en="Never turn into a noisy magazine cover">不变成杂志封面</div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
             </div>
           </section>
 
           <section class="surface section" id="tokens">
             <div class="section-head">
               <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
-              <p data-zh="适合品牌页 and 叙事页的纸感体系" data-en="A bookish, tactile system perfectly suited for brand and story surfaces">适合品牌页 and 叙事页的纸感体系</p>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
             </div>
             <div class="table-grid">
               <article class="table-card">
-                <strong data-zh="常见颜色" data-en="Color Tokens">常见颜色</strong>
                 <table class="token-table">
-                  <tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr>
-                  <tr><td class="mono">--dig-bg</td><td class="mono token-val" data-token="--dig-bg">#f4efe6</td></tr>
-                  <tr><td class="mono">--dig-accent</td><td class="mono token-val" data-token="--dig-accent">#1f4e46</td></tr>
-                  <tr><td class="mono">--dig-accent-2</td><td class="mono token-val" data-token="--dig-accent-2">#9c6b3a</td></tr>
-                  <tr><td class="mono">--dig-border</td><td class="mono token-val" data-token="--dig-border">rgba(22,21,20,0.12)</td></tr>
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+                <tr><td><code>--dig-bg</code></td><td class="mono token-val" data-token="--dig-bg">--dig-bg</td></tr>
+                <tr><td><code>--dig-bg-soft</code></td><td class="mono token-val" data-token="--dig-bg-soft">--dig-bg-soft</td></tr>
+                <tr><td><code>--dig-surface</code></td><td class="mono token-val" data-token="--dig-surface">--dig-surface</td></tr>
+                <tr><td><code>--dig-surface-strong</code></td><td class="mono token-val" data-token="--dig-surface-strong">--dig-surface-strong</td></tr>
+                <tr><td><code>--dig-text</code></td><td class="mono token-val" data-token="--dig-text">--dig-text</td></tr>
+                <tr><td><code>--dig-text-muted</code></td><td class="mono token-val" data-token="--dig-text-muted">--dig-text-muted</td></tr>
+                <tr><td><code>--dig-accent</code></td><td class="mono token-val" data-token="--dig-accent">--dig-accent</td></tr>
+                <tr><td><code>--dig-accent-2</code></td><td class="mono token-val" data-token="--dig-accent-2">--dig-accent-2</td></tr>
+                <tr><td><code>--dig-border</code></td><td class="mono token-val" data-token="--dig-border">--dig-border</td></tr>
+                <tr><td><code>--dig-border-strong</code></td><td class="mono token-val" data-token="--dig-border-strong">--dig-border-strong</td></tr>
+                <tr><td><code>--dig-grid-line</code></td><td class="mono token-val" data-token="--dig-grid-line">--dig-grid-line</td></tr>
+                <tr><td><code>--dig-radius-md</code></td><td class="mono token-val" data-token="--dig-radius-md">--dig-radius-md</td></tr>
+                <tr><td><code>--dig-text-5xl</code></td><td class="mono token-val" data-token="--dig-text-5xl">--dig-text-5xl</td></tr>
+                <tr><td><code>--dig-shadow-panel</code></td><td class="mono token-val" data-token="--dig-shadow-panel">--dig-shadow-panel</td></tr>
+                  </tbody>
                 </table>
-              </article>
-              <article class="table-card">
-                <strong data-zh="排版与组件 (YAML)" data-en="Typography & Components (YAML)">排版与组件 (YAML)</strong>
-                <p style="font-size: 13px; opacity: 0.8; margin-top: 8px; margin-bottom: 0;" data-zh="已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 {typography.xxx} 等直接控制组件。" data-en="Upgraded to strict YAML mapping syntax (see catalog markdown), controlling components via {typography.xxx} directly.">已升级为严格的 YAML 映射语法（详见 catalog markdown），通过 `{typography.xxx}` 等直接控制组件。</p>
-                <pre style="background: rgba(0,0,0,0.05); border: 1px solid var(--dig-border); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 12px; opacity: 0.8; font-family: var(--dig-font-mono); overflow-x: auto; margin-bottom: 0;">typography:
-  hero-title:
-    fontSize: var(...)
-components:
-  button-primary:
-    padding: 12px 24px</pre>
               </article>
             </div>
           </section>
@@ -312,6 +247,16 @@ components:
           });
         });
 
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
         // Dynamic Token Visualizer
         const rootStyles = getComputedStyle(document.documentElement);
         document.querySelectorAll('.token-val').forEach(el => {
@@ -322,7 +267,14 @@ components:
               if (value.startsWith('#')) {
                 value = value.toUpperCase();
               }
-              el.textContent = value;
+              el.textContent = '';
+              if (/^#[0-9A-F]{3}(?:[0-9A-F]{3})?$/.test(value)) {
+                const dot = document.createElement('span');
+                dot.className = 'token-color-dot';
+                dot.style.background = value;
+                el.appendChild(dot);
+              }
+              el.appendChild(document.createTextNode(value));
             }
           }
         });

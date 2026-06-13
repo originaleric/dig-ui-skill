@@ -1,14 +1,22 @@
 ## Dig UI CSS Tokens
 
+description: A compact, immersive media-app catalog built around near-black surfaces, bold white hierarchy, muted secondary labels, Spotify green active states, dense navigation, track lists, playback controls, and album artwork as the main color source.
+
+render:
+  archetype: media-player-shell
+  page_type: media-consumer
+  density: compact
+  canvas: dark-continuous
+
 ```css
 --dig-bg: #121212;
---dig-bg-soft: #121212;
---dig-surface: #121212;
---dig-surface-strong: #121212;
---dig-surface-elevated: #121212;
---dig-text: #181818;
---dig-text-muted: #181818;
---dig-text-soft: #181818;
+--dig-bg-soft: #181818;
+--dig-surface: #181818;
+--dig-surface-strong: #1f1f1f;
+--dig-surface-elevated: #252525;
+--dig-text: #ffffff;
+--dig-text-muted: #b3b3b3;
+--dig-text-soft: #7c7c7c;
 --dig-accent: #1ed760;
 --dig-accent-strong: #1ed760;
 --dig-accent-2: #1ed760;

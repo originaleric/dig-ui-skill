@@ -226,7 +226,6 @@ components:
 ## Dig UI CSS Tokens
 
 ```css
-css
 --dig-bg: #ffffff;
 --dig-bg-soft: #ffffff;
 --dig-surface: #ffffff;

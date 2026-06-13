@@ -7,7 +7,7 @@
 
 Dig UI Skill is an AI-first design system packaged as structured Markdown, static HTML previews, and a small installer CLI. Instead of shipping a conventional component library, it gives AI coding agents the design rules, layout recipes, token contracts, and visual references they need to generate consistent product UI.
 
-[中文文档](./README.zh-CN.md) · [Installation](./INSTALL.md) · [Usage Guide](./USAGE.md) · [React Loader](./react/README.md)
+[中文文档](./README.zh-CN.md) · [Installation](./INSTALL.md) · [Usage Guide](./USAGE.md)
 
 ## Why This Exists
 
@@ -190,6 +190,7 @@ dig-ui-skill/
 ├── sync-renders.sh                  # Render synchronization entry point
 ├── sync_renders.py                  # Catalog preview compiler
 ├── sync_layout_renders.py           # Layout preview compiler
+├── validate-dig-catalog-preview.mjs # Catalog QA validator
 └── validate-dig-layout-preview.mjs  # Layout QA validator
 ```
 
@@ -256,6 +257,12 @@ Validate layout previews:
 
 ```bash
 npm run validate:layouts
+```
+
+Validate catalog previews:
+
+```bash
+npm run validate:catalogs
 ```
 
 ## Open Source Notes

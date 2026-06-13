@@ -5,6 +5,12 @@ name: Raycast
 description: |
   Raycast's marketing system reads like an extended product screenshot. The chrome IS the in-product chrome at marketing scale: pure-near-black canvas, hairline 1px borders, command-palette-style cards, Inter typography with the ss03 stylistic set enabled site-wide, white CTA pill, and a small set of saturated category accent colors (yellow / red / green / blue) reserved for extension and feature illustrations. Section rhythm is generous (~96px) but the page never breaks tonal continuity — the whole site sits in one continuous dark mode.
 
+render:
+  archetype: command-palette-marketing
+  page_type: dev-tools
+  density: spacious
+  canvas: dark-continuous
+
 colors:
   primary: "#ffffff"
   primary-pressed: "#e8e8e8"
@@ -331,13 +337,13 @@ components:
 
 ```css
 --dig-bg: #07080a;
---dig-bg-soft: #07080a;
---dig-surface: #07080a;
---dig-surface-strong: #07080a;
---dig-surface-elevated: #07080a;
---dig-text: #0d0d0d;
---dig-text-muted: #0d0d0d;
---dig-text-soft: #0d0d0d;
+--dig-bg-soft: #0d0d0d;
+--dig-surface: #0d0d0d;
+--dig-surface-strong: #101111;
+--dig-surface-elevated: #121212;
+--dig-text: #f4f4f6;
+--dig-text-muted: #cdcdcd;
+--dig-text-soft: #9c9c9d;
 --dig-accent: #57c1ff;
 --dig-accent-strong: #57c1ff;
 --dig-accent-2: #57c1ff;

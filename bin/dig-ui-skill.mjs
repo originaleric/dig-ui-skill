@@ -39,7 +39,7 @@ const SKILL_TOP_LEVEL_FILES = [
   "package.json",
 ];
 
-const SKILL_DIRS = ["references", "assets", "renders", "agents", "react"];
+const SKILL_DIRS = ["references", "assets", "renders", "agents"];
 
 const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
 

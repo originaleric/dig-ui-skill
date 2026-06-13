@@ -1,5 +1,11 @@
 # Wise-Inspired Catalog
 
+render:
+  archetype: finance-mobile-app
+  page_type: fintech
+  density: comfortable
+  canvas: mobile-first
+
 ## 适用场景
 
 - 移动端优先的 Dig 产品页

@@ -2,13 +2,13 @@
 
 ```css
 --dig-bg: #0b0b0b;
---dig-bg-soft: #0b0b0b;
---dig-surface: #0b0b0b;
---dig-surface-strong: #0b0b0b;
---dig-surface-elevated: #0b0b0b;
---dig-text: #212121;
---dig-text-muted: #212121;
---dig-text-soft: #212121;
+--dig-bg-soft: #111111;
+--dig-surface: #171717;
+--dig-surface-strong: #212121;
+--dig-surface-elevated: #2b2b2b;
+--dig-text: #ffffff;
+--dig-text-muted: #b9b9b9;
+--dig-text-soft: #797979;
 --dig-accent: #0052ef;
 --dig-accent-strong: #0052ef;
 --dig-accent-2: #0052ef;

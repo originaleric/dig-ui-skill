@@ -28,3 +28,29 @@
 - 禁止将一个目录的颜色和另一个目录的字体系统混搭。
 - 所有一线实现都应从目录文件里的硬编码 token 和 style 语言出发。
 - 如果需要扩展，先保留原目录的结构和语义，再做局部追加。
+
+## Render Intent
+
+Catalog render 默认会读取 CSS token，并尽量根据 catalog 所属分类选择样张类型。对于重点 catalog，建议显式声明 `render` 配置，让预览页展示对应行业和组件语义，而不是只展示通用 token 表。
+
+示例：
+
+```yaml
+render:
+  archetype: command-palette-marketing
+  page_type: dev-tools
+  density: spacious
+  canvas: dark-continuous
+```
+
+当前支持的 `archetype`：
+
+- `command-palette-marketing`：开发工具、命令面板、扩展市场、快捷键优先体验。
+- `media-player-shell`：媒体消费应用、播放队列、内容卡片、底部播放控制。
+- `creative-canvas-workspace`：设计与创作工具、画布、图层、工具栏、协作状态。
+- `commerce-dual-track`：电商与零售，同时展示营销首屏和交易卡片。
+- `inbox-productivity`：收件箱、团队协作、生产力 SaaS、高频列表和阅读面板。
+- `finance-mobile-app`：移动优先金融、余额、转账、汇率、卡片控制。
+- `token-sheet`：默认 fallback，仅展示通用 token 样张。
+
+新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。
