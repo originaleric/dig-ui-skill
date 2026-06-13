@@ -31,17 +31,23 @@ const TARGET_ALIASES = {
 const SKILL_TOP_LEVEL_FILES = [
   "SKILL.md",
   "README.md",
+  "README.zh-CN.md",
   "USAGE.md",
+  "INSTALL.md",
+  "LICENSE",
   "sync-renders.sh",
   "sync_renders.py",
   "sync_layout_renders.py",
+  "validate-dig-catalog-preview.mjs",
   "validate-dig-layout-preview.mjs",
   "package.json",
 ];
 
-const SKILL_DIRS = ["references", "assets", "renders", "agents"];
+const SKILL_DIRS = ["references", "assets", "renders", "agents", "adapters"];
 
 const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
+const SKIP_COPY_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
+const SKIP_COPY_FILE_NAMES = new Set([".DS_Store"]);
 
 const USER_CONFIG_DIR = path.join(os.homedir(), ".config", "dig-ui-skill");
 const USER_LOCAL_RULES_PATH = path.join(USER_CONFIG_DIR, "global-rules.local.md");
@@ -688,13 +694,31 @@ async function copyFileSafe(sourcePath, destPath) {
   }
 }
 
-async function copyDirectory(sourceDir, destDir, { preserve = [] } = {}) {
+function shouldSkipCopy(relativePath, entryName) {
+  return (
+    SKIP_COPY_FILE_NAMES.has(entryName) ||
+    SKIP_COPY_RELATIVE_PATHS.has(relativePath)
+  );
+}
+
+async function copyDirectory(
+  sourceDir,
+  destDir,
+  { preserve = [], rootRelativeDir = "" } = {},
+) {
   await ensureDir(destDir);
   const entries = await fsp.readdir(sourceDir, { withFileTypes: true });
 
   for (const entry of entries) {
     const sourcePath = path.join(sourceDir, entry.name);
     const destPath = path.join(destDir, entry.name);
+    const relativePath = rootRelativeDir
+      ? path.join(rootRelativeDir, entry.name)
+      : entry.name;
+
+    if (shouldSkipCopy(relativePath, entry.name)) {
+      continue;
+    }
 
     const protectedMatch = [...preserve].some((item) => {
       const absoluteProtected = path.join(destDir, item);
@@ -706,7 +730,10 @@ async function copyDirectory(sourceDir, destDir, { preserve = [] } = {}) {
     }
 
     if (entry.isDirectory()) {
-      await copyDirectory(sourcePath, destPath, { preserve });
+      await copyDirectory(sourcePath, destPath, {
+        preserve,
+        rootRelativeDir: relativePath,
+      });
       continue;
     }
 
@@ -744,7 +771,10 @@ async function copySkillAssets(sourceRoot, destRoot) {
       }
     }
 
-    await copyDirectory(sourcePath, destPath, { preserve });
+    await copyDirectory(sourcePath, destPath, {
+      preserve,
+      rootRelativeDir: dirName,
+    });
   }
 }
 

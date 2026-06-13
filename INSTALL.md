@@ -78,8 +78,8 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `references/`（**除** `global-rules.local.md`）
 - `assets/`
 - `renders/`
-- `sync_*` 脚本与 `validate-dig-layout-preview.mjs`
-- `README.md` / `USAGE.md`
+- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs`
+- `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
 

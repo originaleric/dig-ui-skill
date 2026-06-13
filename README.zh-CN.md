@@ -190,6 +190,7 @@ dig-ui-skill/
 ├── sync-renders.sh                  # Render 同步入口
 ├── sync_renders.py                  # Catalog 预览编译器
 ├── sync_layout_renders.py           # Layout 预览编译器
+├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
 └── validate-dig-layout-preview.mjs  # Layout QA 校验器
 ```
 
@@ -256,6 +257,12 @@ npm install
 
 ```bash
 npm run validate:layouts
+```
+
+运行 catalog 校验：
+
+```bash
+npm run validate:catalogs
 ```
 
 ## 开源注意事项
