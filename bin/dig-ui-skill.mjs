@@ -4,6 +4,7 @@ import fs from "node:fs";
 import fsp from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,8 @@ const TARGET_ALIASES = {
 
 const SKILL_TOP_LEVEL_FILES = [
   "SKILL.md",
+  "SKILL.en.md",
+  "SKILL.zh-CN.md",
   "README.md",
   "README.zh-CN.md",
   "USAGE.md",
@@ -38,12 +41,18 @@ const SKILL_TOP_LEVEL_FILES = [
   "sync-renders.sh",
   "sync_renders.py",
   "sync_layout_renders.py",
+  "sync_block_renders.py",
   "validate-dig-catalog-preview.mjs",
   "validate-dig-layout-preview.mjs",
+  "validate-dig-render-ops.mjs",
   "package.json",
 ];
 
 const SKILL_DIRS = ["references", "assets", "renders", "agents", "adapters", "bin"];
+
+const SUPPORTED_LANGUAGES = new Set(["en", "zh-CN"]);
+const DEFAULT_LANGUAGE = "zh-CN";
+const LANGUAGE_RECORD = "dig-ui-language.json";
 
 const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
 const SKIP_COPY_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
@@ -85,6 +94,8 @@ function printHelp() {
 Usage:
   dig-ui-skill install <target> [options]
   dig-ui-skill update <target> [options]
+  dig-ui-skill render <catalogs|layouts|blocks|all>
+  dig-ui-skill validate renders
   dig-ui-skill local <action> [options]
   dig-ui-skill init-local [options]
   dig-ui-skill sync-local <target> [options]
@@ -119,10 +130,13 @@ Options:
   --skip-conflicts      Skip conflicting targets and continue
   --source <path>       Source repo path (default: package root)
   --project <path>      Cursor only: also install .cursor/rules/dig-ui.mdc
+  --lang <en|zh-CN>     Install one language pack (default: zh-CN; updates reuse installed language when present)
   -h, --help            Show this help
 
 Examples:
   npx dig-ui-skill install cursor
+  npx dig-ui-skill install cursor --lang en
+  npx dig-ui-skill install codex --lang zh-CN
   npx dig-ui-skill install cursor --project .
   npx dig-ui-skill install --all --source .
   npx dig-ui-skill update --all --with-local --from-config
@@ -151,6 +165,7 @@ function parseArgs(argv) {
     skipConflicts: false,
     source: PACKAGE_ROOT,
     project: null,
+    lang: null,
     localAction: null,
     section: null,
     values: [],
@@ -232,6 +247,12 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--lang") {
+      options.lang = normalizeLanguage(args[index + 1] ?? "");
+      index += 2;
+      continue;
+    }
+
     if (arg === "--section") {
       options.section = args[index + 1] ?? "";
       index += 2;
@@ -251,17 +272,27 @@ function parseArgs(argv) {
       options.localAction = arg;
     } else if (options.command === "local") {
       options.values.push(arg);
+    } else if (options.command === "render" || options.command === "validate") {
+      options.targets.push(arg);
     } else {
       options.targets.push(normalizeTarget(arg));
     }
     index += 1;
   }
 
-  if (options.all) {
+  if (options.all && options.command !== "render" && options.command !== "validate") {
     options.targets = Object.keys(TARGETS);
   }
 
   return options;
+}
+
+function normalizeLanguage(rawLang) {
+  const lang = rawLang.trim();
+  if (!SUPPORTED_LANGUAGES.has(lang)) {
+    throw new Error(`Unsupported language "${rawLang}". Expected: en, zh-CN`);
+  }
+  return lang;
 }
 
 function normalizeTarget(rawTarget) {
@@ -272,6 +303,32 @@ function normalizeTarget(rawTarget) {
     );
   }
   return normalized;
+}
+
+async function readInstalledLanguage(destRoot) {
+  const recordPath = path.join(destRoot, LANGUAGE_RECORD);
+  try {
+    const record = JSON.parse(await fsp.readFile(recordPath, "utf8"));
+    if (SUPPORTED_LANGUAGES.has(record.language)) {
+      return record.language;
+    }
+  } catch {
+    // Fall through to default.
+  }
+  return null;
+}
+
+async function resolveInstallLanguage(destRoot, options) {
+  if (options.lang) {
+    return options.lang;
+  }
+  if (await pathExists(destRoot)) {
+    const installed = await readInstalledLanguage(destRoot);
+    if (installed) {
+      return installed;
+    }
+  }
+  return DEFAULT_LANGUAGE;
 }
 
 function readPackageVersion(sourceRoot) {
@@ -778,15 +835,75 @@ async function copySkillAssets(sourceRoot, destRoot) {
   }
 }
 
-async function installSkillTarget(targetKey, sourceRoot, { link = false } = {}) {
+async function applyLanguagePack(sourceRoot, destRoot, language) {
+  const skillTemplate = path.join(sourceRoot, `SKILL.${language}.md`);
+  const localeRoot = path.join(sourceRoot, "references", "locales", language);
+
+  if (!(await pathExists(skillTemplate))) {
+    throw new Error(`Missing language skill template: ${skillTemplate}`);
+  }
+  if (!(await pathExists(localeRoot))) {
+    throw new Error(`Missing language pack: ${localeRoot}`);
+  }
+
+  await copyFileSafe(skillTemplate, path.join(destRoot, "SKILL.md"));
+  await removePath(path.join(destRoot, "SKILL.en.md"));
+  await removePath(path.join(destRoot, "SKILL.zh-CN.md"));
+
+  const localeEntries = [
+    ["global-rules.md", "global-rules.md"],
+    ["dig-read.md", "dig-read.md"],
+    ["anti-tells.md", "anti-tells.md"],
+    ["preflight.md", "preflight.md"],
+    ["layouts", "layouts"],
+    ["catalogs", "catalogs"],
+    ["blocks", "blocks"],
+    ["workflows", "workflows"],
+  ];
+
+  for (const [sourceName, destName] of localeEntries) {
+    const sourcePath = path.join(localeRoot, sourceName);
+    const destPath = path.join(destRoot, "references", destName);
+    if (!(await pathExists(sourcePath))) {
+      continue;
+    }
+    await removePath(destPath);
+    const stat = await fsp.lstat(sourcePath);
+    if (stat.isDirectory()) {
+      await copyDirectory(sourcePath, destPath);
+    } else {
+      await copyFileSafe(sourcePath, destPath);
+    }
+  }
+
+  await removePath(path.join(destRoot, "references", "locales"));
+
+  await fsp.writeFile(
+    path.join(destRoot, LANGUAGE_RECORD),
+    JSON.stringify(
+      {
+        language,
+        installed_at: new Date().toISOString(),
+        source: path.resolve(sourceRoot),
+      },
+      null,
+      2,
+    ) + "\n",
+    "utf8",
+  );
+}
+
+async function installSkillTarget(targetKey, sourceRoot, { link = false, lang = null } = {}) {
   const target = TARGETS[targetKey];
   const destRoot = target.skillDir();
+  const language = await resolveInstallLanguage(destRoot, { lang });
 
   if (link) {
     await ensureDir(path.dirname(destRoot));
     await removePath(destRoot);
     await fsp.symlink(sourceRoot, destRoot);
     console.log(`Linked ${target.label} skill: ${destRoot} -> ${sourceRoot}`);
+    console.log("  language: source tree (link mode keeps all language packs)");
     return destRoot;
   }
 
@@ -796,8 +913,10 @@ async function installSkillTarget(targetKey, sourceRoot, { link = false } = {}) 
   const hadLocalRules = await pathExists(localRulesPath);
 
   await copySkillAssets(sourceRoot, destRoot);
+  await applyLanguagePack(sourceRoot, destRoot, language);
 
   console.log(`Installed ${target.label} skill to ${destRoot}`);
+  console.log(`  language: ${language}`);
 
   if (hadLocalRules) {
     console.log("  kept existing references/global-rules.local.md");
@@ -862,6 +981,7 @@ async function runInstall(options) {
   for (const targetKey of options.targets) {
     const destRoot = await installSkillTarget(targetKey, options.source, {
       link: options.link,
+      lang: options.lang,
     });
 
     if (targetKey === "cursor" && options.project) {
@@ -881,6 +1001,45 @@ async function runUpdate(options) {
   }
 
   console.log("Update complete.");
+}
+
+function runChecked(command, args, cwd = PACKAGE_ROOT) {
+  const result = spawnSync(command, args, {
+    cwd,
+    stdio: "inherit",
+    shell: false,
+  });
+  if (result.error) {
+    throw result.error;
+  }
+  if (result.status !== 0) {
+    throw new Error(`${command} ${args.join(" ")} failed with exit code ${result.status}`);
+  }
+}
+
+async function runRender(options) {
+  const target = options.targets[0] ?? "all";
+  const valid = new Set(["catalogs", "layouts", "blocks", "all"]);
+  if (!valid.has(target)) {
+    throw new Error("render requires one of: catalogs, layouts, blocks, all");
+  }
+  if (target === "catalogs" || target === "all") {
+    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_renders.py")]);
+  }
+  if (target === "layouts" || target === "all") {
+    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_layout_renders.py")]);
+  }
+  if (target === "blocks" || target === "all") {
+    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_block_renders.py")]);
+  }
+}
+
+async function runValidate(options) {
+  const target = options.targets[0];
+  if (target !== "renders") {
+    throw new Error("validate requires target: renders");
+  }
+  runChecked("node", [path.join(PACKAGE_ROOT, "validate-dig-render-ops.mjs")]);
 }
 
 async function getTargetStatus(targetKey) {
@@ -905,6 +1064,7 @@ async function getTargetStatus(targetKey) {
 
   let localRulesLinked = false;
   let localRulesInSync = false;
+  let language = "-";
 
   if (installed && (await pathExists(localRulesPath))) {
     localRulesLinked = await isSymlinkTo(localRulesPath, USER_LOCAL_RULES_PATH);
@@ -915,6 +1075,9 @@ async function getTargetStatus(targetKey) {
       );
     }
   }
+  if (installed) {
+    language = (await readInstalledLanguage(skillDir)) ?? "-";
+  }
 
   return {
     target: targetKey,
@@ -923,6 +1086,7 @@ async function getTargetStatus(targetKey) {
     path: skillDir,
     version,
     mode,
+    language,
     localRules: installed ? await pathExists(localRulesPath) : false,
     localRulesLinked,
     localRulesInSync,
@@ -950,6 +1114,7 @@ async function runStatus() {
     if (status.installed) {
       console.log(`  version:   ${status.version}`);
       console.log(`  mode:      ${status.mode}`);
+      console.log(`  language:  ${status.language}`);
 
       let localRulesStatus = status.localRules ? "present" : "missing";
       if (status.localRulesLinked) {
@@ -994,6 +1159,12 @@ async function main() {
       case "update":
         await runUpdate(options);
         break;
+      case "render":
+        await runRender(options);
+        break;
+      case "validate":
+        await runValidate(options);
+        break;
       case "local":
         await runLocalCommand(options);
         break;
@@ -1011,7 +1182,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use install, update, local, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use install, update, render, validate, local, init-local, sync-local, import-local, or status.`,
         );
     }
   } catch (error) {

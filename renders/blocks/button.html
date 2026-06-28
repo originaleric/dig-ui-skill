@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dig UI Block — button</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --dig-bg: #06121a;
+        --dig-surface: rgba(16,32,44,.92);
+        --dig-surface-raised: rgba(20,39,53,.96);
+        --dig-text: #ecf3f8;
+        --dig-muted: #8aa0b2;
+        --dig-accent: #37d67a;
+        --dig-danger: #f06a6a;
+        --dig-border: rgba(138,160,178,.2);
+        --dig-radius: 8px;
+        --dig-radius-pill: 999px;
+      }
+      body { margin:0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background:var(--dig-bg); color:var(--dig-text); }
+      main { width:min(1180px, calc(100% - 32px)); margin:0 auto; padding:32px 0 56px; }
+      header { display:grid; gap:10px; margin-bottom:24px; }
+      h1 { margin:0; font-size:32px; }
+      p { margin:0; color:var(--dig-muted); line-height:1.6; }
+      .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+      .chip { border:1px solid var(--dig-border); border-radius:var(--dig-radius-pill); padding:4px 10px; color:var(--dig-muted); font-size:12px; }
+      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; }
+      .state-card { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface); padding:14px; min-height:150px; }
+      .state-head { display:flex; justify-content:space-between; gap:12px; color:var(--dig-muted); font-size:12px; margin-bottom:14px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--dig-accent); }
+      .state-body { display:grid; gap:12px; }
+      .demo-button { min-height:44px; border:1px solid transparent; border-radius:var(--dig-radius-pill); background:var(--dig-accent); color:var(--dig-bg); font-weight:700; padding:0 16px; }
+      .demo-button:focus-visible, .state-focus_visible .demo-button { outline:2px solid var(--dig-accent); outline-offset:3px; }
+      .demo-button:disabled { opacity:.45; cursor:not-allowed; }
+      .demo-row { display:grid; gap:4px; border:1px solid var(--dig-border); background:var(--dig-surface-raised); border-radius:var(--dig-radius); padding:12px; }
+      .demo-row span { color:var(--dig-muted); font-size:13px; }
+      .state-error .demo-row strong { color:var(--dig-danger); }
+      .state-mobile { max-width:320px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>button</h1>
+        <p>Dig UI 的主按钮、次按钮、ghost 按钮和图标按钮协议。</p>
+        <div class="meta">
+          <span class="chip">category: primitive</span>
+          <span class="chip">source: references/blocks/primitives/button.md</span>
+          <span class="chip">asset source: official</span>
+          <span class="chip">catalog: all</span>
+          <span class="chip">fixture: generated-required-states</span>
+          <span class="chip">schema version: 1</span>
+          <span class="chip">language: installed</span>
+        </div>
+      </header>
+      <section class="grid" aria-label="Block states">
+
+      <article class="state-card state-default">
+        <div class="state-head">
+          <span>default</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Action</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-hover">
+        <div class="state-head">
+          <span>hover</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Action</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-focus_visible">
+        <div class="state-head">
+          <span>focus-visible</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Action</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-disabled">
+        <div class="state-head">
+          <span>disabled</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button" disabled>Action</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-loading">
+        <div class="state-head">
+          <span>loading</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Loading...</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-error">
+        <div class="state-head">
+          <span>error</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Action</button>
+          <div class="demo-row">
+            <strong>Error state</strong>
+            <span>Something needs attention.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="state-card state-mobile">
+        <div class="state-head">
+          <span>mobile</span>
+          <code>button</code>
+        </div>
+        <div class="state-body">
+          <button class="demo-button">Action</button>
+          <div class="demo-row">
+            <strong>Primary label</strong>
+            <span>Secondary metadata and helper text.</span>
+          </div>
+        </div>
+      </article>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,111 @@
+schema_version: 1
+kind: layout-manifest
+description: Stable layout contract shared across installed language packs.
+fields:
+  slug: stable kebab-case layout id
+  page_type: legacy page family
+  task_type: canonical task category
+  default_catalog: default catalog slug
+  recommended_catalogs: compatible catalog slugs
+  required_slots: required layout slots
+layouts:
+  - slug: marketing-hero
+    page_type: marketing
+    task_type: marketing
+    default_catalog: dig
+    recommended_catalogs: [dig, editorial, apple]
+  - slug: split-feature-showcase
+    page_type: marketing
+    task_type: marketing
+    default_catalog: dig
+    recommended_catalogs: [dig, editorial, apple]
+  - slug: comparison-section
+    page_type: marketing
+    task_type: marketing
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: pricing-or-plan-grid
+    page_type: marketing
+    task_type: commerce
+    default_catalog: dig
+    recommended_catalogs: [dig, wise]
+  - slug: auth-sign-in
+    page_type: marketing
+    task_type: auth
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: error-page
+    page_type: marketing
+    task_type: system-state
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: integration-gallery
+    page_type: marketing
+    task_type: catalog-browse
+    default_catalog: dig
+    recommended_catalogs: [dig, editorial]
+  - slug: docs-article
+    page_type: docs
+    task_type: documentation
+    default_catalog: mono
+    recommended_catalogs: [mono, editorial, dig]
+  - slug: report-insight
+    page_type: docs
+    task_type: reporting
+    default_catalog: editorial
+    recommended_catalogs: [editorial, mono, dig]
+  - slug: search-results
+    page_type: workspace
+    task_type: search
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: data-table-workspace
+    page_type: workspace
+    task_type: data-operations
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: dashboard-overview
+    page_type: dashboard
+    task_type: monitoring
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: empty-state
+    page_type: dashboard
+    task_type: system-state
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: notification-inbox
+    page_type: dashboard
+    task_type: inbox
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: settings-form
+    page_type: settings
+    task_type: configuration
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: onboarding-wizard
+    page_type: settings
+    task_type: onboarding
+    default_catalog: dig
+    recommended_catalogs: [dig, wise]
+  - slug: billing-checkout
+    page_type: settings
+    task_type: billing
+    default_catalog: wise
+    recommended_catalogs: [wise, dig]
+  - slug: runtime-console
+    page_type: runtime
+    task_type: execution
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: agent-run-detail
+    page_type: runtime
+    task_type: execution
+    default_catalog: dig
+    recommended_catalogs: [dig, mono]
+  - slug: log-inspector
+    page_type: runtime
+    task_type: observability
+    default_catalog: mono
+    recommended_catalogs: [mono, dig]

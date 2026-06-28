@@ -1,0 +1,44 @@
+schema_version: 1
+kind: catalog-manifest
+description: Stable catalog contract shared across installed language packs.
+fields:
+  slug: stable catalog id
+  category: catalog group
+  status: draft | active | deprecated
+  token_roles: required Dig token roles
+catalogs:
+  - slug: dig
+    category: other
+    status: active
+    default_for: [marketing, dashboard, execution, settings]
+  - slug: mono
+    category: other
+    status: active
+    default_for: [documentation, observability, dense-debugging]
+  - slug: editorial
+    category: other
+    status: active
+    default_for: [reporting, narrative, brand-expression]
+  - slug: wise
+    category: fintech
+    status: active
+    default_for: [fintech, billing, mobile-consumer]
+  - slug: apple
+    category: media-consumer
+    status: active
+    default_for: [product-theater, system-native, premium-launch]
+required_token_roles:
+  - --dig-bg
+  - --dig-bg-soft
+  - --dig-surface
+  - --dig-surface-strong
+  - --dig-surface-elevated
+  - --dig-text
+  - --dig-text-muted
+  - --dig-text-soft
+  - --dig-accent
+  - --dig-accent-2
+  - --dig-border
+  - --dig-grid-line
+  - --dig-control-bg
+  - --dig-control-bg-hover

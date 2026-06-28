@@ -1,0 +1,26 @@
+schema_version: 1
+kind: dig-read-manifest
+description: Stable Dig Read and dial contract shared across installed language packs.
+dig_read_fields:
+  - task
+  - audience
+  - layout
+  - catalog
+  - blocks
+dials:
+  - id: INFORMATION_DENSITY
+    scale: 1-10
+    low: spacious marketing, empty, or brand-led pages
+    high: dense dashboards, tables, logs, and run detail views
+  - id: BRAND_EXPRESSIVENESS
+    scale: 1-10
+    low: restrained operational product UI
+    high: stronger brand, onboarding, launch, or marketing expression
+  - id: INTERACTION_ENERGY
+    scale: 1-10
+    low: static controls and conservative feedback
+    high: live status, streaming, progress, and operational motion
+  - id: OPERATIONAL_CRITICALITY
+    scale: 1-10
+    low: exploratory or informational surfaces
+    high: deploy, billing, permissions, destructive, debugging, and recovery workflows

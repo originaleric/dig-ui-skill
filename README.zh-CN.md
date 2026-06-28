@@ -16,7 +16,9 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、页面/组件一致性、select 用法和交互纪律。规则以英文为主规范，并提供中文翻译对照。
 - **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮和组件映射。
 - **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
-- **Rendered Previews**：提供静态 HTML 预览，便于人类先确认视觉和结构。
+- **Blocks**：定义可复用 primitive 和 product module 协议，例如 input、modal、runtime log stream、table toolbar、notification item、search result row、settings row。
+- **Rendered Previews**：提供 catalog、layout 骨架和 block 状态矩阵预览，便于人类先确认视觉、结构和状态覆盖。
+- **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block，而不 fork 官方资产。
 - **CLI Installers**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code。
 
 ## 当前包含
@@ -25,7 +27,10 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
 - `renders/index.html` 静态视觉预览 Hub。
 - `renders/layouts/index.html` Layout 结构预览 Hub。
+- `renders/blocks/index.html` Block 状态矩阵预览 Hub。
 - `npm run validate:layouts` Playwright 结构校验。
+- 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
+- `npm run validate:renders` Render Ops 与 parity 校验。
 - 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
 
 ## Highlight：通过 AI Agent 沉淀个人规则
@@ -51,6 +56,13 @@ npx dig-ui-skill local add --section "Header / Topbar" "Header stays compact and
 npx dig-ui-skill install codex
 npx dig-ui-skill install cursor
 npx dig-ui-skill install claude-code
+```
+
+选择安装语言：
+
+```bash
+npx dig-ui-skill install codex --lang zh-CN
+npx dig-ui-skill install codex --lang en
 ```
 
 一次安装到所有支持工具：
@@ -169,6 +181,13 @@ references/catalogs/media-consumer/apple.md
 npm run validate:layouts
 ```
 
+修改 catalog、layout 或 block 后同步完整 Render Ops：
+
+```bash
+dig-ui-skill render all
+dig-ui-skill validate renders
+```
+
 ## 目录结构
 
 ```text
@@ -180,9 +199,15 @@ dig-ui-skill/
 │   ├── global-rules.local.example.md
 │   ├── tokens.md                    # 共享 token 协议
 │   ├── primitives.md                # 基础布局与交互规则
+│   ├── shared/                      # layout/catalog/block 稳定 manifest
+│   ├── locales/                     # 源语言包（en / zh-CN）
+│   ├── blocks/                      # 已安装语言的 block library
+│   ├── local/                       # 项目级 layout / block 扩展
+│   ├── anti-tells.md                # Dig 反模式过滤
+│   ├── preflight.md                 # 交付前 gate
 │   ├── catalogs/                    # 视觉 catalog
 │   └── layouts/                     # Layout recipe
-├── renders/                         # 静态预览产物
+├── renders/                         # catalog / layout / block 静态预览产物
 ├── assets/                          # 预览 CSS 与 Dig 视觉资产
 ├── adapters/                        # 工具适配模板
 ├── agents/                          # Agent 元数据
@@ -190,9 +215,23 @@ dig-ui-skill/
 ├── sync-renders.sh                  # Render 同步入口
 ├── sync_renders.py                  # Catalog 预览编译器
 ├── sync_layout_renders.py           # Layout 预览编译器
+├── sync_block_renders.py            # Block 预览编译器
 ├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
-└── validate-dig-layout-preview.mjs  # Layout QA 校验器
+├── validate-dig-layout-preview.mjs  # Layout QA 校验器
+└── validate-dig-render-ops.mjs      # Render Ops 与 parity 校验器
 ```
+
+## Render Ops 与 Local Extensions
+
+Render Ops 有三个维护视图：
+
+```text
+renders/index.html          # catalog hub
+renders/layouts/index.html  # layout skeleton hub
+renders/blocks/index.html   # block state matrix hub
+```
+
+项目级资产放在 `references/local/`。local layout / block 优先用 `extends`，真正替换官方行为时放到 `references/local/overrides/`，并写明 owner 和 reason。
 
 ## 个人规则
 

@@ -16,7 +16,9 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, layout/component consistency, select usage, and interaction discipline. The canonical rules are English-first, with a Chinese translation for review.
 - **Catalogs** define visual taste through tokens, typography, surface rules, and component mappings.
 - **Layout recipes** define information architecture, slots, responsive order, and QA notes.
-- **Rendered previews** give humans a fast way to inspect the design assets before using them in production code.
+- **Blocks** define reusable primitive and product-module protocols such as inputs, modals, runtime log streams, table toolbars, notification items, search result rows, and settings rows.
+- **Rendered previews** give humans a fast way to inspect catalogs, layout skeletons, and block state matrices before using them in production code.
+- **Local extensions** let projects add their own layouts and blocks through `references/local/` without forking the official assets.
 - **CLI installers** keep the same skill synchronized across Codex, Cursor, and Claude Code.
 
 ## What's Included
@@ -25,7 +27,10 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
 - Static preview hub at `renders/index.html`.
 - Layout preview hub at `renders/layouts/index.html`.
+- Block preview hub at `renders/blocks/index.html`.
 - Playwright-based layout validation via `npm run validate:layouts`.
+- Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
+- Render ops validation via `npm run validate:renders`.
 - Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
 
 ## Highlight: Personal Rules Through Your AI Agent
@@ -51,6 +56,13 @@ Install the skill into one AI tool:
 npx dig-ui-skill install codex
 npx dig-ui-skill install cursor
 npx dig-ui-skill install claude-code
+```
+
+Choose the installed language:
+
+```bash
+npx dig-ui-skill install codex --lang zh-CN
+npx dig-ui-skill install codex --lang en
 ```
 
 Install it everywhere:
@@ -169,6 +181,13 @@ Validate layout previews after changing recipes:
 npm run validate:layouts
 ```
 
+Sync all render ops views after changing catalogs, layouts, or blocks:
+
+```bash
+dig-ui-skill render all
+dig-ui-skill validate renders
+```
+
 ## Repository Structure
 
 ```text
@@ -180,9 +199,15 @@ dig-ui-skill/
 │   ├── global-rules.local.example.md
 │   ├── tokens.md                    # Shared token contract
 │   ├── primitives.md                # Base layout and interaction rules
+│   ├── shared/                      # Stable manifests for layouts, catalogs, and blocks
+│   ├── locales/                     # Source language packs (en / zh-CN)
+│   ├── blocks/                      # Installed block library
+│   ├── local/                       # Project-level layout and block extensions
+│   ├── anti-tells.md                # Dig anti-pattern filters
+│   ├── preflight.md                 # Delivery gate
 │   ├── catalogs/                    # Visual catalogs
 │   └── layouts/                     # Layout recipes
-├── renders/                         # Static preview output
+├── renders/                         # Catalog, layout, and block preview output
 ├── assets/                          # Preview CSS and Dig visual assets
 ├── adapters/                        # Tool-specific adapters
 ├── agents/                          # Agent metadata
@@ -190,9 +215,23 @@ dig-ui-skill/
 ├── sync-renders.sh                  # Render synchronization entry point
 ├── sync_renders.py                  # Catalog preview compiler
 ├── sync_layout_renders.py           # Layout preview compiler
+├── sync_block_renders.py            # Block preview compiler
 ├── validate-dig-catalog-preview.mjs # Catalog QA validator
-└── validate-dig-layout-preview.mjs  # Layout QA validator
+├── validate-dig-layout-preview.mjs  # Layout QA validator
+└── validate-dig-render-ops.mjs      # Render ops and parity validator
 ```
+
+## Render Ops And Local Extensions
+
+Render ops has three maintenance views:
+
+```text
+renders/index.html          # catalog hub
+renders/layouts/index.html  # layout skeleton hub
+renders/blocks/index.html   # block state matrix hub
+```
+
+Project-specific assets live in `references/local/`. Prefer `extends` for local layouts and blocks, and put true replacements in `references/local/overrides/` with an owner and reason.
 
 ## Local Rules
 
@@ -253,10 +292,17 @@ Sync layout previews:
 ./sync-renders.sh --layouts
 ```
 
+Sync block previews:
+
+```bash
+./sync-renders.sh --blocks
+```
+
 Validate layout previews:
 
 ```bash
 npm run validate:layouts
+npm run validate:renders
 ```
 
 Validate catalog previews:

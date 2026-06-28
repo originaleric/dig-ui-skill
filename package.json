@@ -9,6 +9,9 @@
   },
   "files": [
     "SKILL.md",
+    "SKILL.en.md",
+    "SKILL.zh-CN.md",
+    "dig-ui-language.json",
     "README.md",
     "README.zh-CN.md",
     "USAGE.md",
@@ -28,8 +31,11 @@
   ],
   "scripts": {
     "sync:layouts": "./sync-renders.sh --layouts",
+    "sync:blocks": "./sync-renders.sh --blocks",
+    "sync:all": "./sync-renders.sh --all",
     "validate:layouts": "node validate-dig-layout-preview.mjs renders/layouts",
-    "validate:catalogs": "node validate-dig-catalog-preview.mjs renders"
+    "validate:catalogs": "node validate-dig-catalog-preview.mjs renders",
+    "validate:renders": "node validate-dig-render-ops.mjs"
   },
   "devDependencies": {
     "playwright": "^1.49.0"

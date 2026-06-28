@@ -9,6 +9,8 @@
 npx dig-ui-skill install cursor
 npx dig-ui-skill install codex
 npx dig-ui-skill install claude-code
+npx dig-ui-skill install codex --lang zh-CN
+npx dig-ui-skill install codex --lang en
 npx dig-ui-skill update cursor
 npx dig-ui-skill status
 ```
@@ -75,11 +77,13 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 `update` 会覆盖标准资产：
 
 - `SKILL.md`
+- 当前语言包展开后的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
+- `dig-ui-language.json`
 - `references/`（**除** `global-rules.local.md`）
 - `assets/`
 - `renders/`
 - `bin/`
-- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs`
+- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs` / `validate-dig-render-ops.mjs`
 - `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
@@ -103,6 +107,7 @@ npx dig-ui-skill update --all
 | `--skip-conflicts` | 跳过冲突目标 |
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
+| `--lang <en\|zh-CN>` | 安装指定语言包；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
 
 示例：
 
@@ -113,6 +118,18 @@ npx dig-ui-skill install cursor --link --source .
 # 查看各端安装状态、版本、local rules 是否存在
 npx dig-ui-skill status
 ```
+
+## Render Ops
+
+```bash
+npx dig-ui-skill render catalogs
+npx dig-ui-skill render layouts
+npx dig-ui-skill render blocks
+npx dig-ui-skill render all
+npx dig-ui-skill validate renders
+```
+
+`render` 用于生成 catalog / layout / block 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、block 状态矩阵和 layout render。
 
 ## 个人 Global Rules
 

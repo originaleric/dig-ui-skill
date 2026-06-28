@@ -31,6 +31,7 @@ function walk(dir) {
     if (!entry.isFile() || !entry.name.endsWith(".html")) return [];
     if (entry.name === "index.html" || entry.name === "README.html") return [];
     if (filePath.includes(`${path.sep}layouts${path.sep}`)) return [];
+    if (filePath.includes(`${path.sep}blocks${path.sep}`)) return [];
     return [filePath];
   });
 }

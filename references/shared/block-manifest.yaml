@@ -1,0 +1,39 @@
+schema_version: 1
+kind: block-manifest
+description: Stable block contract shared across installed language packs.
+categories:
+  - primitive
+  - product
+status_values:
+  - draft
+  - active
+  - deprecated
+required_sections:
+  - Use When
+  - Avoid When
+  - Slots
+  - Token Binding
+  - States
+  - Responsive Rules
+  - Accessibility
+  - Anti-Patterns
+  - QA Notes
+blocks:
+  primitives:
+    - button
+    - input
+    - select
+    - form-row
+    - toast
+    - modal
+    - tooltip
+    - tabs
+  product:
+    - table-toolbar
+    - runtime-log-stream
+    - run-status-header
+    - step-timeline
+    - settings-row
+    - empty-state
+    - notification-item
+    - search-result-row

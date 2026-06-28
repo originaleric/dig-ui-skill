@@ -1,0 +1,4 @@
+{
+  "block": "runtime-log-stream",
+  "states": ["streaming", "paused", "empty", "error", "filtered", "mobile"]
+}

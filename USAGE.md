@@ -1,10 +1,10 @@
 # Dig UI Skill: 设计系统维护与使用指南 (Usage Guide)
 
-本文档说明了如何维护和更新 `dig-ui-skill` 中的设计系统资产，包括 Catalog 视觉 token（尺寸、颜色、排版和组件映射）与 Layout 结构 recipe（页面区域、slot、grid、响应式顺序和 QA）。
+本文档说明了如何维护和更新 `dig-ui-skill` 中的设计系统资产，包括 Catalog 视觉 token（尺寸、颜色、排版和组件映射）、Layout 结构 recipe（页面区域、slot、grid、响应式顺序和 QA）、Block Library（组件/模块协议）与 Render Ops 预览。
 本系统采用 **"Prompt-as-Code" (AI 驱动设计系统)** 的核心理念，即：
 
-- **HTML (`renders/`)** 是用于人类视觉验证和调试的界面。
-- **Markdown (`references/catalogs/`、`references/layouts/`)** 是提供给 AI 的系统规则、语法词典和结构 recipe。
+- **HTML (`renders/`)** 是用于人类视觉验证、结构检查和状态矩阵调试的界面。
+- **Markdown (`references/catalogs/`、`references/layouts/`、`references/blocks/`)** 是提供给 AI 的系统规则、语法词典、结构 recipe 和模块协议。
 
 当你需要微调设计系统（例如：把 Hero Title 放大，或者调整主按钮的圆角）时，可以选择以下两种工作流：
 
@@ -34,6 +34,8 @@ npx dig-ui-skill status
 ```bash
 node bin/dig-ui-skill.mjs install cursor --source .
 node bin/dig-ui-skill.mjs install --all --source .
+node bin/dig-ui-skill.mjs install codex --source . --lang zh-CN
+node bin/dig-ui-skill.mjs install codex --source . --lang en
 ```
 
 需要持续跟随本地仓库改动时，可使用 symlink 模式：
@@ -196,6 +198,8 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 | Global Rules | `references/global-rules.md` canonical（+ `references/global-rules.zh-CN.md` 翻译 + 用户配置中心 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
 | Layout | `references/layouts/<slug>.md` | `renders/layouts/<slug>.html` |
+| Block | `references/blocks/**/*.md` | `renders/blocks/<id>.html` |
+| Local Extensions | `references/local/` | Render Ops 中标记 source |
 
 当前内置 20 个 layout，覆盖 marketing、docs、workspace、dashboard、settings、runtime 等常见 Dig 产品界面。索引入口：
 
@@ -217,6 +221,17 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 # Playwright 结构校验（默认 render 含 global 规则检查）
 npm run validate:layouts
+
+# 同步 block 状态矩阵预览
+./sync-renders.sh --blocks
+
+# 同步全部 catalog / layout / block render
+./sync-renders.sh --all
+dig-ui-skill render all
+
+# Render Ops 总校验
+dig-ui-skill validate renders
+npm run validate:renders
 
 # 校验无 global 版本时，可指定单个 HTML
 node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
@@ -254,9 +269,39 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 - **Global rules = 跨 catalog 行为**：i18n、dark/light、控件形态、一致性、React 组件化 select、交互纪律。`references/global-rules.md` 是英文主规范，`references/global-rules.zh-CN.md` 是中文翻译。
 - **Layout recipe = 骨架**：决定 slot、grid、信息密度、响应式顺序。
 - **Catalog = 皮肤 / 品牌气质**：决定颜色、字体、圆角、surface、按钮和组件视觉。
+- **Block library = 模块协议**：决定可复用 primitive 和 product module 的 slots、states、responsive rules 与 anti-patterns。
+- **Local extensions = 项目沉淀**：通过 `references/local/` 扩展项目自己的 layout / block。
 - **Primitive = 底层纪律**：决定 shell、grid、间距、focus、触控高度、基础 class。
 
-**Global rules 优先级**：用户 prompt > `global-rules.local.md` > `global-rules.md`（英文 canonical；中文文件仅作翻译对照） > catalog > layout/primitives。用户说「不使用 global」时跳过 global rules。
+**规则优先级**：用户 prompt > `global-rules.local.md` > `references/local/` > 当前安装语言包 > `references/shared/` manifest。用户说「不使用 global」时跳过 global rules。
+
+## 🧩 Block Library
+
+Block Library 位于 `references/blocks/`，包含两类资产：
+
+- `primitives/`：button、input、select、form-row、toast、modal、tooltip、tabs。
+- `product/`：table-toolbar、runtime-log-stream、run-status-header、step-timeline、settings-row、empty-state、notification-item、search-result-row。
+
+每个 block 必须包含 Use When、Avoid When、Slots、Token Binding、States、Responsive Rules、Accessibility、Anti-Patterns、QA Notes。修改 block 后运行：
+
+```bash
+./sync-renders.sh --blocks
+npm run validate:renders
+```
+
+## 🧱 Local Layout / Block Extensions
+
+项目级扩展位于 `references/local/`。不要直接复制官方 layout/block 后静默修改，优先使用 `extends`：
+
+```yaml
+slug: project-agent-run-detail
+extends: agent-run-detail
+owner: ops-platform
+status: active
+task_type: execution
+```
+
+真正替换官方行为时放入 `references/local/overrides/`，并写明 `replacement_target`、`owner`、`reason`、`reviewed_at`。
 
 ### 个人本地 Global Rules
 

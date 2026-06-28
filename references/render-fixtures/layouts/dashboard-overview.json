@@ -1,0 +1,9 @@
+{
+  "fixture": "normal",
+  "layout": "dashboard-overview",
+  "catalog": "dig",
+  "metrics": [
+    { "label": "Runs", "value": "1,284" },
+    { "label": "Errors", "value": "18" }
+  ]
+}

@@ -1,6 +1,6 @@
 #!/bin/bash
 # sync-renders.sh
-# Entry point: catalog sync (default) or layout sync (--layouts / layout <slug>).
+# Entry point: catalog sync (default), layout sync, block sync, or all sync.
 # Layout sync supports --no-global to skip global rules in render output.
 
 set -e
@@ -21,6 +21,14 @@ if [ "${FILTERED_ARGS[0]:-}" = "--layouts" ]; then
   python3 "$PROJECT_DIR/sync_layout_renders.py" $NO_GLOBAL_FLAG
 elif [ "${FILTERED_ARGS[0]:-}" = "layout" ] && [ -n "${FILTERED_ARGS[1]:-}" ]; then
   python3 "$PROJECT_DIR/sync_layout_renders.py" "${FILTERED_ARGS[1]}" $NO_GLOBAL_FLAG
+elif [ "${FILTERED_ARGS[0]:-}" = "--blocks" ]; then
+  python3 "$PROJECT_DIR/sync_block_renders.py"
+elif [ "${FILTERED_ARGS[0]:-}" = "blocks" ]; then
+  python3 "$PROJECT_DIR/sync_block_renders.py"
+elif [ "${FILTERED_ARGS[0]:-}" = "--all" ]; then
+  python3 "$PROJECT_DIR/sync_renders.py"
+  python3 "$PROJECT_DIR/sync_layout_renders.py" $NO_GLOBAL_FLAG
+  python3 "$PROJECT_DIR/sync_block_renders.py"
 else
   python3 "$PROJECT_DIR/sync_renders.py" "${FILTERED_ARGS[@]}"
 fi

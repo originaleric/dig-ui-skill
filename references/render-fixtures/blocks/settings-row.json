@@ -1,0 +1,4 @@
+{
+  "block": "settings-row",
+  "states": ["default", "enabled", "disabled", "loading", "error", "saved", "mobile"]
+}

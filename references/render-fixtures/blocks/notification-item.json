@@ -1,0 +1,4 @@
+{
+  "block": "notification-item",
+  "states": ["unread", "read", "selected", "loading", "error", "archived", "mobile"]
+}

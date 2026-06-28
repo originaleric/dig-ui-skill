@@ -1,0 +1,10 @@
+{
+  "fixture": "normal",
+  "layout": "agent-run-detail",
+  "catalog": "dig",
+  "run": {
+    "id": "run_8f3a2c91",
+    "status": "failed",
+    "duration": "842ms"
+  }
+}

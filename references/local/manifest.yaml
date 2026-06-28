@@ -1,0 +1,13 @@
+schema_version: 1
+kind: local-extension-manifest
+description: Project-level Dig UI layout and block extensions.
+priority:
+  - user prompt
+  - references/global-rules.local.md
+  - references/local/
+  - installed language package
+  - references/shared/
+required_fields:
+  local_layout: [slug, extends, owner, status, task_type, default_catalog, required_slots]
+  local_block: [id, extends, owner, category, status, applicable_layouts, compatible_catalogs]
+  override: [replacement_target, owner, reason, reviewed_at]

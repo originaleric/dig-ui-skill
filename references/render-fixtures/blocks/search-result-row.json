@@ -1,0 +1,4 @@
+{
+  "block": "search-result-row",
+  "states": ["default", "hover", "focus-visible", "selected", "loading", "empty", "error", "mobile"]
+}
