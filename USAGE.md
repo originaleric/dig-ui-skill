@@ -1,12 +1,40 @@
 # Dig UI Skill: 设计系统维护与使用指南 (Usage Guide)
 
-本文档说明了如何维护和更新 `dig-ui-skill` 中的设计系统资产，包括 Catalog 视觉 token（尺寸、颜色、排版和组件映射）、Layout 结构 recipe（页面区域、slot、grid、响应式顺序和 QA）、Block Library（组件/模块协议）与 Render Ops 预览。
+本文档说明了如何维护和更新 `dig-ui-skill` 中的设计系统资产，包括 Dig Read、Anti-Tells、Preflight、Workflow、Catalog 视觉 token（尺寸、颜色、排版和组件映射）、Layout 结构 recipe（页面区域、slot、grid、响应式顺序和 QA）、Block Library（组件/模块协议）与 Render Ops 预览。
 本系统采用 **"Prompt-as-Code" (AI 驱动设计系统)** 的核心理念，即：
 
-- **HTML (`renders/`)** 是用于人类视觉验证、结构检查和状态矩阵调试的界面。
+- **HTML (`renders/`)** 是用于人类视觉验证、结构检查、block contract 阅读和兼容性检查的运维界面。
 - **Markdown (`references/catalogs/`、`references/layouts/`、`references/blocks/`)** 是提供给 AI 的系统规则、语法词典、结构 recipe 和模块协议。
+- **Dig Read / Anti-Tells / Preflight / Workflows** 是参照 taste-skill 落地的 agent 执行纪律：先判断任务，再选择资产，最后过滤反模式并通过校验收口。
 
-当你需要微调设计系统（例如：把 Hero Title 放大，或者调整主按钮的圆角）时，可以选择以下两种工作流：
+当你需要微调设计系统（例如：把 Hero Title 放大，调整主按钮圆角，或新增一个运行态详情页协议）时，优先先判断任务语义，再选择 layout/catalog/block，而不是直接从视觉皮肤或组件开始。
+
+---
+
+## 🧭 架构优先工作流
+
+这次架构优化借鉴 `taste-skill` 的做法，把 agent 执行过程固定为一条可复查链路：
+
+1. **Dig Read**：读取 `references/dig-read.md`，判断 `task_type`、目标用户/任务、候选 layout、catalog、block，并给出四个 dials：
+   - `INFORMATION_DENSITY`
+   - `BRAND_EXPRESSIVENESS`
+   - `INTERACTION_ENERGY`
+   - `OPERATIONAL_CRITICALITY`
+1. **Layout**：读取 `references/layouts/README.md` 与最接近的 layout。layout 只负责结构、slot、响应式顺序和 QA，不负责品牌色。
+1. **Catalog**：读取选中的 catalog。catalog 负责视觉语言、token、字体、surface、组件映射，不改变 layout 的信息架构。
+1. **Block**：涉及可复用组件或产品模块时，读取 `references/blocks/README.md` 和相关 block。block 负责 slots、states、responsive rules、accessibility、anti-patterns。
+1. **Anti-Tells**：读取 `references/anti-tells.md`，过滤泛 AI SaaS、假 terminal、所有内容塞 card、runtime landing 化等坏味道。
+1. **Preflight**：读取 `references/preflight.md`，按交付 gate 做最终检查。
+1. **Render Ops**：如果改了 catalog/layout/block，运行同步和校验。
+
+可直接给 agent 的 prompt：
+
+```text
+使用 dig-ui。请先按 references/dig-read.md 判断任务语义，
+再选择合适的 layout、catalog 和 blocks。
+交付前使用 references/anti-tells.md 与 references/preflight.md 复查。
+如果修改了设计资产，请同步 render ops 并运行 validate:renders。
+```
 
 ---
 
@@ -196,9 +224,10 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 | 资产链 | 源文件 | 预览 |
 | ------ | ------ | ---- |
 | Global Rules | `references/global-rules.md` canonical（+ `references/global-rules.zh-CN.md` 翻译 + 用户配置中心 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
+| Dig Read / Anti-Tells / Preflight / Workflows | `references/dig-read.md`、`references/anti-tells.md`、`references/preflight.md`、`references/workflows/` | Agent 执行纪律与交付 gate |
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
 | Layout | `references/layouts/<slug>.md` | `renders/layouts/<slug>.html` |
-| Block | `references/blocks/**/*.md` | `renders/blocks/<id>.html` |
+| Block | `references/blocks/**/*.md` + `references/render-fixtures/blocks/<id>.json` | `renders/blocks/<id>.html` contract page |
 | Local Extensions | `references/local/` | Render Ops 中标记 source |
 
 当前内置 20 个 layout，覆盖 marketing、docs、workspace、dashboard、settings、runtime 等常见 Dig 产品界面。索引入口：
@@ -222,8 +251,11 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 # Playwright 结构校验（默认 render 含 global 规则检查）
 npm run validate:layouts
 
-# 同步 block 状态矩阵预览
+# 同步 block contract 说明页
 ./sync-renders.sh --blocks
+
+# 单独校验 block catalog switching
+npm run validate:blocks
 
 # 同步全部 catalog / layout / block render
 ./sync-renders.sh --all
@@ -277,17 +309,30 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 
 ## 🧩 Block Library
 
-Block Library 位于 `references/blocks/`，包含两类资产：
+Block Library 位于 `references/blocks/`，是这次架构优化的一部分：它补齐可复用界面协议，但不替代 layout 或 catalog。
+
+它包含两类资产：
 
 - `primitives/`：button、input、select、form-row、toast、modal、tooltip、tabs。
 - `product/`：table-toolbar、runtime-log-stream、run-status-header、step-timeline、settings-row、empty-state、notification-item、search-result-row。
 
-每个 block 必须包含 Use When、Avoid When、Slots、Token Binding、States、Responsive Rules、Accessibility、Anti-Patterns、QA Notes。修改 block 后运行：
+每个 block 必须包含 Use When、Avoid When、Slots、Token Binding、States、Responsive Rules、Accessibility、Anti-Patterns、QA Notes。
+
+每个官方 block 还必须有同名 fixture：
+
+```text
+references/render-fixtures/blocks/<id>.json
+```
+
+fixture 维护 `examples` 与 `state_semantics`，用于生成 block contract page。Render 页面主体是说明文档与示例，不是旧的共享状态矩阵。底部的 catalog 选择只用于 `Skin compatibility check`，不决定 block 的业务语义。
+
+修改 block 后运行：
 
 源码按 domain 组织语言资产：例如 `references/blocks/primitives/input.en.md` 与 `references/blocks/primitives/input.zh-CN.md` 是同一个 block 的两种语言说明。安装时 CLI 会按 `--lang` 抽取其中一种，生成无后缀的 `references/blocks/primitives/input.md`。
 
 ```bash
 ./sync-renders.sh --blocks
+npm run validate:blocks
 npm run validate:renders
 ```
 

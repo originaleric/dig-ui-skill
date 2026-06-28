@@ -43,6 +43,7 @@ const SKILL_TOP_LEVEL_FILES = [
   "sync_layout_renders.py",
   "sync_block_renders.py",
   "validate-dig-catalog-preview.mjs",
+  "validate-dig-block-preview.mjs",
   "validate-dig-layout-preview.mjs",
   "validate-dig-render-ops.mjs",
   "package.json",

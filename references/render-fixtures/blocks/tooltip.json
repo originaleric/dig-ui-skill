@@ -1,0 +1,30 @@
+{
+  "block": "tooltip",
+  "states": ["default", "hover", "focus-visible", "mobile"],
+  "examples": [
+    {
+      "id": "explain-icon",
+      "title": "Explain icon",
+      "description": "Short clarification attached to an icon control.",
+      "state": "default",
+      "slots_used": ["trigger", "content", "arrow", "shortcut"],
+      "behavior": "Use for brief supplemental context, not required instructions.",
+      "qa": "Tooltip appears near trigger and does not cover the trigger."
+    },
+    {
+      "id": "keyboard-trigger",
+      "title": "Keyboard trigger",
+      "description": "Tooltip is reachable through focus as well as pointer hover.",
+      "state": "focus-visible",
+      "slots_used": ["trigger", "content"],
+      "behavior": "Content should appear for focus-visible interactions.",
+      "qa": "Focus target has a name and visible indicator."
+    }
+  ],
+  "state_semantics": {
+    "default": {"meaning": "Available hint", "trigger": "Trigger exists in UI", "qa": "Content is short."},
+    "hover": {"meaning": "Pointer hint", "trigger": "Pointer rests on trigger", "qa": "Position is stable."},
+    "focus-visible": {"meaning": "Keyboard hint", "trigger": "Keyboard reaches trigger", "qa": "Hint is accessible without pointer."},
+    "mobile": {"meaning": "Touch adaptation", "trigger": "Mobile breakpoint", "qa": "Use tap or alternate disclosure when hover is unavailable."}
+  }
+}

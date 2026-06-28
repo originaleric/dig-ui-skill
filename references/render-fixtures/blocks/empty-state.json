@@ -1,0 +1,40 @@
+{
+  "block": "empty-state",
+  "states": ["no-results", "first-use", "permission", "error", "mobile"],
+  "examples": [
+    {
+      "id": "no-results",
+      "title": "No results",
+      "description": "Empty result caused by search or filters.",
+      "state": "no-results",
+      "slots_used": ["icon", "title", "description", "learn_more", "primary_action", "secondary_action"],
+      "behavior": "Explain the empty condition and offer a recovery action.",
+      "qa": "Primary action addresses the likely cause."
+    },
+    {
+      "id": "first-use",
+      "title": "First use",
+      "description": "Workspace or feature has no created content yet.",
+      "state": "first-use",
+      "slots_used": ["title", "description", "primary_action"],
+      "behavior": "Offer creation or setup, not filter recovery.",
+      "qa": "Copy does not imply a failure."
+    },
+    {
+      "id": "load-error",
+      "title": "Load error",
+      "description": "Empty area caused by data source failure.",
+      "state": "error",
+      "slots_used": ["icon", "title", "description", "primary_action"],
+      "behavior": "Name the failure and provide retry or credential repair.",
+      "qa": "Error state is not styled like normal empty data."
+    }
+  ],
+  "state_semantics": {
+    "no-results": {"meaning": "Filtered empty", "trigger": "Search/filter returns no rows", "qa": "Clear-filter action is present."},
+    "first-use": {"meaning": "No content yet", "trigger": "User has not created content", "qa": "Setup action is present."},
+    "permission": {"meaning": "Access blocked", "trigger": "User lacks permission", "qa": "Permission path is explained."},
+    "error": {"meaning": "Source failed", "trigger": "Data cannot load", "qa": "Retry or repair path is visible."},
+    "mobile": {"meaning": "Narrow empty state", "trigger": "Mobile breakpoint", "qa": "Actions stack below copy."}
+  }
+}

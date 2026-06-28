@@ -5,7 +5,7 @@ description: Dig UI design system skill for product UI generation and review. Us
 
 # dig-ui
 
-Dig UI is an AI-executable product interface design system. It combines `layout + catalog + block + token + global/local rules + render ops` so agents can generate, review, and maintain consistent product UI.
+Dig UI is an AI-executable product interface design system. It combines `dig-read + workflow + layout + catalog + block + token + global/local rules + render ops` so agents can generate, review, and maintain consistent product UI.
 
 ## Reading Priority
 
@@ -13,8 +13,9 @@ Dig UI is an AI-executable product interface design system. It combines `layout 
 2. `references/global-rules.local.md` when present
 3. `references/local/` when present for project-level layout / block extensions
 4. Installed-language `references/global-rules.md`
-5. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
-6. `references/shared/` manifests, tokens, and primitives
+5. Installed-language `references/dig-read.md`, `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`
+6. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
+7. `references/shared/` manifests, tokens, and primitives
 
 If the user explicitly says "no global rules", "skip global", or "do not use global", skip global rules and local global rules for this task. Layouts, catalogs, blocks, and primitives may still be used.
 
@@ -35,6 +36,8 @@ Then provide four dials:
 - `BRAND_EXPRESSIVENESS`
 - `INTERACTION_ENERGY`
 - `OPERATIONAL_CRITICALITY`
+
+If the task clearly matches review, redesign, execution, or image-reference work, also read the matching workflow in `references/workflows/`.
 
 ### 2. Choose Layout
 

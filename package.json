@@ -25,15 +25,19 @@
     "agents/",
     "sync-renders.sh",
     "sync_renders.py",
+    "sync_block_renders.py",
     "sync_layout_renders.py",
     "validate-dig-catalog-preview.mjs",
-    "validate-dig-layout-preview.mjs"
+    "validate-dig-block-preview.mjs",
+    "validate-dig-layout-preview.mjs",
+    "validate-dig-render-ops.mjs"
   ],
   "scripts": {
     "sync:layouts": "./sync-renders.sh --layouts",
     "sync:blocks": "./sync-renders.sh --blocks",
     "sync:all": "./sync-renders.sh --all",
     "validate:layouts": "node validate-dig-layout-preview.mjs renders/layouts",
+    "validate:blocks": "node validate-dig-block-preview.mjs renders/blocks",
     "validate:catalogs": "node validate-dig-catalog-preview.mjs renders",
     "validate:renders": "node validate-dig-render-ops.mjs"
   },

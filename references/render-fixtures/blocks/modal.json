@@ -1,0 +1,40 @@
+{
+  "block": "modal",
+  "states": ["default", "loading", "error", "disabled", "mobile"],
+  "examples": [
+    {
+      "id": "confirmation",
+      "title": "Confirmation",
+      "description": "Focused decision that interrupts the current task.",
+      "state": "default",
+      "slots_used": ["title", "close", "description", "body", "secondary_action", "primary_action"],
+      "behavior": "Use for decisions that need explicit confirmation before continuing.",
+      "qa": "Primary and secondary actions are clearly ordered."
+    },
+    {
+      "id": "blocked-action",
+      "title": "Blocked action",
+      "description": "Modal content explains why the action cannot proceed.",
+      "state": "error",
+      "slots_used": ["title", "description", "body", "primary_action"],
+      "behavior": "Keep the user in context and provide a route to inspect the blocker.",
+      "qa": "Error copy describes the blocker, not just a generic failure."
+    },
+    {
+      "id": "disabled-primary",
+      "title": "Disabled primary",
+      "description": "Primary action waits for prerequisite input or policy.",
+      "state": "disabled",
+      "slots_used": ["primary_action", "secondary_action"],
+      "behavior": "Disable only the unsafe action; keep cancel/close available.",
+      "qa": "User can still exit the modal."
+    }
+  ],
+  "state_semantics": {
+    "default": {"meaning": "Ready decision", "trigger": "User opens a focused task", "qa": "Focus and action order are clear."},
+    "loading": {"meaning": "Pending decision", "trigger": "Primary action is processing", "qa": "Modal remains stable."},
+    "error": {"meaning": "Blocked decision", "trigger": "Action cannot proceed", "qa": "Blocker is explicit."},
+    "disabled": {"meaning": "Incomplete decision", "trigger": "Prerequisite is missing", "qa": "Exit remains available."},
+    "mobile": {"meaning": "Narrow modal", "trigger": "Mobile breakpoint", "qa": "Actions stack without overlap."}
+  }
+}

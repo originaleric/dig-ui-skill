@@ -1,4 +1,51 @@
 {
   "block": "settings-row",
-  "states": ["default", "enabled", "disabled", "loading", "error", "saved", "mobile"]
+  "states": ["default", "enabled", "disabled", "loading", "error", "saved", "mobile"],
+  "examples": [
+    {
+      "id": "toggle-setting",
+      "title": "Toggle setting",
+      "description": "Binary operational setting with description and save affordance.",
+      "state": "enabled",
+      "slots_used": ["label", "description", "control", "status", "action"],
+      "behavior": "Use when a setting can change independently inside a larger form.",
+      "qa": "Label, description, toggle and status form one readable row."
+    },
+    {
+      "id": "saved-setting",
+      "title": "Saved setting",
+      "description": "Setting shows successful persistence after a change.",
+      "state": "saved",
+      "slots_used": ["status", "action"],
+      "behavior": "Status confirms persistence without adding a separate toast for every row.",
+      "qa": "Saved status is subtle and does not look like a new required action."
+    },
+    {
+      "id": "setting-error",
+      "title": "Setting error",
+      "description": "Row-level error when a setting cannot be persisted.",
+      "state": "error",
+      "slots_used": ["status", "danger_action"],
+      "behavior": "Keep failed setting local and offer reset/retry near the control.",
+      "qa": "Error status names the affected row."
+    },
+    {
+      "id": "disabled-setting",
+      "title": "Disabled setting",
+      "description": "Setting unavailable due to policy or inherited workspace rule.",
+      "state": "disabled",
+      "slots_used": ["control", "action"],
+      "behavior": "Disable mutation controls while keeping policy context readable.",
+      "qa": "Disabled state does not hide current setting value."
+    }
+  ],
+  "state_semantics": {
+    "default": {"meaning": "Editable setting", "trigger": "Setting can be changed", "qa": "Control and description align."},
+    "enabled": {"meaning": "On setting", "trigger": "Boolean value is true", "qa": "Status reflects enabled value."},
+    "disabled": {"meaning": "Locked setting", "trigger": "Policy prevents mutation", "qa": "Current value remains readable."},
+    "loading": {"meaning": "Saving setting", "trigger": "Mutation in progress", "qa": "Duplicate save is blocked."},
+    "error": {"meaning": "Failed setting", "trigger": "Save or validation fails", "qa": "Recovery action is local."},
+    "saved": {"meaning": "Persisted setting", "trigger": "Save succeeds", "qa": "Confirmation is visible but quiet."},
+    "mobile": {"meaning": "Stacked setting", "trigger": "Mobile breakpoint", "qa": "Control stacks below copy without overlap."}
+  }
 }

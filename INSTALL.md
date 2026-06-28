@@ -83,7 +83,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `assets/`
 - `renders/`
 - `bin/`
-- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs` / `validate-dig-render-ops.mjs`
+- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs` / `validate-dig-block-preview.mjs` / `validate-dig-render-ops.mjs`
 - `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
@@ -129,7 +129,9 @@ npx dig-ui-skill render all
 npx dig-ui-skill validate renders
 ```
 
-`render` 用于生成 catalog / layout / block 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、block 状态矩阵和 layout render。
+`render` 用于生成 catalog / layout / block 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、layout render、block contract pages、block fixtures 和 catalog preview switching。
+
+Block render 是协议说明页和兼容性检查，不是第二套设计源。Markdown、shared manifest、fixture 和 catalog token 仍是 source of truth。
 
 ## 个人 Global Rules
 

@@ -14,10 +14,12 @@
 AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很容易在颜色、间距、信息密度、响应式顺序和交互细节上漂移。Dig UI Skill 把这些隐性规则显性化：
 
 - **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、页面/组件一致性、select 用法和交互纪律。规则以英文为主规范，并提供中文翻译对照。
+- **Dig Read**：定义 Agent 的第一轮判断：先识别任务、选择 layout/catalog/block 资产，并给出信息密度、品牌表达、交互能量和任务关键性 dials。
 - **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮和组件映射。
 - **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
 - **Blocks**：定义可复用 primitive 和 product module 协议，例如 input、modal、runtime log stream、table toolbar、notification item、search result row、settings row。
-- **Rendered Previews**：提供 catalog、layout 骨架和 block 状态矩阵预览，便于人类先确认视觉、结构和状态覆盖。
+- **Anti-Tells / Preflight / Workflows**：过滤 AI 常见坏味道，并把 review、redesign、execution 等任务变成可重复流程。
+- **Rendered Previews**：提供 catalog、layout 骨架和 block contract 说明页，便于人类先确认视觉、结构、场景示例和状态语义。
 - **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block，而不 fork 官方资产。
 - **CLI Installers**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code。
 
@@ -27,9 +29,11 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
 - `renders/index.html` 静态视觉预览 Hub。
 - `renders/layouts/index.html` Layout 结构预览 Hub。
-- `renders/blocks/index.html` Block 状态矩阵预览 Hub。
+- `renders/blocks/index.html` Block contract Hub，由 block 专属 examples、文档 slots、状态语义和 catalog 兼容性检查生成。
 - `npm run validate:layouts` Playwright 结构校验。
+- `npm run validate:blocks` Playwright block catalog 切换校验。
 - 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
+- Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
 - `npm run validate:renders` Render Ops 与 parity 校验。
 - 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
 
@@ -151,7 +155,25 @@ node bin/dig-ui-skill.mjs install --all --source .
 
 ## 日常使用方式
 
-先选 layout recipe：
+先执行 Dig Read：
+
+```text
+references/dig-read.md
+```
+
+用它识别 task type、目标用户/任务、候选 layout、catalog 和 dials：
+
+```text
+execution page for engineers debugging an agent run,
+using agent-run-detail layout + mono catalog.
+
+INFORMATION_DENSITY: 8
+BRAND_EXPRESSIVENESS: 3
+INTERACTION_ENERGY: 6
+OPERATIONAL_CRITICALITY: 9
+```
+
+再选 layout recipe：
 
 ```text
 references/layouts/dashboard-overview.md
@@ -169,8 +191,10 @@ references/catalogs/media-consumer/apple.md
 然后让 AI 编程 Agent 组合它们：
 
 ```text
+先使用 references/dig-read.md。
 使用 references/layouts/dashboard-overview.md 作为结构。
 使用 references/catalogs/other/dig.md 作为视觉语言。
+交付前使用 references/anti-tells.md 和 references/preflight.md。
 文案必须进入 i18n 字典，支持 dark/light，并使用 token 化控件。
 ```
 
@@ -197,9 +221,11 @@ dig-ui-skill/
 │   ├── global-rules.md              # 跨 catalog 行为规则
 │   ├── global-rules.zh-CN.md        # global rules 中文翻译
 │   ├── global-rules.local.example.md
+│   ├── dig-read.md                  # Agent 任务判断与 Dig 产品 dials
 │   ├── tokens.md                    # 共享 token 协议
 │   ├── primitives.md                # 基础布局与交互规则
 │   ├── shared/                      # layout/catalog/block 稳定 manifest
+│   ├── workflows/                   # 可复用 Agent 工作流
 │   ├── blocks/                      # Block library；源码维护 .en.md / .zh-CN.md 兄弟文件
 │   ├── local/                       # 项目级 layout / block 扩展
 │   ├── anti-tells.md                # 已安装语言的 Dig 反模式过滤
@@ -216,6 +242,7 @@ dig-ui-skill/
 ├── sync_layout_renders.py           # Layout 预览编译器
 ├── sync_block_renders.py            # Block 预览编译器
 ├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
+├── validate-dig-block-preview.mjs   # Block catalog 切换校验器
 ├── validate-dig-layout-preview.mjs  # Layout QA 校验器
 └── validate-dig-render-ops.mjs      # Render Ops 与 parity 校验器
 ```
@@ -227,7 +254,7 @@ Render Ops 有三个维护视图：
 ```text
 renders/index.html          # catalog hub
 renders/layouts/index.html  # layout skeleton hub
-renders/blocks/index.html   # block state matrix hub
+renders/blocks/index.html   # block contract hub，包含 examples、anatomy、state semantics 和 catalog 兼容性检查
 ```
 
 项目级资产放在 `references/local/`。local layout / block 优先用 `extends`，真正替换官方行为时放到 `references/local/overrides/`，并写明 owner 和 reason。
@@ -291,16 +318,19 @@ npm install
 ./sync-renders.sh --layouts
 ```
 
-运行 layout 校验：
+同步 block contract 预览：
+
+```bash
+./sync-renders.sh --blocks
+```
+
+运行预览校验：
 
 ```bash
 npm run validate:layouts
-```
-
-运行 catalog 校验：
-
-```bash
+npm run validate:blocks
 npm run validate:catalogs
+npm run validate:renders
 ```
 
 ## 开源注意事项

@@ -5,7 +5,7 @@ description: 用于 Dig 网页与产品界面的设计系统 skill。Use when th
 
 # dig-ui
 
-Dig UI 是 AI 可执行的产品界面设计系统。它通过 `layout + catalog + block + token + global/local rules + render ops` 帮助 agent 生成、审查和维护稳定的产品 UI。
+Dig UI 是 AI 可执行的产品界面设计系统。它通过 `dig-read + workflow + layout + catalog + block + token + global/local rules + render ops` 帮助 agent 生成、审查和维护稳定的产品 UI。
 
 ## 读取优先级
 
@@ -13,8 +13,9 @@ Dig UI 是 AI 可执行的产品界面设计系统。它通过 `layout + catalog
 2. `references/global-rules.local.md`（若存在）
 3. `references/local/`（若存在，用于项目级 layout / block 扩展）
 4. 当前安装语言的 `references/global-rules.md`
-5. 当前安装语言的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
-6. `references/shared/` 中的 manifest、token、primitive
+5. 当前安装语言的 `references/dig-read.md`、`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`
+6. 当前安装语言的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
+7. `references/shared/` 中的 manifest、token、primitive
 
 若用户明确说「不使用 global / skip global / no global rules」，本次任务跳过 global rules 和 local global rules，但仍可使用 layout、catalog、block、primitive。
 
@@ -35,6 +36,8 @@ using <layout> layout + <catalog> catalog.
 - `BRAND_EXPRESSIVENESS`
 - `INTERACTION_ENERGY`
 - `OPERATIONAL_CRITICALITY`
+
+如果任务明显属于 review、redesign、execution 或 image-reference 场景，同时读取 `references/workflows/` 中的对应 workflow。
 
 ### 2. 选择 layout
 

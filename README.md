@@ -14,10 +14,12 @@ Dig UI Skill is an AI-first design system packaged as structured Markdown, stati
 AI agents are good at producing UI quickly, but they drift when a project does not give them a durable design language. Dig UI Skill makes that design language explicit:
 
 - **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, layout/component consistency, select usage, and interaction discipline. The canonical rules are English-first, with a Chinese translation for review.
+- **Dig Read** defines the agent's first reasoning pass: identify the task, choose layout/catalog/block assets, and set density, brand, interaction, and criticality dials before writing UI.
 - **Catalogs** define visual taste through tokens, typography, surface rules, and component mappings.
 - **Layout recipes** define information architecture, slots, responsive order, and QA notes.
 - **Blocks** define reusable primitive and product-module protocols such as inputs, modals, runtime log streams, table toolbars, notification items, search result rows, and settings rows.
-- **Rendered previews** give humans a fast way to inspect catalogs, layout skeletons, and block state matrices before using them in production code.
+- **Anti-tells, preflight, and workflows** keep common AI UI drift out of generated surfaces and make review/redesign/execution tasks repeatable.
+- **Rendered previews** give humans a fast way to inspect catalogs, layout skeletons, and block contract pages before using them in production code.
 - **Local extensions** let projects add their own layouts and blocks through `references/local/` without forking the official assets.
 - **CLI installers** keep the same skill synchronized across Codex, Cursor, and Claude Code.
 
@@ -27,9 +29,11 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
 - Static preview hub at `renders/index.html`.
 - Layout preview hub at `renders/layouts/index.html`.
-- Block preview hub at `renders/blocks/index.html`.
+- Block contract hub at `renders/blocks/index.html`, generated from block-specific examples, documented slots, state semantics, and catalog compatibility checks.
 - Playwright-based layout validation via `npm run validate:layouts`.
+- Playwright-based block catalog switching validation via `npm run validate:blocks`.
 - Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
+- Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
 - Render ops validation via `npm run validate:renders`.
 - Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
 
@@ -151,7 +155,25 @@ node bin/dig-ui-skill.mjs install --all --source .
 
 ## Daily Workflow
 
-Choose a layout recipe first:
+Start with Dig Read:
+
+```text
+references/dig-read.md
+```
+
+Use it to identify the task type, target user/job, likely layout, catalog, and dials:
+
+```text
+execution page for engineers debugging an agent run,
+using agent-run-detail layout + mono catalog.
+
+INFORMATION_DENSITY: 8
+BRAND_EXPRESSIVENESS: 3
+INTERACTION_ENERGY: 6
+OPERATIONAL_CRITICALITY: 9
+```
+
+Then choose a layout recipe:
 
 ```text
 references/layouts/dashboard-overview.md
@@ -169,8 +191,10 @@ references/catalogs/media-consumer/apple.md
 Ask your AI coding agent to combine them:
 
 ```text
+Use references/dig-read.md first.
 Use references/layouts/dashboard-overview.md for structure.
 Apply references/catalogs/other/dig.md for visual language.
+Use references/anti-tells.md and references/preflight.md before delivery.
 Keep copy in i18n dictionaries, support dark/light mode, and use tokenized controls.
 ```
 
@@ -197,9 +221,11 @@ dig-ui-skill/
 │   ├── global-rules.md              # Cross-catalog behavior rules
 │   ├── global-rules.zh-CN.md        # Chinese translation of global rules
 │   ├── global-rules.local.example.md
+│   ├── dig-read.md                  # Agent task framing and Dig product dials
 │   ├── tokens.md                    # Shared token contract
 │   ├── primitives.md                # Base layout and interaction rules
 │   ├── shared/                      # Stable manifests for layouts, catalogs, and blocks
+│   ├── workflows/                   # Repeatable agent workflows
 │   ├── blocks/                      # Block library; source keeps .en.md / .zh-CN.md siblings
 │   ├── local/                       # Project-level layout and block extensions
 │   ├── anti-tells.md                # Installed-language Dig anti-pattern filters
@@ -216,6 +242,7 @@ dig-ui-skill/
 ├── sync_layout_renders.py           # Layout preview compiler
 ├── sync_block_renders.py            # Block preview compiler
 ├── validate-dig-catalog-preview.mjs # Catalog QA validator
+├── validate-dig-block-preview.mjs   # Block catalog-switching validator
 ├── validate-dig-layout-preview.mjs  # Layout QA validator
 └── validate-dig-render-ops.mjs      # Render ops and parity validator
 ```
@@ -227,7 +254,7 @@ Render ops has three maintenance views:
 ```text
 renders/index.html          # catalog hub
 renders/layouts/index.html  # layout skeleton hub
-renders/blocks/index.html   # block state matrix hub
+renders/blocks/index.html   # block contract hub with examples, anatomy, state semantics, and catalog compatibility checks
 ```
 
 Project-specific assets live in `references/local/`. Prefer `extends` for local layouts and blocks, and put true replacements in `references/local/overrides/` with an owner and reason.
@@ -297,17 +324,13 @@ Sync block previews:
 ./sync-renders.sh --blocks
 ```
 
-Validate layout previews:
+Validate previews:
 
 ```bash
 npm run validate:layouts
-npm run validate:renders
-```
-
-Validate catalog previews:
-
-```bash
+npm run validate:blocks
 npm run validate:catalogs
+npm run validate:renders
 ```
 
 ## Open Source Notes

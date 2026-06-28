@@ -1,0 +1,40 @@
+{
+  "block": "form-row",
+  "states": ["default", "disabled", "loading", "error", "mobile"],
+  "examples": [
+    {
+      "id": "labeled-control",
+      "title": "Labeled control",
+      "description": "Label, helper text and control aligned as one editable row.",
+      "state": "default",
+      "slots_used": ["label", "required_marker", "helper", "control", "action"],
+      "behavior": "Use for settings and forms where the label explains the control.",
+      "qa": "Label group and control remain visually connected."
+    },
+    {
+      "id": "with-error",
+      "title": "Validation error",
+      "description": "Row-level validation for invalid control value.",
+      "state": "error",
+      "slots_used": ["label", "error", "control"],
+      "behavior": "Error belongs to the row and does not become a global alert.",
+      "qa": "Required marker and error copy are both visible."
+    },
+    {
+      "id": "disabled-row",
+      "title": "Disabled row",
+      "description": "Control is unavailable while row context remains readable.",
+      "state": "disabled",
+      "slots_used": ["control", "action"],
+      "behavior": "Disable the control and related row action together.",
+      "qa": "Text hierarchy stays readable in disabled state."
+    }
+  ],
+  "state_semantics": {
+    "default": {"meaning": "Editable row", "trigger": "User can update the value", "qa": "Label and control align."},
+    "disabled": {"meaning": "Locked row", "trigger": "Policy or context prevents editing", "qa": "All row actions reflect the lock."},
+    "loading": {"meaning": "Pending row", "trigger": "Value is saving or validating", "qa": "Control width remains stable."},
+    "error": {"meaning": "Invalid row", "trigger": "Row validation fails", "qa": "Error belongs to the row."},
+    "mobile": {"meaning": "Stacked row", "trigger": "Mobile breakpoint", "qa": "Control stacks below copy without overlap."}
+  }
+}

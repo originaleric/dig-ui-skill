@@ -1,4 +1,50 @@
 {
   "block": "runtime-log-stream",
-  "states": ["streaming", "paused", "empty", "error", "filtered", "mobile"]
+  "states": ["streaming", "paused", "empty", "error", "filtered", "mobile"],
+  "examples": [
+    {
+      "id": "live-stream",
+      "title": "Live stream",
+      "description": "Continuous execution logs for an active agent run.",
+      "state": "streaming",
+      "slots_used": ["toolbar", "severity_filter", "copy_action", "export_action", "log_row", "timestamp", "payload"],
+      "behavior": "Append new rows without stealing scroll position from users inspecting history.",
+      "qa": "Timestamps and payloads remain scan-friendly at high density."
+    },
+    {
+      "id": "filtered-results",
+      "title": "Filtered results",
+      "description": "Log stream scoped by severity, text query or source filter.",
+      "state": "filtered",
+      "slots_used": ["toolbar", "severity_filter", "log_row"],
+      "behavior": "Show active filter context and keep copy/export scoped to visible rows.",
+      "qa": "Filtered state cannot be confused with an empty source."
+    },
+    {
+      "id": "empty-stream",
+      "title": "Empty stream",
+      "description": "No rows match current filters or the run has not emitted logs.",
+      "state": "empty",
+      "slots_used": ["payload"],
+      "behavior": "Explain whether filters or upstream silence produced the empty result.",
+      "qa": "Recovery path is visible near the toolbar."
+    },
+    {
+      "id": "failed-row",
+      "title": "Failed row",
+      "description": "A log row highlights a runtime failure.",
+      "state": "error",
+      "slots_used": ["severity_filter", "log_row", "payload"],
+      "behavior": "Use row-level error emphasis instead of turning the whole console into an alert.",
+      "qa": "Error row is readable and copyable."
+    }
+  ],
+  "state_semantics": {
+    "streaming": {"meaning": "Live logs", "trigger": "Agent run is active", "qa": "New rows append without layout jumps."},
+    "paused": {"meaning": "Stream paused", "trigger": "User pauses follow mode", "qa": "Existing rows remain inspectable."},
+    "empty": {"meaning": "No visible logs", "trigger": "No logs or filters exclude all rows", "qa": "Reason and recovery are clear."},
+    "error": {"meaning": "Runtime failure", "trigger": "A log row reports failure", "qa": "Error row is distinct and copyable."},
+    "filtered": {"meaning": "Scoped log view", "trigger": "Filter or query is active", "qa": "Export/copy scope is obvious."},
+    "mobile": {"meaning": "Narrow log stream", "trigger": "Mobile breakpoint", "qa": "Payload wraps without horizontal scroll traps."}
+  }
 }

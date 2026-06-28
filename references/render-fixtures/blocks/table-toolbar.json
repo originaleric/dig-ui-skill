@@ -1,0 +1,40 @@
+{
+  "block": "table-toolbar",
+  "states": ["default", "filtered", "bulk-selection", "disabled", "mobile"],
+  "examples": [
+    {
+      "id": "search-and-filter",
+      "title": "Search and filter",
+      "description": "Toolbar for finding and narrowing table rows.",
+      "state": "default",
+      "slots_used": ["search", "filters", "sort", "density", "primary_action", "export"],
+      "behavior": "Group table-scoped controls above the data they affect.",
+      "qa": "Search, filters and actions are visually distinct."
+    },
+    {
+      "id": "bulk-actions",
+      "title": "Bulk actions",
+      "description": "Selection-aware toolbar for operating on multiple rows.",
+      "state": "bulk-selection",
+      "slots_used": ["bulk_actions", "export"],
+      "behavior": "Bulk actions appear only when selection exists and state the selected count.",
+      "qa": "Bulk action does not obscure primary table controls."
+    },
+    {
+      "id": "disabled-toolbar",
+      "title": "Disabled toolbar",
+      "description": "Toolbar controls unavailable while data is loading or locked.",
+      "state": "disabled",
+      "slots_used": ["filters", "sort", "primary_action"],
+      "behavior": "Disable row-affecting controls together while preserving table context.",
+      "qa": "Disabled controls remain readable."
+    }
+  ],
+  "state_semantics": {
+    "default": {"meaning": "Ready toolbar", "trigger": "Table data is available", "qa": "Controls map to table behavior."},
+    "filtered": {"meaning": "Scoped table", "trigger": "Filter or search is active", "qa": "Active constraints are visible."},
+    "bulk-selection": {"meaning": "Rows selected", "trigger": "One or more rows are selected", "qa": "Selected count is explicit."},
+    "disabled": {"meaning": "Unavailable toolbar", "trigger": "Data or permissions block changes", "qa": "Controls do not look clickable."},
+    "mobile": {"meaning": "Stacked toolbar", "trigger": "Mobile breakpoint", "qa": "Search and actions stack predictably."}
+  }
+}

@@ -3,40 +3,212 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dig UI Block — tabs</title>
+    <title>Dig UI Block - tabs</title>
     <style>
       :root {
         color-scheme: dark;
         --dig-bg: #06121a;
         --dig-surface: rgba(16,32,44,.92);
         --dig-surface-raised: rgba(20,39,53,.96);
+        --dig-control-bg: rgba(9,21,31,.92);
         --dig-text: #ecf3f8;
         --dig-muted: #8aa0b2;
         --dig-accent: #37d67a;
+        --dig-accent-2: #86e7ff;
+        --dig-warning: #f6c76d;
         --dig-danger: #f06a6a;
-        --dig-border: rgba(138,160,178,.2);
+        --dig-danger-text: #180909;
+        --dig-border: rgba(138,160,178,.22);
+        --dig-border-strong: rgba(138,160,178,.38);
         --dig-radius: 8px;
         --dig-radius-pill: 999px;
       }
+      html[data-catalog="dig"] {
+        --dig-bg: #06121a;
+        --dig-surface: rgba(16,32,44,.92);
+        --dig-surface-raised: rgba(20,39,53,.96);
+        --dig-control-bg: rgba(9,21,31,.92);
+        --dig-text: #ecf3f8;
+        --dig-muted: #8aa0b2;
+        --dig-accent: #37d67a;
+        --dig-accent-2: #86e7ff;
+        --dig-warning: #f6c76d;
+        --dig-danger: #f06a6a;
+        --dig-danger-text: #180909;
+        --dig-border: rgba(138,160,178,.22);
+        --dig-border-strong: rgba(138,160,178,.38);
+      }
+      html[data-catalog="mono"] {
+        --dig-bg: #0d0f10;
+        --dig-surface: rgba(24,26,28,.94);
+        --dig-surface-raised: rgba(31,34,36,.98);
+        --dig-control-bg: rgba(12,13,14,.92);
+        --dig-text: #f1f3f2;
+        --dig-muted: #9da3a0;
+        --dig-accent: #f4f7f5;
+        --dig-accent-2: #b9c0bc;
+        --dig-warning: #d8c27a;
+        --dig-danger: #ff7777;
+        --dig-danger-text: #180909;
+        --dig-border: rgba(177,184,180,.22);
+        --dig-border-strong: rgba(210,216,212,.36);
+      }
+      html[data-catalog="editorial"] {
+        --dig-bg: #11100e;
+        --dig-surface: rgba(34,32,28,.94);
+        --dig-surface-raised: rgba(43,40,34,.98);
+        --dig-control-bg: rgba(18,17,15,.92);
+        --dig-text: #f7f1e8;
+        --dig-muted: #b5a999;
+        --dig-accent: #f2c86b;
+        --dig-accent-2: #e9a66a;
+        --dig-warning: #f2c86b;
+        --dig-danger: #e46f67;
+        --dig-danger-text: #1d0b08;
+        --dig-border: rgba(214,197,169,.22);
+        --dig-border-strong: rgba(242,200,107,.42);
+      }
+      html[data-catalog="wise"] {
+        --dig-bg: #07130f;
+        --dig-surface: rgba(16,38,28,.94);
+        --dig-surface-raised: rgba(23,50,37,.98);
+        --dig-control-bg: rgba(8,25,18,.92);
+        --dig-text: #f1fff7;
+        --dig-muted: #9fc0ad;
+        --dig-accent: #9fe870;
+        --dig-accent-2: #65d6ad;
+        --dig-warning: #ffe27a;
+        --dig-danger: #ff7373;
+        --dig-danger-text: #1b0808;
+        --dig-border: rgba(159,232,112,.24);
+        --dig-border-strong: rgba(159,232,112,.46);
+      }
+      html[data-catalog="apple"] {
+        --dig-bg: #f5f5f7;
+        --dig-surface: rgba(255,255,255,.9);
+        --dig-surface-raised: rgba(255,255,255,.98);
+        --dig-control-bg: rgba(232,232,237,.82);
+        --dig-text: #1d1d1f;
+        --dig-muted: #6e6e73;
+        --dig-accent: #0071e3;
+        --dig-accent-2: #5e5ce6;
+        --dig-warning: #b26a00;
+        --dig-danger: #d70015;
+        --dig-danger-text: #ffffff;
+        --dig-border: rgba(29,29,31,.16);
+        --dig-border-strong: rgba(29,29,31,.28);
+      }
+      html[data-catalog="apple"] { color-scheme: light; }
+      * { box-sizing:border-box; }
       body { margin:0; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background:var(--dig-bg); color:var(--dig-text); }
       main { width:min(1180px, calc(100% - 32px)); margin:0 auto; padding:32px 0 56px; }
       header { display:grid; gap:10px; margin-bottom:24px; }
-      h1 { margin:0; font-size:32px; }
+      h1 { margin:0; font-size:32px; line-height:1.1; }
+      h2 { margin:0 0 12px; font-size:18px; line-height:1.25; }
+      h3 { margin:0; font-size:16px; line-height:1.35; }
       p { margin:0; color:var(--dig-muted); line-height:1.6; }
+      ul { margin:0; padding-left:18px; color:var(--dig-muted); line-height:1.6; }
+      li + li { margin-top:6px; }
+      .preview-controls { display:flex; flex-wrap:wrap; align-items:end; gap:10px 14px; margin-top:6px; }
+      .preview-control { display:grid; gap:5px; color:var(--dig-muted); font-size:12px; font-weight:700; text-transform:uppercase; }
+      .dig-select { min-height:38px; min-width:240px; border:1px solid var(--dig-border); border-radius:var(--dig-radius-pill); background:var(--dig-control-bg); color:var(--dig-text); padding:0 36px 0 12px; font:600 13px Inter, ui-sans-serif, system-ui, sans-serif; }
+      .preview-note { min-height:38px; display:inline-flex; align-items:center; color:var(--dig-muted); font-size:12px; }
       .meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
       .chip { border:1px solid var(--dig-border); border-radius:var(--dig-radius-pill); padding:4px 10px; color:var(--dig-muted); font-size:12px; }
-      .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; }
-      .state-card { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface); padding:14px; min-height:150px; }
-      .state-head { display:flex; justify-content:space-between; gap:12px; color:var(--dig-muted); font-size:12px; margin-bottom:14px; }
-      code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color:var(--dig-accent); }
-      .state-body { display:grid; gap:12px; }
-      .demo-button { min-height:44px; border:1px solid transparent; border-radius:var(--dig-radius-pill); background:var(--dig-accent); color:var(--dig-bg); font-weight:700; padding:0 16px; }
-      .demo-button:focus-visible, .state-focus_visible .demo-button { outline:2px solid var(--dig-accent); outline-offset:3px; }
-      .demo-button:disabled { opacity:.45; cursor:not-allowed; }
-      .demo-row { display:grid; gap:4px; border:1px solid var(--dig-border); background:var(--dig-surface-raised); border-radius:var(--dig-radius); padding:12px; }
-      .demo-row span { color:var(--dig-muted); font-size:13px; }
-      .state-error .demo-row strong { color:var(--dig-danger); }
-      .state-mobile { max-width:320px; }
+      .doc-stack { display:grid; gap:22px; }
+      .doc-section { border-top:1px solid var(--dig-border); padding-top:22px; }
+      .contract-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; }
+      .contract-panel { display:grid; gap:10px; }
+      .example-list { display:grid; gap:0; }
+      .example { display:grid; grid-template-columns:minmax(220px, 300px) minmax(0, 1fr); gap:18px; align-items:start; border-top:1px solid var(--dig-border); padding:22px 0; }
+      .example:first-child { border-top:0; padding-top:4px; }
+      .example-copy { display:grid; gap:8px; }
+      .example-preview { min-width:0; display:grid; gap:12px; border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-control-bg); padding:18px; }
+      .example-notes { grid-column:1 / -1; display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin:0; }
+      .example-notes div { border-top:1px solid var(--dig-border); padding-top:10px; }
+      .example-notes dt { color:var(--dig-muted); font-size:11px; font-weight:800; text-transform:uppercase; }
+      .example-notes dd { margin:4px 0 0; color:var(--dig-text); line-height:1.5; }
+      .example-notes dd span { display:inline-flex; margin:0 5px 5px 0; border:1px solid var(--dig-border); border-radius:var(--dig-radius-pill); padding:2px 7px; color:var(--dig-muted); font-size:12px; }
+      .anatomy-list { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; padding:0; list-style:none; }
+      .anatomy-list li { display:grid; gap:4px; border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface); padding:10px; }
+      .anatomy-list span { color:var(--dig-muted); font-size:12px; }
+      .semantic-table-wrap { overflow:auto; border:1px solid var(--dig-border); border-radius:var(--dig-radius); }
+      table { width:100%; border-collapse:collapse; min-width:720px; }
+      th, td { border-bottom:1px solid var(--dig-border); padding:10px 12px; text-align:left; vertical-align:top; color:var(--dig-muted); }
+      th { color:var(--dig-text); font-weight:800; }
+      tr:last-child th, tr:last-child td { border-bottom:0; }
+      .skin-check { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface); padding:14px; }
+      .skin-check summary { cursor:pointer; color:var(--dig-text); font-weight:800; }
+      .skin-check-body { display:grid; gap:14px; margin-top:14px; }
+      .skin-preview { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-control-bg); padding:16px; }
+      code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:var(--dig-accent); }
+      .demo-button { min-height:38px; border:1px solid transparent; border-radius:var(--dig-radius-pill); font-weight:700; padding:0 14px; color:var(--dig-bg); background:var(--dig-accent); white-space:normal; }
+      .demo-button.secondary { color:var(--dig-text); background:var(--dig-surface-raised); border-color:var(--dig-border); }
+      .demo-button.ghost, .demo-button.quiet { color:var(--dig-muted); background:transparent; border-color:var(--dig-border); }
+      .demo-button.danger { color:var(--dig-danger-text); background:var(--dig-danger); }
+      .demo-button:focus-visible, .example[data-state="focus-visible"] .demo-button:first-child, .example[data-state="focus-visible"] .select-trigger, .example[data-state="focus-visible"] .control-shell { outline:2px solid var(--dig-accent); outline-offset:3px; }
+      .demo-button:disabled, button:disabled, .is-disabled { opacity:.48; cursor:not-allowed; }
+      .button-strip, .toolbar-row, .modal-actions, .header-actions, .empty-actions { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+      .field-stack, .toolbar-demo, .log-stream, .modal-demo, .tabs-demo, .timeline, .empty-state-demo { display:grid; gap:10px; }
+      .field-label, .helper, .run-meta, small { color:var(--dig-muted); }
+      .field-label { font-size:12px; font-weight:700; text-transform:uppercase; }
+      .helper { font-size:12px; }
+      .danger-text { color:var(--dig-danger); }
+      .control-shell, .select-trigger, .search-box, .option-list, .modal-body, .tab-panel, .log-row, .stepper { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-control-bg); }
+      .control-shell { display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:8px; padding:8px 10px; }
+      .control-shell input { min-width:0; border:0; outline:0; background:transparent; color:var(--dig-text); font:inherit; }
+      .control-prefix, .control-action { color:var(--dig-muted); }
+      .control-action, .icon-button { border:1px solid var(--dig-border); background:transparent; color:var(--dig-muted); border-radius:var(--dig-radius); min-height:30px; }
+      .is-error, .example[data-state="error"] .control-shell, .example[data-state="error"] .select-trigger { border-color:var(--dig-danger); }
+      .select-trigger { min-height:42px; padding:0 12px; color:var(--dig-text); display:flex; align-items:center; justify-content:space-between; }
+      .option-list { display:grid; gap:4px; padding:8px; color:var(--dig-muted); font-size:12px; }
+      .is-selected { color:var(--dig-accent); }
+      .form-row-demo, .run-header, .settings-row, .notification-item, .search-result-row { display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center; }
+      .stepper { display:grid; grid-template-columns:32px 36px 32px; align-items:center; text-align:center; overflow:hidden; }
+      .stepper button { min-height:32px; border:0; background:transparent; color:var(--dig-text); }
+      .toast-demo { display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center; border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface-raised); padding:10px; }
+      .toast-copy, .settings-copy, .notification-copy, .result-copy { display:grid; gap:3px; min-width:0; }
+      .icon-box { display:grid; place-items:center; width:32px; height:32px; border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-control-bg); color:var(--dig-accent); font-weight:800; }
+      .modal-demo { border:1px solid var(--dig-border-strong); border-radius:var(--dig-radius); background:var(--dig-surface-raised); padding:12px; }
+      .modal-top { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+      .modal-body, .tab-panel { padding:10px; color:var(--dig-muted); font-size:13px; }
+      .tooltip-demo { display:grid; justify-items:start; gap:8px; }
+      .tooltip-bubble { position:relative; max-width:260px; border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface-raised); padding:10px; color:var(--dig-muted); }
+      .tooltip-arrow { position:absolute; top:-5px; left:16px; width:10px; height:10px; background:var(--dig-surface-raised); border-left:1px solid var(--dig-border); border-top:1px solid var(--dig-border); transform:rotate(45deg); }
+      .tab-list { display:flex; gap:6px; align-items:center; border-bottom:1px solid var(--dig-border); padding-bottom:8px; }
+      .tab { min-height:34px; border:1px solid transparent; border-radius:var(--dig-radius); background:transparent; color:var(--dig-muted); padding:0 10px; }
+      .tab.is-selected { color:var(--dig-text); background:var(--dig-control-bg); border-color:var(--dig-border); }
+      .search-box { padding:10px 12px; color:var(--dig-muted); }
+      .badge { display:inline-flex; align-items:center; width:max-content; min-height:24px; border-radius:var(--dig-radius-pill); border:1px solid var(--dig-border); padding:0 8px; color:var(--dig-muted); font-size:12px; font-weight:700; text-transform:uppercase; }
+      .badge.success { color:var(--dig-accent); border-color:var(--dig-border-strong); }
+      .badge.danger { color:var(--dig-danger); border-color:var(--dig-danger); }
+      .log-toolbar { display:flex; gap:8px; align-items:center; justify-content:space-between; }
+      .log-row { display:grid; grid-template-columns:86px 1fr; gap:10px; align-items:start; padding:9px; }
+      .log-row code { color:var(--dig-text); white-space:normal; overflow-wrap:anywhere; }
+      .run-title { font-weight:800; }
+      .duration { color:var(--dig-accent-2); font-weight:800; }
+      .timeline-item { display:grid; grid-template-columns:auto auto 1fr; gap:8px; align-items:center; }
+      .timeline-item p { grid-column:1 / -1; padding-left:42px; }
+      .step-dot { display:grid; place-items:center; width:28px; height:28px; border:1px solid var(--dig-border); border-radius:50%; background:var(--dig-control-bg); color:var(--dig-accent-2); font-weight:800; }
+      .switch input { display:none; }
+      .switch span { display:block; width:44px; height:24px; border-radius:var(--dig-radius-pill); border:1px solid var(--dig-border); background:var(--dig-control-bg); position:relative; }
+      .switch span:after { content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:var(--dig-muted); }
+      .switch input:checked + span:after { left:23px; background:var(--dig-accent); }
+      .empty-state-demo { justify-items:start; text-align:left; border:1px dashed var(--dig-border); border-radius:var(--dig-radius); padding:16px; }
+      .notification-item, .search-result-row { border:1px solid var(--dig-border); border-radius:var(--dig-radius); background:var(--dig-surface-raised); padding:10px; }
+      .notification-item { grid-template-columns:auto 1fr auto; }
+      .notification-item.is-unread { border-color:var(--dig-border-strong); }
+      .search-result-row { grid-template-columns:auto 1fr auto; }
+      mark { background:var(--dig-control-bg); color:var(--dig-warning); border-radius:4px; padding:0 2px; }
+      a { color:var(--dig-accent-2); }
+      kbd { display:inline-flex; min-height:20px; align-items:center; border:1px solid var(--dig-border); border-radius:5px; padding:0 5px; color:var(--dig-text); font:11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .example[data-state="mobile"] .example-preview { max-width:340px; }
+      @media (max-width: 520px) {
+        main { width:min(100% - 20px, 420px); padding-top:20px; }
+        .contract-grid, .example, .example-notes { grid-template-columns:1fr; }
+        .form-row-demo, .run-header, .settings-row, .notification-item, .search-result-row, .toast-demo { grid-template-columns:1fr; }
+        .log-row { grid-template-columns:1fr; }
+      }
     </style>
   </head>
   <body>
@@ -48,112 +220,222 @@
           <span class="chip">category: primitive</span>
           <span class="chip">source: references/blocks/primitives/tabs.md</span>
           <span class="chip">asset source: official</span>
-          <span class="chip">catalog: all</span>
-          <span class="chip">fixture: generated-required-states</span>
-          <span class="chip">schema version: 1</span>
+          <span class="chip">compatible catalogs: all</span>
+          <span class="chip">preview catalog: <span id="previewCatalogChip">dig</span></span>
+          <span class="chip">fixture: tabs.json</span>
+          <span class="chip">schema version: 2</span>
           <span class="chip">language: installed</span>
         </div>
       </header>
-      <section class="grid" aria-label="Block states">
+      <div class="doc-stack" data-render-mode="contract" data-block="tabs" data-renderer="tabs">
+        <section class="doc-section contract-grid" aria-label="Block contract">
+          <div class="contract-panel">
+            <h2>Use when</h2>
+            <ul><li>在同一上下文中切换平级视图。</li></ul>
+          </div>
+          <div class="contract-panel">
+            <h2>Avoid when</h2>
+            <ul><li>步骤必须顺序完成；应使用 wizard 或 timeline。</li></ul>
+          </div>
+        </section>
+        <section id="examples" class="doc-section" aria-label="Block examples">
+          <h2>Examples</h2>
+          <div class="example-list">
 
-      <article class="state-card state-default">
-        <div class="state-head">
-          <span>default</span>
-          <code>tabs</code>
+      <article class="example" data-example-id="basic-tabs" data-state="default">
+        <div class="example-copy">
+          <h3>Basic tabs</h3>
+          <p>Switch between sibling views in the same context.</p>
         </div>
-        <div class="state-body">
-          <button class="demo-button">Action</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
+        <div class="example-preview" aria-label="tabs default preview">
+
+          <div class="tabs-demo" data-renderer="tabs">
+            <div class="tab-list" data-slot="tab_list">
+              <button class="tab is-selected" data-slot="tab">Overview</button>
+              <button class="tab " data-slot="tab">Trace <span data-slot="badge">8</span></button>
+              <button class="tab" data-slot="tab">Artifacts</button>
+              <button class="icon-button" data-slot="overflow_menu" aria-label="More tabs">...</button>
+            </div>
+            <div class="tab-panel" data-slot="panel">Overview content with run health and recent events.</div>
           </div>
         </div>
+        <dl class="example-notes">
+          <div><dt>Slots</dt><dd><span>tab_list</span><span>tab</span><span>badge</span><span>panel</span></dd></div>
+          <div><dt>Behavior</dt><dd>Only one tab panel is active at a time.</dd></div>
+          <div><dt>QA</dt><dd>Selected tab and panel relationship is clear.</dd></div>
+        </dl>
       </article>
 
-      <article class="state-card state-hover">
-        <div class="state-head">
-          <span>hover</span>
-          <code>tabs</code>
+      <article class="example" data-example-id="selected-tab" data-state="selected">
+        <div class="example-copy">
+          <h3>Selected tab</h3>
+          <p>Active tab communicates current view.</p>
         </div>
-        <div class="state-body">
-          <button class="demo-button">Action</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
+        <div class="example-preview" aria-label="tabs selected preview">
+
+          <div class="tabs-demo" data-renderer="tabs">
+            <div class="tab-list" data-slot="tab_list">
+              <button class="tab " data-slot="tab">Overview</button>
+              <button class="tab is-selected" data-slot="tab">Trace <span data-slot="badge">8</span></button>
+              <button class="tab" data-slot="tab">Artifacts</button>
+              <button class="icon-button" data-slot="overflow_menu" aria-label="More tabs">...</button>
+            </div>
+            <div class="tab-panel" data-slot="panel">Trace content with run health and recent events.</div>
           </div>
         </div>
+        <dl class="example-notes">
+          <div><dt>Slots</dt><dd><span>tab</span><span>panel</span></dd></div>
+          <div><dt>Behavior</dt><dd>Changing selected tab updates the panel without changing page context.</dd></div>
+          <div><dt>QA</dt><dd>Selected style is not color-only.</dd></div>
+        </dl>
       </article>
 
-      <article class="state-card state-focus_visible">
-        <div class="state-head">
-          <span>focus-visible</span>
-          <code>tabs</code>
+      <article class="example" data-example-id="overflow-menu" data-state="overflow">
+        <div class="example-copy">
+          <h3>Overflow menu</h3>
+          <p>Additional tabs move behind overflow when space is tight.</p>
         </div>
-        <div class="state-body">
-          <button class="demo-button">Action</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
-          </div>
-        </div>
-      </article>
+        <div class="example-preview" aria-label="tabs overflow preview">
 
-      <article class="state-card state-disabled">
-        <div class="state-head">
-          <span>disabled</span>
-          <code>tabs</code>
-        </div>
-        <div class="state-body">
-          <button class="demo-button" disabled>Action</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
+          <div class="tabs-demo" data-renderer="tabs">
+            <div class="tab-list" data-slot="tab_list">
+              <button class="tab is-selected" data-slot="tab">Overview</button>
+              <button class="tab " data-slot="tab">Trace <span data-slot="badge">8</span></button>
+              <button class="tab" data-slot="tab">Artifacts</button>
+              <button class="icon-button" data-slot="overflow_menu" aria-label="More tabs">...</button>
+            </div>
+            <div class="tab-panel" data-slot="panel">Overview content with run health and recent events.</div>
           </div>
         </div>
+        <dl class="example-notes">
+          <div><dt>Slots</dt><dd><span>overflow_menu</span></dd></div>
+          <div><dt>Behavior</dt><dd>Use overflow only for secondary tabs, not primary navigation.</dd></div>
+          <div><dt>QA</dt><dd>Overflow control remains reachable by keyboard.</dd></div>
+        </dl>
       </article>
+          </div>
+        </section>
+        <section class="doc-section" aria-label="Block anatomy">
+          <h2>Anatomy</h2>
+          
+        <ul class="anatomy-list">
+          <li data-slot="tab_list"><code>tab_list</code><span>Documented block slot</span></li>
+          <li data-slot="tab"><code>tab</code><span>Documented block slot</span></li>
+          <li data-slot="panel"><code>panel</code><span>Documented block slot</span></li>
+          <li data-slot="badge"><code>badge</code><span>Documented block slot</span></li>
+          <li data-slot="overflow_menu"><code>overflow_menu</code><span>Documented block slot</span></li>
+        </ul>
+        </section>
+        <section id="states" class="doc-section" aria-label="State semantics">
+          <h2>State semantics</h2>
+          <div class="semantic-table-wrap">
+            <table>
+              <thead><tr><th>State</th><th>Meaning</th><th>Trigger</th><th>QA</th></tr></thead>
+              <tbody>
 
-      <article class="state-card state-loading">
-        <div class="state-head">
-          <span>loading</span>
-          <code>tabs</code>
-        </div>
-        <div class="state-body">
-          <button class="demo-button">Loading...</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
-          </div>
-        </div>
-      </article>
+          <tr>
+            <th scope="row"><code>default</code></th>
+            <td>First view active</td>
+            <td>Tabs render with default selection</td>
+            <td>Panel matches selected tab.</td>
+          </tr>
 
-      <article class="state-card state-error">
-        <div class="state-head">
-          <span>error</span>
-          <code>tabs</code>
-        </div>
-        <div class="state-body">
-          <button class="demo-button">Action</button>
-          <div class="demo-row">
-            <strong>Error state</strong>
-            <span>Something needs attention.</span>
-          </div>
-        </div>
-      </article>
+          <tr>
+            <th scope="row"><code>selected</code></th>
+            <td>Alternate view active</td>
+            <td>User selects another tab</td>
+            <td>Selected state is explicit.</td>
+          </tr>
 
-      <article class="state-card state-mobile">
-        <div class="state-head">
-          <span>mobile</span>
-          <code>tabs</code>
-        </div>
-        <div class="state-body">
-          <button class="demo-button">Action</button>
-          <div class="demo-row">
-            <strong>Primary label</strong>
-            <span>Secondary metadata and helper text.</span>
+          <tr>
+            <th scope="row"><code>focus-visible</code></th>
+            <td>Keyboard focus</td>
+            <td>Keyboard reaches tab</td>
+            <td>Roving focus is clear.</td>
+          </tr>
+
+          <tr>
+            <th scope="row"><code>overflow</code></th>
+            <td>Space constrained</td>
+            <td>Too many tabs for width</td>
+            <td>Overflow menu does not hide current tab.</td>
+          </tr>
+
+          <tr>
+            <th scope="row"><code>mobile</code></th>
+            <td>Narrow tabs</td>
+            <td>Mobile breakpoint</td>
+            <td>Tabs scroll or compress predictably.</td>
+          </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="doc-section contract-grid" aria-label="Quality rules">
+          <div class="contract-panel">
+            <h2>Accessibility</h2>
+            <ul><li>使用正确的 tablist、tab、tabpanel roles。</li></ul>
+          </div>
+          <div class="contract-panel">
+            <h2>Anti-patterns</h2>
+            <ul><li>不要把无关导航塞进 tabs。</li></ul>
+          </div>
+        </section>
+        
+      <details id="skin-check" class="skin-check" open>
+        <summary>Skin compatibility check</summary>
+        <div class="skin-check-body">
+          <div class="preview-controls">
+            <label class="preview-control" for="catalogSelect">
+              <span>Catalog preview</span>
+              <select id="catalogSelect" class="dig-select" aria-label="Select catalog preview">
+              <option value="dig">Dig - Default Dig product preview</option>
+              <option value="mono">Mono - Dense debugging preview</option>
+              <option value="editorial">Editorial - Narrative and report preview</option>
+              <option value="wise">Wise - Mobile fintech preview</option>
+              <option value="apple">Apple - Premium product preview</option>
+              </select>
+            </label>
+            <span class="preview-note">Selecting a catalog jumps back here with matching preview tokens. This checks skin compatibility only; the block contract above stays the source of truth.</span>
+          </div>
+          <div class="skin-preview" data-block="tabs" data-renderer="tabs">
+
+          <div class="tabs-demo" data-renderer="tabs">
+            <div class="tab-list" data-slot="tab_list">
+              <button class="tab is-selected" data-slot="tab">Overview</button>
+              <button class="tab " data-slot="tab">Trace <span data-slot="badge">8</span></button>
+              <button class="tab" data-slot="tab">Artifacts</button>
+              <button class="icon-button" data-slot="overflow_menu" aria-label="More tabs">...</button>
+            </div>
+            <div class="tab-panel" data-slot="panel">Overview content with run health and recent events.</div>
+          </div>
           </div>
         </div>
-      </article>
-      </section>
+      </details>
+      </div>
     </main>
+
+    <script>
+      (function () {
+        const supportedCatalogs = ["dig", "mono", "editorial", "wise", "apple"];
+        const params = new URLSearchParams(window.location.search);
+        const requested = params.get("catalog") || "dig";
+        const catalog = supportedCatalogs.includes(requested) ? requested : "dig";
+        const root = document.documentElement;
+        const select = document.getElementById("catalogSelect");
+        const chip = document.getElementById("previewCatalogChip");
+        root.dataset.catalog = catalog;
+        if (chip) chip.textContent = catalog;
+        if (select) {
+          select.value = catalog;
+          select.addEventListener("change", function () {
+            const next = select.value;
+            const nextParams = new URLSearchParams(window.location.search);
+            nextParams.set("catalog", next);
+            window.location.href = window.location.pathname + "?" + nextParams.toString() + "#skin-check";
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
