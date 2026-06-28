@@ -200,13 +200,12 @@ dig-ui-skill/
 │   ├── tokens.md                    # Shared token contract
 │   ├── primitives.md                # Base layout and interaction rules
 │   ├── shared/                      # Stable manifests for layouts, catalogs, and blocks
-│   ├── locales/                     # Source language packs (en / zh-CN)
-│   ├── blocks/                      # Installed block library
+│   ├── blocks/                      # Block library; source keeps .en.md / .zh-CN.md siblings
 │   ├── local/                       # Project-level layout and block extensions
-│   ├── anti-tells.md                # Dig anti-pattern filters
-│   ├── preflight.md                 # Delivery gate
-│   ├── catalogs/                    # Visual catalogs
-│   └── layouts/                     # Layout recipes
+│   ├── anti-tells.md                # Installed-language Dig anti-pattern filters
+│   ├── preflight.md                 # Installed-language delivery gate
+│   ├── catalogs/                    # Visual catalogs; source keeps .en.md / .zh-CN.md siblings
+│   └── layouts/                     # Layout recipes; source keeps .en.md / .zh-CN.md siblings
 ├── renders/                         # Catalog, layout, and block preview output
 ├── assets/                          # Preview CSS and Dig visual assets
 ├── adapters/                        # Tool-specific adapters

@@ -77,7 +77,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 `update` 会覆盖标准资产：
 
 - `SKILL.md`
-- 当前语言包展开后的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
+- 从 domain-first 语言源文件展开后的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
 - `dig-ui-language.json`
 - `references/`（**除** `global-rules.local.md`）
 - `assets/`
@@ -107,7 +107,7 @@ npx dig-ui-skill update --all
 | `--skip-conflicts` | 跳过冲突目标 |
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
-| `--lang <en\|zh-CN>` | 安装指定语言包；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
+| `--lang <en\|zh-CN>` | 安装指定语言；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
 
 示例：
 

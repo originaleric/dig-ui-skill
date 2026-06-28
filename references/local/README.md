@@ -1,6 +1,6 @@
 # Dig UI Local Extensions
 
-Project-specific layout and block assets live here. They let a team keep reusable product structure without changing the official Dig UI language pack.
+Project-specific layout and block assets live here. They let a team keep reusable product structure without changing the official Dig UI domain assets.
 
 ## Priority
 
@@ -8,7 +8,7 @@ Project-specific layout and block assets live here. They let a team keep reusabl
 user prompt
 > references/global-rules.local.md
 > references/local/
-> installed language package
+> installed language assets
 > references/shared/
 ```
 

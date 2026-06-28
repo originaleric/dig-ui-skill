@@ -21,9 +21,9 @@
 ## 双语与安装
 
 - 新增 `SKILL.en.md` / `SKILL.zh-CN.md`，安装时通过 `--lang en|zh-CN` 选择语言。
-- 新增 `references/locales/en/` 与 `references/locales/zh-CN/` 源语言包。
-- 安装后只保留所选语言的 `SKILL.md` 与 canonical references，并写入 `dig-ui-language.json`。
-- layout、catalog、block 的稳定 id 和机器字段保持 shared；agent 可读说明按语言包维护。
+- 源码改为 domain-first 语言资产，例如 `references/layouts/agent-run-detail.en.md` 与 `references/layouts/agent-run-detail.zh-CN.md`。
+- 安装后只保留所选语言的 `SKILL.md` 与无后缀 canonical references，并写入 `dig-ui-language.json`。
+- layout、catalog、block 的稳定 id 和机器字段保持 shared；agent 可读说明按 domain 内的语言后缀文件维护。
 
 ## Render Ops 与 Local Extensions
 

@@ -6,10 +6,19 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const languageSuffixPattern = /\.(en|zh-CN)\.md$/;
 
 const requiredPaths = [
   "SKILL.en.md",
   "SKILL.zh-CN.md",
+  "references/global-rules.en.md",
+  "references/global-rules.zh-CN.md",
+  "references/dig-read.en.md",
+  "references/dig-read.zh-CN.md",
+  "references/anti-tells.en.md",
+  "references/anti-tells.zh-CN.md",
+  "references/preflight.en.md",
+  "references/preflight.zh-CN.md",
   "references/shared/dig-read-manifest.yaml",
   "references/shared/layout-manifest.yaml",
   "references/shared/catalog-manifest.yaml",
@@ -62,6 +71,17 @@ function listMarkdownFiles(dirRel) {
   return out.sort();
 }
 
+function stripLanguageSuffix(rel, language) {
+  return rel.replace(new RegExp(`\\.${language}\\.md$`), ".md");
+}
+
+function listLocalizedMarkdownFiles(dirRel, language) {
+  return listMarkdownFiles(dirRel)
+    .filter((rel) => rel.endsWith(`.${language}.md`))
+    .map((rel) => stripLanguageSuffix(path.relative(dirRel, rel), language))
+    .sort();
+}
+
 function read(rel) {
   return fs.readFileSync(path.join(__dirname, rel), "utf8");
 }
@@ -80,10 +100,9 @@ function warn(message, details = "") {
 }
 
 function compareLocaleFiles(kind) {
-  const enDir = `references/locales/en/${kind}`;
-  const zhDir = `references/locales/zh-CN/${kind}`;
-  const enFiles = listMarkdownFiles(enDir).map((rel) => path.relative(enDir, rel));
-  const zhFiles = listMarkdownFiles(zhDir).map((rel) => path.relative(zhDir, rel));
+  const domainDir = `references/${kind}`;
+  const enFiles = listLocalizedMarkdownFiles(domainDir, "en");
+  const zhFiles = listLocalizedMarkdownFiles(domainDir, "zh-CN");
   const issues = [];
   const zhSet = new Set(zhFiles);
   const enSet = new Set(enFiles);
@@ -122,8 +141,8 @@ function validateDigRead() {
   ];
   for (const rel of [
     "references/dig-read.md",
-    "references/locales/en/dig-read.md",
-    "references/locales/zh-CN/dig-read.md",
+    "references/dig-read.en.md",
+    "references/dig-read.zh-CN.md",
   ]) {
     if (!exists(rel)) {
       issues.push(fail("Missing Dig Read language asset", rel));
@@ -139,9 +158,24 @@ function validateDigRead() {
   return issues;
 }
 
+function validateRootLocalizedPairs() {
+  const issues = [];
+  for (const name of ["global-rules", "dig-read", "anti-tells", "preflight"]) {
+    for (const language of ["en", "zh-CN"]) {
+      const rel = `references/${name}.${language}.md`;
+      if (!exists(rel)) {
+        issues.push(fail("Missing root localized asset", rel));
+      }
+    }
+  }
+  return issues;
+}
+
 function validateBlocks() {
   const issues = [];
-  const files = listMarkdownFiles("references/blocks");
+  const files = listMarkdownFiles("references/blocks").filter(
+    (rel) => !languageSuffixPattern.test(path.basename(rel)),
+  );
   const idsFromFiles = new Set();
   for (const rel of files) {
     const content = read(rel);
@@ -183,6 +217,9 @@ function runLayoutValidator() {
 
 function main() {
   const issues = [];
+  if (exists("references/locales")) {
+    issues.push(fail("Legacy language root must not exist", "references/locales"));
+  }
   for (const rel of requiredPaths) {
     if (!exists(rel)) issues.push(fail("Missing required render ops asset", rel));
   }
@@ -190,6 +227,7 @@ function main() {
   issues.push(...compareLocaleFiles("catalogs"));
   issues.push(...compareLocaleFiles("blocks"));
   issues.push(...compareLocaleFiles("workflows"));
+  issues.push(...validateRootLocalizedPairs());
   issues.push(...validateDigRead());
   issues.push(...validateBlocks());
   issues.push(...runLayoutValidator());

@@ -53,6 +53,7 @@ const SKILL_DIRS = ["references", "assets", "renders", "agents", "adapters", "bi
 const SUPPORTED_LANGUAGES = new Set(["en", "zh-CN"]);
 const DEFAULT_LANGUAGE = "zh-CN";
 const LANGUAGE_RECORD = "dig-ui-language.json";
+const LOCALIZED_MARKDOWN_PATTERN = /\.(en|zh-CN)\.md$/;
 
 const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
 const SKIP_COPY_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
@@ -130,7 +131,7 @@ Options:
   --skip-conflicts      Skip conflicting targets and continue
   --source <path>       Source repo path (default: package root)
   --project <path>      Cursor only: also install .cursor/rules/dig-ui.mdc
-  --lang <en|zh-CN>     Install one language pack (default: zh-CN; updates reuse installed language when present)
+  --lang <en|zh-CN>     Install one language (default: zh-CN; updates reuse installed language when present)
   -h, --help            Show this help
 
 Examples:
@@ -804,6 +805,25 @@ async function copyDirectory(
   }
 }
 
+async function listFilesRecursive(rootDir) {
+  if (!(await pathExists(rootDir))) {
+    return [];
+  }
+  const entries = await fsp.readdir(rootDir, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const fullPath = path.join(rootDir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...(await listFilesRecursive(fullPath)));
+      continue;
+    }
+    if (entry.isFile()) {
+      files.push(fullPath);
+    }
+  }
+  return files;
+}
+
 async function copySkillAssets(sourceRoot, destRoot) {
   for (const fileName of SKILL_TOP_LEVEL_FILES) {
     const sourcePath = path.join(sourceRoot, fileName);
@@ -835,48 +855,74 @@ async function copySkillAssets(sourceRoot, destRoot) {
   }
 }
 
+function stripLanguageSuffix(fileName, language) {
+  return fileName.replace(new RegExp(`\\.${language}\\.md$`), ".md");
+}
+
+async function applyLocalizedDirectory(sourceRoot, destRoot, domain, language) {
+  const sourceDir = path.join(sourceRoot, "references", domain);
+  const destDir = path.join(destRoot, "references", domain);
+  if (!(await pathExists(sourceDir))) {
+    throw new Error(`Missing localized domain: references/${domain}`);
+  }
+
+  await removePath(destDir);
+  await ensureDir(destDir);
+
+  const sourceFiles = await listFilesRecursive(sourceDir);
+  let copied = 0;
+  for (const sourcePath of sourceFiles) {
+    if (!sourcePath.endsWith(`.${language}.md`)) {
+      continue;
+    }
+    const rel = path.relative(sourceDir, sourcePath);
+    const destRel = path.join(
+      path.dirname(rel),
+      stripLanguageSuffix(path.basename(rel), language),
+    );
+    await copyFileSafe(sourcePath, path.join(destDir, destRel));
+    copied += 1;
+  }
+
+  if (!copied) {
+    throw new Error(`Missing ${language} files in references/${domain}`);
+  }
+}
+
+async function removeLocalizedSourceFiles(destRoot) {
+  const refsRoot = path.join(destRoot, "references");
+  for (const filePath of await listFilesRecursive(refsRoot)) {
+    if (LOCALIZED_MARKDOWN_PATTERN.test(path.basename(filePath))) {
+      await removePath(filePath);
+    }
+  }
+}
+
 async function applyLanguagePack(sourceRoot, destRoot, language) {
   const skillTemplate = path.join(sourceRoot, `SKILL.${language}.md`);
-  const localeRoot = path.join(sourceRoot, "references", "locales", language);
 
   if (!(await pathExists(skillTemplate))) {
     throw new Error(`Missing language skill template: ${skillTemplate}`);
-  }
-  if (!(await pathExists(localeRoot))) {
-    throw new Error(`Missing language pack: ${localeRoot}`);
   }
 
   await copyFileSafe(skillTemplate, path.join(destRoot, "SKILL.md"));
   await removePath(path.join(destRoot, "SKILL.en.md"));
   await removePath(path.join(destRoot, "SKILL.zh-CN.md"));
 
-  const localeEntries = [
-    ["global-rules.md", "global-rules.md"],
-    ["dig-read.md", "dig-read.md"],
-    ["anti-tells.md", "anti-tells.md"],
-    ["preflight.md", "preflight.md"],
-    ["layouts", "layouts"],
-    ["catalogs", "catalogs"],
-    ["blocks", "blocks"],
-    ["workflows", "workflows"],
-  ];
-
-  for (const [sourceName, destName] of localeEntries) {
-    const sourcePath = path.join(localeRoot, sourceName);
-    const destPath = path.join(destRoot, "references", destName);
+  for (const fileName of ["global-rules", "dig-read", "anti-tells", "preflight"]) {
+    const sourcePath = path.join(sourceRoot, "references", `${fileName}.${language}.md`);
+    const destPath = path.join(destRoot, "references", `${fileName}.md`);
     if (!(await pathExists(sourcePath))) {
-      continue;
+      throw new Error(`Missing localized file: references/${fileName}.${language}.md`);
     }
-    await removePath(destPath);
-    const stat = await fsp.lstat(sourcePath);
-    if (stat.isDirectory()) {
-      await copyDirectory(sourcePath, destPath);
-    } else {
-      await copyFileSafe(sourcePath, destPath);
-    }
+    await copyFileSafe(sourcePath, destPath);
   }
 
-  await removePath(path.join(destRoot, "references", "locales"));
+  for (const domain of ["layouts", "catalogs", "blocks", "workflows"]) {
+    await applyLocalizedDirectory(sourceRoot, destRoot, domain, language);
+  }
+
+  await removeLocalizedSourceFiles(destRoot);
 
   await fsp.writeFile(
     path.join(destRoot, LANGUAGE_RECORD),
@@ -903,7 +949,7 @@ async function installSkillTarget(targetKey, sourceRoot, { link = false, lang = 
     await removePath(destRoot);
     await fsp.symlink(sourceRoot, destRoot);
     console.log(`Linked ${target.label} skill: ${destRoot} -> ${sourceRoot}`);
-    console.log("  language: source tree (link mode keeps all language packs)");
+    console.log("  language: source tree (link mode keeps all domain-localized assets)");
     return destRoot;
   }
 

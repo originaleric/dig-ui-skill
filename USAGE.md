@@ -273,7 +273,7 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 - **Local extensions = 项目沉淀**：通过 `references/local/` 扩展项目自己的 layout / block。
 - **Primitive = 底层纪律**：决定 shell、grid、间距、focus、触控高度、基础 class。
 
-**规则优先级**：用户 prompt > `global-rules.local.md` > `references/local/` > 当前安装语言包 > `references/shared/` manifest。用户说「不使用 global」时跳过 global rules。
+**规则优先级**：用户 prompt > `global-rules.local.md` > `references/local/` > 当前安装语言资产 > `references/shared/` manifest。用户说「不使用 global」时跳过 global rules。
 
 ## 🧩 Block Library
 
@@ -283,6 +283,8 @@ Block Library 位于 `references/blocks/`，包含两类资产：
 - `product/`：table-toolbar、runtime-log-stream、run-status-header、step-timeline、settings-row、empty-state、notification-item、search-result-row。
 
 每个 block 必须包含 Use When、Avoid When、Slots、Token Binding、States、Responsive Rules、Accessibility、Anti-Patterns、QA Notes。修改 block 后运行：
+
+源码按 domain 组织语言资产：例如 `references/blocks/primitives/input.en.md` 与 `references/blocks/primitives/input.zh-CN.md` 是同一个 block 的两种语言说明。安装时 CLI 会按 `--lang` 抽取其中一种，生成无后缀的 `references/blocks/primitives/input.md`。
 
 ```bash
 ./sync-renders.sh --blocks

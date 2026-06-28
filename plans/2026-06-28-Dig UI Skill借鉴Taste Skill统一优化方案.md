@@ -432,7 +432,7 @@ compatible_catalogs: [dig, mono, runtime]
 ## QA Notes
 ```
 
-安装后的 `references/blocks/README.md` 是 block library 的唯一 schema 入口；源仓库中对应 `references/locales/{lang}/blocks/README.md`。它负责定义所有 block 文件的必填字段、允许枚举和正文小节。不要让每个 block 自己发明一套 frontmatter。
+安装后的 `references/blocks/README.md` 是 block library 的唯一 schema 入口；源仓库中对应 `references/blocks/README.en.md` 与 `references/blocks/README.zh-CN.md`。它负责定义所有 block 文件的必填字段、允许枚举和正文小节。不要让每个 block 自己发明一套 frontmatter。
 
 推荐 schema：
 
@@ -461,7 +461,7 @@ required_sections:
 
 维护规则：
 
-- 新增 block 前先更新对应语言的 `references/locales/{lang}/blocks/README.md` 索引表，并保持另一语言版本 parity。
+- 新增 block 前先更新对应的 `references/blocks/**/*.en.md` 与 `references/blocks/**/*.zh-CN.md`，并保持两种语言 parity。
 - `primitive` block 只描述基础控件协议，例如 input、toast、modal。
 - `product` block 描述业务模块协议，例如 runtime-log-stream、table-toolbar、settings-row。
 - `compatible_catalogs: [all]` 不能滥用；只有确实不依赖视觉气质时才允许。
@@ -488,9 +488,9 @@ required_sections:
 可读说明层：按语言维护，供 agent 选择、判断和解释
 ```
 
-`layout` 和 `catalog` 都属于双层资产，而不是纯 shared 资产。`slug`、frontmatter schema、token contract、required slot id 这类机器可依赖字段保持 shared；`Applicable Scenarios`、`Avoid When`、`QA Notes`、catalog 气质说明、选择依据说明这类 agent 可读内容则进入 `en` / `zh-CN` 两套语言包。
+`layout` 和 `catalog` 都属于双层资产，而不是纯 shared 资产。`slug`、frontmatter schema、token contract、required slot id 这类机器可依赖字段保持 shared；`Applicable Scenarios`、`Avoid When`、`QA Notes`、catalog 气质说明、选择依据说明这类 agent 可读内容则在所属 domain 内维护 `.en.md` / `.zh-CN.md` 两套兄弟文件。
 
-仅就双语语言包相关资产，建议源仓库结构：
+仅就双语可读资产，源仓库应采用 domain-first 结构：
 
 ```text
 dig-ui-skill/
@@ -504,26 +504,29 @@ dig-ui-skill/
 │   │   ├── catalog-manifest.yaml
 │   │   ├── block-manifest.yaml
 │   │   └── checklist.md
-│   └── locales/
-│       ├── en/
-│       │   ├── global-rules.md
-│       │   ├── layouts/
-│       │   ├── catalogs/
-│       │   ├── anti-tells.md
-│       │   ├── preflight.md
-│       │   ├── workflows/
-│       │   └── blocks/
-│       └── zh-CN/
-│           ├── global-rules.md
-│           ├── layouts/
-│           ├── catalogs/
-│           ├── anti-tells.md
-│           ├── preflight.md
-│           ├── workflows/
-│           └── blocks/
+│   ├── global-rules.en.md
+│   ├── global-rules.zh-CN.md
+│   ├── dig-read.en.md
+│   ├── dig-read.zh-CN.md
+│   ├── anti-tells.en.md
+│   ├── anti-tells.zh-CN.md
+│   ├── preflight.en.md
+│   ├── preflight.zh-CN.md
+│   ├── layouts/
+│   │   ├── agent-run-detail.en.md
+│   │   └── agent-run-detail.zh-CN.md
+│   ├── catalogs/
+│   │   ├── other/dig.en.md
+│   │   └── other/dig.zh-CN.md
+│   ├── blocks/
+│   │   ├── primitives/input.en.md
+│   │   └── primitives/input.zh-CN.md
+│   └── workflows/
+│       ├── review.en.md
+│       └── review.zh-CN.md
 ```
 
-仅就安装后的语言包展开结果，建议结构：
+仅就安装后的语言资产展开结果，建议结构：
 
 ```text
 dig-ui/
@@ -565,16 +568,16 @@ dig-ui-skill status
 required_frontmatter:
   id: "stable id, same in en and zh-CN"
   language: "en | zh-CN"
-  schema_version: "same across locales"
+  schema_version: "same across language siblings"
   status: "draft | active | deprecated"
   translation_key: "same in en and zh-CN"
 ```
 
 校验规则：
 
-- `references/locales/en/layouts/agent-run-detail.md` 必须有对应的 `references/locales/zh-CN/layouts/agent-run-detail.md`。
-- `references/locales/en/catalogs/other/dig.md` 必须有对应的 `references/locales/zh-CN/catalogs/other/dig.md`。
-- `references/locales/en/blocks/product/runtime-log-stream.md` 必须有对应的 `references/locales/zh-CN/blocks/product/runtime-log-stream.md`。
+- `references/layouts/agent-run-detail.en.md` 必须有对应的 `references/layouts/agent-run-detail.zh-CN.md`。
+- `references/catalogs/other/dig.en.md` 必须有对应的 `references/catalogs/other/dig.zh-CN.md`。
+- `references/blocks/product/runtime-log-stream.en.md` 必须有对应的 `references/blocks/product/runtime-log-stream.zh-CN.md`。
 - 同一 `translation_key` 的两份文件必须拥有相同的必填 section。
 - layout 的 `slug`、`page_type`、`task_type`、`default_catalog`、`recommended_catalogs`、`required_slots` 必须保持一致。
 - catalog 的 `slug`、`category`、`status`、token role、recommended layout / task mapping 必须保持一致。
@@ -733,7 +736,7 @@ references/local/
 用户当前 prompt
 > global-rules.local.md
 > references/local/
-> installed language package
+> installed language assets
 > shared manifest
 ```
 
@@ -791,23 +794,18 @@ dig-ui-skill/
 │   │   ├── layout-manifest.yaml
 │   │   ├── catalog-manifest.yaml
 │   │   └── block-manifest.yaml
-│   ├── locales/
-│   │   ├── en/
-│   │   │   ├── global-rules.md
-│   │   │   ├── layouts/
-│   │   │   ├── catalogs/
-│   │   │   ├── preflight.md
-│   │   │   ├── anti-tells.md
-│   │   │   ├── workflows/
-│   │   │   └── blocks/
-│   │   └── zh-CN/
-│   │       ├── global-rules.md
-│   │       ├── layouts/
-│   │       ├── catalogs/
-│   │       ├── preflight.md
-│   │       ├── anti-tells.md
-│   │       ├── workflows/
-│   │       └── blocks/
+│   ├── global-rules.en.md
+│   ├── global-rules.zh-CN.md
+│   ├── dig-read.en.md
+│   ├── dig-read.zh-CN.md
+│   ├── preflight.en.md
+│   ├── preflight.zh-CN.md
+│   ├── anti-tells.en.md
+│   ├── anti-tells.zh-CN.md
+│   ├── layouts/       # *.en.md / *.zh-CN.md
+│   ├── catalogs/      # *.en.md / *.zh-CN.md
+│   ├── workflows/     # *.en.md / *.zh-CN.md
+│   ├── blocks/        # *.en.md / *.zh-CN.md
 │   ├── local/
 │   │   ├── README.md
 │   │   ├── manifest.yaml
@@ -831,11 +829,11 @@ dig-ui-skill/
 
 - `SKILL.en.md` 和 `SKILL.zh-CN.md` 是两套入口模板，安装时生成目标环境里的 `SKILL.md`。
 - `references/shared/` 存放语言无关的 token、primitive、layout manifest、catalog manifest、block manifest 和 checklist。
-- `references/locales/{lang}/` 存放语言相关的规则说明、layout 文档、catalog 文档、工作流、blocks、anti-tells 和 preflight。
-- `references/local/` 存放项目级 layout / block 扩展和覆盖规则，不进入官方语言包 parity，但必须通过 local validator。
+- 语言相关的规则说明、layout 文档、catalog 文档、工作流、blocks、anti-tells 和 preflight 存放在各自 domain 内，以 `.en.md` / `.zh-CN.md` 兄弟文件维护。
+- `references/local/` 存放项目级 layout / block 扩展和覆盖规则，不进入官方语言 parity，但必须通过 local validator。
 - `references/render-ops.md` 存放 render 运维规则，`references/render-fixtures/` 存放 layout / block 的预览数据。
 - `workflows/` 存放 review、redesign、execution、image-reference 等场景流程，每种语言各维护一份。
-- runtime skin 不放在 `workflows/`，应作为 catalog/skin 规则维护；其稳定 id 进入 `catalog-manifest.yaml`，可读说明分别进入 `references/locales/en/catalogs/` 和 `references/locales/zh-CN/catalogs/`。
+- runtime skin 不放在 `workflows/`，应作为 catalog/skin 规则维护；其稳定 id 进入 `catalog-manifest.yaml`，可读说明在 `references/catalogs/` 内用 `.en.md` / `.zh-CN.md` 维护。
 - `layouts/` 和 `catalogs/` 安装后只出现用户选择的语言版本，但其中的 slug、required slot id、token 名必须与 shared manifest 对齐。
 - `anti-tells.md` 存放反模式，后续可拆分，但需要保持语言版本 parity。
 - `blocks/` 存放 AI 可读组件和业务模块，安装后只出现用户选择的语言版本。
@@ -892,7 +890,7 @@ dig-ui-skill/
 - 每个 block 必须有 `status`。
 - 过时 block 不直接删除，先标记 `deprecated` 并提供 replacement。
 - 新增 block 时至少写清 Use When、Slots、States、Responsive Rules、Anti-Patterns。
-- 修改 `references/locales/{lang}/blocks/README.md` schema 时，需要同步检查两种语言的既有 block frontmatter 是否仍然合规。
+- 修改 `references/blocks/README.en.md` / `references/blocks/README.zh-CN.md` schema 时，需要同步检查两种语言的既有 block frontmatter 是否仍然合规。
 - 基础组件和业务模块都可以进入 block library，但优先补齐 AI 最容易出错的业务模块。
 
 ### 15.3 Dials 维护
@@ -902,12 +900,12 @@ dig-ui-skill/
 - 如果某个 dial 长期没人用，合并或删除。
 - 如果某类页面反复需要额外判断，再新增 dial。
 
-### 15.4 语言包维护
+### 15.4 语言资产维护
 
 - 英文和中文是两套安装资产，不在同一文件中同行解释。
 - 新增、删除、废弃 layout / catalog / block / anti-tell / workflow 时，必须同步处理 `en` 和 `zh-CN`。
-- 修改 schema 时，同时跑语言 parity 检查，避免某个语言包缺 section 或 frontmatter。
-- layout / catalog 的稳定 id 与机器字段必须以 shared manifest 为准，语言包只本地化说明文字。
+- 修改 schema 时，同时跑语言 parity 检查，避免某个语言兄弟文件缺 section 或 frontmatter。
+- layout / catalog 的稳定 id 与机器字段必须以 shared manifest 为准，`.en.md` / `.zh-CN.md` 只本地化说明文字。
 - 安装器必须记录当前语言，更新时默认沿用，不擅自切换。
 - 用户主动切换语言时，应重新生成 `SKILL.md` 和语言相关 references，而不是混合覆盖。
 
@@ -925,7 +923,7 @@ dig-ui-skill/
 - local layout / block 必须使用 `extends` 或明确写 `replacement_target`，不能静默复制官方资产。
 - local 资产必须有 `owner`、`status`、`updated_at`，进入 overrides 时还必须有 `reason` 和 `reviewed_at`。
 - local slug/id 不得与官方资产冲突，除非放在 `overrides/` 且通过 validator。
-- local 资产不参与官方双语 parity，但如果项目自身启用双语，也应在 `references/local/locales/{lang}/` 内做项目级 parity。
+- local 资产不参与官方双语 parity，但如果项目自身启用双语，也应在 `references/local/` 内采用同样的 `.en.md` / `.zh-CN.md` 兄弟文件规则做项目级 parity。
 - local 资产必须进入 render ops index，否则 agent 可以读取但运维无法直观看到，维护链路不完整。
 
 ## 16. 验收标准

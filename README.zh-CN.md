@@ -200,13 +200,12 @@ dig-ui-skill/
 │   ├── tokens.md                    # 共享 token 协议
 │   ├── primitives.md                # 基础布局与交互规则
 │   ├── shared/                      # layout/catalog/block 稳定 manifest
-│   ├── locales/                     # 源语言包（en / zh-CN）
-│   ├── blocks/                      # 已安装语言的 block library
+│   ├── blocks/                      # Block library；源码维护 .en.md / .zh-CN.md 兄弟文件
 │   ├── local/                       # 项目级 layout / block 扩展
-│   ├── anti-tells.md                # Dig 反模式过滤
-│   ├── preflight.md                 # 交付前 gate
-│   ├── catalogs/                    # 视觉 catalog
-│   └── layouts/                     # Layout recipe
+│   ├── anti-tells.md                # 已安装语言的 Dig 反模式过滤
+│   ├── preflight.md                 # 已安装语言的交付前 gate
+│   ├── catalogs/                    # 视觉 catalog；源码维护 .en.md / .zh-CN.md 兄弟文件
+│   └── layouts/                     # Layout recipe；源码维护 .en.md / .zh-CN.md 兄弟文件
 ├── renders/                         # catalog / layout / block 静态预览产物
 ├── assets/                          # 预览 CSS 与 Dig 视觉资产
 ├── adapters/                        # 工具适配模板
