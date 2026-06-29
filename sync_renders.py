@@ -15,6 +15,10 @@ import html
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
 RENDER_DIR = os.path.join(PROJECT_DIR, "renders")
+LOCALIZED_MARKDOWN_RE = re.compile(r"\.(en|zh-CN)\.md$")
+
+def is_canonical_catalog_markdown(file_name):
+    return file_name.endswith(".md") and not LOCALIZED_MARKDOWN_RE.search(file_name)
 
 def clean_description(desc):
     if not desc:
@@ -28,6 +32,8 @@ def clean_description(desc):
 def google_translate(text, target_lang='zh-CN', source_lang='auto'):
     if not text:
         return ""
+    if os.environ.get("DIG_UI_ENABLE_TRANSLATE") != "1":
+        return text
     try:
         url = "https://translate.googleapis.com/translate_a/single"
         params = {
@@ -308,7 +314,7 @@ def main():
         # Recursively search for target slug
         for root, dirs, files in os.walk(CATALOG_DIR):
             for file in files:
-                if file.endswith(".md") and file[:-3] == target_slug:
+                if is_canonical_catalog_markdown(file) and file[:-3] == target_slug:
                     md_files.append(os.path.join(root, file))
         if not md_files:
             print(f"❌ Error: Cannot find catalogs file for '{target_catalog}'")
@@ -317,7 +323,7 @@ def main():
     else:
         for root, dirs, files in os.walk(CATALOG_DIR):
             for file in files:
-                if file.endswith(".md"):
+                if is_canonical_catalog_markdown(file):
                     md_files.append(os.path.join(root, file))
 
     print(f"🔄 Starting compilation & synchronization of {len(md_files)} catalogs...")

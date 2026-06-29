@@ -69,10 +69,10 @@ dig — 默认产品语言；editorial — 品牌叙事页；apple — 高端产
 - Mobile：topbar 简化；headline 全宽；CTA 全宽堆叠；visual 缩略；feature 单列。
 - 移动端主 CTA 最小高度 44px，不隐藏核心操作。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-marketing-hero" data-layout="marketing-hero">
+<section class="layout-skeleton layout-marketing-hero" data-layout="marketing-hero">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Dig</div>
     <nav class="dig-control-row">
@@ -131,7 +131,7 @@ dig — 默认产品语言；editorial — 品牌叙事页；apple — 高端产
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-marketing-hero {

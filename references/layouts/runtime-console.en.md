@@ -69,10 +69,10 @@ dig — 默认 runtime；mono — 终端式控制台
 - Mobile：topbar 简化；run list 折叠为 tabs；log 全宽；inspector 全屏 overlay。
 - 日志行在移动端保持 mono 12px 下限，不缩到 10px。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-runtime-console" data-layout="runtime-console">
+<section class="layout-skeleton layout-runtime-console" data-layout="runtime-console">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Runtime</div>
     <nav class="dig-control-row">
@@ -132,7 +132,7 @@ dig — 默认 runtime；mono — 终端式控制台
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-runtime-console {

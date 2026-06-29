@@ -20,6 +20,6 @@
 ## Render 检查
 
 - catalog render 通过视觉审查。
-- layout render 在 desktop、tablet、mobile 下 slots 完整。
-- block render 覆盖必需状态矩阵。
-- render 输出相对 Markdown 与 fixture 是最新的。
+- layout recipe 按 QA Notes 完成人工结构复查。
+- block contract 覆盖必需 slots、states、responsive rules 与 accessibility。
+- catalog render 输出相对 Markdown 与 catalog token 是最新的。

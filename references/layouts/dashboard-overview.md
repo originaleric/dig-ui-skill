@@ -76,10 +76,10 @@ dig — 默认；mono — 高密度工具台；wise — 消费级轻量 dashboar
 - 移动端不隐藏核心操作，只降低辅助信息密度。
 - 表格移动端优先改为 stacked rows，不强制缩小到不可读。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-dashboard-overview" data-layout="dashboard-overview">
+<section class="layout-skeleton layout-dashboard-overview" data-layout="dashboard-overview">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Dig Console</div>
     <nav class="dig-control-row">
@@ -153,7 +153,7 @@ dig — 默认；mono — 高密度工具台；wise — 消费级轻量 dashboar
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-dashboard-overview {

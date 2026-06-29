@@ -11,10 +11,10 @@ Layout 与 Catalog 平级，负责**信息结构**而非品牌视觉。
 ## 维护流程
 
 1. 编辑 `references/layouts/<slug>.md`
-2. 运行 `./sync-renders.sh layout <slug>` 或 `./sync-renders.sh --layouts`
-3. 打开 `renders/layouts/<slug>.html` 检查 desktop / tablet / mobile
-4. 切换 catalog 验证结构不依赖单一视觉风格
-5. 按 QA Notes 复查 · `npm run validate:layouts`
+2. 确认 Slots、Applicable Scenarios、Avoid When、Responsive Rules 和 QA Notes 完整
+3. 对照目标页面手工检查 desktop / tablet / mobile 的结构语义
+4. 验证结构规则不写死品牌色，视觉变化交给 catalog
+5. 运行 `npm run validate:renders` 检查 manifest、双语资产和 block/layout 协议完整性
 
 ## Layout 库（20）
 
@@ -44,7 +44,5 @@ Layout 与 Catalog 平级，负责**信息结构**而非品牌视觉。
 ## 命令
 
 ```bash
-./sync-renders.sh --layouts
-./sync-renders.sh layout dashboard-overview
-npm run validate:layouts
+npm run validate:renders
 ```

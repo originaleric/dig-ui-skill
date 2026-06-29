@@ -66,10 +66,10 @@ dig — 控制台默认；wise — 消费级引导；apple — 轻量系统空�
 - 全 viewport 居中单列，max-width ~400px。
 - Mobile：CTA 全宽 stack。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-empty-state" data-layout="empty-state">
+<section class="layout-skeleton layout-empty-state" data-layout="empty-state">
   <div class="dig-empty-center">
     <div class="dig-empty-icon" data-slot="empty_illustration" aria-hidden="true"></div>
     <h2 class="dig-panel-title" data-slot="empty_headline">No workflows yet</h2>
@@ -87,7 +87,7 @@ dig — 控制台默认；wise — 消费级引导；apple — 轻量系统空�
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-empty-state {

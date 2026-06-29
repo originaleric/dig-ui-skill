@@ -62,10 +62,10 @@ mono — 克制技术错误；dig — 产品控制台错误；apple — 系统�
 - 全 viewport 垂直居中偏上。
 - Mobile：CTA 全宽。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-error-page" data-layout="error-page">
+<section class="layout-skeleton layout-error-page" data-layout="error-page">
   <div class="dig-error-center">
     <p class="dig-error-code" data-slot="error_code">404</p>
     <h1 class="dig-panel-title" data-slot="error_message">This page doesn't exist</h1>
@@ -79,7 +79,7 @@ mono — 克制技术错误；dig — 产品控制台错误；apple — 系统�
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-error-page {

@@ -2,7 +2,6 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -35,8 +34,15 @@ const requiredPaths = [
   "references/anti-tells.md",
   "references/preflight.md",
   "renders/index.html",
-  "renders/layouts/index.html",
-  "renders/blocks/index.html",
+];
+
+const retiredPaths = [
+  "renders/layouts",
+  "renders/blocks",
+  "references/render-fixtures",
+  "sync_layout_renders.py",
+  "sync_block_renders.py",
+  "validate-dig-layout-preview.mjs",
   "validate-dig-block-preview.mjs",
 ];
 
@@ -102,16 +108,8 @@ function parseSlots(content) {
   return [...section.matchAll(/`([^`]+)`/g)].map((match) => match[1]).sort();
 }
 
-function readJson(rel) {
-  return JSON.parse(read(rel));
-}
-
 function fail(message, details = "") {
   return { level: "FAIL", message, details };
-}
-
-function warn(message, details = "") {
-  return { level: "WARN", message, details };
 }
 
 function compareLocaleFiles(kind) {
@@ -144,11 +142,6 @@ function parseManifestBlockIds() {
     if (match) ids.push(match[1]);
   }
   return ids;
-}
-
-function parseManifestCatalogIds() {
-  const content = read("references/shared/catalog-manifest.yaml");
-  return [...content.matchAll(/^\s{2}-\s+slug:\s+([a-z0-9.-]+)\s*$/gm)].map((match) => match[1]);
 }
 
 function validateDigRead() {
@@ -193,7 +186,6 @@ function validateRootLocalizedPairs() {
 
 function validateBlocks() {
   const issues = [];
-  const catalogIds = parseManifestCatalogIds();
   const files = listMarkdownFiles("references/blocks").filter(
     (rel) => !languageSuffixPattern.test(path.basename(rel)),
   );
@@ -201,111 +193,15 @@ function validateBlocks() {
   for (const rel of files) {
     const content = read(rel);
     const id = parseId(content, path.basename(rel, ".md"));
-    const fixtureRel = `references/render-fixtures/blocks/${id}.json`;
     idsFromFiles.add(id);
     for (const section of requiredBlockSections) {
       if (!new RegExp(`^## ${section}\\s*$`, "m").test(content)) {
         issues.push(fail(`Block ${id} missing section`, section));
       }
     }
-    if (!exists(fixtureRel)) {
-      issues.push(fail(`Block ${id} missing render fixture`, fixtureRel));
-    } else {
-      try {
-        const fixture = readJson(fixtureRel);
-        const states = Array.isArray(fixture.states) ? fixture.states : [];
-        const examples = Array.isArray(fixture.examples) ? fixture.examples : [];
-        const stateSemantics =
-          fixture.state_semantics && typeof fixture.state_semantics === "object"
-            ? fixture.state_semantics
-            : {};
-        const stateSet = new Set(states);
-        if (fixture.block !== id) {
-          issues.push(fail(`Block ${id} fixture block id mismatch`, `${fixtureRel}: ${fixture.block || "(missing)"}`));
-        }
-        if (!states.length) {
-          issues.push(fail(`Block ${id} fixture missing states`, fixtureRel));
-        }
-        if (!examples.length) {
-          issues.push(fail(`Block ${id} fixture missing examples`, fixtureRel));
-        }
-        if (!Object.keys(stateSemantics).length) {
-          issues.push(fail(`Block ${id} fixture missing state_semantics`, fixtureRel));
-        }
-        for (const example of examples) {
-          if (!example.id || !example.title || !example.state) {
-            issues.push(fail(`Block ${id} fixture example missing id/title/state`, fixtureRel));
-            continue;
-          }
-          if (!stateSet.has(example.state)) {
-            issues.push(fail(`Block ${id} fixture example references unknown state`, `${fixtureRel}: ${example.id} -> ${example.state}`));
-          }
-        }
-        for (const state of states) {
-          if (!stateSemantics[state]) {
-            issues.push(fail(`Block ${id} fixture missing semantics for state`, `${fixtureRel}: ${state}`));
-          }
-        }
-      } catch (error) {
-        issues.push(fail(`Block ${id} fixture is not valid JSON`, `${fixtureRel}: ${error.message}`));
-      }
-    }
-    if (!exists(`renders/blocks/${id}.html`)) {
-      issues.push(fail(`Block ${id} missing render`, `renders/blocks/${id}.html`));
-    } else {
-      const renderRel = `renders/blocks/${id}.html`;
-      const render = read(renderRel);
-      if (!render.includes(`data-block="${id}"`)) {
-        issues.push(fail(`Block ${id} render missing data-block marker`, renderRel));
-      }
-      if (!render.includes(`data-renderer="${id}"`)) {
-        issues.push(fail(`Block ${id} render missing block-specific renderer marker`, renderRel));
-      }
-      if (!render.includes('data-render-mode="contract"')) {
-        issues.push(fail(`Block ${id} render must use block contract page mode`, renderRel));
-      }
-      if (!render.includes('data-example-id="')) {
-        issues.push(fail(`Block ${id} render missing block examples`, renderRel));
-      }
-      if (render.includes('class="state-card"') || render.includes("class='state-card'")) {
-        issues.push(fail(`Block ${id} render still uses legacy state-card matrix`, renderRel));
-      }
-      if (!render.includes("State semantics")) {
-        issues.push(fail(`Block ${id} render missing state semantics table`, renderRel));
-      }
-      if (render.includes("Primary label") || render.includes("Secondary metadata and helper text.")) {
-        issues.push(fail(`Block ${id} render still uses generic placeholder content`, renderRel));
-      }
-      if (render.includes("No block-specific renderer has been registered.")) {
-        issues.push(fail(`Block ${id} render fell back to unknown renderer`, renderRel));
-      }
-      if (/\bcolor\s*:\s*#/i.test(render)) {
-        issues.push(fail(`Block ${id} render contains raw component foreground color`, renderRel));
-      }
-      if (!render.includes("--dig-danger-text")) {
-        issues.push(fail(`Block ${id} render missing danger foreground token`, renderRel));
-      }
-      if (!render.includes('id="catalogSelect"')) {
-        issues.push(fail(`Block ${id} render missing catalog preview select`, renderRel));
-      }
-      if (!render.includes("window.location.href")) {
-        issues.push(fail(`Block ${id} render missing catalog direct-jump behavior`, renderRel));
-      }
-      if (!render.includes('id="previewCatalogChip"')) {
-        issues.push(fail(`Block ${id} render missing preview catalog chip`, renderRel));
-      }
-      for (const catalogId of catalogIds) {
-        if (!render.includes(`option value="${catalogId}"`)) {
-          issues.push(fail(`Block ${id} render missing catalog option`, catalogId));
-        }
-        if (!render.includes(`html[data-catalog="${catalogId}"]`)) {
-          issues.push(fail(`Block ${id} render missing catalog token skin`, catalogId));
-        }
-      }
-      for (const slot of parseSlots(content)) {
-        if (!render.includes(`data-slot="${slot}"`)) {
-          issues.push(fail(`Block ${id} render missing documented slot`, slot));
-        }
+    for (const slot of parseSlots(content)) {
+      if (!/^[a-z][a-z0-9_-]*$/.test(slot)) {
+        issues.push(fail(`Block ${id} has unstable slot id`, slot));
       }
     }
   }
@@ -323,28 +219,6 @@ function validateBlocks() {
   return issues;
 }
 
-function runLayoutValidator() {
-  const result = spawnSync("node", ["validate-dig-layout-preview.mjs", "renders/layouts"], {
-    cwd: __dirname,
-    encoding: "utf8",
-  });
-  if (result.status !== 0) {
-    return [fail("Layout render validator failed", (result.stdout || "") + (result.stderr || ""))];
-  }
-  return [];
-}
-
-function runBlockPreviewValidator() {
-  const result = spawnSync("node", ["validate-dig-block-preview.mjs", "renders/blocks"], {
-    cwd: __dirname,
-    encoding: "utf8",
-  });
-  if (result.status !== 0) {
-    return [fail("Block render validator failed", (result.stdout || "") + (result.stderr || ""))];
-  }
-  return [];
-}
-
 function main() {
   const issues = [];
   if (exists("references/locales")) {
@@ -353,6 +227,9 @@ function main() {
   for (const rel of requiredPaths) {
     if (!exists(rel)) issues.push(fail("Missing required render ops asset", rel));
   }
+  for (const rel of retiredPaths) {
+    if (exists(rel)) issues.push(fail("Retired layout/block render asset must not exist", rel));
+  }
   issues.push(...compareLocaleFiles("layouts"));
   issues.push(...compareLocaleFiles("catalogs"));
   issues.push(...compareLocaleFiles("blocks"));
@@ -360,8 +237,6 @@ function main() {
   issues.push(...validateRootLocalizedPairs());
   issues.push(...validateDigRead());
   issues.push(...validateBlocks());
-  issues.push(...runLayoutValidator());
-  issues.push(...runBlockPreviewValidator());
 
   const fails = issues.filter((issue) => issue.level === "FAIL");
   const warns = issues.filter((issue) => issue.level === "WARN");

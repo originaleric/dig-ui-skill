@@ -1,34 +1,19 @@
 #!/bin/bash
 # sync-renders.sh
-# Entry point: catalog sync (default), layout sync, block sync, or all sync.
-# Layout sync supports --no-global to skip global rules in render output.
+# Entry point: catalog preview sync.
 
 set -e
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-NO_GLOBAL_FLAG=""
-FILTERED_ARGS=()
-for arg in "$@"; do
-  if [ "$arg" = "--no-global" ]; then
-    NO_GLOBAL_FLAG="--no-global"
-  else
-    FILTERED_ARGS+=("$arg")
-  fi
-done
-
-if [ "${FILTERED_ARGS[0]:-}" = "--layouts" ]; then
-  python3 "$PROJECT_DIR/sync_layout_renders.py" $NO_GLOBAL_FLAG
-elif [ "${FILTERED_ARGS[0]:-}" = "layout" ] && [ -n "${FILTERED_ARGS[1]:-}" ]; then
-  python3 "$PROJECT_DIR/sync_layout_renders.py" "${FILTERED_ARGS[1]}" $NO_GLOBAL_FLAG
-elif [ "${FILTERED_ARGS[0]:-}" = "--blocks" ]; then
-  python3 "$PROJECT_DIR/sync_block_renders.py"
-elif [ "${FILTERED_ARGS[0]:-}" = "blocks" ]; then
-  python3 "$PROJECT_DIR/sync_block_renders.py"
-elif [ "${FILTERED_ARGS[0]:-}" = "--all" ]; then
+if [ "${1:-}" = "--layouts" ] || [ "${1:-}" = "layout" ]; then
+  echo "Layout HTML renders have been retired. Use references/layouts/*.md as the source of truth."
+  exit 2
+elif [ "${1:-}" = "--blocks" ] || [ "${1:-}" = "blocks" ]; then
+  echo "Block HTML renders have been retired. Use references/blocks/**/*.md as contract assets."
+  exit 2
+elif [ "${1:-}" = "--all" ]; then
   python3 "$PROJECT_DIR/sync_renders.py"
-  python3 "$PROJECT_DIR/sync_layout_renders.py" $NO_GLOBAL_FLAG
-  python3 "$PROJECT_DIR/sync_block_renders.py"
 else
-  python3 "$PROJECT_DIR/sync_renders.py" "${FILTERED_ARGS[@]}"
+  python3 "$PROJECT_DIR/sync_renders.py" "$@"
 fi

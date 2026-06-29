@@ -63,10 +63,10 @@ wise — 消费级 fintech 定价；apple — 高端产品发布；dig — B2B �
 - Tablet：2 列 + 第三卡换行居中。
 - Mobile：单列 stack，推荐卡仍可在首屏。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-pricing-or-plan-grid" data-layout="pricing-or-plan-grid">
+<section class="layout-skeleton layout-pricing-or-plan-grid" data-layout="pricing-or-plan-grid">
   <header class="dig-pricing-header" data-slot="section_header">
     <h2 class="dig-hero-title" style="font-size: var(--dig-text-3xl);">Simple, transparent pricing</h2>
     <div class="dig-control-row">
@@ -102,7 +102,7 @@ wise — 消费级 fintech 定价；apple — 高端产品发布；dig — B2B �
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-pricing-or-plan-grid {

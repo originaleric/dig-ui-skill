@@ -67,10 +67,10 @@ mono — 默认文档气质；editorial — 叙事型指南；dig — 与产品�
 - Tablet：隐藏 on_this_page，nav 可折叠为 drawer。
 - Mobile：nav 折叠；article 全宽；topbar 保留搜索入口。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-docs-article" data-layout="docs-article">
+<section class="layout-skeleton layout-docs-article" data-layout="docs-article">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Dig Docs</div>
     <nav class="dig-control-row">
@@ -108,7 +108,7 @@ mono — 默认文档气质；editorial — 叙事型指南；dig — 与产品�
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-docs-article {

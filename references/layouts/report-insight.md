@@ -66,10 +66,10 @@ editorial — 默认叙事气质；wise — 消费级 insight；dig — 产品�
 - Desktop：header → insight row → chart → narrative → cta。
 - Mobile：insights 单列；chart 全宽 scroll if needed。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-report-insight" data-layout="report-insight">
+<section class="layout-skeleton layout-report-insight" data-layout="report-insight">
   <header class="dig-report-header" data-slot="report_header">
     <p class="dig-kicker">Q1 2026 Report</p>
     <h1 class="dig-hero-title" style="font-size: var(--dig-text-3xl);">Agent reliability trends</h1>
@@ -96,7 +96,7 @@ editorial — 默认叙事气质；wise — 消费级 insight；dig — 产品�
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-report-insight {

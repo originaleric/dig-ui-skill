@@ -58,10 +58,10 @@ dig — 默认；mono — 终端式 log tail
 - Desktop：toolbar + stream + optional bottom/side detail。
 - Mobile：stream full width；detail 为 bottom sheet；toolbar 折叠次要 filter。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-log-inspector" data-layout="log-inspector">
+<section class="layout-skeleton layout-log-inspector" data-layout="log-inspector">
   <div class="dig-log-toolbar" data-slot="inspector_toolbar">
     <input class="dig-input dig-log-search" type="search" placeholder="Filter logs…" />
     <button class="dig-button-secondary">Error</button>
@@ -84,7 +84,7 @@ dig — 默认；mono — 终端式 log tail
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-log-inspector {

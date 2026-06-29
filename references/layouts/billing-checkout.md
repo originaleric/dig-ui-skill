@@ -66,10 +66,10 @@ wise — 消费级 fintech 结账；apple — 简洁 premium checkout；dig — 
 - Mobile：plan → payment → breakdown → confirm 单列 stack。
 - Sticky bottom bar 可选放 confirm + 总价。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-billing-checkout" data-layout="billing-checkout">
+<section class="layout-skeleton layout-billing-checkout" data-layout="billing-checkout">
   <header class="dig-topbar" data-slot="checkout_header">
     <div class="dig-brand-mark">Checkout</div>
     <span class="dig-tag">Secure</span>
@@ -118,7 +118,7 @@ wise — 消费级 fintech 结账；apple — 简洁 premium checkout；dig — 
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-billing-checkout {

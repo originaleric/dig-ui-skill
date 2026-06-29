@@ -62,10 +62,10 @@ mono — 文档/工具搜索；dig — 产品内搜索；editorial — 内容型
 - Desktop：search 宽 max 640px 或全宽。
 - Mobile：snippet 2 行 clamp；filter 收起到 icon。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-search-results" data-layout="search-results">
+<section class="layout-skeleton layout-search-results" data-layout="search-results">
   <div class="dig-search-bar-wrap" data-slot="search_bar">
     <input class="dig-input" type="search" value="deploy agent" style="max-width:100%;" />
     <button class="dig-button-secondary">Filters</button>
@@ -99,7 +99,7 @@ mono — 文档/工具搜索；dig — 产品内搜索；editorial — 内容型
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-search-results {

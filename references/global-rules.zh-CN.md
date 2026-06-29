@@ -105,7 +105,7 @@
 
 ## Select（HTML Preview / React）
 
-- HTML layout 预览：使用原生 `<select class="dig-select">` + `<option>`，配合 `assets/layout-preview-global.css` 中的 `.dig-select` 样式（仅在 `data-global-rules-enabled="true"` 且 layout render 引入该文件时生效）。
+- 静态 HTML 运维预览如果需要轻量控件，可以使用原生 `<select class="dig-select">` + `<option>`；产品级 React UI 仍应使用项目内 Select 组件。
 - React 产品实现：使用项目内 React 组件（例如 `Select`、`SelectTrigger`、`SelectContent`、`SelectOption`）表达下拉，不在产品 UI 中直接写裸 `<select>` / `<option>`。
 - select 与 input 同样使用 pill 圆角与 `--dig-control-bg` token。
 - option 列表背景使用 `--dig-surface-strong`；active / hover option 使用 accent tint，不改变 option 高度。

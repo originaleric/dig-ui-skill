@@ -86,14 +86,14 @@ using <layout> layout + <catalog> catalog.
 
 ### 7. Preflight 和 Render Ops
 
-交付前读取 `references/preflight.md`。如果修改了 catalog、layout 或 block，还应运行或建议运行：
+交付前读取 `references/preflight.md`。如果修改了 catalog 或 render 相关资产，还应运行或建议运行：
 
 ```bash
 dig-ui-skill render all
 dig-ui-skill validate renders
 ```
 
-render 只用于维护预览，不是第二套规范；若 render 与 markdown 冲突，以 markdown / manifest 为准。
+render 只用于 catalog 视觉维护预览，不是第二套规范；layout 和 block 以 Markdown 协议为准。若 render 与 markdown 冲突，以 markdown / manifest 为准。
 
 ## Runtime 命名边界
 
@@ -102,4 +102,4 @@ render 只用于维护预览，不是第二套规范；若 render 与 markdown �
 - `task_type: execution` 表示运行、调试、观测类任务
 - `catalog: runtime` 仅在未来作为视觉皮肤落地时使用
 
-保留旧的 `page_type: runtime` 只是为了兼容既有 layout、render 和 validator。
+保留旧的 `page_type: runtime` 只是为了兼容既有 layout 与历史资产。

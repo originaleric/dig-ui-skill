@@ -59,10 +59,10 @@ apple — 清晰产品对比；editorial — 叙事型差异；wise — 消费�
 - Tablet：隐藏最少差异列或 horizontal scroll。
 - Mobile：每个 plan 转为 stacked card，feature 列表在内。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-comparison-section" data-layout="comparison-section">
+<section class="layout-skeleton layout-comparison-section" data-layout="comparison-section">
   <header class="dig-compare-header" data-slot="section_header">
     <p class="dig-kicker">Compare</p>
     <h2 class="dig-hero-title" style="font-size: var(--dig-text-3xl);">Why teams choose Dig</h2>
@@ -81,7 +81,7 @@ apple — 清晰产品对比；editorial — 叙事型差异；wise — 消费�
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-comparison-section {

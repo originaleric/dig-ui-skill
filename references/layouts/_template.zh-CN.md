@@ -5,8 +5,8 @@ slug: layout-slug
 page_type: dashboard
 default_catalog: dig
 status: draft
-description_zh: 简短中文说明，用于 index 搜索和预览。
-description_en: Short English description for index and preview.
+description_zh: 简短中文说明，用于索引和选择。
+description_en: Short English description for index and selection.
 ---
 
 ## Slots
@@ -46,12 +46,12 @@ dig, mono — 说明各 catalog 为何适合
 - Desktop：topbar → main two-column。
 - Tablet：topbar → main → secondary。
 - Mobile：sidebar 折叠，主内容单列堆叠。
-- Preview CSS 请使用 `@container layout-viewport (max-width: …)` 而非 `@media`，以便 shell 内 1440/900/390 容器正确触发断点。
+- 结构实现如需容器断点，可使用 `@container`；不要把断点规则绑定到某个 catalog。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-slug" data-layout="layout-slug">
+<section class="layout-skeleton layout-slug" data-layout="layout-slug">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Dig</div>
     <nav class="dig-control-row">
@@ -60,12 +60,12 @@ dig, mono — 说明各 catalog 为何适合
     </nav>
   </header>
   <main class="dig-shell" data-slot="main">
-    <p class="dig-body">Preview placeholder — replace with real structure.</p>
+    <p class="dig-body">Skeleton placeholder — replace with real structure.</p>
   </main>
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-slug {

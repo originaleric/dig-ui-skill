@@ -62,10 +62,10 @@ dig — 控制台通知；apple — 系统通知感；wise — 消费级 activit
 - Desktop：list 最大宽 ~640px 居中或左对齐于 content 区。
 - Mobile：filters 横向 scroll；swipe actions 可选，不强制。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-notification-inbox" data-layout="notification-inbox">
+<section class="layout-skeleton layout-notification-inbox" data-layout="notification-inbox">
   <header class="dig-inbox-header" data-slot="inbox_header">
     <div>
       <h1 class="dig-panel-title" style="margin:0;">Notifications</h1>
@@ -109,7 +109,7 @@ dig — 控制台通知；apple — 系统通知感；wise — 消费级 activit
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-notification-inbox {

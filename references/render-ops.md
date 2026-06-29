@@ -1,16 +1,17 @@
 # Render Ops
 
-Render Ops defines how maintainers inspect Dig UI assets without turning preview HTML into a second source of truth.
+Render Ops defines how maintainers inspect catalog visual-language assets without turning preview HTML into a second source of truth.
 
 ## Render Types
 
-- `renders/catalogs/`: visual language previews for catalog tokens and archetypes.
-- `renders/layouts/`: page skeleton previews for slots, responsive behavior, fixtures, and catalog switching.
-- `renders/blocks/`: block contract pages for primitives and product modules, with examples, anatomy, state semantics, and catalog compatibility checks through `?catalog=<slug>`.
+- `renders/index.html`: catalog hub.
+- `renders/<category>/<slug>.html`: visual language previews for catalog tokens and archetypes.
+
+Layout recipes and block contracts are Markdown protocol assets. They are reviewed through their source files, manifests, and QA notes instead of generated HTML render pages.
 
 ## Source Of Truth
 
-Render output must be generated from Markdown frontmatter, body sections, shared manifests, fixtures, and catalog tokens. If render output conflicts with Markdown, the Markdown and manifest win, and validation should report stale render output.
+Catalog render output must be generated from Markdown frontmatter, body sections, shared manifests, and catalog tokens. If render output conflicts with Markdown, the Markdown and manifest win, and validation should report stale render output.
 
 ## Required Metadata
 
@@ -19,8 +20,6 @@ Every generated render page should show:
 - installed language
 - asset source: `official` or `local`
 - compatible catalog scope
-- selected preview catalog when a render supports catalog switching
-- fixture
 - schema version
 - source Markdown path
 
@@ -28,14 +27,14 @@ Every generated render page should show:
 
 ```bash
 dig-ui-skill render catalogs
-dig-ui-skill render layouts
-dig-ui-skill render blocks
 dig-ui-skill render all
 dig-ui-skill validate renders
 ```
 
-## Fixture Rules
+`render all` is kept as a convenience alias for catalog render sync.
 
-- Layout fixtures should cover `normal`, `empty`, `error`, and `mobile`.
-- Block fixtures should define block-specific `examples` first and `state_semantics` second. States are semantic coverage, not the primary page layout.
-- Fixtures must be small JSON files that describe maintainable render data, not separate design documents.
+## Layout / Block Review
+
+- Layout recipes must document slots, applicable scenarios, avoid-when rules, responsive behavior, and QA notes.
+- Block contracts must document slots, states, token binding, responsive behavior, accessibility, anti-patterns, and QA notes.
+- Local layout/block extensions should use `extends` and document owner, intent, and review date.

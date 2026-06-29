@@ -20,6 +20,6 @@ Use this gate before delivering generated or reviewed UI.
 ## Render Checks
 
 - Catalog render passes visual review.
-- Layout render shows complete slots across desktop, tablet, and mobile.
-- Block render shows the required state matrix.
-- Render output is fresh relative to Markdown and fixture sources.
+- Layout recipes pass manual structural review against QA Notes.
+- Block contracts cover required slots, states, responsive rules, and accessibility.
+- Catalog render output is fresh relative to Markdown and catalog tokens.

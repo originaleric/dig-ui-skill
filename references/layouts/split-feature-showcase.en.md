@@ -58,10 +58,10 @@ apple — 产品 theater；dig — 能力详解；editorial — 叙事型 featur
 - Desktop：alternating split rows。
 - Tablet/mobile：一律 text 上、visual 下。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-split-feature-showcase" data-layout="split-feature-showcase">
+<section class="layout-skeleton layout-split-feature-showcase" data-layout="split-feature-showcase">
   <nav class="dig-feature-nav" data-slot="section_nav">
     <a class="dig-nav-link dig-nav-link-active" href="#">Observe</a>
     <a class="dig-nav-link" href="#">Deploy</a>
@@ -97,7 +97,7 @@ apple — 产品 theater；dig — 能力详解；editorial — 叙事型 featur
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-split-feature-showcase {

@@ -62,10 +62,10 @@ dig — 默认 runtime；mono — 调试向高密度详情
 - Desktop：header full width → timeline + io two-column。
 - Tablet/mobile：timeline 上、io 下；related_runs 折叠。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-agent-run-detail" data-layout="agent-run-detail">
+<section class="layout-skeleton layout-agent-run-detail" data-layout="agent-run-detail">
   <header class="dig-run-header dig-surface" data-slot="run_header">
     <div>
       <p class="dig-kicker">Run</p>
@@ -97,7 +97,7 @@ dig — 默认 runtime；mono — 调试向高密度详情
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-agent-run-detail {

@@ -22,7 +22,7 @@ cp references/global-rules.local.example.md references/global-rules.local.md
 After editing `global-rules.local.md`:
 
 - AI generation / review: local rules take priority over `global-rules.md`.
-- Layout render: `./sync-renders.sh layout <slug>` shows local sources in the Global Rules notes card, and the manifest merges by rule id.
+- Local rules are applied by agents before catalog/layout/block guidance; use `dig-ui-skill validate renders` to check localized assets and catalog render health.
 - `--no-global` skips both local and default global rules.
 
 ## Example Overrides

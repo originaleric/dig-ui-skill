@@ -66,10 +66,10 @@ apple — 系统原生 auth；wise — 消费级 fintech 登录；dig — B2B �
 - 卡左右 margin 16px minimum。
 - Mobile：卡全宽减 margin，字段不变结构。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-auth-sign-in" data-layout="auth-sign-in">
+<section class="layout-skeleton layout-auth-sign-in" data-layout="auth-sign-in">
   <div class="dig-auth-card dig-surface">
     <div class="dig-auth-brand" data-slot="auth_brand">
       <span class="dig-brand-mark">Dig</span>
@@ -102,7 +102,7 @@ apple — 系统原生 auth；wise — 消费级 fintech 登录；dig — B2B �
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-auth-sign-in {

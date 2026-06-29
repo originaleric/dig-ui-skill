@@ -83,7 +83,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `assets/`
 - `renders/`
 - `bin/`
-- `sync_*` 脚本与 `validate-dig-catalog-preview.mjs` / `validate-dig-layout-preview.mjs` / `validate-dig-block-preview.mjs` / `validate-dig-render-ops.mjs`
+- `sync-renders.sh`、`sync_renders.py` 与 `validate-dig-catalog-preview.mjs` / `validate-dig-render-ops.mjs`
 - `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
@@ -123,15 +123,13 @@ npx dig-ui-skill status
 
 ```bash
 npx dig-ui-skill render catalogs
-npx dig-ui-skill render layouts
-npx dig-ui-skill render blocks
 npx dig-ui-skill render all
 npx dig-ui-skill validate renders
 ```
 
-`render` 用于生成 catalog / layout / block 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、layout render、block contract pages、block fixtures 和 catalog preview switching。
+`render` 用于生成 catalog 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、layout/block Markdown 协议完整性和 catalog preview switching。
 
-Block render 是协议说明页和兼容性检查，不是第二套设计源。Markdown、shared manifest、fixture 和 catalog token 仍是 source of truth。
+Layout 和 Block 不再生成 HTML render 页面；它们是 Markdown 协议资产。Markdown、shared manifest 和 catalog token 仍是 source of truth。
 
 ## 个人 Global Rules
 
@@ -216,7 +214,7 @@ npx dig-ui-skill update --all --with-local --link-local
 cp references/global-rules.local.example.md references/global-rules.local.md
 ```
 
-编辑后，AI 会优先应用 local 规则；layout render 同步脚本也会合并 local manifest。
+编辑后，AI 会优先应用 local 规则；`dig-ui-skill validate renders` 会检查 local/global 规则相关的资产一致性。
 
 ## 手动安装（无 CLI）
 

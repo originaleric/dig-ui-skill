@@ -219,54 +219,31 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 ## 📐 Layout 结构资产（与 Catalog 平级）
 
-除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`，英文主规范；`references/global-rules.zh-CN.md` 为中文翻译）规定 i18n、dark/light、控件形态、一致性、React 组件化 select 等跨 catalog 行为；默认参与 AI 生成与 layout render，可用 `--no-global` 或对话中声明「不使用 global」关闭。
+除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`，英文主规范；`references/global-rules.zh-CN.md` 为中文翻译）规定 i18n、dark/light、控件形态、一致性、React 组件化 select 等跨 catalog 行为；默认参与 AI 生成，可在对话中声明「不使用 global」关闭。
 
-| 资产链 | 源文件 | 预览 |
-| ------ | ------ | ---- |
-| Global Rules | `references/global-rules.md` canonical（+ `references/global-rules.zh-CN.md` 翻译 + 用户配置中心 `global-rules.local.md`） | layout HTML notes 区 Global Rules 卡片 |
+| 资产链 | 源文件 | 维护方式 |
+| ------ | ------ | -------- |
+| Global Rules | `references/global-rules.md` canonical（+ `references/global-rules.zh-CN.md` 翻译 + 用户配置中心 `global-rules.local.md`） | Agent 读取规则；validator 检查双语资产 |
 | Dig Read / Anti-Tells / Preflight / Workflows | `references/dig-read.md`、`references/anti-tells.md`、`references/preflight.md`、`references/workflows/` | Agent 执行纪律与交付 gate |
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
-| Layout | `references/layouts/<slug>.md` | `renders/layouts/<slug>.html` |
-| Block | `references/blocks/**/*.md` + `references/render-fixtures/blocks/<id>.json` | `renders/blocks/<id>.html` contract page |
-| Local Extensions | `references/local/` | Render Ops 中标记 source |
+| Layout | `references/layouts/<slug>.md` | Markdown contract + QA Notes |
+| Block | `references/blocks/**/*.md` | Markdown contract + manifest 校验 |
+| Local Extensions | `references/local/` | `extends` / overrides 文档化维护 |
 
 当前内置 20 个 layout，覆盖 marketing、docs、workspace、dashboard、settings、runtime 等常见 Dig 产品界面。索引入口：
 
 - 源文件索引：`references/layouts/README.md`
-- 预览索引：`renders/layouts/index.html`
 
 ### 同步命令
 
 ```bash
-# 同步全部 layout 预览（20 recipes，含 global rules）
-./sync-renders.sh --layouts
-
-# 同步单个 layout
-./sync-renders.sh layout dashboard-overview
-
-# 审查对照：生成不含 global rules 的版本（覆盖同路径 HTML）
-./sync-renders.sh layout dashboard-overview --no-global
-./sync-renders.sh --layouts --no-global
-
-# Playwright 结构校验（默认 render 含 global 规则检查）
-npm run validate:layouts
-
-# 同步 block contract 说明页
-./sync-renders.sh --blocks
-
-# 单独校验 block catalog switching
-npm run validate:blocks
-
-# 同步全部 catalog / layout / block render
+# 同步 catalog render
 ./sync-renders.sh --all
 dig-ui-skill render all
 
-# Render Ops 总校验
+# Render Ops 总校验：catalog render + 双语资产 + layout/block 协议完整性
 dig-ui-skill validate renders
 npm run validate:renders
-
-# 校验无 global 版本时，可指定单个 HTML
-node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 ```
 
 ### Layout Markdown 协议
@@ -274,14 +251,12 @@ node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
 每个 layout 文件都应包含这些部分：
 
 1. **Frontmatter**：`name`、`name_zh`、`slug`、`page_type`、`default_catalog`、`status`、`recommended_catalogs`、`description_zh`、`description_en`。
-1. **Slots**：用 YAML 定义结构区域。需要强校验的区域设为 `required: true`，并在 Preview HTML 中加入同名 `data-slot`。
+1. **Slots**：用 YAML 定义结构区域。需要强校验的区域设为 `required: true`。
 1. **Applicable Scenarios**：写清楚适用页面，例如 dashboard 首页、单次 run 详情、设置表单。
 1. **Avoid When**：写清楚不该使用的情况，并指向更合适的 layout。
 1. **Recommended Catalogs**：列出推荐 catalog，例如 `dig, mono, wise`，并说明原因。
 1. **Layout Rules**：只写结构规则，不写品牌色。例如“主内容占 8 栏，辅助区占 4 栏”“不允许卡片套卡片”。
 1. **Responsive Rules**：写 desktop / tablet / mobile 的顺序、折叠、降密度策略。
-1. **Preview HTML**：可渲染的结构样例，必须使用 `--dig-*` token 或 `assets/layout-preview.css` 中的 primitive class。
-1. **Preview CSS**：只写结构 CSS，断点使用 `@container layout-viewport (max-width: …)`，不要用普通 `@media` 代替。
 1. **QA Notes**：写人工验收问题，例如首屏是否能 5 秒读懂、移动端是否横向滚动、操作按钮是否贴近对象。
 
 ### 用新版流程生成页面
@@ -318,21 +293,11 @@ Block Library 位于 `references/blocks/`，是这次架构优化的一部分：
 
 每个 block 必须包含 Use When、Avoid When、Slots、Token Binding、States、Responsive Rules、Accessibility、Anti-Patterns、QA Notes。
 
-每个官方 block 还必须有同名 fixture：
-
-```text
-references/render-fixtures/blocks/<id>.json
-```
-
-fixture 维护 `examples` 与 `state_semantics`，用于生成 block contract page。Render 页面主体是说明文档与示例，不是旧的共享状态矩阵。底部的 catalog 选择只用于 `Skin compatibility check`，不决定 block 的业务语义。
+源码按 domain 组织语言资产：例如 `references/blocks/primitives/input.en.md` 与 `references/blocks/primitives/input.zh-CN.md` 是同一个 block 的两种语言说明。安装时 CLI 会按 `--lang` 抽取其中一种，生成无后缀的 `references/blocks/primitives/input.md`。
 
 修改 block 后运行：
 
-源码按 domain 组织语言资产：例如 `references/blocks/primitives/input.en.md` 与 `references/blocks/primitives/input.zh-CN.md` 是同一个 block 的两种语言说明。安装时 CLI 会按 `--lang` 抽取其中一种，生成无后缀的 `references/blocks/primitives/input.md`。
-
 ```bash
-./sync-renders.sh --blocks
-npm run validate:blocks
 npm run validate:renders
 ```
 
@@ -364,21 +329,14 @@ npx dig-ui-skill sync-local --all
 - 所有界面必须支持 i18n，默认至少有中文 / 英文（`zh-CN` / `en`）。
 - 所有界面必须支持 dark / light 主题切换，并通过 token 或主题变量实现。
 - 所有按钮默认使用药丸形态，保持 `44px` 以上可点击高度。
-- React 表单中的 select / option 默认使用项目内 React 组件（例如 `Select`、`SelectTrigger`、`SelectContent`、`SelectOption`），不要在产品 UI 中直接写裸 `<select>` / `<option>`；HTML layout 预览可继续用 `.dig-select` 表达结构和视觉。
+- React 表单中的 select / option 默认使用项目内 React 组件（例如 `Select`、`SelectTrigger`、`SelectContent`、`SelectOption`），不要在产品 UI 中直接写裸 `<select>` / `<option>`；静态 HTML 运维预览可在需要轻量控件时使用 `.dig-select`。
 - React 产品 UI 中的 alert / confirm / prompt 使用项目内 `Alert`、`Toast`、`Dialog`、`AlertDialog`、`ConfirmDialog` 等组件，不直接使用浏览器原生阻塞弹窗。
 
-编辑配置中心后，先显式推送到各工具；如果需要检查 layout render，再重新同步 layout：
+编辑配置中心后，先显式推送到各工具，再运行 render ops 校验：
 
 ```bash
 npx dig-ui-skill sync-local --all --from-config
-./sync-renders.sh layout dashboard-overview
-```
-
-如果本次审查只想看 layout 原始结构，不希望加载 global rules：
-
-```bash
-./sync-renders.sh layout dashboard-overview --no-global
-node validate-dig-layout-preview.mjs renders/layouts/dashboard-overview.html
+npm run validate:renders
 ```
 
 local manifest 会按 rule id 与默认 `global-rules.md` 合并；例如你可以保持 `pill-buttons`、`consistency` 和 `react-select` 的 validator 开启，也可以在本地关闭某一项校验。个人规则可用中文或英文书写，但建议保留英文主规范中的 section heading 与 rule id，便于跨工具稳定合并。
@@ -455,65 +413,40 @@ npx dig-ui-skill local sync
 
 ### 修改现有 layout 的 SOP
 
-适用于调整 slot、结构比例、响应式顺序、预览 HTML/CSS、适用场景或 QA 说明。
+适用于调整 slot、结构比例、响应式顺序、适用场景或 QA 说明。
 
 1. **确认要改哪个 layout**  
-   先打开 `renders/layouts/index.html` 或 `references/layouts/README.md`，根据页面类型选择最接近的 recipe。例如：
+   先打开 `references/layouts/README.md`，根据页面类型选择最接近的 recipe。例如：
 
    - 控制台首页：`dashboard-overview`
    - Agent 运行控制台：`runtime-console`
    - 单次 run 详情：`agent-run-detail`
    - 高密度表格工作台：`data-table-workspace`
 
-1. **编辑源文件**  
-   打开 `references/layouts/<slug>.md`。优先改 Markdown 协议字段，不要直接改 `renders/layouts/<slug>.html`，因为 render 文件会被同步脚本覆盖。
+1. **编辑源文件**
+   打开 `references/layouts/<slug>.md`。Layout 是信息结构协议，不是视觉预览文件。
 
-1. **保持 slot 与 Preview HTML 对齐**  
-   如果在 `Slots` 中把某个区域设为 `required: true`，必须在 `Preview HTML` 中提供对应节点：
+1. **保持 slot、规则和 QA Notes 对齐**
+   如果删除或重命名 slot，要同步更新 `Slots`、`Layout Rules`、`Responsive Rules` 和 `QA Notes`。required slot 必须能映射到真实页面实现里的稳定区域。
 
-   ```html
-   <section data-slot="primary_panel">...</section>
-   ```
+1. **只写结构，不写品牌视觉**
+   可以描述 grid、gap、column span、order、stacking、overflow 策略。不要写死品牌 hex、专属渐变或一次性装饰。需要颜色、字体、圆角、阴影时交给 catalog token。
 
-   如果删除或重命名 slot，要同步更新 `Slots`、`Preview HTML`、`Layout Rules` 和 `QA Notes`。
+1. **人工结构复查**
+   按 QA Notes 检查目标页面或设计稿：
 
-1. **只在 Preview CSS 写结构，不写品牌视觉**  
-   可以写 grid、gap、column span、order、stacking、overflow 策略。不要写死品牌 hex、专属渐变或一次性装饰。需要颜色、字体、圆角、阴影时使用 `var(--dig-*)` token 或已有 primitive class。
+   - Desktop：首屏主焦点是否清楚，grid 比例是否合理。
+   - Tablet：主次内容是否按规则堆叠，操作是否仍靠近对象。
+   - Mobile：是否无横向滚动，按钮是否可点，表格/列表是否降密度。
+   - Catalog 独立性：结构规则是否仍能套用到 `dig`、`mono`、`editorial`、`wise`、`apple` 等不同视觉语言。
 
-1. **使用 container query 做响应式**  
-   Layout preview 在同一页面里同时展示 1440 / 900 / 390 三个容器，所以断点必须这样写：
-
-   ```css
-   @container layout-viewport (max-width: 840px) {
-     .layout-example {
-       grid-template-columns: 1fr;
-     }
-   }
-   ```
-
-1. **同步单个 layout**  
+1. **运行协议校验**
 
    ```bash
-   ./sync-renders.sh layout <slug>
+   npm run validate:renders
    ```
 
-   这会重新生成 `renders/layouts/<slug>.html`，并刷新 `renders/layouts/index.html`。
-
-1. **浏览器人工复查**  
-   打开 `renders/layouts/<slug>.html`，逐项检查：
-
-   - Desktop 1440px：首屏主焦点是否清楚，grid 比例是否合理。
-   - Tablet 900px：主次内容是否按规则堆叠，操作是否仍靠近对象。
-   - Mobile 390px：是否无横向滚动，按钮是否可点，表格/列表是否降密度。
-   - Catalog 切换：在 `dig`、`mono`、`editorial`、`wise`、`apple` 中切换，确认结构不依赖单一视觉风格。
-
-1. **运行结构校验**  
-
-   ```bash
-   npm run validate:layouts
-   ```
-
-   校验会检查横向滚动、文本溢出、required slot 缺失、卡片套卡片、移动端 tap target、字号下限等问题。出现 WARN 时优先修；出现 FAIL 时不要合入或交付。
+   校验会检查 manifest、双语资产、layout/block 协议完整性和 catalog render 健康度。
 
 ### 新增 layout 的 SOP
 
@@ -540,55 +473,28 @@ npx dig-ui-skill local sync
 1. **写 Layout / Responsive Rules**  
    明确 desktop 的 grid 占比、tablet 的堆叠顺序、mobile 的降密度策略。规则应能指导真实页面实现，而不只是描述预览长什么样。
 
-1. **编写 Preview HTML**  
-   Preview HTML 要足够像真实产品界面，但不要依赖外部图片。每个 required slot 必须有对应 `data-slot`。优先复用这些 primitive class：
-
-   - `dig-topbar`
-   - `dig-control-row`
-   - `dig-surface`
-   - `dig-button-primary`
-   - `dig-button-secondary`
-   - `dig-tag`
-   - `dig-table-row`
-   - `dig-log-line`
-   - `dig-body`
-   - `dig-meta`
-
-1. **编写 Preview CSS**  
-   只写该 layout 必要的结构 CSS。优先使用 `display: grid`、`grid-template-columns`、`grid-column`、`gap: var(--dig-space-*)`、`@container layout-viewport`。不要写一次性品牌装饰。
-
-1. **同步并打开预览**  
-
-   ```bash
-   ./sync-renders.sh layout <new-slug>
-   ```
-
-   然后打开 `renders/layouts/<new-slug>.html` 和 `renders/layouts/index.html`。
-
 1. **至少做两轮复查**  
-   第一轮只看结构：slot 是否完整、主次是否清楚、移动端是否可用。第二轮切换 catalog：至少检查 `dig` 与 `mono`，如果是营销页再看 `editorial` 或 `apple`，如果是轻量消费级界面再看 `wise`。
+   第一轮只看结构：slot 是否完整、主次是否清楚、移动端是否可用。第二轮看 catalog 独立性：确认 layout 没有写死某个视觉语言的颜色、字体、圆角或装饰。
 
 1. **运行校验**  
 
    ```bash
-   npm run validate:layouts
+   npm run validate:renders
    ```
 
-   新增 layout 必须做到 `0 FAIL`。如果有 WARN，除非有明确理由，否则也应修到 `0 WARN`。
+   新增 layout 必须通过 manifest 与双语资产检查。若 validator 报 FAIL，不要合入或交付。
 
 1. **更新说明文档**  
    如果这是正式新增到布局库的 recipe，同步更新 `references/layouts/README.md` 的 layout 库表格。必要时也在 `updates/` 新增一条更新记录。
 
 ### Layout 运维注意事项
 
-- **不要直接维护 render 文件**：`renders/layouts/*.html` 是编译产物，源头永远是 `references/layouts/*.md`。
+- **不要为 layout 维护 HTML render 文件**：源头永远是 `references/layouts/*.md`。
 - **不要让 layout 绑定单一 catalog**：Layout 可以推荐 catalog，但不应写死品牌色、字体或专属视觉装饰。
 - **不要卡片套卡片**：如果 `.dig-surface` 里再嵌 `.dig-surface`，validator 会报 WARN，通常应该拍平结构。
-- **required slot 要真实存在**：slot 名称大小写和下划线要与 `data-slot` 完全一致。
+- **required slot 要真实可实现**：slot 名称大小写和下划线要稳定，能映射到真实页面结构。
 - **移动端优先保证可操作**：不要把表格强行缩小到不可读；必要时改成 stacked rows、摘要卡片或分组列表。
-- **改结构后要重新同步和校验**：`./sync-renders.sh layout <slug>` 负责生成预览，`npm run validate:layouts` 负责结构检查。
-
-Hub 入口：[renders/layouts/index.html](renders/layouts/index.html)
+- **改结构后要重新校验**：运行 `npm run validate:renders`，并按 QA Notes 人工复查结构。
 
 ---
 

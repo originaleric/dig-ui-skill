@@ -63,10 +63,10 @@ dig — 与控制台一致；mono — 极简配置；apple — 系统设置感
 - Tablet：nav 改为顶部 tabs。
 - Mobile：单列；form_actions sticky 在底部。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-settings-form" data-layout="settings-form">
+<section class="layout-skeleton layout-settings-form" data-layout="settings-form">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Settings</div>
     <nav class="dig-control-row">
@@ -106,7 +106,7 @@ dig — 与控制台一致；mono — 极简配置；apple — 系统设置感
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-settings-form {

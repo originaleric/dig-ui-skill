@@ -59,10 +59,10 @@ dig — 产品集成页；apple — 生态展示；mono — 开发者目录
 - Tablet：2 columns。
 - Mobile：1-2 columns；search 全宽。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-integration-gallery" data-layout="integration-gallery">
+<section class="layout-skeleton layout-integration-gallery" data-layout="integration-gallery">
   <header class="dig-gallery-header" data-slot="gallery_header">
     <h2 class="dig-hero-title" style="font-size: var(--dig-text-2xl);">Integrations</h2>
     <div class="dig-control-row">
@@ -89,7 +89,7 @@ dig — 产品集成页；apple — 生态展示；mono — 开发者目录
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-integration-gallery {

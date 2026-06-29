@@ -62,10 +62,10 @@ wise — 消费级引导；apple — 系统 setup flow；dig — B2B 产品 onbo
 - 全 viewport 单列居中。
 - Mobile：progress 简化为 dots；CTA 全宽 stack。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-onboarding-wizard" data-layout="onboarding-wizard">
+<section class="layout-skeleton layout-onboarding-wizard" data-layout="onboarding-wizard">
   <nav class="dig-wizard-progress" data-slot="progress" aria-label="Progress">
     <span class="dig-wizard-dot dig-wizard-dot-active"></span>
     <span class="dig-wizard-dot dig-wizard-dot-active"></span>
@@ -93,7 +93,7 @@ wise — 消费级引导；apple — 系统 setup flow；dig — B2B 产品 onbo
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-onboarding-wizard {

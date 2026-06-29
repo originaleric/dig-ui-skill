@@ -105,7 +105,7 @@ If the user explicitly says "no global rules", "skip global", or "do not use glo
 
 ## Select (HTML Preview / React)
 
-- HTML layout previews may use native `<select class="dig-select">` + `<option>`, styled by `assets/layout-preview-global.css`. This only applies when `data-global-rules-enabled="true"` and the layout render includes that stylesheet.
+- Static HTML maintenance previews may use native `<select class="dig-select">` + `<option>` when a preview page needs a lightweight non-product control.
 - React product UI must use project-level React components such as `Select`, `SelectTrigger`, `SelectContent`, and `SelectOption`. Do not use bare native `<select>` / `<option>` as final product UI controls.
 - Selects and inputs both use pill radius and `--dig-control-bg` tokens.
 - Option list backgrounds use `--dig-surface-strong`; active and hover options use accent tint without changing option height.

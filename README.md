@@ -19,7 +19,7 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - **Layout recipes** define information architecture, slots, responsive order, and QA notes.
 - **Blocks** define reusable primitive and product-module protocols such as inputs, modals, runtime log streams, table toolbars, notification items, search result rows, and settings rows.
 - **Anti-tells, preflight, and workflows** keep common AI UI drift out of generated surfaces and make review/redesign/execution tasks repeatable.
-- **Rendered previews** give humans a fast way to inspect catalogs, layout skeletons, and block contract pages before using them in production code.
+- **Rendered previews** give humans a fast way to inspect catalog visual language before using it in production code.
 - **Local extensions** let projects add their own layouts and blocks through `references/local/` without forking the official assets.
 - **CLI installers** keep the same skill synchronized across Codex, Cursor, and Claude Code.
 
@@ -27,11 +27,8 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 
 - 71 catalog references across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, and Dig-native styles.
 - 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
-- Static preview hub at `renders/index.html`.
-- Layout preview hub at `renders/layouts/index.html`.
-- Block contract hub at `renders/blocks/index.html`, generated from block-specific examples, documented slots, state semantics, and catalog compatibility checks.
-- Playwright-based layout validation via `npm run validate:layouts`.
-- Playwright-based block catalog switching validation via `npm run validate:blocks`.
+- Static catalog preview hub at `renders/index.html`.
+- Layout and block assets are Markdown contracts, maintained in `references/layouts/` and `references/blocks/`.
 - Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
 - Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
 - Render ops validation via `npm run validate:renders`.
@@ -198,14 +195,7 @@ Use references/anti-tells.md and references/preflight.md before delivery.
 Keep copy in i18n dictionaries, support dark/light mode, and use tokenized controls.
 ```
 
-Validate layout previews after changing recipes:
-
-```bash
-./sync-renders.sh --layouts
-npm run validate:layouts
-```
-
-Sync all render ops views after changing catalogs, layouts, or blocks:
+Sync catalog render ops views after changing catalogs:
 
 ```bash
 dig-ui-skill render all
@@ -232,32 +222,26 @@ dig-ui-skill/
 │   ├── preflight.md                 # Installed-language delivery gate
 │   ├── catalogs/                    # Visual catalogs; source keeps .en.md / .zh-CN.md siblings
 │   └── layouts/                     # Layout recipes; source keeps .en.md / .zh-CN.md siblings
-├── renders/                         # Catalog, layout, and block preview output
-├── assets/                          # Preview CSS and Dig visual assets
+├── renders/                         # Catalog preview output
+├── assets/                          # Catalog preview CSS and Dig visual assets
 ├── adapters/                        # Tool-specific adapters
 ├── agents/                          # Agent metadata
 ├── bin/dig-ui-skill.mjs             # Installer and sync CLI
 ├── sync-renders.sh                  # Render synchronization entry point
 ├── sync_renders.py                  # Catalog preview compiler
-├── sync_layout_renders.py           # Layout preview compiler
-├── sync_block_renders.py            # Block preview compiler
 ├── validate-dig-catalog-preview.mjs # Catalog QA validator
-├── validate-dig-block-preview.mjs   # Block catalog-switching validator
-├── validate-dig-layout-preview.mjs  # Layout QA validator
 └── validate-dig-render-ops.mjs      # Render ops and parity validator
 ```
 
 ## Render Ops And Local Extensions
 
-Render ops has three maintenance views:
+Render ops has one maintenance view:
 
 ```text
 renders/index.html          # catalog hub
-renders/layouts/index.html  # layout skeleton hub
-renders/blocks/index.html   # block contract hub with examples, anatomy, state semantics, and catalog compatibility checks
 ```
 
-Project-specific assets live in `references/local/`. Prefer `extends` for local layouts and blocks, and put true replacements in `references/local/overrides/` with an owner and reason.
+Layout and block assets are reviewed through their Markdown contracts, manifests, and QA notes instead of generated HTML pages. Project-specific assets live in `references/local/`. Prefer `extends` for local layouts and blocks, and put true replacements in `references/local/overrides/` with an owner and reason.
 
 ## Local Rules
 
@@ -312,23 +296,9 @@ Sync catalog previews:
 ./sync-renders.sh
 ```
 
-Sync layout previews:
-
-```bash
-./sync-renders.sh --layouts
-```
-
-Sync block previews:
-
-```bash
-./sync-renders.sh --blocks
-```
-
 Validate previews:
 
 ```bash
-npm run validate:layouts
-npm run validate:blocks
 npm run validate:catalogs
 npm run validate:renders
 ```

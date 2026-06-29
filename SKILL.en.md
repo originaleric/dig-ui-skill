@@ -86,14 +86,14 @@ Before delivery, read `references/anti-tells.md` and remove common AI UI tells, 
 
 ### 7. Preflight And Render Ops
 
-Before delivery, read `references/preflight.md`. If a catalog, layout, or block changed, run or recommend:
+Before delivery, read `references/preflight.md`. If catalog or render-related assets changed, run or recommend:
 
 ```bash
 dig-ui-skill render all
 dig-ui-skill validate renders
 ```
 
-Render output is for maintenance preview only. It is not a second source of truth. When render and Markdown conflict, Markdown / manifest wins.
+Render output is for catalog visual maintenance preview only. It is not a second source of truth. Layout and block assets remain Markdown contracts. When render and Markdown conflict, Markdown / manifest wins.
 
 ## Runtime Naming Boundary
 
@@ -102,4 +102,4 @@ Render output is for maintenance preview only. It is not a second source of trut
 - `task_type: execution` for run, debugging, and observability tasks
 - `catalog: runtime` only if a future runtime visual skin is formalized
 
-Keep legacy `page_type: runtime` only for compatibility with existing layouts, renders, and validators.
+Keep legacy `page_type: runtime` only for compatibility with existing layouts and historical assets.

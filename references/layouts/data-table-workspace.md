@@ -67,10 +67,10 @@ dig — 默认控制台；mono — 超高密度工具台
 - Tablet：隐藏次要列，保留 3-4 列。
 - Mobile：stacked cards per row；filter 折叠为 single search + filter button。
 
-## Preview HTML
+## Implementation Skeleton
 
 ```html
-<section class="layout-preview layout-data-table-workspace" data-layout="data-table-workspace">
+<section class="layout-skeleton layout-data-table-workspace" data-layout="data-table-workspace">
   <header class="dig-topbar" data-slot="topbar">
     <div class="dig-brand-mark">Workflows</div>
     <button class="dig-button-primary">Create workflow</button>
@@ -103,7 +103,7 @@ dig — 默认控制台；mono — 超高密度工具台
 </section>
 ```
 
-## Preview CSS
+## Structural Notes
 
 ```css
 .layout-data-table-workspace {

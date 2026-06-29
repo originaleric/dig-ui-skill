@@ -40,11 +40,7 @@ const SKILL_TOP_LEVEL_FILES = [
   "LICENSE",
   "sync-renders.sh",
   "sync_renders.py",
-  "sync_layout_renders.py",
-  "sync_block_renders.py",
   "validate-dig-catalog-preview.mjs",
-  "validate-dig-block-preview.mjs",
-  "validate-dig-layout-preview.mjs",
   "validate-dig-render-ops.mjs",
   "package.json",
 ];
@@ -1066,18 +1062,12 @@ function runChecked(command, args, cwd = PACKAGE_ROOT) {
 
 async function runRender(options) {
   const target = options.targets[0] ?? "all";
-  const valid = new Set(["catalogs", "layouts", "blocks", "all"]);
+  const valid = new Set(["catalogs", "all"]);
   if (!valid.has(target)) {
-    throw new Error("render requires one of: catalogs, layouts, blocks, all");
+    throw new Error("render supports catalogs only. Layout and block HTML renders have been retired.");
   }
   if (target === "catalogs" || target === "all") {
     runChecked("python3", [path.join(PACKAGE_ROOT, "sync_renders.py")]);
-  }
-  if (target === "layouts" || target === "all") {
-    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_layout_renders.py")]);
-  }
-  if (target === "blocks" || target === "all") {
-    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_block_renders.py")]);
   }
 }
 

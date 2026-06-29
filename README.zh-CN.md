@@ -19,7 +19,7 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
 - **Blocks**：定义可复用 primitive 和 product module 协议，例如 input、modal、runtime log stream、table toolbar、notification item、search result row、settings row。
 - **Anti-Tells / Preflight / Workflows**：过滤 AI 常见坏味道，并把 review、redesign、execution 等任务变成可重复流程。
-- **Rendered Previews**：提供 catalog、layout 骨架和 block contract 说明页，便于人类先确认视觉、结构、场景示例和状态语义。
+- **Rendered Previews**：提供 catalog 视觉语言预览，便于人类先确认风格方向。
 - **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block，而不 fork 官方资产。
 - **CLI Installers**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code。
 
@@ -27,11 +27,8 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 
 - 71 套 catalog 参考，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业和 Dig 原生风格。
 - 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
-- `renders/index.html` 静态视觉预览 Hub。
-- `renders/layouts/index.html` Layout 结构预览 Hub。
-- `renders/blocks/index.html` Block contract Hub，由 block 专属 examples、文档 slots、状态语义和 catalog 兼容性检查生成。
-- `npm run validate:layouts` Playwright 结构校验。
-- `npm run validate:blocks` Playwright block catalog 切换校验。
+- `renders/index.html` 静态 catalog 视觉预览 Hub。
+- Layout 和 Block 是 Markdown 协议资产，分别维护在 `references/layouts/` 与 `references/blocks/`。
 - 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
 - Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
 - `npm run validate:renders` Render Ops 与 parity 校验。
@@ -198,14 +195,7 @@ references/catalogs/media-consumer/apple.md
 文案必须进入 i18n 字典，支持 dark/light，并使用 token 化控件。
 ```
 
-修改 layout recipe 后同步并校验：
-
-```bash
-./sync-renders.sh --layouts
-npm run validate:layouts
-```
-
-修改 catalog、layout 或 block 后同步完整 Render Ops：
+修改 catalog 后同步完整 Render Ops：
 
 ```bash
 dig-ui-skill render all
@@ -232,32 +222,26 @@ dig-ui-skill/
 │   ├── preflight.md                 # 已安装语言的交付前 gate
 │   ├── catalogs/                    # 视觉 catalog；源码维护 .en.md / .zh-CN.md 兄弟文件
 │   └── layouts/                     # Layout recipe；源码维护 .en.md / .zh-CN.md 兄弟文件
-├── renders/                         # catalog / layout / block 静态预览产物
-├── assets/                          # 预览 CSS 与 Dig 视觉资产
+├── renders/                         # catalog 静态预览产物
+├── assets/                          # Catalog 预览 CSS 与 Dig 视觉资产
 ├── adapters/                        # 工具适配模板
 ├── agents/                          # Agent 元数据
 ├── bin/dig-ui-skill.mjs             # 安装与同步 CLI
 ├── sync-renders.sh                  # Render 同步入口
 ├── sync_renders.py                  # Catalog 预览编译器
-├── sync_layout_renders.py           # Layout 预览编译器
-├── sync_block_renders.py            # Block 预览编译器
 ├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
-├── validate-dig-block-preview.mjs   # Block catalog 切换校验器
-├── validate-dig-layout-preview.mjs  # Layout QA 校验器
 └── validate-dig-render-ops.mjs      # Render Ops 与 parity 校验器
 ```
 
 ## Render Ops 与 Local Extensions
 
-Render Ops 有三个维护视图：
+Render Ops 只有一个维护视图：
 
 ```text
 renders/index.html          # catalog hub
-renders/layouts/index.html  # layout skeleton hub
-renders/blocks/index.html   # block contract hub，包含 examples、anatomy、state semantics 和 catalog 兼容性检查
 ```
 
-项目级资产放在 `references/local/`。local layout / block 优先用 `extends`，真正替换官方行为时放到 `references/local/overrides/`，并写明 owner 和 reason。
+Layout 和 Block 通过 Markdown contract、manifest 与 QA Notes 维护，不再生成 HTML render 页面。项目级资产放在 `references/local/`。local layout / block 优先用 `extends`，真正替换官方行为时放到 `references/local/overrides/`，并写明 owner 和 reason。
 
 ## 个人规则
 
@@ -312,23 +296,9 @@ npm install
 ./sync-renders.sh
 ```
 
-同步 layout 预览：
-
-```bash
-./sync-renders.sh --layouts
-```
-
-同步 block contract 预览：
-
-```bash
-./sync-renders.sh --blocks
-```
-
 运行预览校验：
 
 ```bash
-npm run validate:layouts
-npm run validate:blocks
 npm run validate:catalogs
 npm run validate:renders
 ```
