@@ -1,0 +1,951 @@
+# 用户自定义 Custom Layer 方案
+
+## 1. 背景
+
+`dig-ui-skill` 已经和普通 skill 拉开了架构差异：它不是单个提示词，而是由 `global rules`、`Dig Read`、`catalog`、`layout recipe`、`blocks`、`tokens/primitives`、`anti-tells`、`preflight` 与 validator 组成的 AI-first 设计系统资产。
+
+当前已经支持 `references/global-rules.local.md`，并通过 `~/.config/dig-ui-skill/global-rules.local.md` 作为个人规则 source of truth，同步到 Codex、Cursor 和 Claude Code。这个能力解决的是“用户长期偏好”问题，例如 Header 更紧凑、表格默认 compact、按钮默认 pill、React Select 不使用原生控件等。
+
+但用户还会有另一类需求：把自己的风格、页面骨架、组件模式、组合 preset 和替换协议沉淀为可复用资产。例如：
+
+- “以后我的 agent 调试页面都用这种 console 风格。”
+- “把这个运行详情页总结成一个可复用 layout。”
+- “这个状态卡片以后作为我的默认 run card block。”
+- “我的 dashboard 右侧永远有 activity rail 和 failure panel。”
+- “使用我的 agent-console 体系作为调试页面默认配置。”
+- “这个官方 run status header 以后用我的压缩版替代。”
+
+这些不应该继续塞进 `global-rules.local.md`。它们不是偏好 bullet，而是可以被选择、扩展、组合、替换、验证和跨工具同步的设计资产。
+
+因此建议新增一层 **Custom Layer**。
+
+## 2. 目标
+
+本方案目标是在不 fork 官方 Dig UI 资产的前提下，让用户可以自定义并复用自己的：
+
+- `style`：个人风格 / catalog overlay。
+- `layout`：项目或个人页面结构 recipe。
+- `block`：可复用组件或业务模块协议。
+- `profile`：一组 style / layout / block 的组合 preset。
+- `override`：明确替换官方 layout 或 block 的本地协议。
+
+最终体验是：
+
+```text
+使用 dig-ui。把这个页面总结成我的 reusable layout，叫 my-agent-dashboard。
+```
+
+宿主 Agent 完成：
+
+1. 读取官方 Dig UI 资产与现有 local rules。
+2. 判断这是偏好还是资产。
+3. 生成对应的 custom style / layout / block Markdown contract、profile YAML preset 或 override replacement contract。
+4. 写入用户配置目录。
+5. 更新 manifest。
+6. 同步到已安装工具。
+7. 运行 local library validator。
+
+## 3. 分层关系
+
+推荐把优先级拆成两类：**明确选择优先级**和**规则类型优先级**。
+
+### 3.1 明确选择优先级
+
+当用户显式选择某个 custom style / layout / block / profile / override 时，它应该被当作本次任务的当前设计资产，而不是被项目默认偏好或 `global-rules.local.md` 的视觉偏好压制。
+
+项目内 `<project root>/.dig-ui/library-manifest.yaml` 或 `<project root>/references/local/library-manifest.yaml` 在本方案中定位为**项目默认偏好**，不是强制策略层。也就是说，项目默认可以在用户未指定时提供推荐 style、layout、block、profile 和 override；但当用户当前 prompt 明确选择某个 library asset / profile / override 时，以用户当前选择为准。
+
+推荐读取顺序：
+
+```text
+用户当前 prompt
+  ↓
+用户显式选择的 library asset / profile / override
+  ↓
+~/.config/dig-ui-skill/library/manifest.yaml 用户 library source of truth
+  ↓
+<target skill dir>/references/local/library-manifest.yaml 目标工具安装副本
+  ↓
+<project root>/.dig-ui/library-manifest.yaml 或 <project root>/references/local/library-manifest.yaml 项目默认偏好
+  ↓
+~/.config/dig-ui-skill/global-rules.local.md
+  ↓
+references/global-rules.md
+  ↓
+官方 Dig UI references/
+```
+
+其中：
+
+- 用户显式选择的 library asset / profile / override：本次任务选择的 style、layout、block、组合 preset 或替换协议，优先于项目默认偏好。
+- `~/.config/dig-ui-skill/library/manifest.yaml`：用户 library source of truth，用于解析用户显式选择的个人资产；若安装目录副本过期，以这里为准。
+- `<target skill dir>/references/local/library-manifest.yaml`：目标工具安装副本，用于当前工具离线读取已同步的用户 library。
+- `<project root>/.dig-ui/library-manifest.yaml` 或 `<project root>/references/local/library-manifest.yaml`：团队或项目默认偏好，用于用户未指定时的资产选择与路由。
+- `global-rules.local.md`：个人规则偏好，适合短 bullet。
+- `library/styles/`：用户风格资产，适合 catalog overlay。
+- `library/layouts/`：用户页面结构资产，适合 slot、responsive、QA notes。
+- `library/blocks/`：用户组件协议资产，适合 states、a11y、token binding。
+- `library/profiles/`：用户组合 preset，适合表达一组默认 style、layout 和 block。
+- `library/overrides/`：用户替换协议，适合显式替代官方 layout 或 block。
+- `references/local/`：安装或项目同步后的落地点；其中官方说明文件保持随包更新，用户/项目资产只写入 `library-manifest.yaml` 和资产子目录。
+
+不在 MVP 中引入 `enforced` 项目强制策略。若未来确实需要强制策略，应单独设计 `mode: default | enforced`，并明确它只用于合规、安全、品牌法务等高约束场景，不和普通项目偏好混用。
+
+### 3.2 规则类型优先级
+
+`global-rules.local.md` 内部也需要分层。并不是所有 local rules 都应该压过 custom style。
+
+可以保持高优先级的系统级规则：
+
+- i18n
+- accessibility
+- dark / light theme mechanism
+- token discipline
+- React Select / controlled component discipline
+- responsive semantics
+- reduced motion / focus-visible 等基础交互可访问性
+
+不应压过显式 custom style 的视觉偏好：
+
+- button radius
+- control height
+- density
+- visual tone
+- accent intensity
+- surface treatment
+- shadow / glow strength
+
+示例：
+
+```text
+global-rules.local.md: 按钮永远 pill
+my-console style: 按钮使用 sharper radius
+```
+
+当用户明确选择 `my-console` 时，按钮 radius 应以 `my-console` 为准；但 i18n、a11y、dark/light 机制等系统规则仍然继续生效。
+
+## 4. 与 global-rules.local.md 的边界
+
+必须清晰区分“偏好”和“资产”。
+
+适合写入 `global-rules.local.md`：
+
+- Header 默认 sticky 且紧凑。
+- 所有表格默认 compact density。
+- 表单错误提示必须放在字段下方。
+- Dashboard 页面避免大 hero。
+- hover 不要改变布局尺寸。
+
+适合写入 Custom Layer：
+
+- 一个命名风格，例如 `my-console`。
+- 一个命名 layout，例如 `my-agent-dashboard`。
+- 一个命名 block，例如 `my-run-card`。
+- 一个组合 preset，例如 `agent-console`。
+- 一个已有官方 layout 的扩展版本。
+- 一个已有官方 block 的替代或业务化版本。
+- 一个明确替换官方 layout 或 block 的 override。
+
+一句话规则：
+
+```text
+global-rules.local.md = 我的设计偏好
+Custom Layer = 我的可复用设计资产
+```
+
+## 5. 目录设计
+
+用户配置中心：
+
+```text
+~/.config/dig-ui-skill/
+├── global-rules.local.md
+└── library/
+    ├── manifest.yaml
+    ├── styles/
+    │   └── my-console.md
+    ├── layouts/
+    │   └── my-agent-dashboard.md
+    ├── blocks/
+    │   └── my-run-card.md
+    ├── profiles/
+    │   └── agent-console.yaml
+    └── overrides/
+        └── blocks/
+            └── run-status-header.md
+```
+
+同步到 skill 安装目录后：
+
+```text
+references/local/
+├── README.md
+├── manifest.yaml
+├── library-manifest.yaml        # generated by library sync, not shipped as user content
+├── layout-rules.md
+├── block-rules.md
+├── styles/
+├── layouts/
+├── blocks/
+├── profiles/
+└── overrides/
+    ├── layouts/
+    └── blocks/
+```
+
+当前仓库已经有 `references/local/manifest.yaml`、`layout-rules.md`、`block-rules.md`、`layouts/.gitkeep`、`blocks/.gitkeep`、`overrides/.gitkeep`，因此第一阶段只需要补齐 `styles/`、`profiles/`、`overrides/layouts/`、`overrides/blocks/` 与用户 library 同步机制，不需要重建一套 local extension 架构。
+
+`references/local/manifest.yaml` 保持为官方随包的 local extension schema 与规则说明。`dig-ui-skill library init` 创建用户 source of truth；真实的目标安装副本只由 `dig-ui-skill library sync --all --from-config` 生成到 `references/local/library-manifest.yaml`。官方包最多提供 `references/local/library-manifest.example.yaml` 或 schema 文档，避免把官方 schema 文件、安装副本和用户资产索引混在一起。
+
+## 6. Custom Style
+
+Custom style 是 catalog overlay，不鼓励复制完整 catalog。
+
+Custom style 必须包含机器可读的结构化片段。自然语言说明可以帮助 Agent 理解意图，但 token、density、control sizing、motion 等可验证内容必须写成 fenced YAML，方便 validator、sync 和未来 catalog preview 读取。
+
+Custom style 的 `extends` 只允许指向官方 catalog，例如 `dig`、`mono`、`editorial`、`wise`、`apple`。MVP 不支持 custom style 继承另一个 custom style，避免引入继承链、覆盖顺序和循环检测复杂度。
+
+示例路径：
+
+```text
+~/.config/dig-ui-skill/library/styles/my-console.md
+```
+
+推荐 frontmatter：
+
+```yaml
+---
+id: my-console
+kind: local_style
+extends: dig
+owner: dig
+description: Compact console visual overlay for agent debugging surfaces.
+status: active
+compatible_layouts:
+  - runtime-console
+  - agent-run-detail
+  - log-inspector
+---
+```
+
+推荐章节：
+
+```md
+## Intent
+
+## Token Overlay
+
+## Typography
+
+## Density
+
+## Interaction Tone
+
+## Compatible Blocks
+
+## Anti-Patterns
+
+## QA Notes
+```
+
+`## Token Overlay` 推荐格式：
+
+````md
+## Token Overlay
+
+```yaml
+tokens:
+  --dig-bg: "#071016"
+  --dig-bg-soft: "#0a151d"
+  --dig-surface: "rgba(12, 24, 32, .92)"
+  --dig-surface-strong: "#101f29"
+  --dig-text: "#edf7f2"
+  --dig-text-muted: "#9fb3aa"
+  --dig-border: "rgba(157, 190, 176, .18)"
+  --dig-accent: "#37d67a"
+  --dig-radius-sm: "6px"
+  --dig-radius-md: "10px"
+  --dig-radius-pill: "999px"
+density:
+  information: compact
+  control_height: 40px
+  section_gap: 16px
+interaction:
+  hover_shift: false
+  glow: restrained
+  motion: reduced-aware
+```
+````
+
+规则：
+
+- `tokens` 只写 custom style 需要覆写的变量，未声明部分回落到 `extends` catalog。
+- `density` 只表达风格级密度偏好，不替代具体 layout 的 slot 结构。
+- `interaction` 只表达视觉反馈强度，不绕过 global rules 中的 accessibility 与 reduced motion 约束。
+- validator 至少需要能解析 `Token Overlay` 中的 YAML，并检查 token key、基础类型和明显非法值。
+- `extends` 必须是官方 catalog slug，不能指向另一个 custom style。
+
+Agent 使用顺序：
+
+1. 先读官方 `extends` catalog。
+2. 再读 custom style。
+3. 只覆写 custom style 明确声明的 token、density 和 interaction 规则。
+4. 未声明部分回落到官方 catalog。
+5. 系统级 global/local rules 继续生效；视觉偏好类 local rules 不压过显式 custom style。
+
+## 7. Custom Layout
+
+Custom layout 负责页面结构和 slot contract。它可以扩展官方 layout，也可以定义全新的项目页面结构。
+
+示例路径：
+
+```text
+~/.config/dig-ui-skill/library/layouts/my-agent-dashboard.md
+```
+
+推荐 frontmatter：
+
+```yaml
+---
+slug: my-agent-dashboard
+kind: local_layout
+origin: extends
+extends: dashboard-overview
+owner: dig
+description: Agent monitoring dashboard with run queue, health summary, failure panel, and activity feed.
+status: active
+task_type: monitoring
+default_catalog: my-console
+required_slots:
+  - topbar
+  - health_summary
+  - run_queue
+  - failure_panel
+  - activity_feed
+---
+```
+
+推荐章节：
+
+```md
+## Use When
+
+## Avoid When
+
+## Inherited Structure
+
+## Slot Contract
+
+## Required Blocks
+
+## Responsive Rules
+
+## Accessibility
+
+## Anti-Patterns
+
+## QA Notes
+```
+
+规则：
+
+- 优先使用 `origin: extends` + `extends: <official-layout-slug>`，不要复制官方 layout 全文。
+- 当 layout 没有合适的官方基础时，使用 `origin: custom`，此时不写 `extends`，但必须完整声明 slot contract、responsive rules、accessibility、anti-patterns 和 QA notes。
+- 允许新增 slot。
+- 对于 `origin: extends` 的 layout，不允许删除官方 required slots，除非放入 `overrides/`。
+- 每个 custom layout 必须能被 agent 仅靠 Markdown contract 复用，不依赖 HTML render。
+
+## 8. Custom Block
+
+Custom block 继承官方 block 或定义新的项目模块协议。
+
+示例路径：
+
+```text
+~/.config/dig-ui-skill/library/blocks/my-run-card.md
+```
+
+推荐 frontmatter：
+
+```yaml
+---
+id: my-run-card
+kind: local_block
+origin: extends
+extends: run-status-header
+owner: dig
+description: Run status summary card for agent execution dashboards.
+category: product
+status: active
+applicable_layouts:
+  - agent-run-detail
+  - my-agent-dashboard
+compatible_catalogs:
+  - dig
+  - mono
+  - my-console
+---
+```
+
+沿用官方 block section contract：
+
+```md
+## Use When
+
+## Avoid When
+
+## Slots
+
+## Token Binding
+
+## States
+
+## Responsive Rules
+
+## Accessibility
+
+## Anti-Patterns
+
+## QA Notes
+```
+
+规则：
+
+- block id 使用个人、项目或业务 namespace，避免和官方 block 冲突。
+- 优先使用 `origin: extends` + `extends: <official-block-id>`。
+- 当 block 是全新模块协议时，使用 `origin: custom`，此时不写 `extends`，但必须完整声明 description、slots、token binding、states、responsive rules、accessibility、anti-patterns 和 QA notes。
+- 只有真正替换官方 layout 或 block 时才进入 `overrides/`。
+- 替换必须声明 `replacement_kind`、`replacement_target`、`owner`、`reason`、`reviewed_at`。
+- `replacement_kind` 必须是 `layout` 或 `block`。MVP 不支持替换 catalog/style，避免和 custom style overlay 语义混淆。
+
+Override 文件示例：
+
+```yaml
+---
+kind: local_override
+replacement_kind: block
+replacement_target: run-status-header
+owner: dig
+reason: Replace the official run status header with a denser agent console summary.
+reviewed_at: 2026-07-01
+status: active
+---
+```
+
+## 9. Manifest 设计
+
+新增用户 library manifest：
+
+```text
+~/.config/dig-ui-skill/library/manifest.yaml
+```
+
+示例：
+
+```yaml
+schema_version: 1
+kind: local-library-manifest
+styles:
+  - id: my-console
+    status: active
+    path: styles/my-console.md
+
+layouts:
+  - slug: my-agent-dashboard
+    status: active
+    path: layouts/my-agent-dashboard.md
+
+blocks:
+  - id: my-run-card
+    status: active
+    path: blocks/my-run-card.md
+
+profiles:
+  - id: agent-console
+    status: active
+    path: profiles/agent-console.yaml
+
+overrides:
+  - replacement_kind: block
+    replacement_target: run-status-header
+    status: active
+    path: overrides/blocks/run-status-header.md
+```
+
+`profiles` 是真实文件，不只是 manifest 预留字段。`library/manifest.yaml` 里的 profile entry 只做索引，不重复写 `style`、`layouts`、`blocks`，避免 manifest 和 `profiles/*.yaml` 出现两个 source of truth。
+
+Profile 用来表达用户真正想说的“体系”，例如：
+
+```text
+使用我的 agent-console 体系
+```
+
+它不是新的资产类型，而是 style、layout、block 的组合 preset。MVP 需要支持 profile 文件的读取、同步和校验，但不必立刻提供完整编辑命令。
+
+Profile 文件示例：
+
+```yaml
+id: agent-console
+kind: local_profile
+status: active
+owner: dig
+description: Agent execution console defaults for debugging and observability pages.
+style: my-console
+layouts:
+  - my-agent-dashboard
+  - my-agent-run-detail
+blocks:
+  - my-run-card
+  - my-log-row
+defaults:
+  task_type: execution
+  information_density: 8
+  interaction_energy: 7
+```
+
+Profile 规则：
+
+- `style` 必须指向已存在 custom style 或官方 catalog。
+- `layouts` 若声明，必须指向已存在 custom layout 或官方 layout。
+- `blocks` 若声明，必须指向已存在 custom block 或官方 block。
+- profile 不直接定义 token、slot 或 block states；这些仍然由 style、layout 和 block 文件负责。
+- profile 可定义 `defaults`，但只作为 Dig Read 和资产选择的默认值，不覆盖用户当前 prompt。
+
+同步到安装目录时，用户 library manifest 生成到：
+
+```text
+references/local/library-manifest.yaml
+```
+
+这个文件是 generated installed copy，不应作为官方随包真实内容提交或覆盖；官方仓库只维护 schema、示例和 validator 规则。
+
+`references/local/manifest.yaml` 仍用于描述 local extension schema、优先级和 required fields。它可以扩展为：
+
+```yaml
+schema_version: 1
+kind: local-extension-manifest
+description: Project-level and user-level Dig UI extensions.
+priority:
+  - user prompt
+  - selected library asset, profile, or override
+  - project defaults
+  - references/global-rules.local.md
+  - references/global-rules.md
+  - installed language package
+  - references/shared/
+required_fields:
+  local_style: [id, kind, extends, owner, description, status]
+  local_style_sections: [Intent, Token Overlay, Anti-Patterns, QA Notes]
+  local_layout: [slug, kind, origin, owner, description, status, task_type, default_catalog, required_slots]
+  local_block: [id, kind, origin, owner, description, category, status, applicable_layouts, compatible_catalogs]
+  profile: [id, kind, owner, description, status, style]
+  override: [kind, replacement_kind, replacement_target, owner, reason, reviewed_at, status]
+conditional_fields:
+  extends_required_when_origin_extends: true
+  extends_forbidden_when_origin_custom: true
+library_manifest_entries:
+  style: [id, status, path]
+  layout: [slug, status, path]
+  block: [id, status, path]
+  profile: [id, status, path]
+  override: [replacement_kind, replacement_target, status, path]
+```
+
+## 10. CLI 设计
+
+在现有 `local` 命令旁边新增 `library` 命令。`local` 继续处理 `global-rules.local.md`，`library` 处理 style、layout、block、profile 和 override 资产。
+
+第一阶段推荐命令：
+
+```bash
+npx dig-ui-skill library path
+npx dig-ui-skill library init
+npx dig-ui-skill library list
+npx dig-ui-skill library show <type> <id>
+npx dig-ui-skill library sync --all
+npx dig-ui-skill library validate
+```
+
+第二阶段增加 scaffold：
+
+```bash
+npx dig-ui-skill library add-style my-console --extends dig
+npx dig-ui-skill library add-layout my-agent-dashboard --extends dashboard-overview
+npx dig-ui-skill library add-layout project-review-board --origin custom
+npx dig-ui-skill library add-block my-run-card --extends run-status-header
+npx dig-ui-skill library add-block project-risk-chip --origin custom
+npx dig-ui-skill library add-profile agent-console --style my-console
+npx dig-ui-skill library add-override --replacement-kind block --replacement-target run-status-header --reason "Use a denser agent console summary." --owner dig
+```
+
+规则：
+
+- `--extends <official-id>` 自动生成 `origin: extends`，并写入 `extends`。
+- `--origin custom` 生成完整空 contract，不写 `extends`。
+- `library show <type> <id>` 中的 `type` 必须是 `style`、`layout`、`block`、`profile` 或 `override`，避免不同资产类型使用同名 id 时解析不稳定；当 `type` 是 `override` 时，`id` 使用 `<replacement-kind>/<replacement-target>`，例如 `block/run-status-header`。
+- `add-override` 只用于真正替换官方 asset，必须要求 `--replacement-kind`、`--replacement-target`、`--reason` 和 `--owner`。
+- override scaffold 默认写入 `overrides/<replacement-kind>s/<replacement-target>.md`，例如 `overrides/blocks/run-status-header.md`，避免 layout/block 同名时路径冲突。
+
+第三阶段增加 import：
+
+```bash
+npx dig-ui-skill library import-layout <file>
+npx dig-ui-skill library import-block <file>
+npx dig-ui-skill library promote --from-project <type> <id>
+```
+
+CLI 定位仍然是 mechanical helper，不内置远程 AI provider。自然语言理解、从页面总结 layout/block、生成 profile/override contract、判断资产类型等能力交给宿主 Agent。
+
+## 11. Agent Workflow
+
+新增文档：
+
+```text
+references/local-library-builder.md
+```
+
+用于指导 Codex、Cursor、Claude Code 这类宿主 Agent。
+
+用户维护 Custom Layer 的主要入口不应是手写 YAML 或 Markdown，而应是让 Agent 修改用户自己的设计资产。用户可以用自然语言要求 Agent 添加、删减、修改某个 style / layout / block / profile / override；Agent 负责读取 manifest 和资产文件，把意图落到对应结构化字段，再运行 validate 和 sync。
+
+示例：
+
+```text
+把 my-console 改得更紧凑一点，按钮不要那么圆，hover 不要发光。
+```
+
+Agent 应该把这类请求映射为对 `styles/my-console.md` 中 `Token Overlay`、`Density`、`Interaction Tone` 或 `QA Notes` 的精确修改，而不是追加一段不可验证的自然语言。
+
+工作流：
+
+1. 读取 `references/global-rules.md` 和 `references/global-rules.local.md`。
+2. 读取 `references/local/README.md`、`manifest.yaml`、`layout-rules.md`、`block-rules.md`，理解官方 local extension schema。
+3. 读取 `~/.config/dig-ui-skill/library/manifest.yaml`；若用户显式选择 asset / profile / override，则继续读取对应 user library asset 文件，作为用户 library source of truth。
+4. 读取目标工具安装目录中的 `<target skill dir>/references/local/library-manifest.yaml`，作为已同步到当前工具的用户 library 副本。
+5. 读取项目内 `<project root>/.dig-ui/library-manifest.yaml` 或 `<project root>/references/local/library-manifest.yaml`，判断项目默认资产。
+6. 判断用户是在表达偏好、显式选择已有资产，还是要求沉淀新资产。
+7. 偏好写入 `global-rules.local.md`。
+8. 若任务需要沉淀新资产或用户显式执行 `library init`，但 `~/.config/dig-ui-skill/library/manifest.yaml` 不存在，且用户 library 目录内没有任何非 `.gitkeep` 资产文件，则先初始化用户 library source of truth：创建 `manifest.yaml`、`styles/`、`layouts/`、`blocks/`、`profiles/`、`overrides/layouts/`、`overrides/blocks/`，并写入空的 `local-library-manifest`。
+9. 写入新资产前，先用已初始化或已存在的用户 library source of truth 检查同名冲突、官方 slug/id 冲突和 override target 合法性。
+10. style、layout、block、profile、override 写入 `~/.config/dig-ui-skill/library/`。
+11. 更新 `~/.config/dig-ui-skill/library/manifest.yaml`。
+12. 同步到目标工具；目标工具的 `references/local/library-manifest.yaml` 只由 sync 生成或更新，不由官方包覆盖。
+13. 运行 validator。
+
+维护已有资产的工作流：
+
+1. 读取 `~/.config/dig-ui-skill/library/manifest.yaml`，定位用户指定资产。
+2. 读取对应 style / layout / block / profile / override 文件。
+3. 判断用户是在修改 token、density、interaction、slot contract、block states、profile refs 还是 override reason。
+4. 只修改对应结构化字段或 section，避免把新规则追加成不可解析的散文。
+5. 运行 `dig-ui-skill library validate`。
+6. 若通过校验，再执行 `dig-ui-skill library sync --all --from-config` 同步到目标工具。
+
+首次创建规则：
+
+- `dig-ui-skill library init` 是唯一负责创建空用户 source of truth 的命令；`add-*` 和 Agent 沉淀新资产流程可以在缺失时先调用同等初始化逻辑。
+- 初始化之前，如果用户 source of truth 不存在且用户只是执行普通页面生成或 `library list/show`，不得隐式创建文件；此时可报告 user library missing。
+- 初始化之后，冲突检查必须同时覆盖用户 source of truth、官方 registry、项目默认 manifest 和目标安装副本，避免把新资产写成一个后续 sync/validate 才暴露的冲突。
+- 如果某个 scope 已有资产文件但没有对应 manifest，不能用 init 静默接管；必须提示用户先 import/promote 或修复 manifest，避免把历史文件从索引中丢失。
+
+资产解析规则：
+
+- 用户当前 prompt 显式指定 asset / profile / override 时，先按 `~/.config/dig-ui-skill/library/manifest.yaml` 解析；找不到时再查当前工具安装目录的 `<target skill dir>/references/local/library-manifest.yaml`；仍找不到时再查 `<project root>/.dig-ui/library-manifest.yaml` 或 `<project root>/references/local/library-manifest.yaml`。
+- 用户未显式指定时，项目默认 manifest 只提供推荐资产，不覆盖用户 prompt。
+- 同一资产在用户 source of truth 和安装目录副本内容不一致时，以用户 source of truth 为准，并提示需要 `dig-ui-skill library sync --all --from-config`。
+- manifest entry 的 `path` 永远相对当前 scope 的 base dir 解析：用户 source of truth 相对 `~/.config/dig-ui-skill/library/`，目标安装副本相对 `<target skill dir>/references/local/`，项目默认相对其所在的 `.dig-ui/` 或 `references/local/`。
+
+路由规则：
+
+| 用户意图 | 目标 |
+| --- | --- |
+| “以后都这样”但没有命名结构 | `global-rules.local.md` |
+| “这种风格 / theme / skin / catalog” | `library/styles/` |
+| “这个页面骨架 / 页面结构 / layout” | `library/layouts/` |
+| “这个组件 / 模块 / block / 卡片 / 工具条” | `library/blocks/` |
+| “这个体系 / 套件 / preset / 一组默认资产” | `library/profiles/` |
+| “替代官方某个 layout/block” | `library/overrides/` |
+
+## 12. Validator 设计
+
+Validator 应该独立，不要塞回 `validate-dig-render-ops.mjs`。
+
+推荐新增：
+
+```text
+validate-dig-local-library.mjs
+```
+
+原因：
+
+- `validate-dig-render-ops.mjs` 已经收敛为 catalog render / render ops 校验。
+- custom library 校验的是五类资产的 contract、manifest 和继承 / 引用关系：style、layout、block、profile、override。
+- 如果把 library、layout、block 检查重新塞进 render ops，命令语义会再次混乱。
+
+命令边界：
+
+```bash
+dig-ui-skill validate renders     # catalog render / render ops
+dig-ui-skill library validate     # custom library
+```
+
+校验内容：
+
+- 对所有存在的 library scope 执行同一套 schema 校验：用户 source of truth `~/.config/dig-ui-skill/library/manifest.yaml`、安装目录副本 `<target skill dir>/references/local/library-manifest.yaml`、项目默认 `<project root>/.dig-ui/library-manifest.yaml` 或 `<project root>/references/local/library-manifest.yaml`。
+- library scope 的存在条件是：manifest 文件存在，或资产子目录中存在非 `.gitkeep` 的资产文件。只有官方 `references/local/README.md`、`manifest.yaml`、`layout-rules.md`、`block-rules.md` 或空 `.gitkeep` 时，不视为 custom library scope。
+- `library validate` 对不存在的 scope 跳过；`library init` 或 `add-*` 创建流程可以先创建空用户 source of truth，再进入校验。
+- scope 存在但 manifest 缺失时失败；唯一例外是正在执行 `library init` 且该 scope 没有任何非 `.gitkeep` 资产文件。
+- scope 存在且 manifest 存在但引用文件缺失时失败。
+- 每个存在的 manifest 都必须使用同一 `local-library-manifest` schema；不要求用户 source of truth 在普通读取或校验前必须存在，但一旦存在就作为显式选择和同步比较的权威来源。
+- manifest entries 必须包含该资产类型的稳定 identity、`status` 和 `path`：style/block/profile 使用 `id`，layout 使用 `slug`，override 使用 `replacement_kind` + `replacement_target`。
+- manifest entry 的 `path` 必须相对当前 scope base dir 解析，不允许从进程 cwd、目标工具目录或项目根目录做裸相对路径推断。
+- style、layout、block、profile、override 文件存在。
+- custom style 的 `extends` 必须指向官方 catalog，不允许指向另一个 custom style。
+- custom layout / block 必须声明 `origin: extends | custom`。
+- 当 `origin: extends` 时，`extends` 必填且必须指向官方资产。
+- 当 `origin: custom` 时，禁止声明 `extends`，并必须满足完整 contract sections。
+- MVP 不支持 custom layout / block 继承另一个 custom asset；若未来允许，必须另行设计继承链、覆盖顺序和循环检测。
+- custom style 必须有 `id`、`kind`、`extends`、`owner`、`status`。
+- custom style 必须有 `description`，供 `library list/show` 和 Agent 资产选择使用。
+- custom style 必须包含 `Intent`、`Token Overlay`、`Anti-Patterns`、`QA Notes` sections。
+- custom style 的 `Token Overlay` 必须包含可解析 YAML；若声明 `tokens`，token key 必须是 `--dig-*` 或允许的项目 theme variable。
+- custom style 的 `density.control_height`、radius、spacing 等值必须使用明确单位或枚举。
+- custom layout 必须有 `slug`、`kind`、`origin`、`owner`、`description`、`status`、`task_type`、`default_catalog`、`required_slots`。
+- custom block 必须有 `id`、`kind`、`origin`、`owner`、`description`、`category`、`status`、`applicable_layouts`、`compatible_catalogs`。
+- custom block 必须包含官方 block required sections。
+- profile 文件必须有 `id`、`kind: local_profile`、`owner`、`description`、`status`、`style`。
+- profile 的 `style` 必须指向已存在 custom style 或官方 catalog。
+- profile 的 `layouts` / `blocks` 若声明，必须指向已存在官方资产或 custom asset。
+- profile 不得直接声明 `tokens`、`required_slots`、`states` 等 style/layout/block 专属细节。
+- overrides 必须有 `kind: local_override`、`replacement_kind`、`replacement_target`、`owner`、`reason`、`reviewed_at`、`status`。
+- override manifest entries 必须包含 `replacement_kind`、`replacement_target`、`status`、`path`。
+- validator 必须按 `replacement_kind` 在对应官方 registry 中查找 `replacement_target`，不能跨 layout/block 做模糊匹配。
+- 不允许 custom asset 和官方 slug/id 冲突，除非在 `overrides/`。
+
+因为 Layout 和 Block HTML renders 已经 retired，本方案不恢复 layout/block render 页面。验证以 Markdown contract、manifest 引用完整性和 required sections 为主。
+
+## 13. 安装与同步策略
+
+新增 library source of truth：
+
+```text
+~/.config/dig-ui-skill/library/
+```
+
+CLI 中建议新增：
+
+```js
+const USER_LIBRARY_DIR = path.join(USER_CONFIG_DIR, "library");
+const LOCAL_LIBRARY_RELATIVE = path.join("references", "local");
+```
+
+Library scope 必须按 base dir 判定，不允许只用裸相对路径判断：
+
+| Scope | Base dir | Manifest | 角色 |
+| --- | --- | --- | --- |
+| User source of truth | `~/.config/dig-ui-skill/library/` | `manifest.yaml` | 用户个人 library 权威来源 |
+| Target installed copy | `<target skill dir>/references/local/` | `library-manifest.yaml` | 已同步到某个工具的读取副本 |
+| Project default `.dig-ui` | `<project root>/.dig-ui/` | `library-manifest.yaml` | 项目推荐资产，优先项目入口 |
+| Project default `references/local` | `<project root>/references/local/` | `library-manifest.yaml` | 项目推荐资产，兼容已有 local extension 目录 |
+
+规则：
+
+- `<target skill dir>/references/local/library-manifest.yaml` 是安装副本，不等同于项目默认。
+- `<project root>/references/local/library-manifest.yaml` 是项目默认，只在当前工作区项目根目录下解释。
+- 如果同一项目同时存在 `.dig-ui/library-manifest.yaml` 和 `references/local/library-manifest.yaml`，优先使用 `.dig-ui/library-manifest.yaml`；validator 仍需校验两者，并在同一 identity 指向不同路径或不同内容时报告 conflict。
+
+安装目录中的落点：
+
+```text
+<target skill dir>/references/local/
+```
+
+在 `<target skill dir>/references/local/` 下，`README.md`、`manifest.yaml`、`layout-rules.md`、`block-rules.md` 属于官方随包文件，不承载项目默认偏好；`styles/`、`layouts/`、`blocks/`、`profiles/`、`overrides/` 和同步后的 `library-manifest.yaml` 属于目标工具的用户 library 安装副本。只有当 base dir 是 `<project root>/references/local/` 时，这些资产子目录才表示项目默认 library 内容。
+
+项目默认偏好只允许写入：
+
+```text
+.dig-ui/library-manifest.yaml
+.dig-ui/styles/
+.dig-ui/layouts/
+.dig-ui/blocks/
+.dig-ui/profiles/
+.dig-ui/overrides/
+
+或
+
+references/local/library-manifest.yaml
+references/local/styles/
+references/local/layouts/
+references/local/blocks/
+references/local/profiles/
+references/local/overrides/
+```
+
+不要把项目默认偏好写入 `references/local/README.md`、`manifest.yaml`、`layout-rules.md` 或 `block-rules.md`，这些文件应由官方包更新。
+
+安装时：
+
+```bash
+npx dig-ui-skill install codex --with-local --with-library
+```
+
+更新时：
+
+```bash
+npx dig-ui-skill update --all --with-local --with-library
+```
+
+同步时：
+
+```bash
+npx dig-ui-skill library sync --all --from-config
+```
+
+安装 / 更新顺序：
+
+1. 复制官方 skill 文件，并在复制过程中保留已有 `references/global-rules.local.md`。
+2. 同时保留已有 `references/local/styles/`、`layouts/`、`blocks/`、`profiles/`、`overrides/` 与用户同步后的 `references/local/library-manifest.yaml`。
+3. 更新官方随包的 `references/local/README.md`、`manifest.yaml`、`layout-rules.md`、`block-rules.md` 和 `library-manifest.example.yaml` / schema 文档；不得用随包内容覆盖真实 `references/local/library-manifest.yaml`。
+4. 应用语言包。
+5. 若传入 `--with-local`，同步 `global-rules.local.md`。
+6. 若传入 `--with-library`，同步 `~/.config/dig-ui-skill/library/` 到目标工具。
+7. 运行或提示运行 `dig-ui-skill library validate`。
+
+冲突策略：
+
+- 默认不覆盖用户已有 custom asset。
+- 同名文件内容不同则提示 conflict。
+- 支持 `--from-config` 覆盖目标工具。
+- 支持 `--from-target` 从目标工具导入。
+- 支持 `--backup` 写入 `.backup`。
+- 支持 `--skip-conflicts` 跳过冲突继续同步。
+
+这些策略与现有 local rules 同步体验保持一致。
+
+状态展示建议扩展 `dig-ui-skill status`：
+
+```text
+User library: present / missing
+Codex library: missing / in sync / differs from user library / linked
+Cursor library: missing / in sync / differs from user library / linked
+Claude Code library: missing / in sync / differs from user library / linked
+```
+
+## 14. README 对外表述
+
+建议新增 Highlight：
+
+```md
+## Highlight：沉淀自己的设计资产
+
+Dig UI 不只提供官方设计系统资产，也允许用户把自己的长期风格、页面骨架、组件协议、组合 preset 和替换协议沉淀为本地 Custom Layer，并在 Codex、Cursor、Claude Code 之间同步复用。
+
+- `global-rules.local.md` 记录个人设计偏好。
+- `library/styles/` 记录个人风格。
+- `library/layouts/` 记录个人页面结构。
+- `library/blocks/` 记录个人组件协议。
+- `library/profiles/` 记录一组 style / layout / block 的组合 preset。
+- `library/overrides/` 记录明确替换官方资产的高级覆写。
+
+用户维护 Custom Layer 时，主要入口是自然语言请求 Agent 修改自己的设计资产，而不是手写配置文件；CLI 负责 `show`、`sync`、`validate` 这类机械操作。
+```
+
+示例：
+
+```text
+使用 dig-ui。把这个运行详情页沉淀成我的 layout，叫 my-agent-run-detail。
+```
+
+```text
+使用 dig-ui。把这个状态卡片保存成我的 block，叫 my-run-card。
+```
+
+## 15. 实施阶段
+
+### Phase 1：文档与 schema 落地
+
+- 新增 `references/local-library-builder.md`。
+- 更新 `references/local/README.md`，补充 style/layout/block/profile/override 资产边界与官方文件不承载项目默认偏好的说明。
+- 更新 `references/local/manifest.yaml`，加入 `local_style`、`profile`、`override` 与 library manifest entry 规则。
+- 新增 `references/local/library-manifest.example.yaml` 或等价 schema 示例；真实 `references/local/library-manifest.yaml` 只由 `library sync --all --from-config` 生成，并在 install/update 时保留。
+- 新增 `references/local/styles/.gitkeep`。
+- 新增 `references/local/profiles/.gitkeep`。
+- 新增 `references/local/overrides/layouts/.gitkeep` 与 `references/local/overrides/blocks/.gitkeep`。
+- 更新 README / USAGE，说明 Custom Layer 与 global local rules 的关系。
+
+### Phase 2：CLI mechanical helper
+
+- 新增 `dig-ui-skill library path`、`init`、`list`、`show <type> <id>`。
+- 新增 `dig-ui-skill library sync --all`。
+- 新增 `dig-ui-skill library validate`。
+- 新增独立 `validate-dig-local-library.mjs`，不复用 render ops validator。
+- 复用现有 local rules 的 conflict、backup、symlink 处理经验。
+
+### Phase 3：Scaffold 与 Agent workflow
+
+- 新增 `library add-style`。
+- 新增 `library add-layout`。
+- 新增 `library add-block`。
+- 新增 `library add-profile`。
+- 新增 `library add-override`。
+- 在 `local-library-builder.md` 中补充自然语言路由和写入模板。
+- 完善 `profiles` 和 `overrides` 的创建与更新命令。
+
+### Phase 4：导入与项目协作
+
+- 支持从项目 `.dig-ui/` 或 `references/local/` promote 到用户 library，命令使用 `promote --from-project <type> <id>`，保持和 `show` 相同的资产定位方式。
+- 支持从用户 library sync 到当前项目。
+- 支持团队仓库维护项目级 custom layer，而个人库继续保留私有偏好。
+
+## 16. 风险与约束
+
+- 不要让 custom style 变成无限复制 catalog。必须优先 overlay。
+- 不要恢复 layout/block HTML render 体系，避免回到重维护成本。
+- 不要让 CLI 负责自然语言理解，避免引入额外 AI provider 配置。
+- 不要把个人资产误提交到公开仓库，用户 library 应默认在 `~/.config/dig-ui-skill/`。
+- 不要让 custom asset 静默覆盖官方 slug/id，必须通过 `overrides/` 明确声明。
+
+## 17. 最小可行版本
+
+MVP 可以只做：
+
+1. `~/.config/dig-ui-skill/library/manifest.yaml`
+2. `library/styles/`、`library/layouts/`、`library/blocks/`、`library/profiles/`、`library/overrides/`
+3. `profiles/*.yaml` 作为真实组合 preset 文件，支持读取、同步和校验
+4. `overrides/layouts/*.md` 与 `overrides/blocks/*.md` 作为真实替换协议文件，支持读取、同步和校验
+5. `library sync --all --from-config` 生成 `references/local/library-manifest.yaml` 作为安装目录内的用户 library 资产索引；仓库只提供 `references/local/library-manifest.example.yaml` 或 schema 文档
+6. `references/local/styles/.gitkeep`、`references/local/profiles/.gitkeep`、`references/local/overrides/layouts/.gitkeep` 与 `references/local/overrides/blocks/.gitkeep`
+7. `references/local-library-builder.md`
+8. `dig-ui-skill library path`、`init`、`list`、`show <type> <id>`、`sync --all`、`validate`
+9. `validate-dig-local-library.mjs` 检查 required fields、required sections、Token Overlay YAML、profile 引用、override 引用和 manifest 引用
+
+这样就能形成完整闭环：
+
+```text
+用户自然语言
+  ↓
+宿主 Agent 总结资产
+  ↓
+写入用户 library
+  ↓
+同步到 Codex / Cursor / Claude Code
+  ↓
+后续任务可复用 style / layout / block / profile / override
+```
+
+## 18. 推荐结论
+
+这个 feature 应该作为 `dig-ui-skill` 的核心差异能力推进。它让 Dig UI 从“官方设计系统 skill”升级为“可被用户训练和积累的设计系统层”。
+
+最终产品心智：
+
+```text
+Dig UI = 官方设计系统资产 + 用户个人偏好 + 用户可复用设计资产
+```
+
+其中：
+
+- 官方资产保证质量下限。
+- `global-rules.local.md` 保证个人偏好延续。
+- Custom Layer 保证用户自己的 style、layout、block、profile 和 override 能持续复用。

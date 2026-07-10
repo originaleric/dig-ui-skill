@@ -30,7 +30,7 @@
 - 主题切换只替换 token、CSS variables、theme object 或等价主题值，不改组件语义和结构。
 - 组件样式必须引用 `--dig-*` token 或项目内主题变量，避免在组件里写死暗色 / 亮色 hex。
 - Global rules 只规定主题机制，不提供跨 catalog 的颜色值；`dark` / `light` token 必须从当前选用 catalog 的品牌色、背景、surface 与文字关系派生。
-- 不得把 `dig` catalog 的深蓝背景（如 `#06121a` / `#0b1b26`）作为其他 catalog 的 dark 默认值或兜底值；只有当前 catalog 明确选择 `dig` 时才能使用这组背景。
+- 不得把 `dig` catalog 的 `Dark Dig` 纯黑背景（`#000000` / `#080a0d`）或 `Light Dig` 画布（`#f7f7f7`）作为其他 catalog 的默认背景或兜底值；只有当前 catalog 明确选择 `dig` 时才能使用这组值。
 - light 模式至少覆盖：`--dig-bg`、`--dig-bg-soft`、`--dig-surface`、`--dig-surface-strong`、`--dig-surface-elevated`、`--dig-text`、`--dig-text-muted`、`--dig-text-soft`、`--dig-border`、`--dig-grid-line`、`--dig-control-bg`、`--dig-control-bg-hover`。
 - 模式切换使用 `dark` / `light` segmented pill；active 项使用 `--dig-accent`，inactive 项只使用 muted text 与透明背景。
 - 控制条不得抢主 CTA 的视觉层级；尺寸应小于主按钮。

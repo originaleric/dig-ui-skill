@@ -16,6 +16,56 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
 RENDER_DIR = os.path.join(PROJECT_DIR, "renders")
 LOCALIZED_MARKDOWN_RE = re.compile(r"\.(en|zh-CN)\.md$")
+PALETTE_REQUIRED_FRONTMATTER = {
+    "kind": "color-palette-catalog",
+    "category": "palettes",
+    "token_contract": "palette_v1",
+}
+BRAND_V1_REQUIRED_TOKEN_ROLES = [
+    "--dig-bg",
+    "--dig-bg-soft",
+    "--dig-surface",
+    "--dig-surface-strong",
+    "--dig-surface-elevated",
+    "--dig-text",
+    "--dig-text-muted",
+    "--dig-text-soft",
+    "--dig-accent",
+    "--dig-accent-2",
+    "--dig-border",
+    "--dig-grid-line",
+    "--dig-control-bg",
+    "--dig-control-bg-hover",
+]
+PALETTE_V1_ADDITIONAL_TOKEN_ROLES = [
+    "--dig-accent-strong",
+    "--dig-accent-2-strong",
+    "--dig-border-strong",
+]
+PALETTE_REQUIRED_ANCHORS = ["canvas", "ink", "primary", "support"]
+PALETTE_REQUIRED_DERIVED_ROLES = ["surface", "muted", "focus", "disabled", "overlay"]
+PALETTE_REQUIRED_SITE_ROLES = [
+    "page_background",
+    "headline",
+    "body_text",
+    "muted_text",
+    "cta_background",
+    "cta_text",
+    "card_background",
+    "card_text",
+    "link",
+    "illustration_highlight",
+    "focus_ring",
+    "disabled_text",
+    "overlay",
+]
+DEFAULT_PALETTE_SUPPORT_CANDIDATES = [
+    {"label": "Sky Information", "value": "#4FB3FF", "strong": "#2697EB"},
+    {"label": "System Blue", "value": "#0071E3", "strong": "#006EDB"},
+    {"label": "Periwinkle", "value": "#7A7FAD", "strong": "#5E6390"},
+    {"label": "Soft Gold", "value": "#B68A35", "strong": "#8A6724"},
+    {"label": "Sage Gray", "value": "#6F8F7A", "strong": "#4F6F59"},
+]
 
 def is_canonical_catalog_markdown(file_name):
     return file_name.endswith(".md") and not LOCALIZED_MARKDOWN_RE.search(file_name)
@@ -63,6 +113,249 @@ def description_to_sentences(desc):
 def escape_attr(value):
     return html.escape(value or "", quote=True)
 
+def parse_frontmatter_fields(md_content):
+    match = re.match(r'^---\s*\n(.*?)\n---', md_content, re.DOTALL)
+    if not match:
+        return {}
+    fields = {}
+    for line in match.group(1).split("\n"):
+        field_match = re.match(r'^([a-zA-Z0-9_-]+):\s*(.*?)\s*$', line)
+        if field_match:
+            fields[field_match.group(1)] = field_match.group(2).strip().strip('"\'')
+    return fields
+
+def normalize_yaml_scalar(value):
+    return (value or "").strip().strip('"\'').strip()
+
+def has_meaningful_value(value):
+    normalized = normalize_yaml_scalar(value)
+    return normalized not in ["", "null", "~"]
+
+def normalize_hex_color(value):
+    normalized = normalize_yaml_scalar(value)
+    if re.fullmatch(r'#[0-9a-fA-F]{3}', normalized):
+        return "#" + "".join([char * 2 for char in normalized[1:]]).upper()
+    if re.fullmatch(r'#[0-9a-fA-F]{6}', normalized):
+        return normalized.upper()
+    return ""
+
+def extract_section_outside_fences(content, heading):
+    lines = content.split("\n")
+    target = re.compile(rf'^##\s+{re.escape(heading)}\s*$')
+    next_heading = re.compile(r'^##\s+')
+    collected = []
+    collecting = False
+    in_fence = False
+    fence_char = ""
+    fence_length = 0
+
+    for line in lines:
+        fence_match = re.match(r'^(`{3,}|~{3,})', line)
+        if fence_match:
+            marker = fence_match.group(1)
+            if not in_fence:
+                in_fence = True
+                fence_char = marker[0]
+                fence_length = len(marker)
+            elif marker[0] == fence_char and len(marker) >= fence_length:
+                in_fence = False
+                fence_char = ""
+                fence_length = 0
+
+        if not in_fence and target.match(line):
+            collecting = True
+            continue
+        if collecting and not in_fence and next_heading.match(line):
+            break
+        if collecting:
+            collected.append(line)
+
+    return "\n".join(collected).strip()
+
+def extract_fenced_code_block_from_section(content, heading, language):
+    section = extract_section_outside_fences(content, heading)
+    if not section:
+        return ""
+    match = re.search(rf'```{re.escape(language)}\s*\n(.*?)\n```', section, re.DOTALL)
+    return match.group(1).strip() if match else ""
+
+def parse_yaml_section_map(content, section_name):
+    lines = content.split("\n")
+    values = {}
+    in_section = False
+    base_indent = 0
+    for line in lines:
+        section_match = re.match(rf'^(\s*){re.escape(section_name)}:\s*$', line)
+        if section_match:
+            in_section = True
+            base_indent = len(section_match.group(1))
+            continue
+        if not in_section:
+            continue
+        indent = len(re.match(r'^\s*', line).group(0))
+        if line.strip() and indent <= base_indent:
+            break
+        key_match = re.match(r'^\s+([a-zA-Z0-9_-]+):\s*(.*?)\s*$', line)
+        if key_match:
+            values[key_match.group(1)] = key_match.group(2)
+    return values
+
+def parse_palette_support_candidate_maps(content):
+    lines = content.split("\n")
+    items = []
+    current = None
+    in_candidates = False
+    in_support = False
+    candidates_indent = 0
+    support_indent = 0
+
+    for line in lines:
+        if not line.strip():
+            continue
+        indent = len(re.match(r'^\s*', line).group(0))
+        if not in_candidates:
+            match = re.match(r'^(\s*)candidates:\s*$', line)
+            if match:
+                in_candidates = True
+                candidates_indent = len(match.group(1))
+            continue
+        if indent <= candidates_indent:
+            break
+        if not in_support:
+            match = re.match(r'^\s*support:\s*$', line)
+            if match:
+                in_support = True
+                support_indent = indent
+            continue
+        if indent <= support_indent:
+            break
+
+        item_match = re.match(r'^\s*-\s*(?:(label|value|strong):\s*(.*?)\s*)?$', line)
+        if item_match:
+            if current is not None:
+                items.append(current)
+            current = {}
+            if item_match.group(1):
+                current[item_match.group(1)] = item_match.group(2)
+            continue
+
+        field_match = re.match(r'^\s+(label|value|strong):\s*(.*?)\s*$', line)
+        if current is not None and field_match:
+            current[field_match.group(1)] = field_match.group(2)
+
+    if current is not None:
+        items.append(current)
+    return items
+
+def normalize_palette_support_candidates(candidate_maps):
+    candidates = []
+    errors = []
+    for index, candidate in enumerate(candidate_maps, start=1):
+        label = normalize_yaml_scalar(candidate.get("label")) or f"Support {index}"
+        value = normalize_hex_color(candidate.get("value"))
+        strong = normalize_hex_color(candidate.get("strong"))
+        if not value:
+            errors.append(f"support candidate {index} missing valid value hex")
+        if not strong:
+            errors.append(f"support candidate {index} missing valid strong hex")
+        if value and strong:
+            candidates.append({"label": label, "value": value, "strong": strong})
+    return candidates, errors
+
+def parse_palette_support_candidates_from_contract(contract_block):
+    candidate_maps = parse_palette_support_candidate_maps(contract_block)
+    if not candidate_maps:
+        return [], []
+    return normalize_palette_support_candidates(candidate_maps)
+
+def parse_palette_support_candidates(md_content):
+    contract_block = extract_fenced_code_block_from_section(md_content, "Palette Contract", "yaml")
+    candidates, errors = parse_palette_support_candidates_from_contract(contract_block)
+    if errors:
+        fail_catalog("; ".join(errors))
+    return candidates or DEFAULT_PALETTE_SUPPORT_CANDIDATES
+
+def parse_css_tokens(content):
+    return {
+        match.group(1): match.group(2).strip()
+        for match in re.finditer(r'(--dig-[\w-]+)\s*:\s*([^;]*);', content)
+    }
+
+def fail_catalog(message):
+    print(f"❌ Error: {message}")
+    sys.exit(1)
+
+def validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path):
+    fields = parse_frontmatter_fields(md_content)
+
+    if category_slug.startswith("palettes") and category_slug != "palettes":
+        fail_catalog(f"Palette catalogs must be direct files under references/catalogs/palettes ({rel_path})")
+
+    if category_slug != "palettes":
+        palette_markers = {
+            key: value
+            for key, value in PALETTE_REQUIRED_FRONTMATTER.items()
+            if fields.get(key) == value
+        }
+        if palette_markers:
+            fail_catalog(f"Palette catalog contract must live under references/catalogs/palettes ({rel_path})")
+        return
+
+    frontmatter_slug = fields.get("slug")
+    if frontmatter_slug != catalog_slug:
+        fail_catalog(f"Palette slug must match filename ({frontmatter_slug or 'missing slug'} != {catalog_slug})")
+    if not re.fullmatch(r'palette\d{2,}', catalog_slug):
+        fail_catalog(f"Palette slug must use stable numeric form like palette01, got '{catalog_slug}'")
+    for key, expected in PALETTE_REQUIRED_FRONTMATTER.items():
+        actual = fields.get(key)
+        if actual != expected:
+            fail_catalog(f"Palette frontmatter {key} must be '{expected}', got '{actual or 'missing'}'")
+
+def validate_palette_contract(md_content, category_slug, catalog_slug, rel_path):
+    validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path)
+    if category_slug != "palettes":
+        return
+
+    contract_block = extract_fenced_code_block_from_section(md_content, "Palette Contract", "yaml")
+    if not contract_block:
+        fail_catalog(f"Palette {catalog_slug} missing canonical palette contract: ## Palette Contract fenced yaml block")
+
+    anchors = parse_yaml_section_map(contract_block, "anchors")
+    for key in PALETTE_REQUIRED_ANCHORS:
+        if key not in anchors:
+            fail_catalog(f"Palette {catalog_slug} missing anchor '{key}'")
+        if not has_meaningful_value(anchors[key]):
+            fail_catalog(f"Palette {catalog_slug} anchor '{key}' has empty value")
+
+    derived_roles = parse_yaml_section_map(contract_block, "derived_roles")
+    for key in PALETTE_REQUIRED_DERIVED_ROLES:
+        if key not in derived_roles:
+            fail_catalog(f"Palette {catalog_slug} missing derived role '{key}'")
+        if not has_meaningful_value(derived_roles[key]):
+            fail_catalog(f"Palette {catalog_slug} derived role '{key}' has empty value")
+
+    site_roles = parse_yaml_section_map(contract_block, "site_roles")
+    for key in PALETTE_REQUIRED_SITE_ROLES:
+        if key not in site_roles:
+            fail_catalog(f"Palette {catalog_slug} missing site role '{key}'")
+        if not has_meaningful_value(site_roles[key]):
+            fail_catalog(f"Palette {catalog_slug} site role '{key}' has empty value")
+
+    token_block = extract_fenced_code_block_from_section(md_content, "Dig UI CSS Tokens", "css")
+    if not token_block:
+        fail_catalog(f"Palette {catalog_slug} missing canonical CSS token block: ## Dig UI CSS Tokens fenced css block")
+
+    tokens = parse_css_tokens(token_block)
+    for token in [*BRAND_V1_REQUIRED_TOKEN_ROLES, *PALETTE_V1_ADDITIONAL_TOKEN_ROLES]:
+        if token not in tokens:
+            fail_catalog(f"Palette {catalog_slug} missing token role '{token}'")
+        if not has_meaningful_value(tokens[token]):
+            fail_catalog(f"Palette {catalog_slug} token role '{token}' has empty value")
+
+    _, candidate_errors = parse_palette_support_candidates_from_contract(contract_block)
+    if candidate_errors:
+        fail_catalog(f"Palette {catalog_slug} has invalid support candidates: {'; '.join(candidate_errors)}")
+
 def parse_render_intent(md_content, category_slug, brand_slug):
     archetype = None
     render_match = re.search(r'\nrender:\s*\n(.*?)(?:\n[a-zA-Z0-9_-]+:\s|\n---|\n##|\Z)', md_content, re.DOTALL)
@@ -97,6 +390,7 @@ def parse_render_intent(md_content, category_slug, brand_slug):
         "ecommerce": "commerce-dual-track",
         "fintech": "finance-mobile-app",
         "saas": "inbox-productivity",
+        "palettes": "site-palette-showcase",
     }
     return archetype or brand_defaults.get(brand_slug) or category_defaults.get(category_slug) or "token-sheet"
 
@@ -154,7 +448,68 @@ def build_token_section():
             </div>
           </section>"""
 
-def build_archetype_section(archetype, brand_name):
+def build_palette_lab_section(support_candidates=None):
+    candidates = support_candidates or DEFAULT_PALETTE_SUPPORT_CANDIDATES
+    candidate_html = "\n".join([
+        f'''                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="{candidate["value"]}" data-strong="{candidate["strong"]}">
+                  <span class="palette-candidate-dot" style="--candidate-color: {candidate["value"]}; --candidate-strong: {candidate["strong"]};"></span>
+                  <span>{html.escape(candidate["label"])}</span>
+                  <code>{candidate["value"]}</code>
+                </button>'''
+        for candidate in candidates
+    ])
+    controls = [
+        ("canvas", "Canvas", "画布", "--dig-bg"),
+        ("ink", "Ink", "文字", "--dig-text"),
+        ("primary", "Primary", "主强调色", "--dig-accent"),
+        ("primaryStrong", "Primary Strong", "强主强调色", "--dig-accent-strong"),
+        ("support", "Support", "第二强调色", "--dig-accent-2"),
+        ("supportStrong", "Support Strong", "强第二强调色", "--dig-accent-2-strong"),
+    ]
+    control_html = "\n".join([
+        f'''              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="{label_zh}" data-en="{label_en}">{label_zh}</span>
+                <span class="palette-lab-token">{token}</span>
+                <span class="palette-lab-swatch" data-palette-swatch="{role}"></span>
+                <input class="palette-lab-input" data-palette-input="{role}" inputmode="text" maxlength="9" aria-label="{label_en} hex" />
+                <input class="palette-lab-color" data-palette-color="{role}" type="color" aria-label="{label_en} color picker" />
+              </label>'''
+        for role, label_en, label_zh, token in controls
+    ])
+    return f"""
+            <div class="palette-lab-shell" id="palette-lab" data-palette-lab>
+              <div class="palette-lab-head">
+                <div>
+                  <h4 data-zh="Palette Lab" data-en="Palette Lab">Palette Lab</h4>
+                  <p data-zh="临时试色只更新当前预览页的 CSS variables；确认后再把 token 回写到 catalog。" data-en="Trial colors only update CSS variables in this preview; copy the tokens back to the catalog when approved.">临时试色只更新当前预览页的 CSS variables；确认后再把 token 回写到 catalog。</p>
+                </div>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-palette-copy data-zh="复制 Token" data-en="Copy Tokens">复制 Token</button>
+                  <button type="button" class="btn palette-export-btn" data-palette-export data-zh="导出 ZIP" data-en="Export ZIP">导出 ZIP</button>
+                </div>
+              </div>
+              <div class="palette-lab-grid">
+                <div class="palette-lab-controls">
+{control_html}
+                </div>
+                <div class="palette-candidate-panel">
+                  <strong data-zh="第二强调色候选" data-en="Support Candidates">第二强调色候选</strong>
+                  <div class="palette-candidate-grid">
+{candidate_html}
+                  </div>
+                </div>
+                <div class="palette-token-diff" aria-live="polite">
+                  <div><code>--dig-bg</code><span data-palette-token="--dig-bg"></span></div>
+                  <div><code>--dig-text</code><span data-palette-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-palette-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-strong</code><span data-palette-token="--dig-accent-strong"></span></div>
+                  <div><code>--dig-accent-2</code><span data-palette-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-accent-2-strong</code><span data-palette-token="--dig-accent-2-strong"></span></div>
+                </div>
+              </div>
+            </div>"""
+
+def build_archetype_section(archetype, brand_name, palette_candidates=None):
     brand = html.escape(brand_name)
     templates = {
         "command-palette-marketing": f"""
@@ -261,6 +616,26 @@ def build_archetype_section(archetype, brand_name):
               <div class="rate-grid"><article><strong>USD → EUR</strong><span>0.9234</span></article><article><strong>Card</strong><span>Active</span></article></div>
             </div>
           </section>""",
+        "site-palette-showcase": f"""
+          <section class="surface section archetype-section palette-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="整站配色样张" data-en="Site Palette Sample">整站配色样张</h3>
+              <p data-zh="展示 palette 的背景、文字、CTA、卡片、链接和辅助强调如何落到真实网站结构里。" data-en="Shows how page background, text, CTA, cards, links, and support accents land in a real site structure.">展示 palette 的背景、文字、CTA、卡片、链接和辅助强调如何落到真实网站结构里。</p>
+            </div>
+{build_palette_lab_section(palette_candidates)}
+            <div class="commerce-shell palette-shell">
+              <article class="commerce-hero">
+                <span>{brand}</span>
+                <strong>Build a calm product surface from four color anchors.</strong>
+                <button class="btn btn-primary">Primary action</button>
+              </article>
+              <article class="checkout-card">
+                <strong>Role mapping</strong>
+                <span>Canvas, ink, primary, and support expand into semantic Dig tokens.</span>
+                <button class="btn btn-secondary">Secondary action</button>
+              </article>
+            </div>
+          </section>""",
     }
     return templates.get(archetype, f"""
           <section class="surface section archetype-section token-preview" id="sample">
@@ -274,20 +649,23 @@ def build_archetype_section(archetype, brand_name):
             </div>
           </section>""")
 
-def build_page_grid(archetype, brand_name):
+def build_page_grid(archetype, brand_name, palette_candidates=None):
+    palette_lab_link = ""
+    if archetype == "site-palette-showcase":
+        palette_lab_link = '            <a href="#palette-lab" data-zh="试色" data-en="Palette Lab">试色</a>\n'
     return f"""
       <div class="page-grid">
         <aside class="surface side-rail">
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
             <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
-            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+{palette_lab_link}            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
             <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
         </aside>
 
         <div class="content">
-{build_archetype_section(archetype, brand_name)}
+{build_archetype_section(archetype, brand_name, palette_candidates)}
 {build_color_section()}
 {build_token_section()}
         </div>
@@ -303,6 +681,103 @@ def build_hero_side():
             <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
           </div>
         </aside>"""
+
+def initial_catalog_data():
+    return {
+        "ai-llm": {"name": "AI & LLM Platforms", "brands": []},
+        "dev-tools": {"name": "Developer Tools & IDEs", "brands": []},
+        "devops": {"name": "Backend, Database & DevOps", "brands": []},
+        "saas": {"name": "Productivity & SaaS", "brands": []},
+        "creative-tools": {"name": "Design & Creative Tools", "brands": []},
+        "fintech": {"name": "Fintech & Crypto", "brands": []},
+        "ecommerce": {"name": "E-commerce & Retail", "brands": []},
+        "media-consumer": {"name": "Media & Consumer Tech", "brands": []},
+        "automotive": {"name": "Automotive", "brands": []},
+        "other": {"name": "General / Core Layouts", "brands": []},
+        "palettes": {"name": "Color Palettes", "items": [], "brands": []}
+    }
+
+def catalog_entries_for_group(group):
+    if isinstance(group.get("items"), list):
+        return group["items"]
+    if isinstance(group.get("brands"), list):
+        return group["brands"]
+    return []
+
+def upsert_catalog_entry(group, entry, use_items=False):
+    key = "items" if use_items else "brands"
+    group.setdefault(key, [])
+    entries = group[key]
+    for index, existing in enumerate(entries):
+        if existing.get("slug") == entry.get("slug"):
+            entries[index] = entry
+            break
+    else:
+        entries.append(entry)
+
+def ensure_catalog_groups(registry):
+    baseline = initial_catalog_data()
+    for category, baseline_group in baseline.items():
+        registry.setdefault(category, {"name": baseline_group["name"]})
+        registry[category].setdefault("name", baseline_group["name"])
+        if "brands" in baseline_group:
+            registry[category].setdefault("brands", [])
+        if "items" in baseline_group:
+            registry[category].setdefault("items", [])
+    return registry
+
+def parse_existing_catalog_data(index_content):
+    match = re.search(r'const catalogData = (\{.*?\});\s*(?:function getCatalogItems|// Compute)', index_content, re.DOTALL)
+    if not match:
+        raise ValueError("Cannot find parseable catalogData block in renders/index.html")
+    return json.loads(match.group(1))
+
+def merge_catalog_data(existing_registry, update_registry):
+    merged = ensure_catalog_groups(existing_registry)
+    for category, update_group in update_registry.items():
+        if category not in merged:
+            merged[category] = {"name": update_group.get("name", category), "brands": []}
+        merged[category]["name"] = update_group.get("name", merged[category].get("name", category))
+        if category == "palettes":
+            merged[category].setdefault("items", [])
+            merged[category].setdefault("brands", [])
+            for entry in catalog_entries_for_group(update_group):
+                upsert_catalog_entry(merged[category], entry, use_items=True)
+                upsert_catalog_entry(merged[category], entry.copy(), use_items=False)
+        else:
+            for entry in catalog_entries_for_group(update_group):
+                upsert_catalog_entry(merged[category], entry, use_items=False)
+    return merged
+
+def write_catalog_registry(index_html_file, catalog_data, target_catalog=None):
+    if not os.path.exists(index_html_file):
+        return
+
+    with open(index_html_file, "r", encoding="utf-8") as f:
+        index_content = f.read()
+
+    registry_data = catalog_data
+    if target_catalog:
+        try:
+            existing_registry = parse_existing_catalog_data(index_content)
+        except (ValueError, json.JSONDecodeError) as error:
+            print(f"❌ Error: {error}")
+            sys.exit(1)
+        registry_data = merge_catalog_data(existing_registry, catalog_data)
+
+    catalog_json = json.dumps(registry_data, ensure_ascii=False)
+    index_content_updated, replace_count = re.subn(
+        r'const catalogData = \{.*?\};',
+        f'const catalogData = {catalog_json};',
+        index_content,
+        flags=re.DOTALL
+    )
+    if replace_count != 1:
+        print("❌ Error: Expected exactly one catalogData block in renders/index.html")
+        sys.exit(1)
+
+    with open(index_html_file, "w", encoding="utf-8") as f:
+        f.write(index_content_updated)
 
 def main():
     target_catalog = sys.argv[1] if len(sys.argv) > 1 else None
@@ -329,18 +804,7 @@ def main():
     print(f"🔄 Starting compilation & synchronization of {len(md_files)} catalogs...")
 
     # Data registry for updating index.html catalogData
-    catalog_data = {
-        "ai-llm": {"name": "AI & LLM Platforms", "brands": []},
-        "dev-tools": {"name": "Developer Tools & IDEs", "brands": []},
-        "devops": {"name": "Backend, Database & DevOps", "brands": []},
-        "saas": {"name": "Productivity & SaaS", "brands": []},
-        "creative-tools": {"name": "Design & Creative Tools", "brands": []},
-        "fintech": {"name": "Fintech & Crypto", "brands": []},
-        "ecommerce": {"name": "E-commerce & Retail", "brands": []},
-        "media-consumer": {"name": "Media & Consumer Tech", "brands": []},
-        "automotive": {"name": "Automotive", "brands": []},
-        "other": {"name": "General / Core Layouts", "brands": []}
-    }
+    catalog_data = initial_catalog_data()
 
     for md_file in md_files:
         rel_path = os.path.relpath(md_file, CATALOG_DIR)
@@ -349,6 +813,11 @@ def main():
         
         # HTML preview path matching category hierarchy
         html_file = os.path.join(RENDER_DIR, rel_path[:-3] + ".html")
+
+        # Load and validate source identity before creating or mutating render files.
+        with open(md_file, "r", encoding="utf-8") as f:
+            md_content = f.read()
+        validate_palette_contract(md_content, category_slug, brand_slug, rel_path)
         
         # Scaffolding: if HTML doesn't exist, clone it
         if not os.path.exists(html_file):
@@ -377,10 +846,6 @@ def main():
             else:
                 print(f"⚠️ Warning: No HTML templates found. Skipping {brand_slug}.")
                 continue
-
-        # Load MD content
-        with open(md_file, "r", encoding="utf-8") as f:
-            md_content = f.read()
             
         # 1. Extract metadata from Frontmatter
         brand_name = brand_slug.capitalize()
@@ -403,6 +868,7 @@ def main():
         if not brand_name_en:
             brand_name_en = brand_name
         render_archetype = parse_render_intent(md_content, category_slug, brand_slug)
+        palette_candidates = parse_palette_support_candidates(md_content) if category_slug == "palettes" else None
 
         # Parse bilingual descriptions
         description_zh = ""
@@ -472,11 +938,13 @@ def main():
         bg_match = re.search(r'--dig-bg:\s*([^;]+);', md_content)
         bg_color = bg_match.group(1).strip() if bg_match else "#f5f5f5"
 
-        # Register brand in catalog data
+        # Register catalog item in catalog data.
+        # Palette catalogs use "items" as the source of truth and keep "brands"
+        # only as a legacy fallback for older render hubs.
         keywords_zh = description_to_sentences(description_zh)
         keywords_en = description_to_sentences(description_en)
         if category_slug in catalog_data:
-            catalog_data[category_slug]["brands"].append({
+            catalog_entry = {
                 "slug": brand_slug,
                 "name": brand_name,
                 "name_zh": brand_name_zh,
@@ -486,7 +954,12 @@ def main():
                 "keywords_zh": keywords_zh,
                 "keywords_en": keywords_en,
                 "link": f"./{category_slug}/{brand_slug}.html"
-            })
+            }
+            if category_slug == "palettes":
+                catalog_data[category_slug]["items"].append(catalog_entry)
+                catalog_data[category_slug]["brands"].append(catalog_entry.copy())
+            else:
+                catalog_data[category_slug]["brands"].append(catalog_entry)
 
         # 3. Read and upgrade HTML content
         with open(html_file, "r", encoding="utf-8") as f:
@@ -506,17 +979,23 @@ def main():
         html_content = re.sub(root_pattern, root_replace, html_content)
 
         # Update title tag
-        html_content = re.sub(r'<title>.*?</title>', f'<title>Dig UI {brand_name} Render</title>', html_content)
+        html_content = re.sub(r'<title>.*?</title>', f'<title>Dig UI {html.escape(brand_name_en)} Render</title>', html_content)
 
         # Update eyebrow tag
         html_content = re.sub(
             r'<span class="eyebrow">.*?Catalog / Dig UI</span>',
-            f'<span class="eyebrow"><span class="brand-name-label">{brand_name}</span> Catalog / Dig UI</span>',
+            f'<span class="eyebrow"><span class="brand-name-label" data-zh="{escape_attr(brand_name_zh)}" data-en="{escape_attr(brand_name_en)}">{html.escape(brand_name_zh)}</span> Catalog / Dig UI</span>',
             html_content
         )
 
         # Update H1 headline
-        html_content = re.sub(r'<h1>.*?</h1>', f'<h1 class="brand-title-h1">{brand_name}</h1>', html_content)
+        html_content = re.sub(
+            r'<h1(?:\s+[^>]*)?>.*?</h1>',
+            f'<h1 class="brand-title-h1" data-zh="{escape_attr(brand_name_zh)}" data-en="{escape_attr(brand_name_en)}">{html.escape(brand_name_zh)}</h1>',
+            html_content,
+            count=1,
+            flags=re.DOTALL
+        )
 
         # Update description <p> (supports data-zh and data-en translation attributes)
         html_content = re.sub(
@@ -531,7 +1010,7 @@ def main():
         )
 
         # Rebuild the central preview body from the selected catalog render archetype.
-        page_grid = build_page_grid(render_archetype, brand_name)
+        page_grid = build_page_grid(render_archetype, brand_name, palette_candidates)
         html_content = re.sub(
             r'\n\s*<div class="page-grid">.*?\n\s*</main>',
             f"\n{page_grid}\n    </main>",
@@ -745,27 +1224,532 @@ def main():
           });
         });
 
-        // Dynamic Token Visualizer
-        const rootStyles = getComputedStyle(document.documentElement);
-        document.querySelectorAll('.token-val').forEach(el => {
-          const tokenName = el.getAttribute('data-token');
-          if (tokenName) {
-            let value = rootStyles.getPropertyValue(tokenName).trim();
-            if (value) {
-              if (value.startsWith('#')) {
-                value = value.toUpperCase();
-              }
-              el.textContent = '';
-              if (/^#[0-9A-F]{3}(?:[0-9A-F]{3})?$/.test(value)) {
-                const dot = document.createElement('span');
-                dot.className = 'token-color-dot';
-                dot.style.background = value;
-                el.appendChild(dot);
-              }
-              el.appendChild(document.createTextNode(value));
+        const root = document.documentElement;
+        const paletteRoleTokens = {
+          canvas: '--dig-bg',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          primaryStrong: '--dig-accent-strong',
+          support: '--dig-accent-2',
+          supportStrong: '--dig-accent-2-strong'
+        };
+        const paletteTrackedTokens = [
+          '--dig-bg',
+          '--dig-text',
+          '--dig-accent',
+          '--dig-accent-strong',
+          '--dig-accent-2',
+          '--dig-accent-2-strong'
+        ];
+        const paletteExportTokens = [
+          ...paletteTrackedTokens
+        ];
+
+        function normalizeHex(raw) {
+          const value = (raw || '').trim();
+          if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+            return '#' + value.slice(1).split('').map(char => char + char).join('').toUpperCase();
+          }
+          if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+            return value.toUpperCase();
+          }
+          return '';
+        }
+
+        function cssColorToHex(raw) {
+          const value = (raw || '').trim();
+          const hex = normalizeHex(value);
+          if (hex) return hex;
+          const rgbMatch = value.match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/i);
+          if (!rgbMatch) return '';
+          return '#' + rgbMatch.slice(1, 4).map(part => {
+            const channel = Math.max(0, Math.min(255, Number(part)));
+            return channel.toString(16).padStart(2, '0');
+          }).join('').toUpperCase();
+        }
+
+        function getTokenValue(token) {
+          return getComputedStyle(root).getPropertyValue(token).trim();
+        }
+
+        function renderTokenValue(el, value) {
+          let displayValue = (value || '').trim();
+          if (!displayValue) return;
+          const hexValue = normalizeHex(displayValue);
+          if (hexValue) {
+            displayValue = hexValue;
+          }
+          el.textContent = '';
+          if (hexValue) {
+            const dot = document.createElement('span');
+            dot.className = 'token-color-dot';
+            dot.style.background = hexValue;
+            el.appendChild(dot);
+          }
+          el.appendChild(document.createTextNode(displayValue));
+        }
+
+        function refreshTokenVisualizers() {
+          document.querySelectorAll('.token-val').forEach(el => {
+            const tokenName = el.getAttribute('data-token');
+            if (tokenName) {
+              renderTokenValue(el, getTokenValue(tokenName));
+            }
+          });
+        }
+
+        function updatePaletteLabState() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          Object.entries(paletteRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
+            const swatch = lab.querySelector(`[data-palette-swatch="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) {
+              textInput.value = value;
+            }
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+            if (swatch && value) {
+              swatch.style.background = value;
+            }
+          });
+
+          paletteTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-palette-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setPaletteRoles(updates) {
+          let changed = false;
+          Object.entries(updates).forEach(([role, value]) => {
+            const token = paletteRoleTokens[role];
+            const hex = normalizeHex(value);
+            if (!token || !hex) return;
+            root.style.setProperty(token, hex);
+            changed = true;
+          });
+          if (changed) {
+            updatePaletteLabState();
+          }
+        }
+
+        function setPaletteRole(role, value) {
+          setPaletteRoles({ [role]: value });
+        }
+
+        function fallbackCopyText(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            return document.execCommand('copy');
+          } catch (error) {
+            console.warn('Palette fallback copy failed', error);
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        async function copyPaletteTokens(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (error) {
+              console.warn('Palette clipboard copy failed', error);
             }
           }
-        });
+          return fallbackCopyText(text);
+        }
+
+        function buildPaletteTokenCss(tokens = paletteTrackedTokens) {
+          return tokens.map(token => {
+            const value = getTokenValue(token);
+            return `${token}: ${normalizeHex(value) || value};`;
+          }).join('\\n');
+        }
+
+        function getPaletteSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-palette';
+          return fileName.replace(/\\.html$/i, '') || 'dig-palette';
+        }
+
+        function formatPaletteTimestamp(date = new Date()) {
+          const pad = value => String(value).padStart(2, '0');
+          return [
+            date.getFullYear(),
+            pad(date.getMonth() + 1),
+            pad(date.getDate())
+          ].join('') + '-' + [
+            pad(date.getHours()),
+            pad(date.getMinutes()),
+            pad(date.getSeconds())
+          ].join('');
+        }
+
+        function collectPaletteCandidates(lab) {
+          const support = Array.from(lab.querySelectorAll('[data-palette-candidate]')).map(button => {
+            const label = button.querySelector('span:not(.palette-candidate-dot)')?.textContent?.trim() || '';
+            return {
+              label,
+              value: normalizeHex(button.getAttribute('data-value')) || button.getAttribute('data-value'),
+              strong: normalizeHex(button.getAttribute('data-strong')) || button.getAttribute('data-strong')
+            };
+          });
+          return { support };
+        }
+
+        function buildPaletteExportPayload(lab) {
+          const tokens = {};
+          paletteExportTokens.forEach(token => {
+            const value = getTokenValue(token);
+            if (value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          return {
+            schema: 'dig.palette.export.v1',
+            token_contract: 'palette_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug: getPaletteSlug(),
+            export_id: `${getPaletteSlug()}.custompalette-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            anchors: {
+              canvas: tokens['--dig-bg'],
+              ink: tokens['--dig-text'],
+              primary: tokens['--dig-accent'],
+              support: tokens['--dig-accent-2']
+            },
+            roles: {
+              primary_strong: tokens['--dig-accent-strong'],
+              support_strong: tokens['--dig-accent-2-strong']
+            },
+            tokens,
+            css: buildPaletteTokenCss(paletteExportTokens),
+            candidates: collectPaletteCandidates(lab),
+            derivation: {
+              status: 'anchors-only',
+              note: 'This custom palette exports only Palette Lab managed role tokens. Downstream systems should derive extended scales from these anchors.'
+            }
+          };
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[char]);
+        }
+
+        function hexToRgb(hex) {
+          const normalized = normalizeHex(hex);
+          if (!normalized) return null;
+          return {
+            r: parseInt(normalized.slice(1, 3), 16),
+            g: parseInt(normalized.slice(3, 5), 16),
+            b: parseInt(normalized.slice(5, 7), 16)
+          };
+        }
+
+        function relativeLuminance(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 1;
+          const channels = [rgb.r, rgb.g, rgb.b].map(channel => {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+        }
+
+        function contrastRatio(hexA, hexB) {
+          const lumA = relativeLuminance(hexA);
+          const lumB = relativeLuminance(hexB);
+          const lighter = Math.max(lumA, lumB);
+          const darker = Math.min(lumA, lumB);
+          return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function readableTextOn(hex) {
+          return contrastRatio(hex, '#000000') >= contrastRatio(hex, '#FFFFFF') ? '#000000' : '#FFFFFF';
+        }
+
+        function buildPalettePreviewHtml(payload) {
+          const tokens = payload.tokens || {};
+          const onPrimary = readableTextOn(payload.anchors.primary);
+          const swatches = [
+            ['Canvas', payload.anchors.canvas],
+            ['Ink', payload.anchors.ink],
+            ['Primary', payload.anchors.primary],
+            ['Primary Strong', payload.roles.primary_strong],
+            ['Support', payload.anchors.support],
+            ['Support Strong', payload.roles.support_strong]
+          ].map(([label, value]) => `
+              <article class="swatch">
+                <span style="background:${escapeHtml(value)}"></span>
+                <strong>${escapeHtml(label)}</strong>
+                <code>${escapeHtml(value)}</code>
+              </article>`).join('');
+          const tokenRows = Object.entries(tokens).map(([token, value]) => `
+              <tr><td><code>${escapeHtml(token)}</code></td><td>${escapeHtml(value)}</td></tr>`).join('');
+          return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)} Palette Export</title>
+    <style>
+      :root {
+        --bg: ${escapeHtml(payload.anchors.canvas)};
+        --ink: ${escapeHtml(payload.anchors.ink)};
+        --primary: ${escapeHtml(payload.anchors.primary)};
+        --primary-strong: ${escapeHtml(payload.roles.primary_strong)};
+        --support: ${escapeHtml(payload.anchors.support)};
+        --support-strong: ${escapeHtml(payload.roles.support_strong)};
+        --on-primary: ${escapeHtml(onPrimary)};
+        --surface: color-mix(in srgb, var(--bg), var(--ink) 6%);
+        --surface-strong: color-mix(in srgb, var(--bg), var(--ink) 11%);
+        --border: color-mix(in srgb, var(--ink), transparent 76%);
+        --border-strong: color-mix(in srgb, var(--ink), transparent 56%);
+        --muted: color-mix(in srgb, var(--ink), transparent 32%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+      .hero { display: grid; gap: 20px; padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface), var(--support) 18%)); }
+      h1 { margin: 0; font-size: clamp(42px, 8vw, 92px); line-height: .92; letter-spacing: -0.03em; }
+      p { max-width: 68ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary-strong); border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+      .button.secondary { background: transparent; color: var(--primary); }
+      .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+      .swatch { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      .swatch span { width: 42px; height: 42px; border: 1px solid var(--border-strong); border-radius: 999px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      table { width: 100%; border-collapse: collapse; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      tr:last-child td { border-bottom: 0; }
+      td:last-child { text-align: right; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <code>${escapeHtml(payload.export_id)}</code>
+        <h1>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)}</h1>
+        <p>${escapeHtml(payload.description.zh || payload.description.en || '')}</p>
+        <div class="actions">
+          <span class="button">Primary Action</span>
+          <span class="button secondary">Secondary Action</span>
+        </div>
+      </section>
+      <section class="swatches">${swatches}
+      </section>
+      <table>${tokenRows}
+      </table>
+    </main>
+  </body>
+</html>
+`;
+        }
+
+        const zipCrcTable = (() => {
+          const table = new Uint32Array(256);
+          for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+              value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+          }
+          return table;
+        })();
+
+        function crc32(bytes) {
+          let crc = 0xFFFFFFFF;
+          for (const byte of bytes) {
+            crc = zipCrcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+          }
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function zipDateParts(date = new Date()) {
+          const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+          const day = (date.getFullYear() - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+          return { time, day };
+        }
+
+        function makeZip(files) {
+          const encoder = new TextEncoder();
+          const localParts = [];
+          const centralParts = [];
+          let offset = 0;
+          const { time, day } = zipDateParts();
+
+          files.forEach(file => {
+            const nameBytes = encoder.encode(file.name);
+            const dataBytes = encoder.encode(file.content);
+            const crc = crc32(dataBytes);
+            const local = new ArrayBuffer(30 + nameBytes.length);
+            const localView = new DataView(local);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0x0800, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, time, true);
+            localView.setUint16(12, day, true);
+            localView.setUint32(14, crc, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            new Uint8Array(local, 30).set(nameBytes);
+            localParts.push(local, dataBytes);
+
+            const central = new ArrayBuffer(46 + nameBytes.length);
+            const centralView = new DataView(central);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0x0800, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, time, true);
+            centralView.setUint16(14, day, true);
+            centralView.setUint32(16, crc, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint32(42, offset, true);
+            new Uint8Array(central, 46).set(nameBytes);
+            centralParts.push(central);
+            offset += local.byteLength + dataBytes.length;
+          });
+
+          const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+          const end = new ArrayBuffer(22);
+          const endView = new DataView(end);
+          endView.setUint32(0, 0x06054b50, true);
+          endView.setUint16(8, files.length, true);
+          endView.setUint16(10, files.length, true);
+          endView.setUint32(12, centralSize, true);
+          endView.setUint32(16, offset, true);
+          return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+        }
+
+        function downloadPaletteZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-palette'}.custompalette-${formatPaletteTimestamp()}`;
+          const jsonName = `${baseName}.json`;
+          const htmlName = `${baseName}.html`;
+          const zip = makeZip([
+            { name: jsonName, content: JSON.stringify(payload, null, 2) + '\\n' },
+            { name: htmlName, content: buildPalettePreviewHtml(payload) }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initPaletteLab() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          lab.querySelectorAll('[data-palette-input]').forEach(input => {
+            input.addEventListener('change', () => {
+              setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+            });
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) {
+                setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+              }
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-color]').forEach(input => {
+            input.addEventListener('input', () => {
+              setPaletteRole(input.getAttribute('data-palette-color'), input.value);
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
+            button.addEventListener('click', () => {
+              lab.querySelectorAll('[data-palette-candidate]').forEach(item => item.classList.remove('active'));
+              button.classList.add('active');
+              setPaletteRoles({
+                [button.getAttribute('data-role')]: button.getAttribute('data-value'),
+                supportStrong: button.getAttribute('data-strong')
+              });
+            });
+          });
+
+          const copyButton = lab.querySelector('[data-palette-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const tokenCss = buildPaletteTokenCss();
+              const copied = await copyPaletteTokens(tokenCss);
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          const exportButton = lab.querySelector('[data-palette-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildPaletteExportPayload(lab);
+              downloadPaletteZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          updatePaletteLabState();
+        }
+
+        // Dynamic Token Visualizer
+        refreshTokenVisualizers();
+        initPaletteLab();
       });"""
             if "// Dynamic Token Visualizer" in html_content:
                 html_content = re.sub(
@@ -780,7 +1764,8 @@ def main():
         html_content = re.sub(
             r'<body(?:\s+data-render-archetype="[^"]*")?>',
             f'<body data-render-archetype="{escape_attr(render_archetype)}">',
-            html_content
+            html_content,
+            count=1
         )
 
         # Save HTML page
@@ -788,28 +1773,13 @@ def main():
             f.write(html_content)
         print(f"✅ Synced & Bilingualized: renders/{category_slug}/{brand_slug}.html")
 
-    # 5. Synchronize catalogData Registry inside index.html if compiling all
-    if not target_catalog:
-        index_html_file = os.path.join(RENDER_DIR, "index.html")
-        if os.path.exists(index_html_file):
-            print("🔄 Re-generating central handbook catalogData registry in renders/index.html...")
-            with open(index_html_file, "r", encoding="utf-8") as f:
-                index_content = f.read()
-
-            catalog_json = json.dumps(catalog_data, ensure_ascii=False)
-            
-            # Update the const catalogData block
-            index_content_updated = re.sub(
-                r'const catalogData = \{.*?\};',
-                f'const catalogData = {catalog_json};',
-                index_content,
-                flags=re.DOTALL
-            )
-
-            # Also update the global count calculation if needed, but it's computed dynamically in JavaScript!
-            with open(index_html_file, "w", encoding="utf-8") as f:
-                f.write(index_content_updated)
-            print("🎉 Central handbook registry index.html updated successfully!")
+    # 5. Synchronize catalogData registry. Full sync rewrites from disk; target sync
+    # merges only the compiled catalog so the central handbook stays discoverable.
+    index_html_file = os.path.join(RENDER_DIR, "index.html")
+    if os.path.exists(index_html_file):
+        print("🔄 Updating central handbook catalogData registry in renders/index.html...")
+        write_catalog_registry(index_html_file, catalog_data, target_catalog=target_catalog)
+        print("🎉 Central handbook registry index.html updated successfully!")
 
     print("🎉 Sync completed successfully! All previews are perfectly aligned bilingually.")
 

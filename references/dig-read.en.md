@@ -46,6 +46,8 @@ OPERATIONAL_CRITICALITY: <1-10>
 
 - Layout comes before catalog. Layout defines information structure; catalog defines visual language.
 - User-specified catalog wins. If unspecified, use the layout `default_catalog` and `recommended_catalogs`.
+- Use a brand catalog when the user names a brand, product, or established visual language. Use a palette catalog when the user asks for an overall color composition, mood, site palette, or color combination.
+- If the user names both a brand and a palette, choose one as the base catalog and treat the other as inspiration only.
 - Blocks are selected after layout because they fill slots and repeated module needs.
 - Dials do not create a new style system. They tune spacing, density, state coverage, motion, and visual emphasis inside the chosen layout/catalog/block contract.
 - For execution surfaces, prefer `task_type: execution`; treat `runtime` as a legacy page type or future catalog/skin only when the user clearly means visual language.

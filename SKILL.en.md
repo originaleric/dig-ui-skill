@@ -10,12 +10,13 @@ Dig UI is an AI-executable product interface design system. It combines `dig-rea
 ## Reading Priority
 
 1. Current user prompt
-2. `references/global-rules.local.md` when present
-3. `references/local/` when present for project-level layout / block extensions
-4. Installed-language `references/global-rules.md`
-5. Installed-language `references/dig-read.md`, `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`
-6. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
-7. `references/shared/` manifests, tokens, and primitives
+2. `references/local/palettes/` or `~/.config/dig-ui-skill/palettes/` when the user requests a local/custom palette
+3. `references/global-rules.local.md` when present
+4. `references/local/` when present for project-level layout / block extensions
+5. Installed-language `references/global-rules.md`
+6. Installed-language `references/dig-read.md`, `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`
+7. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
+8. `references/shared/` manifests, tokens, and primitives
 
 If the user explicitly says "no global rules", "skip global", or "do not use global", skip global rules and local global rules for this task. Layouts, catalogs, blocks, and primitives may still be used.
 
@@ -56,8 +57,10 @@ Common catalogs:
 - `editorial`: narrative, launch, brand expression
 - `wise`: mobile-first consumer fintech
 - `apple`: premium launch and system-native feel
+- `paletteXX`: color-first palette catalog for overall site color composition, mood, or color combinations
+- `custompalette`: a user-local Palette Lab import stored under `~/.config/dig-ui-skill/palettes/` and optionally synced to `references/local/palettes/`; it belongs to the user and is not written into built-in catalogs
 
-Do not mix multiple base catalogs in one page or coherent component group.
+Use brand catalogs when the user names a brand, product, or established visual language. Use palette catalogs when the user asks for mood, overall palette, or color composition. Do not mix multiple base catalogs in one page or coherent component group.
 
 ### 4. Choose Blocks
 

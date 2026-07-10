@@ -1,32 +1,106 @@
-schema_version: 1
+schema_version: 2
 kind: catalog-manifest
 description: Stable catalog contract shared across installed language packs.
 fields:
   slug: stable catalog id
+  kind: brand-catalog | color-palette-catalog
   category: catalog group
   status: draft | active | deprecated
-  token_roles: required Dig token roles
+  token_contract: versioned required Dig token roles
+categories:
+  ai-llm:
+    kind: brand-catalog
+    name: AI & LLM Platforms
+  dev-tools:
+    kind: brand-catalog
+    name: Developer Tools & IDEs
+  devops:
+    kind: brand-catalog
+    name: Backend, Database & DevOps
+  saas:
+    kind: brand-catalog
+    name: Productivity & SaaS
+  creative-tools:
+    kind: brand-catalog
+    name: Design & Creative Tools
+  fintech:
+    kind: brand-catalog
+    name: Fintech & Crypto
+  ecommerce:
+    kind: brand-catalog
+    name: E-commerce & Retail
+  media-consumer:
+    kind: brand-catalog
+    name: Media & Consumer Tech
+  automotive:
+    kind: brand-catalog
+    name: Automotive
+  other:
+    kind: brand-catalog
+    name: General / Core Layouts
+  palettes:
+    kind: color-palette-catalog
+    name: Color Palettes
+    required_frontmatter:
+      kind: color-palette-catalog
+      category: palettes
+      token_contract: palette_v1
+token_contracts:
+  brand_v1:
+    required_token_roles:
+      - --dig-bg
+      - --dig-bg-soft
+      - --dig-surface
+      - --dig-surface-strong
+      - --dig-surface-elevated
+      - --dig-text
+      - --dig-text-muted
+      - --dig-text-soft
+      - --dig-accent
+      - --dig-accent-2
+      - --dig-border
+      - --dig-grid-line
+      - --dig-control-bg
+      - --dig-control-bg-hover
+  palette_v1:
+    extends: brand_v1
+    required_token_roles:
+      - --dig-accent-strong
+      - --dig-accent-2-strong
+      - --dig-border-strong
 catalogs:
   - slug: dig
+    kind: brand-catalog
     category: other
+    token_contract: brand_v1
     status: active
     default_for: [marketing, dashboard, execution, settings]
   - slug: mono
+    kind: brand-catalog
     category: other
+    token_contract: brand_v1
     status: active
     default_for: [documentation, observability, dense-debugging]
   - slug: editorial
+    kind: brand-catalog
     category: other
+    token_contract: brand_v1
     status: active
     default_for: [reporting, narrative, brand-expression]
   - slug: wise
+    kind: brand-catalog
     category: fintech
+    token_contract: brand_v1
     status: active
     default_for: [fintech, billing, mobile-consumer]
   - slug: apple
+    kind: brand-catalog
     category: media-consumer
+    token_contract: brand_v1
     status: active
     default_for: [product-theater, system-native, premium-launch]
+# Legacy alias for older tooling. Keep this equal to token_contracts.brand_v1
+# so palette-only requirements do not break existing brand catalogs.
 required_token_roles:
   - --dig-bg
   - --dig-bg-soft

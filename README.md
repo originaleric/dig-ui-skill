@@ -15,7 +15,7 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 
 - **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, layout/component consistency, select usage, and interaction discipline. The canonical rules are English-first, with a Chinese translation for review.
 - **Dig Read** defines the agent's first reasoning pass: identify the task, choose layout/catalog/block assets, and set density, brand, interaction, and criticality dials before writing UI.
-- **Catalogs** define visual taste through tokens, typography, surface rules, and component mappings.
+- **Catalogs** define visual taste through tokens, typography, surface rules, component mappings, and color-first palette systems.
 - **Layout recipes** define information architecture, slots, responsive order, and QA notes.
 - **Blocks** define reusable primitive and product-module protocols such as inputs, modals, runtime log streams, table toolbars, notification items, search result rows, and settings rows.
 - **Anti-tells, preflight, and workflows** keep common AI UI drift out of generated surfaces and make review/redesign/execution tasks repeatable.
@@ -25,14 +25,17 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 
 ## What's Included
 
-- 71 catalog references across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, and Dig-native styles.
+- 74 catalog previews across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, Dig-native styles, and color palette catalogs.
 - 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
 - Static catalog preview hub at `renders/index.html`.
+- Color palette catalog support through `references/catalogs/palettes/`, starting with `palette01`.
+- Palette Lab in palette renders for trying anchor colors, exporting a ZIP with JSON + HTML, and importing user-owned custom palettes into `~/.config/dig-ui-skill/palettes/`.
 - Layout and block assets are Markdown contracts, maintained in `references/layouts/` and `references/blocks/`.
 - Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
 - Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
 - Render ops validation via `npm run validate:renders`.
 - Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
+- Optional user palette synchronization through `~/.config/dig-ui-skill/palettes/`.
 
 ## Highlight: Personal Rules Through Your AI Agent
 
@@ -71,6 +74,14 @@ Install it everywhere:
 ```bash
 npx dig-ui-skill install --all
 npx dig-ui-skill status
+```
+
+Import a custom palette exported from Palette Lab:
+
+```bash
+npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip codex
+npx dig-ui-skill palette list
+npx dig-ui-skill palette sync --all
 ```
 
 ## Use In Your AI Tool

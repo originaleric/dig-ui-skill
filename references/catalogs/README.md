@@ -29,6 +29,30 @@
 - 所有一线实现都应从目录文件里的硬编码 token 和 style 语言出发。
 - 如果需要扩展，先保留原目录的结构和语义，再做局部追加。
 
+## Color Palette Catalog
+
+除了以品牌或产品气质划分的 catalog，`dig-ui` 也允许维护一组以整体网站配色为入口的 palette catalog，例如 `palette01`、`palette02`。
+
+Palette catalog 不和 brand catalog 冲突。它适合用户没有指定品牌，但明确指定了「整体配色」「网站 palette」「视觉 mood」的场景。每个 palette 从 4 个主色锚点开始，例如 `canvas`、`ink`、`primary`、`support`，再通过 Radix-inspired 的角色色阶推导出背景、hover、border、solid action、text 等 Dig token。
+
+新建 palette catalog 必须放在 `references/catalogs/palettes/`，并在 frontmatter 显式声明：
+
+```yaml
+kind: color-palette-catalog
+category: palettes
+token_contract: palette_v1
+```
+
+`kind` 说明它是色彩目录，`category` 绑定目录和 render 分组，`token_contract` 绑定 required token roles。不要依赖隐式推断来让新 palette 通过校验。
+
+Palette 文件必须直接放在 `references/catalogs/palettes/` 下，不使用子目录。文件名、frontmatter `slug`、render URL 和 registry slug 必须完全一致，并使用至少两位数字的 `paletteNN` 形式，例如 `palette01.md` 对应 `slug: palette01`。
+
+Palette 的正式色彩事实必须写在 `## Palette Contract` 的 fenced YAML block 里；validator 只读取这个 canonical block，不会把其他示例片段当作真实配置。CSS token 必须写在 `## Dig UI CSS Tokens` 的 fenced CSS block 里。
+
+Palette render 会提供 Palette Lab 试色区，用于临时调整 anchor 颜色、点击候选 support 色并复制更新后的 token。这个交互只改变当前预览页的 CSS variables，不会自动写回 Markdown；确认采用后仍需同步更新 Palette Contract 与 CSS token。
+
+详细规则见 [../color-palette-catalogs.md](../color-palette-catalogs.md)。
+
 ## Render Intent
 
 Catalog render 默认会读取 CSS token，并尽量根据 catalog 所属分类选择样张类型。对于重点 catalog，建议显式声明 `render` 配置，让预览页展示对应行业和组件语义，而不是只展示通用 token 表。
@@ -51,6 +75,7 @@ render:
 - `commerce-dual-track`：电商与零售，同时展示营销首屏和交易卡片。
 - `inbox-productivity`：收件箱、团队协作、生产力 SaaS、高频列表和阅读面板。
 - `finance-mobile-app`：移动优先金融、余额、转账、汇率、卡片控制。
+- `site-palette-showcase`：色彩目录默认样张，展示整站背景、文字、CTA、卡片、链接和辅助强调。
 - `token-sheet`：默认 fallback，仅展示通用 token 样张。
 
 新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。

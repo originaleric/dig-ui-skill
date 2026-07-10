@@ -80,6 +80,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - 从 domain-first 语言源文件展开后的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
 - `dig-ui-language.json`
 - `references/`（**除** `global-rules.local.md`）
+- `references/local/palettes/` 会从用户配置中心重新同步，不从仓库覆盖用户资产
 - `assets/`
 - `renders/`
 - `bin/`
@@ -87,6 +88,14 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `README.md` / `README.zh-CN.md` / `USAGE.md` / `INSTALL.md`
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
+
+用户自定义 palette 属于仓库外资产，唯一真源在：
+
+```bash
+~/.config/dig-ui-skill/palettes/
+```
+
+`update` 后如果该目录存在，CLI 会重新同步到已安装 skill 的 `references/local/palettes/`。内置仓库不会写入或覆盖这些用户自定义 palette。
 
 ```bash
 npx dig-ui-skill update cursor
@@ -108,6 +117,21 @@ npx dig-ui-skill update --all
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
 | `--lang <en\|zh-CN>` | 安装指定语言；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
+
+Palette helper：
+
+```bash
+# 查看用户 palette 配置目录
+npx dig-ui-skill palette path
+
+# 导入 Palette Lab 导出的 JSON 或 ZIP，并同步到某个工具
+npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip codex
+
+# 查看、打印、同步用户 palette
+npx dig-ui-skill palette list
+npx dig-ui-skill palette show palette01.custompalette-20260710-120000
+npx dig-ui-skill palette sync --all
+```
 
 示例：
 

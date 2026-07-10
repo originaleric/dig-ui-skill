@@ -13,41 +13,125 @@
 - operational
 - crisp
 - active system
-- dark mineral
+- black / light workspace
+- blue accent
 - run-state
 
-## 颜色 Token
+## Theme Profiles
+
+Dig catalog ships two official theme profiles:
+
+- `Dark Dig`: pure black operational shell, blue accent, high-contrast runtime surfaces, and white primary text.
+- `Light Dig`: `#f7f7f7` workspace canvas, blue accent, white surfaces, and black primary text.
+
+Dark and light are token profiles under the same `dig` catalog. They must not change layout, component semantics, typography, radius, spacing, or interaction rules.
+
+## Dig UI CSS Tokens
 
 ```css
---dig-bg: #06121a;
---dig-bg-soft: #0b1b26;
---dig-surface: rgba(11, 27, 38, 0.78);
---dig-surface-strong: rgba(16, 32, 44, 0.92);
---dig-surface-elevated: rgba(20, 39, 53, 0.96);
---dig-text: #ecf3f8;
---dig-text-muted: #8aa0b2;
---dig-text-soft: #62798c;
---dig-accent: #37d67a;
---dig-accent-strong: #20bf66;
+--dig-bg: #000000;
+--dig-bg-soft: #080a0d;
+--dig-surface: rgba(16, 18, 22, 0.78);
+--dig-surface-strong: rgba(24, 27, 32, 0.92);
+--dig-surface-elevated: rgba(32, 36, 42, 0.96);
+--dig-text: #ffffff;
+--dig-text-muted: #a7b0ba;
+--dig-text-soft: #727d88;
+--dig-blue-1: #eaf4ff;
+--dig-blue-2: #b9dcff;
+--dig-blue-3: #4fb3ff;
+--dig-blue-4: #2697eb;
+--dig-blue-5: #0071e3;
+--dig-blue-6: #006EDB;
+--dig-blue-7: #0b57d0;
+--dig-accent: #0071e3;
+--dig-accent-strong: #006EDB;
 --dig-accent-2: #4fb3ff;
 --dig-accent-2-strong: #2697eb;
---dig-border: rgba(138, 160, 178, 0.16);
---dig-border-strong: rgba(138, 160, 178, 0.28);
---dig-grid-line: rgba(138, 160, 178, 0.08);
---dig-success: #37d67a;
+--dig-border: #f7f7f7;
+--dig-border-strong: #ffffff;
+--dig-grid-line: #f7f7f7;
+--dig-success: #2aa7b8;
 --dig-warning: #f3b64c;
 --dig-danger: #f06a6a;
---dig-info: #4fb3ff;
---dig-control-bg: rgba(5, 18, 27, 0.68);
---dig-control-bg-hover: rgba(16, 32, 44, 0.86);
+--dig-info: #0071e3;
+--dig-control-bg: rgb(250, 250, 252);
+--dig-control-bg-hover: rgb(245, 245, 247);
+--dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+--dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+--dig-font-serif: "Noto Serif SC", serif;
+--dig-text-xs: 12px;
+--dig-text-sm: 14px;
+--dig-text-md: 16px;
+--dig-text-lg: 18px;
+--dig-text-xl: 20px;
+--dig-text-2xl: 24px;
+--dig-text-3xl: 32px;
+--dig-text-4xl: 40px;
+--dig-text-5xl: 56px;
+--dig-leading-tight: 1.15;
+--dig-leading-snug: 1.3;
+--dig-leading-normal: 1.55;
+--dig-leading-relaxed: 1.72;
+--dig-tracking-tight: -0.03em;
+--dig-tracking-normal: 0;
+--dig-tracking-wide: 0.08em;
+--dig-radius-sm: 10px;
+--dig-radius-md: 16px;
+--dig-radius-lg: 24px;
+--dig-radius-xl: 32px;
+--dig-radius-pill: 999px;
+--dig-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.24);
+--dig-shadow-panel: 0 24px 80px rgba(2, 10, 18, 0.34);
+```
+
+Default render tokens use `Dark Dig`.
+
+## Light Dig CSS Tokens
+
+```css
+--dig-bg: #f7f7f7;
+--dig-bg-soft: #ffffff;
+--dig-surface: rgba(255, 255, 255, 0.86);
+--dig-surface-strong: rgba(255, 255, 255, 0.96);
+--dig-surface-elevated: #ffffff;
+--dig-text: #000000;
+--dig-text-muted: #5d6670;
+--dig-text-soft: #7a8490;
+--dig-blue-1: #eaf4ff;
+--dig-blue-2: #b9dcff;
+--dig-blue-3: #4fb3ff;
+--dig-blue-4: #2697eb;
+--dig-blue-5: #0071e3;
+--dig-blue-6: #006EDB;
+--dig-blue-7: #0b57d0;
+--dig-accent: #0071e3;
+--dig-accent-strong: #006EDB;
+--dig-accent-2: #4fb3ff;
+--dig-accent-2-strong: #2697eb;
+--dig-border: rgba(0, 0, 0, 0.56);
+--dig-border-strong: rgba(0, 0, 0, 0.75);
+--dig-grid-line: rgba(0, 0, 0, 0.56);
+--dig-success: #2aa7b8;
+--dig-warning: #a86600;
+--dig-danger: #d92d2d;
+--dig-info: #0071e3;
+--dig-control-bg: rgb(250, 250, 252);
+--dig-control-bg-hover: rgb(245, 245, 247);
 ```
 
 主题规则：
 
-- Dig 默认优先 dark，但必须提供 `dark` / `light` 两套模式。
+- Dig 默认优先 `Dark Dig`，但必须提供 `Dark Dig` / `Light Dig` 两套 token profile。
 - dark/light 不应改组件语义，只替换 token 值；组件样式必须引用 token，避免写死暗色或亮色。
+- `Dark Dig` 主背景为纯黑 `#000000`，主文字为白色；`Light Dig` 主背景为 `#f7f7f7`，主文字为黑色。
+- 主强调色统一为 `#0071e3`，对应 `--dig-blue-5`；强主强调色使用 `--dig-blue-6`。
+- 蓝色阶从浅到深为 `--dig-blue-1` 到 `--dig-blue-7`：浅色用于 tint、hover、focus 背景，中段用于辅助强调，`--dig-blue-3` 对应 `--dig-accent-2`，`--dig-blue-4` 对应 `--dig-accent-2-strong`，`--dig-blue-5` 用于主 CTA / active 状态，`--dig-blue-6` 用于 strong CTA，`--dig-blue-7` 用于 pressed、selected 深态和高对比边界。
+- `--dig-border`、`--dig-border-strong` 和 `--dig-grid-line` 是 theme-specific 对比 token：`Dark Dig` 使用 `#f7f7f7` / `#ffffff`，`Light Dig` 使用 `rgba(0, 0, 0, 0.56)` / `rgba(0, 0, 0, 0.75)`；`--dig-grid-line` 始终与 `--dig-border` 一致。
+- 控件背景使用 `--dig-control-bg: rgb(250, 250, 252)`；hover 使用 `--dig-control-bg-hover: rgb(245, 245, 247)`。
+- 绿色不再承担 Dig 的品牌主强调语义。
 - light 模式至少覆盖 `--dig-bg`、`--dig-bg-soft`、`--dig-surface`、`--dig-surface-strong`、`--dig-surface-elevated`、`--dig-text`、`--dig-text-muted`、`--dig-text-soft`、`--dig-border`、`--dig-grid-line`、`--dig-control-bg`、`--dig-control-bg-hover`。
-- 表单、select、控制条必须使用 `--dig-control-bg` / `--dig-control-bg-hover`，不能使用固定 `rgba(5, 18, 27, ...)`。
+- 表单、select、控制条必须使用 `--dig-control-bg` / `--dig-control-bg-hover`，不能使用固定 dark rgba。
 
 ## 字体系统
 
@@ -171,7 +255,7 @@ typography:
 --dig-stroke-strong: 1.5px;
 --dig-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.24);
 --dig-shadow-panel: 0 24px 80px rgba(2, 10, 18, 0.34);
---dig-glow-accent: 0 0 0 1px rgba(55, 214, 122, 0.22), 0 0 40px rgba(55, 214, 122, 0.12);
+--dig-glow-accent: 0 0 0 1px rgba(0, 113, 227, 0.26), 0 0 40px rgba(0, 113, 227, 0.16);
 --dig-glow-secondary: 0 0 0 1px rgba(79, 179, 255, 0.18), 0 0 36px rgba(79, 179, 255, 0.1);
 ```
 
@@ -263,7 +347,7 @@ components:
     rounded: "var(--dig-radius-pill)"
     padding: "10px 14px"
   select-option-active:
-    backgroundColor: "rgba(55, 214, 122, 0.13)"
+    backgroundColor: "rgba(0, 113, 227, 0.13)"
     textColor: "var(--dig-text)"
     rounded: "var(--dig-radius-pill)"
   segmented-control:

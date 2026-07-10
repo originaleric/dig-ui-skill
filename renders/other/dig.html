@@ -8,27 +8,34 @@
     <style>
       :root {
         color-scheme: dark;
-        --dig-bg: #06121a;
-        --dig-bg-soft: #0b1b26;
-        --dig-surface: rgba(11, 27, 38, 0.78);
-        --dig-surface-strong: rgba(16, 32, 44, 0.92);
-        --dig-surface-elevated: rgba(20, 39, 53, 0.96);
-        --dig-text: #ecf3f8;
-        --dig-text-muted: #8aa0b2;
-        --dig-text-soft: #62798c;
-        --dig-accent: #37d67a;
-        --dig-accent-strong: #20bf66;
+        --dig-bg: #000000;
+        --dig-bg-soft: #080a0d;
+        --dig-surface: rgba(16, 18, 22, 0.78);
+        --dig-surface-strong: rgba(24, 27, 32, 0.92);
+        --dig-surface-elevated: rgba(32, 36, 42, 0.96);
+        --dig-text: #ffffff;
+        --dig-text-muted: #a7b0ba;
+        --dig-text-soft: #727d88;
+        --dig-blue-1: #eaf4ff;
+        --dig-blue-2: #b9dcff;
+        --dig-blue-3: #4fb3ff;
+        --dig-blue-4: #2697eb;
+        --dig-blue-5: #0071e3;
+        --dig-blue-6: #006EDB;
+        --dig-blue-7: #0b57d0;
+        --dig-accent: #0071e3;
+        --dig-accent-strong: #006EDB;
         --dig-accent-2: #4fb3ff;
         --dig-accent-2-strong: #2697eb;
-        --dig-border: rgba(138, 160, 178, 0.16);
-        --dig-border-strong: rgba(138, 160, 178, 0.28);
-        --dig-grid-line: rgba(138, 160, 178, 0.08);
-        --dig-success: #37d67a;
+        --dig-border: #f7f7f7;
+        --dig-border-strong: #ffffff;
+        --dig-grid-line: #f7f7f7;
+        --dig-success: #2aa7b8;
         --dig-warning: #f3b64c;
         --dig-danger: #f06a6a;
-        --dig-info: #4fb3ff;
-        --dig-control-bg: rgba(5, 18, 27, 0.68);
-        --dig-control-bg-hover: rgba(16, 32, 44, 0.86);
+        --dig-info: #0071e3;
+        --dig-control-bg: rgb(250, 250, 252);
+        --dig-control-bg-hover: rgb(245, 245, 247);
         --dig-font-sans: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
         --dig-font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
         --dig-font-serif: "Noto Serif SC", serif;
@@ -48,30 +55,13 @@
         --dig-tracking-tight: -0.03em;
         --dig-tracking-normal: 0;
         --dig-tracking-wide: 0.08em;
-        --dig-space-1: 4px;
-        --dig-space-2: 8px;
-        --dig-space-3: 12px;
-        --dig-space-4: 16px;
-        --dig-space-5: 24px;
-        --dig-space-6: 32px;
-        --dig-space-7: 48px;
-        --dig-space-8: 64px;
         --dig-radius-sm: 10px;
         --dig-radius-md: 16px;
         --dig-radius-lg: 24px;
         --dig-radius-xl: 32px;
         --dig-radius-pill: 999px;
-        --dig-stroke-thin: 1px;
-        --dig-stroke-strong: 1.5px;
         --dig-shadow-soft: 0 18px 48px rgba(0, 0, 0, 0.24);
         --dig-shadow-panel: 0 24px 80px rgba(2, 10, 18, 0.34);
-        --dig-glow-accent: 0 0 0 1px rgba(55, 214, 122, 0.22), 0 0 40px rgba(55, 214, 122, 0.12);
-        --dig-glow-secondary: 0 0 0 1px rgba(79, 179, 255, 0.18), 0 0 36px rgba(79, 179, 255, 0.1);
-        --dig-shell-max: 1440px;
-        --dig-grid-columns: 12;
-        --dig-grid-gutter: 24px;
-        --dig-grid-gutter-mobile: 16px;
-        --dig-grid-cell-min: 72px;
     }
 
       body::before {
@@ -111,8 +101,8 @@
         font-family: var(--dig-font-sans), sans-serif;
       }
       .lang-btn.active {
-        background: var(--dig-accent, #37d67a);
-        color: var(--dig-bg, #06121a);
+        background: var(--dig-accent, #0071e3);
+        color: var(--dig-bg, #000000);
       }
       .lang-btn:hover:not(.active) {
         color: var(--dig-text, #ecf3f8);

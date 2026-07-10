@@ -47,18 +47,31 @@ const SKILL_TOP_LEVEL_FILES = [
 
 const SKILL_DIRS = ["references", "assets", "renders", "agents", "adapters", "bin"];
 
+const RETIRED_TOP_LEVEL_FILES = [
+  "sync_layout_renders.py",
+  "validate-dig-layout-preview.mjs",
+];
+
 const SUPPORTED_LANGUAGES = new Set(["en", "zh-CN"]);
 const DEFAULT_LANGUAGE = "zh-CN";
 const LANGUAGE_RECORD = "dig-ui-language.json";
 const LOCALIZED_MARKDOWN_PATTERN = /\.(en|zh-CN)\.md$/;
 
-const PROTECTED_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
-const SKIP_COPY_RELATIVE_PATHS = new Set(["references/global-rules.local.md"]);
-const SKIP_COPY_FILE_NAMES = new Set([".DS_Store"]);
-
 const USER_CONFIG_DIR = path.join(os.homedir(), ".config", "dig-ui-skill");
 const USER_LOCAL_RULES_PATH = path.join(USER_CONFIG_DIR, "global-rules.local.md");
+const USER_PALETTES_DIR = path.join(USER_CONFIG_DIR, "palettes");
 const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
+const LOCAL_PALETTES_RELATIVE = path.join("references", "local", "palettes");
+
+const PROTECTED_RELATIVE_PATHS = new Set([
+  "references/global-rules.local.md",
+  LOCAL_PALETTES_RELATIVE,
+]);
+const SKIP_COPY_RELATIVE_PATHS = new Set([
+  "references/global-rules.local.md",
+  LOCAL_PALETTES_RELATIVE,
+]);
+const SKIP_COPY_FILE_NAMES = new Set([".DS_Store"]);
 
 const LOCAL_RULE_SECTIONS = [
   "Layout / Components Consistency",
@@ -95,6 +108,7 @@ Usage:
   dig-ui-skill render <catalogs|layouts|blocks|all>
   dig-ui-skill validate renders
   dig-ui-skill local <action> [options]
+  dig-ui-skill palette <action> [options]
   dig-ui-skill init-local [options]
   dig-ui-skill sync-local <target> [options]
   dig-ui-skill import-local <target> [options]
@@ -107,6 +121,7 @@ Targets:
 
 User config (local rules source of truth):
   ~/.config/dig-ui-skill/global-rules.local.md
+  ~/.config/dig-ui-skill/palettes/
 
 Local actions:
   local path                         Print the user local rules path
@@ -115,6 +130,14 @@ Local actions:
   local sync [target|--all]          Sync user local rules to installed tools
   local add --section <heading> <bullet>
                                      Add a preference bullet under a canonical section
+
+Palette actions:
+  palette path                       Print the user local palettes directory
+  palette list                       List imported user palettes
+  palette import <json|zip> [target|--all]
+                                     Import an exported custom palette into user config
+  palette sync [target|--all]        Sync user palettes into installed skill local assets
+  palette show <id-or-file>          Print an imported user palette JSON
 
 Options:
   --all                 Install/update/sync all supported targets
@@ -142,6 +165,9 @@ Examples:
   npx dig-ui-skill sync-local --all --from-config
   npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
   npx dig-ui-skill local show
+  npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip
+  npx dig-ui-skill palette sync --all
+  npx dig-ui-skill palette list
   npx dig-ui-skill import-local cursor
   npx dig-ui-skill status
 `);
@@ -266,9 +292,9 @@ function parseArgs(argv) {
       throw new Error(`Unknown option: ${arg}`);
     }
 
-    if (options.command === "local" && !options.localAction) {
+    if ((options.command === "local" || options.command === "palette") && !options.localAction) {
       options.localAction = arg;
-    } else if (options.command === "local") {
+    } else if (options.command === "local" || options.command === "palette") {
       options.values.push(arg);
     } else if (options.command === "render" || options.command === "validate") {
       options.targets.push(arg);
@@ -338,6 +364,22 @@ function readPackageVersion(sourceRoot) {
   } catch {
     return "unknown";
   }
+}
+
+function normalizeHexColor(rawValue) {
+  const value = String(rawValue ?? "").trim();
+  if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+    return `#${value
+      .slice(1)
+      .split("")
+      .map((char) => char + char)
+      .join("")
+      .toUpperCase()}`;
+  }
+  if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+    return value.toUpperCase();
+  }
+  return "";
 }
 
 async function pathExists(targetPath) {
@@ -740,6 +782,253 @@ async function runLocalCommand(options) {
   }
 }
 
+function sanitizePaletteAssetName(rawName) {
+  const cleaned = String(rawName || "")
+    .trim()
+    .replace(/\.json$/i, "")
+    .replace(/\.zip$/i, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return cleaned || `custompalette-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+}
+
+async function uniquePaletteAssetPath(baseName) {
+  await ensureDir(USER_PALETTES_DIR);
+  let candidate = path.join(USER_PALETTES_DIR, `${baseName}.json`);
+  let index = 2;
+  while (await pathExists(candidate)) {
+    candidate = path.join(USER_PALETTES_DIR, `${baseName}-${index}.json`);
+    index += 1;
+  }
+  return candidate;
+}
+
+function parseStoredZipJson(buffer, sourcePath) {
+  let offset = 0;
+  while (offset + 30 <= buffer.length) {
+    const signature = buffer.readUInt32LE(offset);
+    if (signature !== 0x04034b50) {
+      break;
+    }
+    const method = buffer.readUInt16LE(offset + 8);
+    const compressedSize = buffer.readUInt32LE(offset + 18);
+    const fileNameLength = buffer.readUInt16LE(offset + 26);
+    const extraLength = buffer.readUInt16LE(offset + 28);
+    const nameStart = offset + 30;
+    const nameEnd = nameStart + fileNameLength;
+    const dataStart = nameEnd + extraLength;
+    const dataEnd = dataStart + compressedSize;
+    const fileName = buffer.subarray(nameStart, nameEnd).toString("utf8");
+
+    if (fileName.toLowerCase().endsWith(".json")) {
+      if (method !== 0) {
+        throw new Error(`Unsupported compressed palette JSON in ${sourcePath}. Exported Dig palettes use stored ZIP entries.`);
+      }
+      return JSON.parse(buffer.subarray(dataStart, dataEnd).toString("utf8"));
+    }
+
+    offset = dataEnd;
+  }
+  throw new Error(`No palette JSON found in ${sourcePath}`);
+}
+
+async function readPalettePayload(sourcePath) {
+  const absolutePath = path.resolve(sourcePath);
+  const buffer = await fsp.readFile(absolutePath);
+  if (absolutePath.toLowerCase().endsWith(".zip")) {
+    return parseStoredZipJson(buffer, absolutePath);
+  }
+  return JSON.parse(buffer.toString("utf8"));
+}
+
+function validatePalettePayload(payload) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Palette payload must be a JSON object");
+  }
+  if (payload.schema !== "dig.palette.export.v1") {
+    throw new Error("Palette payload schema must be dig.palette.export.v1");
+  }
+  if (payload.token_contract !== "palette_v1") {
+    throw new Error("Palette payload token_contract must be palette_v1");
+  }
+
+  const normalized = {
+    ...payload,
+    anchors: { ...(payload.anchors ?? {}) },
+    roles: { ...(payload.roles ?? {}) },
+    tokens: { ...(payload.tokens ?? {}) },
+  };
+  const roleToToken = {
+    "anchors.canvas": "--dig-bg",
+    "anchors.ink": "--dig-text",
+    "anchors.primary": "--dig-accent",
+    "roles.primary_strong": "--dig-accent-strong",
+    "anchors.support": "--dig-accent-2",
+    "roles.support_strong": "--dig-accent-2-strong",
+  };
+
+  for (const [rolePath, tokenName] of Object.entries(roleToToken)) {
+    const [group, key] = rolePath.split(".");
+    const roleValue = normalizeHexColor(normalized[group]?.[key]);
+    const tokenValue = normalizeHexColor(normalized.tokens?.[tokenName]);
+    if (!roleValue) {
+      throw new Error(`Palette payload missing valid ${rolePath} hex`);
+    }
+    if (!tokenValue) {
+      throw new Error(`Palette payload missing valid tokens.${tokenName} hex`);
+    }
+    if (roleValue !== tokenValue) {
+      throw new Error(`Palette payload mismatch: ${rolePath} (${roleValue}) must equal tokens.${tokenName} (${tokenValue})`);
+    }
+    normalized[group][key] = roleValue;
+    normalized.tokens[tokenName] = tokenValue;
+  }
+
+  normalized.css = Object.entries(roleToToken)
+    .map(([, tokenName]) => `${tokenName}: ${normalized.tokens[tokenName]};`)
+    .join("\n");
+  return normalized;
+}
+
+async function runPaletteImport(options) {
+  const sourcePath = options.values[0];
+  if (!sourcePath) {
+    throw new Error("palette import requires a JSON or ZIP file path");
+  }
+
+  const payload = validatePalettePayload(await readPalettePayload(sourcePath));
+  const importedPayload = {
+    ...payload,
+    user_asset: {
+      ...(payload.user_asset ?? {}),
+      imported_at: new Date().toISOString(),
+      source_file: path.resolve(sourcePath),
+    },
+  };
+  const baseName = sanitizePaletteAssetName(payload.export_id || payload.slug || path.basename(sourcePath));
+  const destPath = await uniquePaletteAssetPath(baseName);
+  await fsp.writeFile(destPath, `${JSON.stringify(importedPayload, null, 2)}\n`, "utf8");
+  console.log("Imported local palette");
+  console.log(`  file: ${destPath}`);
+  console.log(`  name: ${payload.name?.zh || payload.name?.en || payload.slug || baseName}`);
+  console.log(`  primary: ${payload.anchors.primary}`);
+  console.log(`  support: ${payload.anchors.support}`);
+
+  const syncTargets = collectPaletteSyncTargets(options, options.values.slice(1));
+  if (syncTargets.length > 0) {
+    console.log("");
+    await runPaletteSync({ ...options, all: false, targets: syncTargets });
+  }
+}
+
+async function runPaletteList() {
+  await ensureDir(USER_PALETTES_DIR);
+  const entries = (await fsp.readdir(USER_PALETTES_DIR, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => entry.name)
+    .sort();
+  if (entries.length === 0) {
+    console.log(`No local palettes found: ${USER_PALETTES_DIR}`);
+    return;
+  }
+  for (const entry of entries) {
+    const fullPath = path.join(USER_PALETTES_DIR, entry);
+    try {
+      const payload = JSON.parse(await fsp.readFile(fullPath, "utf8"));
+      console.log(`${entry}  ${payload.name?.zh || payload.name?.en || payload.slug || "-"}  ${payload.anchors?.primary || "-"}`);
+    } catch {
+      console.log(`${entry}  unreadable`);
+    }
+  }
+}
+
+async function runPaletteShow(options) {
+  const id = options.values[0];
+  if (!id) {
+    throw new Error("palette show requires an id or JSON file name");
+  }
+  const fileName = id.endsWith(".json") ? id : `${id}.json`;
+  const fullPath = path.isAbsolute(fileName)
+    ? fileName
+    : path.join(USER_PALETTES_DIR, path.basename(fileName));
+  const content = await fsp.readFile(fullPath, "utf8");
+  process.stdout.write(content);
+  if (!content.endsWith("\n")) {
+    process.stdout.write("\n");
+  }
+}
+
+function collectPaletteSyncTargets(options, rawTargets = []) {
+  if (options.all) {
+    return Object.keys(TARGETS);
+  }
+  if (options.targets.length > 0) {
+    return options.targets;
+  }
+  return rawTargets.map(normalizeTarget);
+}
+
+function resolvePaletteSyncTargets(options) {
+  const targets = collectPaletteSyncTargets(options, options.values);
+  if (targets.length === 0) {
+    throw new Error("palette sync requires a target (codex, cursor, claude-code) or --all");
+  }
+  return targets;
+}
+
+async function syncPalettesIntoSkillDir(skillDir) {
+  await ensureDir(USER_PALETTES_DIR);
+  const destDir = path.join(skillDir, LOCAL_PALETTES_RELATIVE);
+  await removePath(destDir);
+  await copyDirectory(USER_PALETTES_DIR, destDir);
+  return destDir;
+}
+
+async function syncPalettesToTarget(targetKey) {
+  const target = TARGETS[targetKey];
+  const skillDir = target.skillDir();
+  if (!(await pathExists(skillDir))) {
+    console.warn(`${target.label}: skipped — skill is not installed at ${skillDir}`);
+    return { status: "skipped", reason: "missing-skill" };
+  }
+
+  const destDir = await syncPalettesIntoSkillDir(skillDir);
+  console.log(`${target.label}: synced ${USER_PALETTES_DIR} -> ${destDir}`);
+  return { status: "synced" };
+}
+
+async function runPaletteSync(options) {
+  const targets = resolvePaletteSyncTargets(options);
+  console.log(`User palettes: ${USER_PALETTES_DIR}`);
+  console.log("");
+  for (const targetKey of targets) {
+    await syncPalettesToTarget(targetKey);
+  }
+}
+
+async function runPaletteCommand(options) {
+  const action = options.localAction;
+  switch (action) {
+    case "path":
+      console.log(USER_PALETTES_DIR);
+      break;
+    case "list":
+      await runPaletteList();
+      break;
+    case "import":
+      await runPaletteImport(options);
+      break;
+    case "sync":
+      await runPaletteSync(options);
+      break;
+    case "show":
+      await runPaletteShow(options);
+      break;
+    default:
+      throw new Error("palette requires an action: path, list, import, sync, or show");
+  }
+}
+
 async function copyFileSafe(sourcePath, destPath) {
   await ensureDir(path.dirname(destPath));
   await fsp.copyFile(sourcePath, destPath);
@@ -759,7 +1048,7 @@ function shouldSkipCopy(relativePath, entryName) {
 async function copyDirectory(
   sourceDir,
   destDir,
-  { preserve = [], rootRelativeDir = "" } = {},
+  { preserve = [], rootRelativeDir = "", copyRootRelativeDir = rootRelativeDir } = {},
 ) {
   await ensureDir(destDir);
   const entries = await fsp.readdir(sourceDir, { withFileTypes: true });
@@ -776,8 +1065,13 @@ async function copyDirectory(
     }
 
     const protectedMatch = [...preserve].some((item) => {
-      const absoluteProtected = path.join(destDir, item);
-      return destPath === absoluteProtected;
+      const protectedRelative = copyRootRelativeDir
+        ? path.join(copyRootRelativeDir, item)
+        : item;
+      return (
+        relativePath === protectedRelative ||
+        relativePath.startsWith(`${protectedRelative}${path.sep}`)
+      );
     });
 
     if (protectedMatch && (await pathExists(destPath))) {
@@ -788,6 +1082,7 @@ async function copyDirectory(
       await copyDirectory(sourcePath, destPath, {
         preserve,
         rootRelativeDir: relativePath,
+        copyRootRelativeDir,
       });
       continue;
     }
@@ -821,7 +1116,45 @@ async function listFilesRecursive(rootDir) {
   return files;
 }
 
+async function readProtectedRelativeEntries(baseDir, protectedRelativePaths) {
+  const entries = new Map();
+  for (const protectedRelative of protectedRelativePaths) {
+    const protectedPath = path.join(baseDir, protectedRelative);
+    if (!(await pathExists(protectedPath))) {
+      continue;
+    }
+
+    const stat = await fsp.lstat(protectedPath);
+    if (stat.isDirectory() && !stat.isSymbolicLink()) {
+      const files = await listFilesRecursive(protectedPath);
+      for (const filePath of files) {
+        const childRelative = path.join(
+          protectedRelative,
+          path.relative(protectedPath, filePath),
+        );
+        entries.set(childRelative, await fsp.readFile(filePath, "utf8"));
+      }
+      continue;
+    }
+
+    entries.set(protectedRelative, await fsp.readFile(protectedPath, "utf8"));
+  }
+  return entries;
+}
+
+async function restoreProtectedRelativeEntries(baseDir, entries) {
+  for (const [relativePath, content] of entries.entries()) {
+    const targetPath = path.join(baseDir, relativePath);
+    await ensureDir(path.dirname(targetPath));
+    await fsp.writeFile(targetPath, content, "utf8");
+  }
+}
+
 async function copySkillAssets(sourceRoot, destRoot) {
+  for (const fileName of RETIRED_TOP_LEVEL_FILES) {
+    await removePath(path.join(destRoot, fileName));
+  }
+
   for (const fileName of SKILL_TOP_LEVEL_FILES) {
     const sourcePath = path.join(sourceRoot, fileName);
     if (!(await pathExists(sourcePath))) {
@@ -845,10 +1178,19 @@ async function copySkillAssets(sourceRoot, destRoot) {
       }
     }
 
+    const preservedFiles = await readProtectedRelativeEntries(destPath, preserve);
+
+    await removePath(destPath);
+    await restoreProtectedRelativeEntries(destPath, preservedFiles);
+
     await copyDirectory(sourcePath, destPath, {
       preserve,
       rootRelativeDir: dirName,
     });
+  }
+
+  if (await pathExists(USER_PALETTES_DIR)) {
+    await syncPalettesIntoSkillDir(destRoot);
   }
 }
 
@@ -863,7 +1205,6 @@ async function applyLocalizedDirectory(sourceRoot, destRoot, domain, language) {
     throw new Error(`Missing localized domain: references/${domain}`);
   }
 
-  await removePath(destDir);
   await ensureDir(destDir);
 
   const sourceFiles = await listFilesRecursive(sourceDir);
@@ -872,6 +1213,7 @@ async function applyLocalizedDirectory(sourceRoot, destRoot, domain, language) {
     if (!sourcePath.endsWith(`.${language}.md`)) {
       continue;
     }
+
     const rel = path.relative(sourceDir, sourcePath);
     const destRel = path.join(
       path.dirname(rel),
@@ -1205,6 +1547,9 @@ async function main() {
       case "local":
         await runLocalCommand(options);
         break;
+      case "palette":
+        await runPaletteCommand(options);
+        break;
       case "init-local":
         await runInitLocal(options);
         break;
@@ -1219,7 +1564,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use install, update, render, validate, local, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use install, update, render, validate, local, palette, init-local, sync-local, import-local, or status.`,
         );
     }
   } catch (error) {

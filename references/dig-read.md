@@ -46,6 +46,8 @@ OPERATIONAL_CRITICALITY: <1-10>
 
 - 先 layout，后 catalog。layout 决定信息结构，catalog 决定视觉语言。
 - 用户指定 catalog 时用户优先。未指定时，根据 layout 的 `default_catalog` 与 `recommended_catalogs` 推断。
+- 用户指定品牌、产品或成熟视觉语言时，使用 brand catalog；用户指定整体配色、mood、网站 palette 或颜色组合时，使用 palette catalog。
+- 用户同时指定品牌和 palette 时，选择一个作为 base catalog，另一个只作为 inspiration，避免混合两套基础系统。
 - blocks 在 layout 之后选择，因为它们填充 slot 和重复模块需求。
 - dials 不创造新风格系统，只调节已选 layout/catalog/block 下的 spacing、密度、状态覆盖、动效和视觉强调。
 - execution 页面优先使用 `task_type: execution`；`runtime` 只作为 legacy page type 或未来 catalog/skin，除非用户明确指视觉皮肤。

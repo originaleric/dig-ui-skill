@@ -30,7 +30,7 @@ If the user explicitly says "no global rules", "skip global", or "do not use glo
 - Theme switching only changes token values, CSS variables, theme objects, or equivalent theme values; it must not change component semantics or structure.
 - Component styles must reference `--dig-*` tokens or project theme variables, avoiding hard-coded dark/light hex values inside components.
 - Global rules define theme behavior only; they do not provide cross-catalog color values. `dark` / `light` tokens must be derived from the selected catalog's brand colors, background, surface, and text relationships.
-- Do not use the `dig` catalog's deep-blue background (`#06121a` / `#0b1b26`) as the default or fallback dark background for other catalogs. Use it only when the selected catalog is explicitly `dig`.
+- Do not use the `dig` catalog's pure-black `Dark Dig` background (`#000000` / `#080a0d`) or `Light Dig` canvas (`#f7f7f7`) as the default or fallback background for other catalogs. Use those values only when the selected catalog is explicitly `dig`.
 - Light mode must at least cover `--dig-bg`, `--dig-bg-soft`, `--dig-surface`, `--dig-surface-strong`, `--dig-surface-elevated`, `--dig-text`, `--dig-text-muted`, `--dig-text-soft`, `--dig-border`, `--dig-grid-line`, `--dig-control-bg`, and `--dig-control-bg-hover`.
 - Theme switching should use a `dark` / `light` segmented pill. The active item uses `--dig-accent`; inactive items use muted text and transparent backgrounds.
 - Theme controls must stay visually quieter than the primary CTA and should be smaller than primary buttons.
