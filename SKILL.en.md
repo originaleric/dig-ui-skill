@@ -11,12 +11,13 @@ Dig UI is an AI-executable product interface design system. It combines `dig-rea
 
 1. Current user prompt
 2. `references/local/palettes/` or `~/.config/dig-ui-skill/palettes/` when the user requests a local/custom palette
-3. `references/global-rules.local.md` when present
-4. `references/local/` when present for project-level layout / block extensions
-5. Installed-language `references/global-rules.md`
-6. Installed-language `references/dig-read.md`, `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`
-7. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
-8. `references/shared/` manifests, tokens, and primitives
+3. `references/local/styles/` or `~/.config/dig-ui-skill/styles/` when the user requests a local/custom style
+4. `references/global-rules.local.md` when present
+5. `references/local/` when present for project-level layout / block extensions
+6. Installed-language `references/global-rules.md`
+7. Installed-language `references/dig-read.md`, `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`
+8. Installed-language `references/layouts/`, `references/catalogs/`, and `references/blocks/`
+9. `references/shared/` manifests, tokens, and primitives
 
 If the user explicitly says "no global rules", "skip global", or "do not use global", skip global rules and local global rules for this task. Layouts, catalogs, blocks, and primitives may still be used.
 
@@ -58,9 +59,11 @@ Common catalogs:
 - `wise`: mobile-first consumer fintech
 - `apple`: premium launch and system-native feel
 - `paletteXX`: color-first palette catalog for overall site color composition, mood, or color combinations
+- `style-catalog`: complete visual grammar for non-brand styles, screenshot-derived styles, material/shape/illustration/component-language requests, such as `cozy-arcade` and `quant-signal-console`
 - `custompalette`: a user-local Palette Lab import stored under `~/.config/dig-ui-skill/palettes/` and optionally synced to `references/local/palettes/`; it belongs to the user and is not written into built-in catalogs
+- `customstyle`: a user-local Style Lab import stored under `~/.config/dig-ui-skill/styles/` and optionally synced to `references/local/styles/`; it belongs to the user and is not written into built-in catalogs
 
-Use brand catalogs when the user names a brand, product, or established visual language. Use palette catalogs when the user asks for mood, overall palette, or color composition. Do not mix multiple base catalogs in one page or coherent component group.
+Use brand catalogs when the user names a brand, product, or established visual language. Use palette catalogs when the user asks for mood, overall palette, or color composition. Use style catalogs when the user asks for a complete visual language that is not primarily a brand or color palette. Use customstyle when the user explicitly names a local style asset or asks to reuse a previously exported style. Do not mix multiple base catalogs in one page or coherent component group.
 
 ### 4. Choose Blocks
 

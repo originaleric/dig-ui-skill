@@ -53,6 +53,28 @@ Palette render 会提供 Palette Lab 试色区，用于临时调整 anchor 颜�
 
 详细规则见 [../color-palette-catalogs.md](../color-palette-catalogs.md)。
 
+## Style Catalog
+
+除了 brand catalog 和 color palette catalog，`dig-ui` 也允许维护以完整视觉语法为入口的 style catalog，例如 `cozy-arcade`、`quant-signal-console`。
+
+Style catalog 适合用户指定「截图风格」「非品牌风格」「材质/形态/插画/组件气质」的场景。它不只回答颜色怎么用，还必须回答 shape、stroke、surface、illustration、motion、component mapping 和适用/不适用场景。
+
+新建 style catalog 必须放在 `references/catalogs/styles/`，并在 frontmatter 显式声明：
+
+```yaml
+kind: style-catalog
+category: styles
+token_contract: style_v1
+```
+
+Style 的正式风格事实必须写在 `## Style Contract` 的 fenced YAML block 里。至少覆盖 `best_for`、`avoid_for`、`mood`、`shape_language`、`surface_language`、`illustration_language`、`component_mapping` 和 `motion_language`。CSS token 仍必须写在 `## Dig UI CSS Tokens` 的 fenced CSS block 里。
+
+Style catalog 必须显式声明 `render.archetype`。如果没有合适的专属样张，先使用中性的 `token-sheet`，不要让一个 style 默默继承另一个 style 的行业样张。
+
+如果 style 使用专属 render archetype，例如 `mobile-game-companion` 或 `signal-ops-console`，该 archetype 的场景颜色、吉祥物颜色、任务卡颜色、装备槽颜色、信号色、盘口色、拓扑节点色等必须由 catalog token 提供；共享 CSS 只负责结构和 token fallback，不承载某个 style 的私有视觉事实。
+
+Style render 会提供 Style Lab 导出入口，用于把当前 `Style Contract`、`render.archetype` 和 `--dig-*` token 打包成 `dig.style.export.v1` 的 `customstyle` 资产。导出的 style 应通过 `dig-ui-skill style import <file>` 进入 `~/.config/dig-ui-skill/styles/`，再通过 `dig-ui-skill style sync <target|--all>` 同步到 `references/local/styles/`。`customstyle` 属于用户资产，不写回 `references/catalogs/styles/`，也不进入内置 manifest。
+
 ## Render Intent
 
 Catalog render 默认会读取 CSS token，并尽量根据 catalog 所属分类选择样张类型。对于重点 catalog，建议显式声明 `render` 配置，让预览页展示对应行业和组件语义，而不是只展示通用 token 表。
@@ -76,6 +98,8 @@ render:
 - `inbox-productivity`：收件箱、团队协作、生产力 SaaS、高频列表和阅读面板。
 - `finance-mobile-app`：移动优先金融、余额、转账、汇率、卡片控制。
 - `site-palette-showcase`：色彩目录默认样张，展示整站背景、文字、CTA、卡片、链接和辅助强调。
+- `mobile-game-companion`：游戏化移动应用、吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。
+- `signal-ops-console`：高密度实时信号控制台，同时展示 paper-light 与 terminal-dark 下的指标磁带、agent pipeline、拓扑图、盘口和微型图表。
 - `token-sheet`：默认 fallback，仅展示通用 token 样张。
 
 新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。

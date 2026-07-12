@@ -94,7 +94,12 @@ for (const filePath of files) {
 
   for (const line of raw.split("\n")) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed === "color-scheme: dark;" || trimmed === "color-scheme: light;") continue;
+    if (
+      !trimmed
+      || trimmed === "color-scheme: dark;"
+      || trimmed === "color-scheme: light;"
+      || trimmed === "color-scheme: light dark;"
+    ) continue;
     if (trimmed.startsWith("--dig-")) continue;
     problems.push(`${rel}: unexpected :root line "${trimmed}"`);
   }
@@ -115,6 +120,13 @@ for (const filePath of files) {
 
   const archetypeMatch = content.match(/data-render-archetype="([^"]+)"/);
   const archetype = archetypeMatch?.[1] || "token-sheet";
+  const isStyleRender = rel.split(path.sep).includes("styles");
+  if (
+    isStyleRender
+    && /body::before\s*\{[\s\S]*?#52525b[\s\S]*?background-size:\s*8px\s+8px;[\s\S]*?\}/.test(content)
+  ) {
+    problems.push(`${rel}: style render contains legacy hard-coded body::before background override`);
+  }
   if (archetype !== "token-sheet") {
     for (const phrase of forbiddenRuntimeCopy) {
       if (content.includes(phrase)) {

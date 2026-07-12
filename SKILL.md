@@ -11,12 +11,13 @@ Dig UI 是 AI 可执行的产品界面设计系统。它通过 `dig-read + workf
 
 1. 用户当前 prompt
 2. `references/local/palettes/` 或 `~/.config/dig-ui-skill/palettes/`（当用户指定本地/custom palette 时）
-3. `references/global-rules.local.md`（若存在）
-4. `references/local/`（若存在，用于项目级 layout / block 扩展）
-5. 当前安装语言的 `references/global-rules.md`
-6. 当前安装语言的 `references/dig-read.md`、`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`
-7. 当前安装语言的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
-8. `references/shared/` 中的 manifest、token、primitive
+3. `references/local/styles/` 或 `~/.config/dig-ui-skill/styles/`（当用户指定本地/custom style 时）
+4. `references/global-rules.local.md`（若存在）
+5. `references/local/`（若存在，用于项目级 layout / block 扩展）
+6. 当前安装语言的 `references/global-rules.md`
+7. 当前安装语言的 `references/dig-read.md`、`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`
+8. 当前安装语言的 `references/layouts/`、`references/catalogs/`、`references/blocks/`
+9. `references/shared/` 中的 manifest、token、primitive
 
 若用户明确说「不使用 global / skip global / no global rules」，本次任务跳过 global rules 和 local global rules，但仍可使用 layout、catalog、block、primitive。
 
@@ -58,9 +59,11 @@ using <layout> layout + <catalog> catalog.
 - `wise`：移动优先、消费级 fintech
 - `apple`：高端产品发布、系统原生感
 - `paletteXX`：以整体网站配色为入口的 color palette catalog；当用户指定 mood、配色组合或整体色彩方向而非品牌时使用
+- `style-catalog`：以完整视觉语法为入口；当用户指定非品牌风格、截图风格、材质/形态/插画/组件气质时使用，例如 `cozy-arcade`、`quant-signal-console`
 - `custompalette`：用户通过 Palette Lab 导入到 `~/.config/dig-ui-skill/palettes/`，并可同步到 `references/local/palettes/` 的本地 palette；只属于用户资产，不写入内置 catalog
+- `customstyle`：用户通过 Style Lab 导入到 `~/.config/dig-ui-skill/styles/`，并可同步到 `references/local/styles/` 的本地 style；只属于用户资产，不写入内置 catalog
 
-同一页面或同一组组件不要混用多个 base catalog。
+用户明确指定本地 style 资产或复用已导出的风格时使用 `customstyle`。同一页面或同一组组件不要混用多个 base catalog。
 
 ### 4. 选择 blocks
 

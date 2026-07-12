@@ -21,6 +21,11 @@ PALETTE_REQUIRED_FRONTMATTER = {
     "category": "palettes",
     "token_contract": "palette_v1",
 }
+STYLE_REQUIRED_FRONTMATTER = {
+    "kind": "style-catalog",
+    "category": "styles",
+    "token_contract": "style_v1",
+}
 BRAND_V1_REQUIRED_TOKEN_ROLES = [
     "--dig-bg",
     "--dig-bg-soft",
@@ -41,6 +46,67 @@ PALETTE_V1_ADDITIONAL_TOKEN_ROLES = [
     "--dig-accent-strong",
     "--dig-accent-2-strong",
     "--dig-border-strong",
+]
+STYLE_V1_ADDITIONAL_TOKEN_ROLES = [
+    "--dig-accent-strong",
+    "--dig-accent-2-strong",
+    "--dig-border-strong",
+    "--dig-stroke-width",
+    "--dig-stroke-width-strong",
+    "--dig-shadow-chunky",
+    "--dig-motion-bounce",
+]
+STYLE_REQUIRED_CONTRACT_MARKERS = [
+    "best_for:",
+    "avoid_for:",
+    "mood:",
+    "shape_language:",
+    "surface_language:",
+    "illustration_language:",
+    "component_mapping:",
+    "motion_language:",
+]
+MOBILE_GAME_COMPANION_TOKEN_ROLES = [
+    "--dig-game-sky-start",
+    "--dig-game-sky-mid",
+    "--dig-game-sky-end",
+    "--dig-game-hill-front",
+    "--dig-game-hill-mid",
+    "--dig-game-hill-back",
+    "--dig-game-cloud",
+    "--dig-mascot-primary",
+    "--dig-mascot-secondary",
+    "--dig-mascot-face",
+    "--dig-mascot-belly",
+    "--dig-mission-surface",
+    "--dig-coach-surface-start",
+    "--dig-coach-surface-end",
+    "--dig-gear-surface",
+    "--dig-gear-icon-surface",
+    "--dig-game-on-accent",
+]
+SIGNAL_OPS_CONSOLE_TOKEN_ROLES = [
+    "--dig-signal-paper-bg",
+    "--dig-signal-paper-panel",
+    "--dig-signal-paper-border",
+    "--dig-signal-terminal-bg",
+    "--dig-signal-terminal-panel",
+    "--dig-signal-terminal-border",
+    "--dig-signal-terminal-text",
+    "--dig-signal-terminal-muted",
+    "--dig-signal-terminal-tape-bg",
+    "--dig-signal-positive",
+    "--dig-signal-negative",
+    "--dig-signal-warning",
+    "--dig-signal-info",
+    "--dig-signal-grid-line",
+    "--dig-signal-tape-bg",
+    "--dig-signal-node",
+    "--dig-signal-node-active",
+    "--dig-signal-book-bid",
+    "--dig-signal-book-ask",
+    "--dig-signal-chart-line",
+    "--dig-signal-chart-fill",
 ]
 PALETTE_REQUIRED_ANCHORS = ["canvas", "ink", "primary", "support"]
 PALETTE_REQUIRED_DERIVED_ROLES = ["surface", "muted", "focus", "disabled", "overlay"]
@@ -78,6 +144,55 @@ def clean_description(desc):
         desc = desc[1:].strip()
     desc = re.sub(r'\s+', ' ', desc)
     return desc.strip()
+
+def parse_frontmatter_value(md_content, key):
+    match = re.search(rf'^{re.escape(key)}:\s*["\']?([^"\'\n]+)', md_content, re.MULTILINE)
+    return match.group(1).strip() if match else ""
+
+def parse_hex_color(value):
+    value = (value or "").strip()
+    short_match = re.fullmatch(r"#([0-9a-fA-F]{3})", value)
+    if short_match:
+        chars = short_match.group(1)
+        return tuple(int(ch * 2, 16) for ch in chars)
+    long_match = re.fullmatch(r"#([0-9a-fA-F]{6})", value)
+    if long_match:
+        raw = long_match.group(1)
+        return tuple(int(raw[i:i + 2], 16) for i in (0, 2, 4))
+    return None
+
+def is_light_color(value):
+    rgb = parse_hex_color(value)
+    if not rgb:
+        return False
+    red, green, blue = rgb
+    # Relative luminance approximation is enough for render chrome intent.
+    luminance = (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255
+    return luminance >= 0.68
+
+def has_explicit_render_archetype(md_content):
+    return bool(re.search(r'\nrender:\s*\n(?:[^\n]*\n)*?\s*archetype:\s*["\']?[^"\'\n]+', md_content))
+
+def parse_render_setting(md_content, key):
+    render_match = re.search(r'\nrender:\s*\n(.*?)(?:\n[a-zA-Z0-9_-]+:\s|\n---|\n##|\Z)', md_content, re.DOTALL)
+    if not render_match:
+        return ""
+    setting_match = re.search(rf'^\s*{re.escape(key)}:\s*["\']?([^"\'\n]+)', render_match.group(1), re.MULTILINE)
+    return setting_match.group(1).strip() if setting_match else ""
+
+def strip_legacy_inline_preview_overrides(html_content):
+    # Older template renders carried a hard-coded dotted body background in an
+    # inline style block. Style renders must inherit the tokenized shared CSS
+    # background instead, otherwise catalog tokens are not the source of truth.
+    legacy_body_before = re.compile(
+        r'\n\s*body::before\s*\{\s*'
+        r'background:\s*radial-gradient\(circle,\s*#52525b\s+1px,\s*transparent\s+1px\);\s*'
+        r'background-size:\s*8px\s+8px;\s*'
+        r'opacity:\s*0\.62;\s*'
+        r'\}\s*',
+        re.MULTILINE,
+    )
+    return legacy_body_before.sub("\n", html_content)
 
 def google_translate(text, target_lang='zh-CN', source_lang='auto'):
     if not text:
@@ -290,6 +405,8 @@ def validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path)
 
     if category_slug.startswith("palettes") and category_slug != "palettes":
         fail_catalog(f"Palette catalogs must be direct files under references/catalogs/palettes ({rel_path})")
+    if category_slug.startswith("styles") and category_slug != "styles":
+        fail_catalog(f"Style catalogs must be direct files under references/catalogs/styles ({rel_path})")
 
     if category_slug != "palettes":
         palette_markers = {
@@ -299,6 +416,25 @@ def validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path)
         }
         if palette_markers:
             fail_catalog(f"Palette catalog contract must live under references/catalogs/palettes ({rel_path})")
+    if category_slug != "styles":
+        style_markers = {
+            key: value
+            for key, value in STYLE_REQUIRED_FRONTMATTER.items()
+            if fields.get(key) == value
+        }
+        if style_markers:
+            fail_catalog(f"Style catalog contract must live under references/catalogs/styles ({rel_path})")
+
+    if category_slug == "styles":
+        frontmatter_slug = fields.get("slug")
+        if frontmatter_slug != catalog_slug:
+            fail_catalog(f"Style slug must match filename ({frontmatter_slug or 'missing slug'} != {catalog_slug})")
+        for key, expected in STYLE_REQUIRED_FRONTMATTER.items():
+            actual = fields.get(key)
+            if actual != expected:
+                fail_catalog(f"Style frontmatter {key} must be '{expected}', got '{actual or 'missing'}'")
+        return
+    if category_slug != "palettes":
         return
 
     frontmatter_slug = fields.get("slug")
@@ -313,6 +449,31 @@ def validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path)
 
 def validate_palette_contract(md_content, category_slug, catalog_slug, rel_path):
     validate_catalog_identity(md_content, category_slug, catalog_slug, rel_path)
+    if category_slug == "styles":
+        contract_block = extract_fenced_code_block_from_section(md_content, "Style Contract", "yaml")
+        if not contract_block:
+            fail_catalog(f"Style {catalog_slug} missing canonical style contract: ## Style Contract fenced yaml block")
+        for marker in STYLE_REQUIRED_CONTRACT_MARKERS:
+            if marker not in contract_block:
+                fail_catalog(f"Style {catalog_slug} missing style contract marker '{marker}'")
+        if not has_explicit_render_archetype(md_content):
+            fail_catalog(f"Style {catalog_slug} missing explicit render archetype: render.archetype is required for style catalogs")
+
+        token_block = extract_fenced_code_block_from_section(md_content, "Dig UI CSS Tokens", "css")
+        if not token_block:
+            fail_catalog(f"Style {catalog_slug} missing canonical CSS token block: ## Dig UI CSS Tokens fenced css block")
+        tokens = parse_css_tokens(token_block)
+        required_tokens = [*BRAND_V1_REQUIRED_TOKEN_ROLES, *STYLE_V1_ADDITIONAL_TOKEN_ROLES]
+        if "archetype: mobile-game-companion" in md_content:
+            required_tokens = [*required_tokens, *MOBILE_GAME_COMPANION_TOKEN_ROLES]
+        if "archetype: signal-ops-console" in md_content:
+            required_tokens = [*required_tokens, *SIGNAL_OPS_CONSOLE_TOKEN_ROLES]
+        for token in required_tokens:
+            if token not in tokens:
+                fail_catalog(f"Style {catalog_slug} missing token role '{token}'")
+            if not has_meaningful_value(tokens[token]):
+                fail_catalog(f"Style {catalog_slug} token role '{token}' has empty value")
+        return
     if category_slug != "palettes":
         return
 
@@ -391,6 +552,7 @@ def parse_render_intent(md_content, category_slug, brand_slug):
         "fintech": "finance-mobile-app",
         "saas": "inbox-productivity",
         "palettes": "site-palette-showcase",
+        "styles": "token-sheet",
     }
     return archetype or brand_defaults.get(brand_slug) or category_defaults.get(category_slug) or "token-sheet"
 
@@ -508,6 +670,32 @@ def build_palette_lab_section(support_candidates=None):
                 </div>
               </div>
             </div>"""
+
+def build_style_lab_section(style_contract="", css_token_block=""):
+    contract_attr = escape_attr(style_contract)
+    token_attr = escape_attr(css_token_block)
+    return f"""
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="{contract_attr}" data-style-token-block="{token_attr}">
+              <div class="style-lab-head">
+                <div>
+                  <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
+                  <p data-zh="把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。" data-en="Export this style's visual grammar, render archetype, and tokens as a user-local customstyle asset.">把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。</p>
+                </div>
+                <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+              </div>
+              <div class="style-lab-grid">
+                <article>
+                  <span data-zh="资产边界" data-en="Asset Boundary">资产边界</span>
+                  <strong>customstyle</strong>
+                  <p data-zh="导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。" data-en="Exported styles belong to the user, imported under ~/.config/dig-ui-skill/styles/ and synced to references/local/styles/.">导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。</p>
+                </article>
+                <article>
+                  <span data-zh="包含内容" data-en="Contents">包含内容</span>
+                  <strong>contract + tokens</strong>
+                  <p data-zh="包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。" data-en="Includes Style Contract, render archetype, page metadata, and current --dig-* token values.">包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。</p>
+                </article>
+              </div>
+            </section>"""
 
 def build_archetype_section(archetype, brand_name, palette_candidates=None):
     brand = html.escape(brand_name)
@@ -636,6 +824,196 @@ def build_archetype_section(archetype, brand_name, palette_candidates=None):
               </article>
             </div>
           </section>""",
+        "mobile-game-companion": f"""
+          <section class="surface section archetype-section mobile-game-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="游戏化移动样张" data-en="Gamified Mobile Sample">游戏化移动样张</h3>
+              <p data-zh="展示吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。" data-en="Shows mascot stage, mission cards, gear selection, reward chips, and a dominant bottom action.">展示吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。</p>
+            </div>
+            <div class="game-phone">
+              <div class="game-sky">
+                <div class="game-cloud cloud-a"></div>
+                <div class="game-cloud cloud-b"></div>
+                <div class="game-hills"></div>
+                <div class="game-status">
+                  <span>J · LV 1</span>
+                  <span>58%</span>
+                </div>
+                <div class="speech-bubble">Let's hit 1,200 today!</div>
+                <div class="mascot">
+                  <span class="mascot-ear left"></span>
+                  <span class="mascot-ear right"></span>
+                  <span class="mascot-face"></span>
+                  <span class="mascot-belly"></span>
+                </div>
+              </div>
+              <div class="game-panel-stack">
+                <article class="mission-card">
+                  <span class="mini-label">TODAY'S PICK</span>
+                  <strong>Build on it</strong>
+                  <p>You've been averaging 3 minutes. Nudge it to 3 today.</p>
+                  <b>STEADY</b>
+                </article>
+                <article class="coach-card">
+                  <span class="mini-label">AI COACH</span>
+                  <strong>DoubleUnder Boost</strong>
+                  <p>Mastery awaits. Four focused blocks are ready.</p>
+                  <div class="reward-row"><span>10 min</span><span>4 blocks</span><span>Pet x1.5</span></div>
+                  <button class="game-secondary">See plan</button>
+                  <button class="game-start">Start</button>
+                </article>
+                <article class="gear-card selected">
+                  <div class="gear-icon" aria-hidden="true"></div>
+                  <div><strong>Wrist Sensor</strong><p>Accurate motion tracking</p></div>
+                  <span class="gear-check" aria-hidden="true"></span>
+                </article>
+                <button class="game-primary">Start jumping</button>
+              </div>
+            </div>
+          </section>""",
+        "signal-ops-console": f"""
+          <section class="surface section archetype-section signal-ops-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="信号控制台样张" data-en="Signal Ops Console Sample">信号控制台样张</h3>
+              <p data-zh="展示 paper-light 与 terminal-dark 两种主题下的实时指标、agent pipeline、拓扑图、盘口和微型图表。" data-en="Shows realtime metrics, agent pipelines, topology, order books, and micro charts across paper-light and terminal-dark modes.">展示 paper-light 与 terminal-dark 两种主题下的实时指标、agent pipeline、拓扑图、盘口和微型图表。</p>
+            </div>
+            <div class="signal-dual-shell">
+              <article class="signal-console signal-paper">
+                <header class="signal-topbar">
+                  <strong>{brand} Signal Desk</strong>
+                  <span>LIVE · UTC 20:01:41 · CONF 97.4%</span>
+                </header>
+                <div class="signal-tape">
+                  <span>WALLET 0x9f...1b7</span>
+                  <span>ALL-TIME PNL <b class="pos">+$369,000</b></span>
+                  <span>WIN RATE <b class="pos">78%</b></span>
+                  <span>EDGE <b class="warn">+38</b></span>
+                </div>
+                <div class="signal-main-grid">
+                  <section class="signal-hero-metric">
+                    <span>REALIZED PNL · LIVE</span>
+                    <strong>381,328</strong>
+                    <p><b class="pos">+20 054</b> today · 84 days · +$1.60/sec live</p>
+                  </section>
+                  <section class="signal-card">
+                    <span>LIVE SIGNAL</span>
+                    <strong>BTC T DOWN</strong>
+                    <p>confidence 94.7% · edge +24</p>
+                    <button>Short BTC</button>
+                  </section>
+                  <section class="signal-pipeline">
+                    <div class="done"><b>01</b><span>Scan</span></div>
+                    <div class="done"><b>02</b><span>Signal</span></div>
+                    <div class="active"><b>03</b><span>Predict</span></div>
+                    <div><b>04</b><span>Execute</span></div>
+                  </section>
+                  <section class="signal-topology" aria-label="relationship graph simulation">
+                    <header><span>RELATIONSHIP GRAPH · BTC T+24H</span><b>nodes 69 · edge 125</b></header>
+                    <svg class="topology-map" viewBox="0 0 520 210" role="img" aria-label="Signal relationship graph with labeled clusters">
+                      <defs>
+                        <linearGradient id="topologyPath" x1="0%" x2="100%" y1="0%" y2="0%">
+                          <stop offset="0%" stop-color="var(--dig-signal-positive, #4bd8a0)" stop-opacity="0.36" />
+                          <stop offset="50%" stop-color="var(--dig-signal-info, #4aa3ff)" stop-opacity="0.24" />
+                          <stop offset="100%" stop-color="var(--dig-signal-negative, #ff5268)" stop-opacity="0.34" />
+                        </linearGradient>
+                      </defs>
+                      <path class="range" d="M28 126 C86 70 146 92 196 116 S304 158 368 112 444 64 496 92" />
+                      <path class="edge" d="M54 130 L126 96 L204 126 L276 78 L354 118 L444 72" />
+                      <path class="edge weak" d="M126 96 L218 52 L318 96 L432 150" />
+                      <path class="edge weak" d="M204 126 L282 164 L354 118" />
+                      <g class="node-group bull">
+                        <circle cx="54" cy="130" r="12" />
+                        <text x="72" y="134">BULL</text>
+                      </g>
+                      <g class="node-group">
+                        <circle cx="126" cy="96" r="7" />
+                        <text x="137" y="88">BAYES</text>
+                      </g>
+                      <g class="node-group active">
+                        <circle cx="204" cy="126" r="17" />
+                        <text x="177" y="158">MISPRICE</text>
+                      </g>
+                      <g class="node-group">
+                        <circle cx="276" cy="78" r="8" />
+                        <text x="288" y="74">ANCHOR</text>
+                      </g>
+                      <g class="node-group risk">
+                        <circle cx="354" cy="118" r="11" />
+                        <text x="370" y="122">BEAR</text>
+                      </g>
+                      <g class="node-group active">
+                        <circle cx="444" cy="72" r="14" />
+                        <text x="462" y="76">EDGE</text>
+                      </g>
+                      <circle class="speck pos" cx="92" cy="158" r="3" />
+                      <circle class="speck neg" cx="244" cy="44" r="4" />
+                      <circle class="speck warn" cx="318" cy="154" r="5" />
+                      <circle class="speck pos" cx="478" cy="132" r="3" />
+                    </svg>
+                    <footer><span><i class="dot pos"></i>bull path</span><span><i class="dot neg"></i>bear signal</span><span><i class="dot warn"></i>cluster hub</span></footer>
+                  </section>
+                  <section class="signal-book">
+                    <div><span>ASK</span><b class="neg">0.4590</b><em style="--depth:76%"></em></div>
+                    <div><span>ASK</span><b class="neg">0.4570</b><em style="--depth:42%"></em></div>
+                    <div><span>BID</span><b class="pos">0.4555</b><em style="--depth:68%"></em></div>
+                    <div><span>BID</span><b class="pos">0.4530</b><em style="--depth:38%"></em></div>
+                  </section>
+                  <section class="signal-chart" aria-label="edge distribution">
+                    <header><span>EDGE DISTRIBUTION · 24H</span><b>+38 avg</b></header>
+                    <div class="distribution-plot">
+                      <i style="--h:26%; --tone:bid"><span>+12</span></i>
+                      <i style="--h:54%; --tone:bid"><span>+21</span></i>
+                      <i style="--h:36%; --tone:bid"><span>+18</span></i>
+                      <i style="--h:72%; --tone:bid"><span>+42</span></i>
+                      <i style="--h:62%; --tone:bid"><span>+38</span></i>
+                      <i style="--h:86%; --tone:edge"><span>+76</span></i>
+                    </div>
+                    <div class="distribution-axis"><span>min +12</span><span>median +31</span><span>max +76</span></div>
+                  </section>
+                </div>
+              </article>
+              <article class="signal-console signal-terminal">
+                <header class="signal-topbar">
+                  <strong>Paper Trading</strong>
+                  <span>CONNECTED · 4:08 REMAINING</span>
+                </header>
+                <div class="signal-tape">
+                  <span>BAL $724.56</span>
+                  <span>EQUITY $997.31</span>
+                  <span>UNREALIZED <b class="neg">-2.69</b></span>
+                  <span>RETURN <b class="neg">-0.27%</b></span>
+                </div>
+                <div class="signal-dark-grid">
+                  <section class="signal-order-form">
+                    <strong>Place Order</strong>
+                    <div class="seg"><button class="active">Up</button><button>Down</button></div>
+                    <div class="seg"><button class="active">Buy</button><button>Sell</button></div>
+                    <input value="100" aria-label="shares" readonly>
+                    <button class="submit">Buy Up</button>
+                  </section>
+                  <section class="signal-ladder" aria-label="bid ask ladder">
+                    <header><span>MARKET</span><span>BID</span><span>ASK</span><span>SPREAD</span></header>
+                    <div><b>UP</b><span class="pos">0.5409</span><span>0.5456</span><small>0.0090</small></div>
+                    <div><b>DOWN</b><span class="neg">0.4590</span><span>0.4545</span><small>0.0078</small></div>
+                    <div><b>LAST TRADE</b><span class="pos">BUY 500</span><span>@ 0.5509</span><small>filled</small></div>
+                  </section>
+                  <section class="signal-terminal-chart" aria-label="liquidity depth">
+                    <header><span>LIQUIDITY DEPTH</span><b>$27.7K</b></header>
+                    <div class="depth-plot">
+                      <i style="--h:22%; --side:bid"><span>0.52</span></i>
+                      <i style="--h:48%; --side:bid"><span>0.53</span></i>
+                      <i style="--h:34%; --side:ask"><span>0.54</span></i>
+                      <i style="--h:72%; --side:bid"><span>0.55</span></i>
+                      <i style="--h:58%; --side:bid"><span>0.56</span></i>
+                      <i style="--h:86%; --side:bid"><span>0.57</span></i>
+                      <i style="--h:42%; --side:ask"><span>0.58</span></i>
+                    </div>
+                    <div class="depth-axis"><span>bid depth</span><span>mid 0.5455</span><span>ask wall</span></div>
+                  </section>
+                </div>
+              </article>
+            </div>
+          </section>""",
     }
     return templates.get(archetype, f"""
           <section class="surface section archetype-section token-preview" id="sample">
@@ -649,23 +1027,29 @@ def build_archetype_section(archetype, brand_name, palette_candidates=None):
             </div>
           </section>""")
 
-def build_page_grid(archetype, brand_name, palette_candidates=None):
+def build_page_grid(archetype, brand_name, palette_candidates=None, category_slug="", style_contract="", css_token_block=""):
     palette_lab_link = ""
     if archetype == "site-palette-showcase":
         palette_lab_link = '            <a href="#palette-lab" data-zh="试色" data-en="Palette Lab">试色</a>\n'
+    style_lab_link = ""
+    style_lab_section = ""
+    if category_slug == "styles":
+        style_lab_link = '            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>\n'
+        style_lab_section = build_style_lab_section(style_contract, css_token_block)
     return f"""
       <div class="page-grid">
         <aside class="surface side-rail">
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
             <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
-{palette_lab_link}            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+{palette_lab_link}{style_lab_link}            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
             <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
         </aside>
 
         <div class="content">
 {build_archetype_section(archetype, brand_name, palette_candidates)}
+{style_lab_section}
 {build_color_section()}
 {build_token_section()}
         </div>
@@ -694,7 +1078,8 @@ def initial_catalog_data():
         "media-consumer": {"name": "Media & Consumer Tech", "brands": []},
         "automotive": {"name": "Automotive", "brands": []},
         "other": {"name": "General / Core Layouts", "brands": []},
-        "palettes": {"name": "Color Palettes", "items": [], "brands": []}
+        "palettes": {"name": "Color Palettes", "items": [], "brands": []},
+        "styles": {"name": "Style Catalogs", "items": [], "brands": []}
     }
 
 def catalog_entries_for_group(group):
@@ -738,7 +1123,7 @@ def merge_catalog_data(existing_registry, update_registry):
         if category not in merged:
             merged[category] = {"name": update_group.get("name", category), "brands": []}
         merged[category]["name"] = update_group.get("name", merged[category].get("name", category))
-        if category == "palettes":
+        if category in ["palettes", "styles"]:
             merged[category].setdefault("items", [])
             merged[category].setdefault("brands", [])
             for entry in catalog_entries_for_group(update_group):
@@ -781,7 +1166,7 @@ def write_catalog_registry(index_html_file, catalog_data, target_catalog=None):
 
 def main():
     target_catalog = sys.argv[1] if len(sys.argv) > 1 else None
-    
+
     # Find markdown files
     md_files = []
     if target_catalog:
@@ -810,7 +1195,7 @@ def main():
         rel_path = os.path.relpath(md_file, CATALOG_DIR)
         category_slug = os.path.dirname(rel_path)
         brand_slug = os.path.basename(md_file)[:-3]
-        
+
         # HTML preview path matching category hierarchy
         html_file = os.path.join(RENDER_DIR, rel_path[:-3] + ".html")
 
@@ -818,12 +1203,12 @@ def main():
         with open(md_file, "r", encoding="utf-8") as f:
             md_content = f.read()
         validate_palette_contract(md_content, category_slug, brand_slug, rel_path)
-        
+
         # Scaffolding: if HTML doesn't exist, clone it
         if not os.path.exists(html_file):
             print(f"🆕 Brand new catalog found ({brand_slug}), generating HTML preview...")
             os.makedirs(os.path.dirname(html_file), exist_ok=True)
-            
+
             # Prefer other/dig.html as baseline
             template_path = os.path.join(RENDER_DIR, "other", "dig.html")
             if not os.path.exists(template_path):
@@ -837,7 +1222,7 @@ def main():
                     template_path = html_candidates[0]
                 else:
                     template_path = None
-                    
+
             if template_path and os.path.exists(template_path):
                 with open(template_path, "r", encoding="utf-8") as tf:
                     t_content = tf.read()
@@ -846,23 +1231,23 @@ def main():
             else:
                 print(f"⚠️ Warning: No HTML templates found. Skipping {brand_slug}.")
                 continue
-            
+
         # 1. Extract metadata from Frontmatter
         brand_name = brand_slug.capitalize()
         name_match = re.search(r'name:\s*(.+)', md_content)
         if name_match:
             brand_name = name_match.group(1).strip().strip('"\'')
-            
+
         brand_name_zh = ""
         name_zh_match = re.search(r'name_zh:\s*(.+)', md_content)
         if name_zh_match:
             brand_name_zh = name_zh_match.group(1).strip().strip('"\'')
-            
+
         brand_name_en = ""
         name_en_match = re.search(r'name_en:\s*(.+)', md_content)
         if name_en_match:
             brand_name_en = name_en_match.group(1).strip().strip('"\'')
-            
+
         if not brand_name_zh:
             brand_name_zh = brand_name
         if not brand_name_en:
@@ -900,7 +1285,7 @@ def main():
                     description = clean_description(overview_match.group(1))
             if not description:
                 description = f"Standard {brand_name} design system catalog featuring specialized components and typography schemas."
-            
+
             # Detect if standard description is Chinese or English
             is_chinese = bool(re.search(r'[\u4e00-\u9fff]', description))
             if is_chinese:
@@ -925,11 +1310,11 @@ def main():
             for line in md_content.split("\n"):
                 if line.strip().startswith("--dig-"):
                     tokens_block.append("        " + line.strip())
-                    
+
         if not tokens_block:
             print(f"⚠️ Warning: No CSS tokens block found in {brand_slug}.md, skipping token replacement.")
             continue
-            
+
         tokens_str = "\n".join(tokens_block)
 
         # Extract accent and bg color tokens for index.html registry
@@ -939,8 +1324,8 @@ def main():
         bg_color = bg_match.group(1).strip() if bg_match else "#f5f5f5"
 
         # Register catalog item in catalog data.
-        # Palette catalogs use "items" as the source of truth and keep "brands"
-        # only as a legacy fallback for older render hubs.
+        # Palette and style catalogs use "items" as the source of truth and keep
+        # "brands" only as a legacy fallback for older render hubs.
         keywords_zh = description_to_sentences(description_zh)
         keywords_en = description_to_sentences(description_en)
         if category_slug in catalog_data:
@@ -955,7 +1340,7 @@ def main():
                 "keywords_en": keywords_en,
                 "link": f"./{category_slug}/{brand_slug}.html"
             }
-            if category_slug == "palettes":
+            if category_slug in ["palettes", "styles"]:
                 catalog_data[category_slug]["items"].append(catalog_entry)
                 catalog_data[category_slug]["brands"].append(catalog_entry.copy())
             else:
@@ -964,14 +1349,26 @@ def main():
         # 3. Read and upgrade HTML content
         with open(html_file, "r", encoding="utf-8") as f:
             html_content = f.read()
-            
-        # Parse existing color-scheme from HTML if present
+        if category_slug == "styles":
+            html_content = strip_legacy_inline_preview_overrides(html_content)
+
+        # Parse color-scheme from render intent and tokens. Style catalogs may be
+        # theme-dual even when their base token canvas is light.
         color_scheme = "color-scheme: dark;"
-        cs_match = re.search(r'color-scheme:\s*[a-zA-Z]*;', html_content)
-        if cs_match:
-            color_scheme = cs_match.group(0)
-        elif "light" in brand_slug.lower() or "canvas: \"#fff" in md_content.lower():
+        cs_match = re.search(r'color-scheme:\s*[a-zA-Z ]+;', html_content)
+        render_canvas = parse_render_setting(md_content, "canvas")
+        inferred_light_scheme = (
+            "light" in brand_slug.lower()
+            or "canvas: \"#fff" in md_content.lower()
+            or "--dig-bg: #fff" in md_content.lower()
+            or is_light_color(bg_color)
+        )
+        if render_canvas == "theme-dual":
+            color_scheme = "color-scheme: light dark;"
+        elif inferred_light_scheme:
             color_scheme = "color-scheme: light;"
+        elif cs_match:
+            color_scheme = cs_match.group(0)
 
         # Update root variables block using regex
         root_pattern = r'(:root\s*\{)[^}]*(\})'
@@ -1010,7 +1407,16 @@ def main():
         )
 
         # Rebuild the central preview body from the selected catalog render archetype.
-        page_grid = build_page_grid(render_archetype, brand_name, palette_candidates)
+        style_contract_block = extract_fenced_code_block_from_section(md_content, "Style Contract", "yaml") if category_slug == "styles" else ""
+        style_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI CSS Tokens", "css") if category_slug == "styles" else ""
+        page_grid = build_page_grid(
+            render_archetype,
+            brand_name,
+            palette_candidates,
+            category_slug,
+            style_contract_block,
+            style_token_block,
+        )
         html_content = re.sub(
             r'\n\s*<div class="page-grid">.*?\n\s*</main>',
             f"\n{page_grid}\n    </main>",
@@ -1029,7 +1435,7 @@ def main():
         html_content = html_content.replace('src="../assets/', 'src="../../assets/')
 
         # 4. Self-Healing Bilingual Upgrades for compiled previews
-        
+
         # Standardize static interface translations dynamically
         ui_translations = {
             "<h2>目录</h2>": '<h2 data-zh="目录" data-en="Contents">目录</h2>',
@@ -1054,7 +1460,7 @@ def main():
             '<strong>Primary</strong>': '<strong data-zh="主动作" data-en="Primary">Primary</strong>',
             '<strong>Secondary</strong>': '<strong data-zh="次要动作" data-en="Secondary">Secondary</strong>',
             '<strong>Ghost</strong>': '<strong data-zh="幽灵按钮" data-en="Ghost">Ghost</strong>',
-            
+
             # Common baseline description blocks (Dig)
             '<p>深矿物背景 + run green 主动作 + cool blue 技术辅助色</p>': '<p data-zh="深矿物背景 + run green 主动作 + cool blue 技术辅助色" data-en="Dark mineral canvas + run green primary action + cool blue support">深矿物背景 + run green 主动作 + cool blue 技术辅助色</p>',
             '<p>sans 为默认 UI 字体，mono 用于元信息和状态</p>': '<p data-zh="sans 为默认 UI 字体，mono 用于元信息 and 状态" data-en="sans is the default UI voice, with monospace reserved for meta and status">sans 为默认 UI 字体，mono 用于元信息 and 状态</p>',
@@ -1062,7 +1468,7 @@ def main():
             '<p>半透明深色 surface，强调结构边界和运行中信息</p>': '<p data-zh="半透明深色 surface，强调结构边界和运行中信息" data-en="Semi-transparent dark surface, accenting structural boundaries and active runtime traces">半透明深色 surface，强调结构边界和运行中信息</p>',
             '<p>数字是关键视觉锚点，可以比正文更有力量</p>': '<p data-zh="数字是关键视觉锚点，可以比正文更有力量" data-en="Numbers are core visual anchors, carrying more gravity than standard body text">数字是关键视觉锚点，可以比正文更有力量</p>',
             '<p>这部分方便你对照 HTML 直接回写 catalog 文档</p>': '<p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档" data-en="This section serves as a direct reference for your catalog document definitions">这部分方便你对照 HTML 直接回写 catalog 文档</p>',
-            
+
             # Common baseline description blocks (Mono)
             '<p>墨水与纸张：纯白画布上的高对比冷酷表达</p>': '<p data-zh="墨水与纸张：纯白画布上的高对比冷酷表达" data-en="Ink & Paper: High-contrast monospace expression on stark white canvas">墨水与纸张：纯白画布上的高对比冷酷表达</p>',
             '<p>所有文字都使用 monospace，字重起主要分层作用</p>': '<p data-zh="所有文字都使用 monospace，字重起主要分层作用" data-en="All characters run in monospace, using weight scales as primary hierarchy">所有文字都使用 monospace，字重起主要分层作用</p>',
@@ -1070,7 +1476,7 @@ def main():
             '<p>刚性单色面板，通过实线细边框与纯黑填充传递状态</p>': '<p data-zh="刚性单色面板，通过实线细边框与纯黑填充传递状态" data-en="Rigid monochromatic panels, streaming states via thin borders and solid fills">刚性单色面板，通过实线细边框与纯黑填充传递状态</p>',
             '<p>等宽数字排列，在统计视图中天然对齐</p>': '<p data-zh="等宽数字排列，在统计视图中天然对齐" data-en="Monospaced digits, naturally aligned for clean statistical scannability">等宽数字排列，在统计视图中天然对齐</p>',
             '<p>严格的 CSS 属性映射关系</p>': '<p data-zh="严格的 CSS 属性映射关系" data-en="Strict CSS custom property mapping schemas">严格的 CSS 属性映射关系</p>',
-            
+
             # Common baseline description blocks (Editorial)
             '<p>温暖纸感底色 + 深墨绿主强调 + 棕金辅助色</p>': '<p data-zh="温暖纸感底色 + 深墨绿主强调 + 棕金辅助色" data-en="Warm paper canvas + deep forest-green accent + golden-brown support">温暖纸感底色 + 深墨绿主强调 + 棕金辅助色</p>',
             '<p>serif 用于重音与气质，正文与 UI 仍以 sans 为主</p>': '<p data-zh="serif 用于重音与气质，正文与 UI 仍以 sans 为主" data-en="serif sets the tone and atmosphere, while sans remains the primary voice for body and UI">serif 用于重音与气质，正文与 UI 仍以 sans 为主</p>',
@@ -1078,23 +1484,23 @@ def main():
             '<p>像嵌入页面中的资料卡，而不是 glowing console widget</p>': '<p data-zh="像嵌入页面中的资料卡，而不是 glowing console widget" data-en="Reads like reference cards embedded inside the page, not a glowing console widget">像嵌入页面中的资料卡，而不是 glowing console widget</p>',
             '<p>数字可以带 serif 重音，但标签要保持信息清晰</p>': '<p data-zh="数字可以带 serif 重音，但标签要保持信息清晰" data-en="Numbers carry serif gravity, while descriptions maintain absolute scannability">数字可以带 serif 重音，但标签要保持信息清晰</p>',
             '<p>适合品牌页 and 叙事页的纸感体系</p>': '<p data-zh="适合品牌页 and 叙事页的纸感体系" data-en="A bookish, tactile system perfectly suited for brand and story surfaces">适合品牌页 and 叙事页的纸感体系</p>',
-            
+
             # Stat notes
             '<div class="note">稳定、克制、可读</div>': '<div class="note" data-zh="稳定、克制、可读" data-en="Stable, restrained, highly legible">稳定、克制、可读</div>',
             '<div class="note">支持主视觉聚焦</div>': '<div class="note" data-zh="支持主视觉聚焦" data-en="Supports bold focal visual anchors">支持主视觉聚焦</div>',
             '<div class="note">用主色或正文色即可</div>': '<div class="note" data-zh="用主色或正文色即可" data-en="Direct expression using primary or body color">用主色或正文色即可</div>',
             '<div class="note">避免装饰性过强</div>': '<div class="note" data-zh="避免装饰性过强" data-en="Avoids excessive ornamental complexity">避免装饰性过强</div>',
-            
+
             '<div class="note">作者感来自克制重音</div>': '<div class="note" data-zh="作者感来自克制重音" data-en="Editorial confidence via restrained accents">作者感来自克制重音</div>',
             '<div class="note">留白必须更大胆</div>': '<div class="note" data-zh="留白必须更大胆" data-en="Negative spaces must run bolder">留白必须更大胆</div>',
             '<div class="note">仍保持产品边界</div>': '<div class="note" data-zh="仍保持产品边界" data-en="Retain clean product boundaries">仍保持产品边界</div>',
             '<div class="note">不变成杂志封面</div>': '<div class="note" data-zh="不变成杂志封面" data-en="Never turn into a noisy magazine cover">不变成杂志封面</div>',
-            
+
             '<div class="note">单色等宽渲染</div>': '<div class="note" data-zh="单色等宽渲染" data-en="Monochromatic tabular layout">单色等宽渲染</div>',
             '<div class="note">适合超高频流动</div>': '<div class="note" data-zh="适合超高频流动" data-en="Suited for high-frequency data streams">适合超高频流动</div>',
             '<div class="note">硬朗的纯文本块</div>': '<div class="note" data-zh="硬朗的纯文本块" data-en="Rigid plain-text block layout">硬朗的纯文本块</div>',
             '<div class="note">没有视觉抖动</div>': '<div class="note" data-zh="没有视觉抖动" data-en="Zero visual jitter or shifting">没有视觉抖动</div>',
-            
+
             # Card placeholders (Dig/Mono/Editorial templates & older compiled variants)
             '<div class="type-showcase type-section">把工作流变成运行中的系统</div>': '<div class="type-showcase type-section" data-zh="把工作流变成运行中的系统" data-en="Turn workflows into running systems">把工作流变成运行中的系统</div>',
             '<div class="type-showcase type-body">当前风格要让人感到系统已经在运行，而不是还停留在概念说明阶段。</div>': '<div class="type-showcase type-body" data-zh="当前风格要让人感到系统已经在运行，而不是还停留在概念说明阶段。" data-en="The current style should make people feel that the system is already running, rather than staying in the conceptual stage.">当前风格要让人感到系统已经在运行，而不是还停留在概念说明阶段。</div>',
@@ -1191,12 +1597,12 @@ def main():
       function setLanguage(lang) {
         localStorage.setItem('dig-ui-lang', lang);
         document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-        
+
         // Toggle active classes on switcher buttons
         document.querySelectorAll('.lang-btn').forEach(btn => {
           btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
         });
-        
+
         // Translate all data-zh/data-en text nodes
         document.querySelectorAll('[data-zh][data-en]').forEach(el => {
           el.textContent = el.getAttribute(`data-${lang}`);
@@ -1207,7 +1613,7 @@ def main():
       document.addEventListener('DOMContentLoaded', () => {
         const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
         setLanguage(savedLang);
-        
+
         document.querySelectorAll('.lang-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             setLanguage(btn.getAttribute('data-lang'));
@@ -1680,6 +2086,127 @@ def main():
           window.setTimeout(() => URL.revokeObjectURL(url), 0);
         }
 
+        function getStyleSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-style';
+          return fileName.replace(/\\.html$/i, '') || 'dig-style';
+        }
+
+        function collectStyleTokens() {
+          const tokens = {};
+          document.querySelectorAll('.token-val[data-token]').forEach(el => {
+            const token = el.getAttribute('data-token');
+            const value = getTokenValue(token);
+            if (token && token.startsWith('--dig-') && value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          return tokens;
+        }
+
+        function parseStyleTokenCss(cssText) {
+          const tokens = {};
+          String(cssText || '').split('\\n').forEach(line => {
+            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\\s*:\\s*([^;]+);?/);
+            if (!match) return;
+            tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
+          });
+          return tokens;
+        }
+
+        function buildStyleTokenCss(tokens, cssText = '') {
+          const lines = [];
+          const seen = new Set();
+          String(cssText || '').split('\\n').forEach(line => {
+            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\\s*:/);
+            if (!match) return;
+            const token = match[1];
+            if (Object.prototype.hasOwnProperty.call(tokens, token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+              seen.add(token);
+            }
+          });
+          Object.keys(tokens).sort().forEach(token => {
+            if (!seen.has(token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+            }
+          });
+          return lines.join('\\n');
+        }
+
+        function buildStyleExportPayload(lab) {
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          const slug = getStyleSlug();
+          const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleTokens = {
+            ...parseStyleTokenCss(styleTokenCss),
+            ...collectStyleTokens()
+          };
+          const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          return {
+            schema: 'dig.style.export.v1',
+            token_contract: 'style_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug,
+            export_id: `${slug}.customstyle-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            render: {
+              archetype: document.body.getAttribute('data-render-archetype') || 'token-sheet'
+            },
+            style_contract: lab.getAttribute('data-style-contract') || '',
+            tokens: styleTokens,
+            css: styleCss,
+            derivation: {
+              status: 'style-contract-export',
+              note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
+            }
+          };
+        }
+
+        function downloadStyleZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-style'}.customstyle-${formatPaletteTimestamp()}`;
+          const zip = makeZip([
+            { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\\n' },
+            { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\\n` },
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\\n` }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initStyleLab() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab) return;
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (!exportButton) return;
+          exportButton.addEventListener('click', () => {
+            const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+            const payload = buildStyleExportPayload(lab);
+            downloadStyleZip(payload);
+            exportButton.dataset.exportState = 'success';
+            exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+            window.setTimeout(() => {
+              delete exportButton.dataset.exportState;
+              setLanguage(activeLang);
+            }, 1200);
+          });
+        }
+
         function initPaletteLab() {
           const lab = document.querySelector('[data-palette-lab]');
           if (!lab) return;
@@ -1750,6 +2277,7 @@ def main():
         // Dynamic Token Visualizer
         refreshTokenVisualizers();
         initPaletteLab();
+        initStyleLab();
       });"""
             if "// Dynamic Token Visualizer" in html_content:
                 html_content = re.sub(

@@ -1,0 +1,1082 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Cozy Arcade Render</title>
+    <link rel="stylesheet" href="../../assets/catalog-preview.css" />
+    <style>
+      :root {
+        color-scheme: light;
+        --dig-bg: #fff1c7;
+        --dig-bg-soft: #fff8df;
+        --dig-surface: #fffdf1;
+        --dig-surface-strong: #f7e9c3;
+        --dig-surface-elevated: #ffffff;
+        --dig-text: #251b16;
+        --dig-text-muted: #6c5b50;
+        --dig-text-soft: #927f70;
+        --dig-accent: #ff6f61;
+        --dig-accent-strong: #e8564d;
+        --dig-accent-2: #61d59d;
+        --dig-accent-2-strong: #35ad78;
+        --dig-border: #2c211c;
+        --dig-border-strong: #17110e;
+        --dig-grid-line: rgba(44, 33, 28, 0.12);
+        --dig-control-bg: #fff7dd;
+        --dig-control-bg-hover: #ffefbd;
+        --dig-success: #44c877;
+        --dig-warning: #ffc857;
+        --dig-danger: #ff5d5d;
+        --dig-info: #5bb8ff;
+        --dig-font-sans: "Nunito Sans", "Baloo 2", "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --dig-font-display: "Baloo 2", "Nunito Sans", "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, sans-serif;
+        --dig-font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        --dig-font-serif: ui-serif, Georgia, "Times New Roman", serif;
+        --dig-text-xs: 12px;
+        --dig-text-sm: 14px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 18px;
+        --dig-text-xl: 22px;
+        --dig-text-2xl: 28px;
+        --dig-text-3xl: 36px;
+        --dig-text-4xl: 48px;
+        --dig-text-5xl: 64px;
+        --dig-leading-tight: 1.04;
+        --dig-leading-normal: 1.45;
+        --dig-tracking-tight: 0;
+        --dig-radius-sm: 10px;
+        --dig-radius-md: 16px;
+        --dig-radius-lg: 22px;
+        --dig-radius-xl: 30px;
+        --dig-radius-pill: 999px;
+        --dig-stroke-width: 2px;
+        --dig-stroke-width-strong: 3px;
+        --dig-shadow-panel: 0 5px 0 #2c211c, 0 18px 28px rgba(44, 33, 28, 0.16);
+        --dig-shadow-soft: 0 10px 22px rgba(44, 33, 28, 0.14);
+        --dig-shadow-chunky: 0 6px 0 #2c211c;
+        --dig-glow-accent: 0 6px 0 #2c211c, 0 18px 28px rgba(255, 111, 97, 0.22);
+        --dig-glow-secondary: 0 5px 0 #2c211c, 0 16px 24px rgba(97, 213, 157, 0.2);
+        --dig-motion-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+        --dig-game-sky-start: #ffb284;
+        --dig-game-sky-mid: #ffd79c;
+        --dig-game-sky-end: #aee5ba;
+        --dig-game-hill-front: #81d260;
+        --dig-game-hill-mid: #5fbf88;
+        --dig-game-hill-back: #7ecf84;
+        --dig-game-cloud: rgba(255, 255, 255, 0.82);
+        --dig-mascot-primary: #37bef2;
+        --dig-mascot-secondary: #9beeff;
+        --dig-mascot-face: #2ab5ee;
+        --dig-mascot-belly: #ff6f61;
+        --dig-mission-surface: #eedcf6;
+        --dig-coach-surface-start: #bd7be8;
+        --dig-coach-surface-end: #ff6f61;
+        --dig-gear-surface: #d9f3df;
+        --dig-gear-icon-surface: #61d59d;
+        --dig-game-on-accent: #ffffff;
+    }
+/* Floating Language Switcher */
+      .lang-switch-capsule {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
+        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        padding: 4px 8px;
+        border-radius: 99px;
+        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
+        z-index: 9999;
+      }
+      .lang-btn {
+        background: transparent;
+        border: none;
+        color: var(--dig-text-soft, #62798c);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 4px 10px;
+        border-radius: 99px;
+        transition: all 0.2s ease;
+        font-family: var(--dig-font-sans), sans-serif;
+      }
+      .lang-btn.active {
+        background: var(--dig-accent, #0071e3);
+        color: var(--dig-bg, #000000);
+      }
+      .lang-btn:hover:not(.active) {
+        color: var(--dig-text, #ecf3f8);
+      }
+      .lang-split {
+        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
+        font-size: 12px;
+        user-select: none;
+      }
+    </style>
+  </head>
+  <body data-render-archetype="mobile-game-companion">
+    <!-- Floating Language Switcher Capsule -->
+    <div class="lang-switch-capsule">
+      <button class="lang-btn" data-lang="zh">中</button>
+      <span class="lang-split">/</span>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+
+    <main class="preview-shell">
+      <section class="hero">
+        <div class="surface hero-main">
+          <span class="eyebrow"><span class="brand-name-label" data-zh="软萌街机" data-en="Cozy Arcade">软萌街机</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1" data-zh="软萌街机" data-en="Cozy Arcade">软萌街机</h1>
+          <p class="brand-description-p" data-zh="一套从用户截图归纳出的软萌游戏化移动 UI 风格，适合健身打卡、习惯养成、儿童学习、宠物陪伴和轻量奖励系统。" data-en="A cozy gamified mobile UI style distilled from a user-provided screenshot, suited for fitness streaks, habit play, kids learning, mascot companions, and lightweight reward systems.">一套从用户截图归纳出的软萌游戏化移动 UI 风格，适合健身打卡、习惯养成、儿童学习、宠物陪伴和轻量奖励系统。</p>
+        </div>
+
+        <aside class="surface surface-strong hero-side">
+          <div class="hero-meta">
+            <div class="meta-row"><span>Accent</span><span class="token-val" data-token="--dig-accent">--dig-accent</span></div>
+            <div class="meta-row"><span>Support</span><span class="token-val" data-token="--dig-accent-2">--dig-accent-2</span></div>
+            <div class="meta-row"><span>Body</span><span><span class="token-val" data-token="--dig-text-md">--dig-text-md</span> / <span class="token-val" data-token="--dig-leading-normal">--dig-leading-normal</span></span></div>
+            <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
+            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+
+          <section class="surface section archetype-section mobile-game-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="游戏化移动样张" data-en="Gamified Mobile Sample">游戏化移动样张</h3>
+              <p data-zh="展示吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。" data-en="Shows mascot stage, mission cards, gear selection, reward chips, and a dominant bottom action.">展示吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。</p>
+            </div>
+            <div class="game-phone">
+              <div class="game-sky">
+                <div class="game-cloud cloud-a"></div>
+                <div class="game-cloud cloud-b"></div>
+                <div class="game-hills"></div>
+                <div class="game-status">
+                  <span>J · LV 1</span>
+                  <span>58%</span>
+                </div>
+                <div class="speech-bubble">Let's hit 1,200 today!</div>
+                <div class="mascot">
+                  <span class="mascot-ear left"></span>
+                  <span class="mascot-ear right"></span>
+                  <span class="mascot-face"></span>
+                  <span class="mascot-belly"></span>
+                </div>
+              </div>
+              <div class="game-panel-stack">
+                <article class="mission-card">
+                  <span class="mini-label">TODAY'S PICK</span>
+                  <strong>Build on it</strong>
+                  <p>You've been averaging 3 minutes. Nudge it to 3 today.</p>
+                  <b>STEADY</b>
+                </article>
+                <article class="coach-card">
+                  <span class="mini-label">AI COACH</span>
+                  <strong>DoubleUnder Boost</strong>
+                  <p>Mastery awaits. Four focused blocks are ready.</p>
+                  <div class="reward-row"><span>10 min</span><span>4 blocks</span><span>Pet x1.5</span></div>
+                  <button class="game-secondary">See plan</button>
+                  <button class="game-start">Start</button>
+                </article>
+                <article class="gear-card selected">
+                  <div class="gear-icon" aria-hidden="true"></div>
+                  <div><strong>Wrist Sensor</strong><p>Accurate motion tracking</p></div>
+                  <span class="gear-check" aria-hidden="true"></span>
+                </article>
+                <button class="game-primary">Start jumping</button>
+              </div>
+            </div>
+          </section>
+
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for:
+  - gamified fitness
+  - habit tracker
+  - kids learning
+  - mascot companion
+  - reward loop
+  - playful mobile onboarding
+avoid_for:
+  - enterprise dashboard
+  - dense data table
+  - regulated finance workflow
+  - medical critical path
+  - developer console
+mood:
+  - cozy
+  - kawaii
+  - toy-like
+  - encouraging
+  - soft-cartoon
+  - game-loop-driven
+source_reference:
+  type: user-provided-screenshot
+  summary: &quot;Two mobile screens showing a gamified jump-rope flow with mascot, forest cartoon background, thick outlined cards, pill CTAs, gear picker, and reward chips.&quot;
+shape_language:
+  stroke: &quot;2px to 3px warm ink outlines on primary cards, buttons, and selection rows.&quot;
+  radius: &quot;Large rounded cards, pill CTAs, circular badges, and sticker-like chips.&quot;
+  depth: &quot;Chunky offset shadows and soft toy-like elevation instead of glass blur.&quot;
+  controls: &quot;Big thumb-friendly controls with stable height; buttons feel pressable but do not jump layout.&quot;
+surface_language:
+  canvas: &quot;Warm cream or illustrated cartoon scene.&quot;
+  panels: &quot;Cream or pastel surfaces with strong warm-ink border.&quot;
+  primary_action: &quot;Coral pill with dark outline and chunky lower shadow.&quot;
+  support_action: &quot;Mint, sky, lavender, or cream panels used for reward and coach states.&quot;
+illustration_language:
+  mascot: &quot;Mascot is a first-order layout object, centered or staged, never a tiny decorative corner.&quot;
+  background: &quot;Soft cartoon environment with layered hills, clouds, fences, trees, or simple game-world scenery.&quot;
+  icons: &quot;Use simple line icons or sticker symbols; avoid enterprise outline-only minimalism.&quot;
+component_mapping:
+  mission_card: &quot;Daily goal, today&#x27;s pick, streak task, or suggested workout.&quot;
+  coach_panel: &quot;AI coach, boost, plan preview, next action.&quot;
+  mascot_stage: &quot;Character, level, mood, speech bubble, progress feedback.&quot;
+  gear_picker: &quot;Large selectable equipment rows with icon tile, description, and selected check.&quot;
+  reward_chip: &quot;Small pill for points, combo, blocks, voice, multiplier, or mode.&quot;
+  primary_cta: &quot;Single dominant bottom action; copy should be short and action-first.&quot;
+motion_language:
+  energy: &quot;Playful micro-bounce for completion and selection; calm idle motion for mascot.&quot;
+  limits: &quot;No large layout shifts, no aggressive parallax, no neon arcade flash.&quot;
+accessibility:
+  contrast: &quot;Warm ink text must stay AA on cream and pastel surfaces.&quot;
+  target_size: &quot;Interactive rows and CTA buttons stay at least 44px high.&quot;
+  copy: &quot;Keep labels short; do not make cute language obscure the action.&quot;" data-style-token-block="--dig-bg: #fff1c7;
+--dig-bg-soft: #fff8df;
+--dig-surface: #fffdf1;
+--dig-surface-strong: #f7e9c3;
+--dig-surface-elevated: #ffffff;
+--dig-text: #251b16;
+--dig-text-muted: #6c5b50;
+--dig-text-soft: #927f70;
+--dig-accent: #ff6f61;
+--dig-accent-strong: #e8564d;
+--dig-accent-2: #61d59d;
+--dig-accent-2-strong: #35ad78;
+--dig-border: #2c211c;
+--dig-border-strong: #17110e;
+--dig-grid-line: rgba(44, 33, 28, 0.12);
+--dig-control-bg: #fff7dd;
+--dig-control-bg-hover: #ffefbd;
+--dig-success: #44c877;
+--dig-warning: #ffc857;
+--dig-danger: #ff5d5d;
+--dig-info: #5bb8ff;
+--dig-font-sans: &quot;Nunito Sans&quot;, &quot;Baloo 2&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+--dig-font-display: &quot;Baloo 2&quot;, &quot;Nunito Sans&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, ui-sans-serif, system-ui, sans-serif;
+--dig-font-mono: &quot;SFMono-Regular&quot;, Consolas, &quot;Liberation Mono&quot;, monospace;
+--dig-font-serif: ui-serif, Georgia, &quot;Times New Roman&quot;, serif;
+--dig-text-xs: 12px;
+--dig-text-sm: 14px;
+--dig-text-md: 16px;
+--dig-text-lg: 18px;
+--dig-text-xl: 22px;
+--dig-text-2xl: 28px;
+--dig-text-3xl: 36px;
+--dig-text-4xl: 48px;
+--dig-text-5xl: 64px;
+--dig-leading-tight: 1.04;
+--dig-leading-normal: 1.45;
+--dig-tracking-tight: 0;
+--dig-radius-sm: 10px;
+--dig-radius-md: 16px;
+--dig-radius-lg: 22px;
+--dig-radius-xl: 30px;
+--dig-radius-pill: 999px;
+--dig-stroke-width: 2px;
+--dig-stroke-width-strong: 3px;
+--dig-shadow-panel: 0 5px 0 #2c211c, 0 18px 28px rgba(44, 33, 28, 0.16);
+--dig-shadow-soft: 0 10px 22px rgba(44, 33, 28, 0.14);
+--dig-shadow-chunky: 0 6px 0 #2c211c;
+--dig-glow-accent: 0 6px 0 #2c211c, 0 18px 28px rgba(255, 111, 97, 0.22);
+--dig-glow-secondary: 0 5px 0 #2c211c, 0 16px 24px rgba(97, 213, 157, 0.2);
+--dig-motion-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+--dig-game-sky-start: #ffb284;
+--dig-game-sky-mid: #ffd79c;
+--dig-game-sky-end: #aee5ba;
+--dig-game-hill-front: #81d260;
+--dig-game-hill-mid: #5fbf88;
+--dig-game-hill-back: #7ecf84;
+--dig-game-cloud: rgba(255, 255, 255, 0.82);
+--dig-mascot-primary: #37bef2;
+--dig-mascot-secondary: #9beeff;
+--dig-mascot-face: #2ab5ee;
+--dig-mascot-belly: #ff6f61;
+--dig-mission-surface: #eedcf6;
+--dig-coach-surface-start: #bd7be8;
+--dig-coach-surface-end: #ff6f61;
+--dig-gear-surface: #d9f3df;
+--dig-gear-icon-surface: #61d59d;
+--dig-game-on-accent: #ffffff;">
+              <div class="style-lab-head">
+                <div>
+                  <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
+                  <p data-zh="把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。" data-en="Export this style's visual grammar, render archetype, and tokens as a user-local customstyle asset.">把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。</p>
+                </div>
+                <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+              </div>
+              <div class="style-lab-grid">
+                <article>
+                  <span data-zh="资产边界" data-en="Asset Boundary">资产边界</span>
+                  <strong>customstyle</strong>
+                  <p data-zh="导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。" data-en="Exported styles belong to the user, imported under ~/.config/dig-ui-skill/styles/ and synced to references/local/styles/.">导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。</p>
+                </article>
+                <article>
+                  <span data-zh="包含内容" data-en="Contents">包含内容</span>
+                  <strong>contract + tokens</strong>
+                  <p data-zh="包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。" data-en="Includes Style Contract, render archetype, page metadata, and current --dig-* token values.">包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。</p>
+                </article>
+              </div>
+            </section>
+
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <table class="token-table">
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+                <tr><td><code>--dig-bg</code></td><td class="mono token-val" data-token="--dig-bg">--dig-bg</td></tr>
+                <tr><td><code>--dig-bg-soft</code></td><td class="mono token-val" data-token="--dig-bg-soft">--dig-bg-soft</td></tr>
+                <tr><td><code>--dig-surface</code></td><td class="mono token-val" data-token="--dig-surface">--dig-surface</td></tr>
+                <tr><td><code>--dig-surface-strong</code></td><td class="mono token-val" data-token="--dig-surface-strong">--dig-surface-strong</td></tr>
+                <tr><td><code>--dig-text</code></td><td class="mono token-val" data-token="--dig-text">--dig-text</td></tr>
+                <tr><td><code>--dig-text-muted</code></td><td class="mono token-val" data-token="--dig-text-muted">--dig-text-muted</td></tr>
+                <tr><td><code>--dig-accent</code></td><td class="mono token-val" data-token="--dig-accent">--dig-accent</td></tr>
+                <tr><td><code>--dig-accent-2</code></td><td class="mono token-val" data-token="--dig-accent-2">--dig-accent-2</td></tr>
+                <tr><td><code>--dig-border</code></td><td class="mono token-val" data-token="--dig-border">--dig-border</td></tr>
+                <tr><td><code>--dig-border-strong</code></td><td class="mono token-val" data-token="--dig-border-strong">--dig-border-strong</td></tr>
+                <tr><td><code>--dig-grid-line</code></td><td class="mono token-val" data-token="--dig-grid-line">--dig-grid-line</td></tr>
+                <tr><td><code>--dig-radius-md</code></td><td class="mono token-val" data-token="--dig-radius-md">--dig-radius-md</td></tr>
+                <tr><td><code>--dig-text-5xl</code></td><td class="mono token-val" data-token="--dig-text-5xl">--dig-text-5xl</td></tr>
+                <tr><td><code>--dig-shadow-panel</code></td><td class="mono token-val" data-token="--dig-shadow-panel">--dig-shadow-panel</td></tr>
+                  </tbody>
+                </table>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+
+      // Interactive Language Switcher Controller
+      function setLanguage(lang) {
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+        // Toggle active classes on switcher buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+
+        // Translate all data-zh/data-en text nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+
+      // Initialise state
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
+        const root = document.documentElement;
+        const paletteRoleTokens = {
+          canvas: '--dig-bg',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          primaryStrong: '--dig-accent-strong',
+          support: '--dig-accent-2',
+          supportStrong: '--dig-accent-2-strong'
+        };
+        const paletteTrackedTokens = [
+          '--dig-bg',
+          '--dig-text',
+          '--dig-accent',
+          '--dig-accent-strong',
+          '--dig-accent-2',
+          '--dig-accent-2-strong'
+        ];
+        const paletteExportTokens = [
+          ...paletteTrackedTokens
+        ];
+
+        function normalizeHex(raw) {
+          const value = (raw || '').trim();
+          if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+            return '#' + value.slice(1).split('').map(char => char + char).join('').toUpperCase();
+          }
+          if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+            return value.toUpperCase();
+          }
+          return '';
+        }
+
+        function cssColorToHex(raw) {
+          const value = (raw || '').trim();
+          const hex = normalizeHex(value);
+          if (hex) return hex;
+          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (!rgbMatch) return '';
+          return '#' + rgbMatch.slice(1, 4).map(part => {
+            const channel = Math.max(0, Math.min(255, Number(part)));
+            return channel.toString(16).padStart(2, '0');
+          }).join('').toUpperCase();
+        }
+
+        function getTokenValue(token) {
+          return getComputedStyle(root).getPropertyValue(token).trim();
+        }
+
+        function renderTokenValue(el, value) {
+          let displayValue = (value || '').trim();
+          if (!displayValue) return;
+          const hexValue = normalizeHex(displayValue);
+          if (hexValue) {
+            displayValue = hexValue;
+          }
+          el.textContent = '';
+          if (hexValue) {
+            const dot = document.createElement('span');
+            dot.className = 'token-color-dot';
+            dot.style.background = hexValue;
+            el.appendChild(dot);
+          }
+          el.appendChild(document.createTextNode(displayValue));
+        }
+
+        function refreshTokenVisualizers() {
+          document.querySelectorAll('.token-val').forEach(el => {
+            const tokenName = el.getAttribute('data-token');
+            if (tokenName) {
+              renderTokenValue(el, getTokenValue(tokenName));
+            }
+          });
+        }
+
+        function updatePaletteLabState() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          Object.entries(paletteRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
+            const swatch = lab.querySelector(`[data-palette-swatch="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) {
+              textInput.value = value;
+            }
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+            if (swatch && value) {
+              swatch.style.background = value;
+            }
+          });
+
+          paletteTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-palette-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setPaletteRoles(updates) {
+          let changed = false;
+          Object.entries(updates).forEach(([role, value]) => {
+            const token = paletteRoleTokens[role];
+            const hex = normalizeHex(value);
+            if (!token || !hex) return;
+            root.style.setProperty(token, hex);
+            changed = true;
+          });
+          if (changed) {
+            updatePaletteLabState();
+          }
+        }
+
+        function setPaletteRole(role, value) {
+          setPaletteRoles({ [role]: value });
+        }
+
+        function fallbackCopyText(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            return document.execCommand('copy');
+          } catch (error) {
+            console.warn('Palette fallback copy failed', error);
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        async function copyPaletteTokens(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (error) {
+              console.warn('Palette clipboard copy failed', error);
+            }
+          }
+          return fallbackCopyText(text);
+        }
+
+        function buildPaletteTokenCss(tokens = paletteTrackedTokens) {
+          return tokens.map(token => {
+            const value = getTokenValue(token);
+            return `${token}: ${normalizeHex(value) || value};`;
+          }).join('\n');
+        }
+
+        function getPaletteSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-palette';
+          return fileName.replace(/\.html$/i, '') || 'dig-palette';
+        }
+
+        function formatPaletteTimestamp(date = new Date()) {
+          const pad = value => String(value).padStart(2, '0');
+          return [
+            date.getFullYear(),
+            pad(date.getMonth() + 1),
+            pad(date.getDate())
+          ].join('') + '-' + [
+            pad(date.getHours()),
+            pad(date.getMinutes()),
+            pad(date.getSeconds())
+          ].join('');
+        }
+
+        function collectPaletteCandidates(lab) {
+          const support = Array.from(lab.querySelectorAll('[data-palette-candidate]')).map(button => {
+            const label = button.querySelector('span:not(.palette-candidate-dot)')?.textContent?.trim() || '';
+            return {
+              label,
+              value: normalizeHex(button.getAttribute('data-value')) || button.getAttribute('data-value'),
+              strong: normalizeHex(button.getAttribute('data-strong')) || button.getAttribute('data-strong')
+            };
+          });
+          return { support };
+        }
+
+        function buildPaletteExportPayload(lab) {
+          const tokens = {};
+          paletteExportTokens.forEach(token => {
+            const value = getTokenValue(token);
+            if (value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          return {
+            schema: 'dig.palette.export.v1',
+            token_contract: 'palette_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug: getPaletteSlug(),
+            export_id: `${getPaletteSlug()}.custompalette-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            anchors: {
+              canvas: tokens['--dig-bg'],
+              ink: tokens['--dig-text'],
+              primary: tokens['--dig-accent'],
+              support: tokens['--dig-accent-2']
+            },
+            roles: {
+              primary_strong: tokens['--dig-accent-strong'],
+              support_strong: tokens['--dig-accent-2-strong']
+            },
+            tokens,
+            css: buildPaletteTokenCss(paletteExportTokens),
+            candidates: collectPaletteCandidates(lab),
+            derivation: {
+              status: 'anchors-only',
+              note: 'This custom palette exports only Palette Lab managed role tokens. Downstream systems should derive extended scales from these anchors.'
+            }
+          };
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[char]);
+        }
+
+        function hexToRgb(hex) {
+          const normalized = normalizeHex(hex);
+          if (!normalized) return null;
+          return {
+            r: parseInt(normalized.slice(1, 3), 16),
+            g: parseInt(normalized.slice(3, 5), 16),
+            b: parseInt(normalized.slice(5, 7), 16)
+          };
+        }
+
+        function relativeLuminance(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 1;
+          const channels = [rgb.r, rgb.g, rgb.b].map(channel => {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+        }
+
+        function contrastRatio(hexA, hexB) {
+          const lumA = relativeLuminance(hexA);
+          const lumB = relativeLuminance(hexB);
+          const lighter = Math.max(lumA, lumB);
+          const darker = Math.min(lumA, lumB);
+          return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function readableTextOn(hex) {
+          return contrastRatio(hex, '#000000') >= contrastRatio(hex, '#FFFFFF') ? '#000000' : '#FFFFFF';
+        }
+
+        function buildPalettePreviewHtml(payload) {
+          const tokens = payload.tokens || {};
+          const onPrimary = readableTextOn(payload.anchors.primary);
+          const swatches = [
+            ['Canvas', payload.anchors.canvas],
+            ['Ink', payload.anchors.ink],
+            ['Primary', payload.anchors.primary],
+            ['Primary Strong', payload.roles.primary_strong],
+            ['Support', payload.anchors.support],
+            ['Support Strong', payload.roles.support_strong]
+          ].map(([label, value]) => `
+              <article class="swatch">
+                <span style="background:${escapeHtml(value)}"></span>
+                <strong>${escapeHtml(label)}</strong>
+                <code>${escapeHtml(value)}</code>
+              </article>`).join('');
+          const tokenRows = Object.entries(tokens).map(([token, value]) => `
+              <tr><td><code>${escapeHtml(token)}</code></td><td>${escapeHtml(value)}</td></tr>`).join('');
+          return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)} Palette Export</title>
+    <style>
+      :root {
+        --bg: ${escapeHtml(payload.anchors.canvas)};
+        --ink: ${escapeHtml(payload.anchors.ink)};
+        --primary: ${escapeHtml(payload.anchors.primary)};
+        --primary-strong: ${escapeHtml(payload.roles.primary_strong)};
+        --support: ${escapeHtml(payload.anchors.support)};
+        --support-strong: ${escapeHtml(payload.roles.support_strong)};
+        --on-primary: ${escapeHtml(onPrimary)};
+        --surface: color-mix(in srgb, var(--bg), var(--ink) 6%);
+        --surface-strong: color-mix(in srgb, var(--bg), var(--ink) 11%);
+        --border: color-mix(in srgb, var(--ink), transparent 76%);
+        --border-strong: color-mix(in srgb, var(--ink), transparent 56%);
+        --muted: color-mix(in srgb, var(--ink), transparent 32%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+      .hero { display: grid; gap: 20px; padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface), var(--support) 18%)); }
+      h1 { margin: 0; font-size: clamp(42px, 8vw, 92px); line-height: .92; letter-spacing: -0.03em; }
+      p { max-width: 68ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary-strong); border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+      .button.secondary { background: transparent; color: var(--primary); }
+      .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+      .swatch { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      .swatch span { width: 42px; height: 42px; border: 1px solid var(--border-strong); border-radius: 999px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      table { width: 100%; border-collapse: collapse; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      tr:last-child td { border-bottom: 0; }
+      td:last-child { text-align: right; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <code>${escapeHtml(payload.export_id)}</code>
+        <h1>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)}</h1>
+        <p>${escapeHtml(payload.description.zh || payload.description.en || '')}</p>
+        <div class="actions">
+          <span class="button">Primary Action</span>
+          <span class="button secondary">Secondary Action</span>
+        </div>
+      </section>
+      <section class="swatches">${swatches}
+      </section>
+      <table>${tokenRows}
+      </table>
+    </main>
+  </body>
+</html>
+`;
+        }
+
+        const zipCrcTable = (() => {
+          const table = new Uint32Array(256);
+          for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+              value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+          }
+          return table;
+        })();
+
+        function crc32(bytes) {
+          let crc = 0xFFFFFFFF;
+          for (const byte of bytes) {
+            crc = zipCrcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+          }
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function zipDateParts(date = new Date()) {
+          const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+          const day = (date.getFullYear() - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+          return { time, day };
+        }
+
+        function makeZip(files) {
+          const encoder = new TextEncoder();
+          const localParts = [];
+          const centralParts = [];
+          let offset = 0;
+          const { time, day } = zipDateParts();
+
+          files.forEach(file => {
+            const nameBytes = encoder.encode(file.name);
+            const dataBytes = encoder.encode(file.content);
+            const crc = crc32(dataBytes);
+            const local = new ArrayBuffer(30 + nameBytes.length);
+            const localView = new DataView(local);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0x0800, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, time, true);
+            localView.setUint16(12, day, true);
+            localView.setUint32(14, crc, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            new Uint8Array(local, 30).set(nameBytes);
+            localParts.push(local, dataBytes);
+
+            const central = new ArrayBuffer(46 + nameBytes.length);
+            const centralView = new DataView(central);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0x0800, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, time, true);
+            centralView.setUint16(14, day, true);
+            centralView.setUint32(16, crc, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint32(42, offset, true);
+            new Uint8Array(central, 46).set(nameBytes);
+            centralParts.push(central);
+            offset += local.byteLength + dataBytes.length;
+          });
+
+          const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+          const end = new ArrayBuffer(22);
+          const endView = new DataView(end);
+          endView.setUint32(0, 0x06054b50, true);
+          endView.setUint16(8, files.length, true);
+          endView.setUint16(10, files.length, true);
+          endView.setUint32(12, centralSize, true);
+          endView.setUint32(16, offset, true);
+          return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+        }
+
+        function downloadPaletteZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-palette'}.custompalette-${formatPaletteTimestamp()}`;
+          const jsonName = `${baseName}.json`;
+          const htmlName = `${baseName}.html`;
+          const zip = makeZip([
+            { name: jsonName, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: htmlName, content: buildPalettePreviewHtml(payload) }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function getStyleSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-style';
+          return fileName.replace(/\.html$/i, '') || 'dig-style';
+        }
+
+        function collectStyleTokens() {
+          const tokens = {};
+          document.querySelectorAll('.token-val[data-token]').forEach(el => {
+            const token = el.getAttribute('data-token');
+            const value = getTokenValue(token);
+            if (token && token.startsWith('--dig-') && value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          return tokens;
+        }
+
+        function parseStyleTokenCss(cssText) {
+          const tokens = {};
+          String(cssText || '').split('\n').forEach(line => {
+            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);?/);
+            if (!match) return;
+            tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
+          });
+          return tokens;
+        }
+
+        function buildStyleTokenCss(tokens, cssText = '') {
+          const lines = [];
+          const seen = new Set();
+          String(cssText || '').split('\n').forEach(line => {
+            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\s*:/);
+            if (!match) return;
+            const token = match[1];
+            if (Object.prototype.hasOwnProperty.call(tokens, token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+              seen.add(token);
+            }
+          });
+          Object.keys(tokens).sort().forEach(token => {
+            if (!seen.has(token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+            }
+          });
+          return lines.join('\n');
+        }
+
+        function buildStyleExportPayload(lab) {
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          const slug = getStyleSlug();
+          const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleTokens = {
+            ...parseStyleTokenCss(styleTokenCss),
+            ...collectStyleTokens()
+          };
+          const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          return {
+            schema: 'dig.style.export.v1',
+            token_contract: 'style_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug,
+            export_id: `${slug}.customstyle-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            render: {
+              archetype: document.body.getAttribute('data-render-archetype') || 'token-sheet'
+            },
+            style_contract: lab.getAttribute('data-style-contract') || '',
+            tokens: styleTokens,
+            css: styleCss,
+            derivation: {
+              status: 'style-contract-export',
+              note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
+            }
+          };
+        }
+
+        function downloadStyleZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-style'}.customstyle-${formatPaletteTimestamp()}`;
+          const zip = makeZip([
+            { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\n` },
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\n` }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initStyleLab() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab) return;
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (!exportButton) return;
+          exportButton.addEventListener('click', () => {
+            const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+            const payload = buildStyleExportPayload(lab);
+            downloadStyleZip(payload);
+            exportButton.dataset.exportState = 'success';
+            exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+            window.setTimeout(() => {
+              delete exportButton.dataset.exportState;
+              setLanguage(activeLang);
+            }, 1200);
+          });
+        }
+
+        function initPaletteLab() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          lab.querySelectorAll('[data-palette-input]').forEach(input => {
+            input.addEventListener('change', () => {
+              setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+            });
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) {
+                setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+              }
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-color]').forEach(input => {
+            input.addEventListener('input', () => {
+              setPaletteRole(input.getAttribute('data-palette-color'), input.value);
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
+            button.addEventListener('click', () => {
+              lab.querySelectorAll('[data-palette-candidate]').forEach(item => item.classList.remove('active'));
+              button.classList.add('active');
+              setPaletteRoles({
+                [button.getAttribute('data-role')]: button.getAttribute('data-value'),
+                supportStrong: button.getAttribute('data-strong')
+              });
+            });
+          });
+
+          const copyButton = lab.querySelector('[data-palette-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const tokenCss = buildPaletteTokenCss();
+              const copied = await copyPaletteTokens(tokenCss);
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          const exportButton = lab.querySelector('[data-palette-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildPaletteExportPayload(lab);
+              downloadPaletteZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          updatePaletteLabState();
+        }
+
+        // Dynamic Token Visualizer
+        refreshTokenVisualizers();
+        initPaletteLab();
+        initStyleLab();
+      });
+    </script>
+  </body>
+</html>

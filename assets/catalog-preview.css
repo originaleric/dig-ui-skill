@@ -95,6 +95,26 @@ body[data-render-archetype="finance-mobile-app"] {
   --preview-copy-leading: 1.56;
 }
 
+body[data-render-archetype="mobile-game-companion"] {
+  --preview-hero-size: clamp(58px, 6.4vw, 92px);
+  --preview-hero-leading: 0.98;
+  --preview-hero-weight: 900;
+  --preview-hero-tracking: 0;
+  --preview-copy-size: clamp(18px, 1.55vw, 24px);
+  --preview-copy-leading: 1.48;
+}
+
+body[data-render-archetype="signal-ops-console"] {
+  --preview-hero-size: 64px;
+  --preview-hero-leading: 1.02;
+  --preview-hero-weight: 720;
+  --preview-hero-tracking: 0;
+  --preview-copy-size: 18px;
+  --preview-copy-leading: 1.56;
+  --catalog-font: var(--dig-font-mono, var(--font-mono));
+  --preview-chrome-font: var(--dig-font-mono, var(--font-mono));
+}
+
 body::before {
   position: fixed;
   inset: 0;
@@ -587,6 +607,8 @@ a {
 
 .token-table td.token-val {
   display: block;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .token-table td.token-val .token-color-dot {
@@ -773,6 +795,78 @@ a {
   color: #fff;
 }
 
+.style-lab-shell {
+  display: grid;
+  gap: 18px;
+}
+
+.style-lab-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.style-lab-head h3 {
+  margin: 0;
+  font-family: var(--catalog-font);
+  font-size: var(--dig-text-xl);
+}
+
+.style-lab-head p {
+  max-width: 64ch;
+  margin: 6px 0 0;
+  color: var(--dig-text-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.style-lab-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.style-lab-grid article {
+  padding: 16px;
+  border: 1px solid var(--dig-border);
+  border-radius: var(--dig-radius-md);
+  background: color-mix(in srgb, var(--dig-surface-strong), transparent 16%);
+}
+
+.style-lab-grid span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--dig-text-soft);
+  font-family: var(--preview-chrome-font);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.style-lab-grid strong {
+  display: block;
+  font-size: 18px;
+}
+
+.style-lab-grid p {
+  margin: 8px 0 0;
+  color: var(--dig-text-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.style-export-btn:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--dig-accent), transparent 36%);
+  outline-offset: 2px;
+}
+
+.style-export-btn[data-export-state="success"] {
+  border-color: var(--dig-accent);
+  background: var(--dig-accent);
+  color: #fff;
+}
+
 .palette-candidate span:not(.palette-candidate-dot) {
   overflow: hidden;
   font-size: 13px;
@@ -824,7 +918,9 @@ a {
 .canvas-shell,
 .commerce-shell,
 .inbox-shell,
-.finance-shell {
+.finance-shell,
+.signal-dual-shell,
+.game-panel-stack {
   display: grid;
   gap: 16px;
 }
@@ -846,6 +942,915 @@ a {
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-md);
   background: color-mix(in srgb, var(--dig-surface-strong), transparent 8%);
+}
+
+.signal-dual-shell {
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+}
+
+.signal-console {
+  overflow: hidden;
+  border: var(--dig-stroke-width, 1px) solid var(--signal-border);
+  border-radius: var(--dig-radius-lg);
+  background:
+    linear-gradient(var(--signal-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--signal-grid) 1px, transparent 1px),
+    var(--signal-bg);
+  background-size: 28px 28px;
+  color: var(--signal-text);
+  box-shadow: var(--dig-shadow-panel);
+}
+
+.signal-paper {
+  --signal-bg: var(--dig-signal-paper-bg, var(--dig-bg));
+  --signal-panel: var(--dig-signal-paper-panel, var(--dig-surface));
+  --signal-border: var(--dig-signal-paper-border, var(--dig-border));
+  --signal-text: var(--dig-text);
+  --signal-muted: var(--dig-text-muted);
+  --signal-grid: var(--dig-signal-grid-line, var(--dig-grid-line));
+  --signal-tape: var(--dig-signal-tape-bg, color-mix(in srgb, var(--dig-text), transparent 94%));
+}
+
+.signal-terminal {
+  --signal-bg: var(--dig-signal-terminal-bg, #080909);
+  --signal-panel: var(--dig-signal-terminal-panel, #111414);
+  --signal-border: var(--dig-signal-terminal-border, #2a302e);
+  --signal-text: var(--dig-signal-terminal-text, var(--dig-text-dark, #f6f8f4));
+  --signal-muted: var(--dig-signal-terminal-muted, var(--dig-text-muted-dark, #8f9995));
+  --signal-grid: color-mix(in srgb, var(--dig-signal-terminal-border, #2a302e), transparent 34%);
+  --signal-tape: var(--dig-signal-terminal-tape-bg, rgba(255, 255, 255, 0.035));
+}
+
+.signal-topbar,
+.signal-tape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--signal-border);
+}
+
+.signal-topbar strong {
+  overflow: hidden;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.signal-topbar span,
+.signal-tape span,
+.signal-card span,
+.signal-hero-metric span,
+.signal-pipeline span,
+.signal-book span,
+.signal-ladder b {
+  color: var(--signal-muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signal-tape {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  min-height: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: var(--signal-tape);
+}
+
+.signal-tape span {
+  padding-right: 12px;
+  border-right: 1px solid var(--signal-border);
+}
+
+.signal-tape span:last-child {
+  border-right: 0;
+}
+
+.signal-main-grid {
+  display: grid;
+  grid-template-columns: minmax(210px, 1fr) minmax(170px, 0.72fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.signal-hero-metric,
+.signal-card,
+.signal-pipeline,
+.signal-topology,
+.signal-book,
+.signal-chart,
+.signal-order-form,
+.signal-ladder,
+.signal-terminal-chart {
+  border: 1px solid var(--signal-border);
+  border-radius: var(--dig-radius-md);
+  background: color-mix(in srgb, var(--signal-panel), transparent 3%);
+}
+
+.signal-hero-metric,
+.signal-card,
+.signal-order-form,
+.signal-ladder {
+  padding: 14px;
+}
+
+.signal-hero-metric strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 44px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.signal-hero-metric p,
+.signal-card p {
+  margin: 8px 0 0;
+  color: var(--signal-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.signal-card strong {
+  display: block;
+  margin-top: 9px;
+  font-size: 17px;
+  line-height: 1.2;
+}
+
+.signal-card button,
+.signal-order-form button,
+.signal-order-form input {
+  min-height: 34px;
+  border: 1px solid var(--signal-border);
+  border-radius: var(--dig-radius-sm);
+  background: color-mix(in srgb, var(--signal-panel), var(--signal-bg) 18%);
+  color: var(--signal-text);
+  font-family: var(--preview-chrome-font);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.signal-card button {
+  width: 100%;
+  margin-top: 12px;
+  border-color: color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), var(--signal-border) 42%);
+  color: var(--dig-signal-negative, var(--dig-danger));
+  text-transform: uppercase;
+}
+
+.signal-pipeline {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 8px;
+}
+
+.signal-pipeline div {
+  min-height: 58px;
+  padding: 9px;
+  border: 1px solid var(--signal-border);
+  border-radius: var(--dig-radius-sm);
+  background: color-mix(in srgb, var(--signal-panel), var(--signal-bg) 12%);
+}
+
+.signal-pipeline b {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--dig-signal-warning, var(--dig-warning));
+  font-size: 11px;
+}
+
+.signal-pipeline .done {
+  border-color: color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), var(--signal-border) 54%);
+}
+
+.signal-pipeline .active {
+  border-color: color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), var(--signal-border) 42%);
+  background: color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), var(--signal-panel) 88%);
+}
+
+.signal-topology {
+  position: relative;
+  min-height: 220px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 42%, color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), transparent 88%), transparent 22%),
+    radial-gradient(circle at 78% 66%, color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), transparent 88%), transparent 20%),
+    color-mix(in srgb, var(--signal-panel), transparent 2%);
+}
+
+.signal-topology header,
+.signal-topology footer,
+.signal-chart header,
+.signal-terminal-chart header,
+.signal-ladder header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 30px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--signal-border);
+}
+
+.signal-topology header span,
+.signal-topology footer span,
+.signal-chart header span,
+.signal-chart b,
+.signal-terminal-chart header span,
+.signal-terminal-chart b,
+.signal-ladder header span {
+  color: var(--signal-muted);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signal-topology header b,
+.signal-chart header b,
+.signal-terminal-chart header b {
+  color: var(--signal-text);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.topology-map {
+  display: block;
+  width: 100%;
+  height: 158px;
+  padding: 6px 10px 0;
+  background-image:
+    linear-gradient(var(--signal-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--signal-grid) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+
+.topology-map .range {
+  fill: none;
+  stroke: url("#topologyPath");
+  stroke-linecap: round;
+  stroke-width: 24;
+}
+
+.topology-map .edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--signal-text), transparent 56%);
+  stroke-width: 1.2;
+}
+
+.topology-map .edge.weak {
+  stroke: color-mix(in srgb, var(--signal-text), transparent 72%);
+  stroke-dasharray: 4 5;
+}
+
+.topology-map .node-group circle,
+.topology-map .speck {
+  fill: var(--dig-signal-node, var(--dig-text));
+  stroke: var(--signal-bg);
+  stroke-width: 3;
+}
+
+.topology-map .node-group text {
+  fill: var(--signal-muted);
+  font-family: var(--preview-chrome-font);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  paint-order: stroke;
+  stroke: color-mix(in srgb, var(--signal-panel), transparent 10%);
+  stroke-width: 4px;
+}
+
+.topology-map .node-group.active circle,
+.topology-map .speck.neg {
+  fill: var(--dig-signal-node-active, var(--dig-danger));
+}
+
+.topology-map .node-group.bull circle,
+.topology-map .speck.pos {
+  fill: var(--dig-signal-positive, var(--dig-success));
+}
+
+.topology-map .node-group.risk circle {
+  fill: var(--dig-signal-negative, var(--dig-danger));
+}
+
+.topology-map .speck.warn {
+  fill: var(--dig-signal-warning, var(--dig-warning));
+}
+
+.signal-topology footer {
+  justify-content: flex-start;
+  min-height: 31px;
+  border-top: 1px solid var(--signal-border);
+  border-bottom: 0;
+}
+
+.signal-topology .dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  border-radius: 999px;
+  vertical-align: -1px;
+}
+
+.signal-topology .dot.pos { background: var(--dig-signal-positive, var(--dig-success)); }
+.signal-topology .dot.neg { background: var(--dig-signal-negative, var(--dig-danger)); }
+.signal-topology .dot.warn { background: var(--dig-signal-warning, var(--dig-warning)); }
+
+.signal-book,
+.signal-chart {
+  min-height: 220px;
+}
+
+.signal-book {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 10px;
+}
+
+.signal-book div {
+  position: relative;
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  align-items: center;
+  min-height: 38px;
+  overflow: hidden;
+  padding: 0 10px;
+  border: 1px solid var(--signal-border);
+  border-radius: var(--dig-radius-sm);
+}
+
+.signal-book em {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--depth);
+  background: var(--dig-signal-book-ask, rgba(212, 72, 90, 0.2));
+  content: "";
+  opacity: 0.78;
+}
+
+.signal-book div:nth-child(n + 3) em {
+  background: var(--dig-signal-book-bid, rgba(58, 166, 111, 0.22));
+}
+
+.signal-book b,
+.signal-book span {
+  position: relative;
+  z-index: 1;
+}
+
+.signal-chart {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.distribution-plot,
+.depth-plot {
+  position: relative;
+  display: grid;
+  align-items: end;
+  gap: 8px;
+  min-height: 152px;
+  padding: 18px 12px 0;
+  background-image:
+    linear-gradient(var(--signal-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--signal-grid) 1px, transparent 1px);
+  background-size: 100% 38px, 38px 100%;
+}
+
+.distribution-plot {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.distribution-plot::after,
+.depth-plot::after {
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 1px;
+  background: var(--signal-border);
+  content: "";
+}
+
+.distribution-plot i,
+.depth-plot i {
+  position: relative;
+  display: block;
+  height: var(--h);
+  min-height: 22px;
+  border: 1px solid color-mix(in srgb, var(--dig-signal-chart-line, var(--dig-success)), var(--signal-border) 34%);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  background: linear-gradient(180deg, var(--dig-signal-chart-line, var(--dig-success)), var(--dig-signal-chart-fill, rgba(58, 166, 111, 0.14)));
+}
+
+.distribution-plot i[style*="edge"] {
+  border-color: color-mix(in srgb, var(--dig-signal-warning, var(--dig-warning)), var(--signal-border) 24%);
+  background: linear-gradient(180deg, var(--dig-signal-warning, var(--dig-warning)), color-mix(in srgb, var(--dig-signal-warning, var(--dig-warning)), transparent 64%));
+}
+
+.distribution-plot i span,
+.depth-plot i span {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  overflow: hidden;
+  color: var(--signal-muted);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.distribution-axis,
+.depth-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px 10px;
+  color: var(--signal-muted);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.signal-dark-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+}
+
+.signal-order-form {
+  display: grid;
+  gap: 8px;
+}
+
+.signal-order-form strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.signal-order-form .seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.signal-order-form button.active,
+.signal-order-form .submit {
+  border-color: color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), var(--signal-border) 28%);
+  background: color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), var(--signal-panel) 14%);
+  color: var(--signal-bg);
+}
+
+.signal-order-form input {
+  width: 100%;
+  padding: 0 10px;
+}
+
+.signal-ladder {
+  display: grid;
+  gap: 0;
+}
+
+.signal-ladder header {
+  display: grid;
+  grid-template-columns: 78px repeat(3, minmax(0, 1fr));
+}
+
+.signal-ladder div {
+  display: grid;
+  grid-template-columns: 78px repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 10px;
+  min-height: 41px;
+  border-bottom: 1px solid var(--signal-border);
+}
+
+.signal-ladder div:last-child {
+  border-bottom: 0;
+}
+
+.signal-ladder div b,
+.signal-ladder div span,
+.signal-ladder div small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-ladder div small {
+  color: var(--signal-muted);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.signal-terminal-chart {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 184px;
+}
+
+.depth-plot {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  min-height: 122px;
+}
+
+.depth-plot i {
+  border-color: color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), var(--signal-border) 30%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), white 6%), color-mix(in srgb, var(--dig-signal-positive, var(--dig-success)), transparent 68%));
+}
+
+.depth-plot i[style*="ask"] {
+  border-color: color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), var(--signal-border) 28%);
+  background: linear-gradient(180deg, var(--dig-signal-negative, var(--dig-danger)), color-mix(in srgb, var(--dig-signal-negative, var(--dig-danger)), transparent 66%));
+}
+
+.pos {
+  color: var(--dig-signal-positive, var(--dig-success));
+}
+
+.neg {
+  color: var(--dig-signal-negative, var(--dig-danger));
+}
+
+.warn {
+  color: var(--dig-signal-warning, var(--dig-warning));
+}
+
+.game-phone {
+  width: min(420px, 100%);
+  margin: 0 auto;
+  overflow: hidden;
+  border: var(--dig-stroke-width-strong, 3px) solid var(--dig-border);
+  border-radius: var(--dig-radius-xl);
+  background: var(--dig-bg-soft);
+  box-shadow: var(--dig-shadow-panel);
+}
+
+.game-sky {
+  position: relative;
+  min-height: 330px;
+  overflow: hidden;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 24% 70%, color-mix(in srgb, var(--dig-game-hill-back, var(--dig-accent-2)), white 32%) 0 10%, transparent 11%),
+    radial-gradient(circle at 66% 72%, color-mix(in srgb, var(--dig-info, var(--dig-accent-2)), white 28%) 0 12%, transparent 13%),
+    linear-gradient(
+      180deg,
+      var(--dig-game-sky-start, color-mix(in srgb, var(--dig-accent), white 38%)) 0%,
+      var(--dig-game-sky-mid, color-mix(in srgb, var(--dig-accent), white 68%)) 48%,
+      var(--dig-game-sky-end, color-mix(in srgb, var(--dig-accent-2), white 42%)) 100%
+    );
+}
+
+.game-status {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.game-status span,
+.speech-bubble,
+.reward-row span,
+.mini-label {
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  background: var(--dig-surface-elevated);
+  color: var(--dig-text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.game-status span,
+.reward-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: var(--dig-radius-pill);
+}
+
+.game-cloud {
+  position: absolute;
+  z-index: 1;
+  width: 92px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--dig-game-cloud, color-mix(in srgb, var(--dig-surface-elevated), transparent 12%));
+}
+
+.game-cloud::before,
+.game-cloud::after {
+  position: absolute;
+  bottom: 8px;
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  background: inherit;
+  content: "";
+}
+
+.game-cloud::before {
+  left: 12px;
+}
+
+.game-cloud::after {
+  right: 12px;
+}
+
+.cloud-a {
+  top: 78px;
+  left: 34px;
+}
+
+.cloud-b {
+  top: 44px;
+  right: 46px;
+  transform: scale(0.76);
+}
+
+.game-hills {
+  position: absolute;
+  right: -26px;
+  bottom: 0;
+  left: -26px;
+  z-index: 1;
+  height: 116px;
+  background:
+    radial-gradient(circle at 18% 66%, var(--dig-game-hill-back, color-mix(in srgb, var(--dig-accent-2), white 18%)) 0 24%, transparent 25%),
+    radial-gradient(circle at 46% 80%, var(--dig-game-hill-mid, var(--dig-accent-2)) 0 30%, transparent 31%),
+    radial-gradient(circle at 76% 68%, var(--dig-game-hill-front, color-mix(in srgb, var(--dig-accent-2), var(--dig-accent) 18%)) 0 25%, transparent 26%),
+    linear-gradient(180deg, transparent 18%, var(--dig-game-hill-front, var(--dig-accent-2)) 19%);
+}
+
+.speech-bubble {
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  z-index: 3;
+  padding: 8px 12px;
+  border-color: color-mix(in srgb, var(--dig-border), transparent 18%);
+  border-radius: var(--dig-radius-pill);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.mascot {
+  position: absolute;
+  left: 50%;
+  bottom: 52px;
+  z-index: 4;
+  width: 122px;
+  height: 148px;
+  border: var(--dig-stroke-width-strong, 3px) solid var(--dig-border);
+  border-radius: 56% 56% 48% 48%;
+  background:
+    radial-gradient(circle at 34% 42%, var(--dig-mascot-face, var(--dig-text)) 0 6px, transparent 7px),
+    radial-gradient(circle at 66% 42%, var(--dig-mascot-face, var(--dig-text)) 0 6px, transparent 7px),
+    radial-gradient(circle at 50% 64%, var(--dig-surface-elevated) 0 28px, transparent 29px),
+    linear-gradient(180deg, var(--dig-mascot-secondary, color-mix(in srgb, var(--dig-accent-2), white 42%)), var(--dig-mascot-primary, var(--dig-accent-2)) 62%, var(--dig-bg-soft) 63%);
+  box-shadow: 0 8px 0 rgba(44, 33, 28, 0.2);
+  transform: translateX(-50%);
+}
+
+.mascot-ear {
+  position: absolute;
+  top: -18px;
+  width: 36px;
+  height: 36px;
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: 999px;
+  background: var(--dig-mascot-secondary, color-mix(in srgb, var(--dig-mascot-primary, var(--dig-accent-2)), white 42%));
+}
+
+.mascot-ear.left {
+  left: 8px;
+}
+
+.mascot-ear.right {
+  right: 8px;
+}
+
+.mascot-face {
+  position: absolute;
+  right: 34px;
+  bottom: 32px;
+  left: 34px;
+  height: 16px;
+  border-bottom: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: 0 0 999px 999px;
+}
+
+.mascot-belly {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  width: 70px;
+  height: 12px;
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: var(--dig-radius-pill);
+  background: var(--dig-mascot-belly, var(--dig-accent));
+  transform: translateX(-50%);
+}
+
+.game-panel-stack {
+  padding: 18px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--dig-bg), white 18%), var(--dig-bg-soft));
+}
+
+.mission-card,
+.coach-card,
+.gear-card {
+  position: relative;
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: var(--dig-radius-lg);
+  background: var(--dig-surface);
+  box-shadow: var(--dig-shadow-chunky, 0 6px 0 #2c211c);
+}
+
+.mission-card,
+.coach-card {
+  padding: 16px;
+}
+
+.mission-card {
+  background: var(--dig-mission-surface, color-mix(in srgb, var(--dig-surface), var(--dig-accent-2) 18%));
+}
+
+.coach-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background: linear-gradient(135deg, var(--dig-coach-surface-start, var(--dig-accent-2)), var(--dig-coach-surface-end, var(--dig-accent)));
+  color: var(--dig-game-on-accent, var(--dig-surface-elevated));
+}
+
+.mission-card strong,
+.coach-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--dig-text-xl);
+  line-height: 1.1;
+}
+
+.mission-card p,
+.coach-card p,
+.gear-card p {
+  margin: 6px 0 0;
+  color: color-mix(in srgb, currentColor, transparent 18%);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mini-label {
+  display: inline-flex;
+  width: max-content;
+  min-height: 24px;
+  align-items: center;
+  padding: 0 8px;
+  border-color: transparent;
+  border-radius: var(--dig-radius-pill);
+  color: var(--dig-text-muted);
+  letter-spacing: 0.08em;
+}
+
+.mission-card b {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 8px;
+  border-radius: var(--dig-radius-pill);
+  background: var(--dig-accent-2);
+  color: #fff;
+  font-size: 10px;
+}
+
+.reward-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.game-secondary,
+.game-start,
+.game-primary {
+  min-height: 44px;
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: var(--dig-radius-pill);
+  font-weight: 900;
+  text-transform: none;
+}
+
+.game-secondary {
+  background: rgba(255, 255, 255, 0.22);
+  color: var(--dig-game-on-accent, var(--dig-surface-elevated));
+}
+
+.game-start,
+.game-primary {
+  background: var(--dig-surface-elevated);
+  color: var(--dig-accent);
+}
+
+.game-primary {
+  width: 100%;
+  min-height: 58px;
+  background: var(--dig-accent);
+  color: var(--dig-game-on-accent, var(--dig-surface-elevated));
+  box-shadow: var(--dig-shadow-chunky, 0 6px 0 #2c211c);
+  text-transform: uppercase;
+}
+
+.gear-card {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.gear-card.selected {
+  background: var(--dig-gear-surface, color-mix(in srgb, var(--dig-surface), var(--dig-accent-2) 22%));
+}
+
+.gear-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--dig-radius-md);
+  background: var(--dig-gear-icon-surface, var(--dig-accent-2));
+  color: var(--dig-game-on-accent, var(--dig-surface-elevated));
+}
+
+.gear-icon::before {
+  width: 18px;
+  height: 24px;
+  border: var(--dig-stroke-width, 2px) solid currentColor;
+  border-radius: 7px;
+  background:
+    linear-gradient(currentColor 0 0) 50% 5px / 8px 2px no-repeat,
+    color-mix(in srgb, currentColor, transparent 82%);
+  content: "";
+}
+
+.gear-icon::after {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 50%;
+  width: 24px;
+  border-top: var(--dig-stroke-width, 2px) solid currentColor;
+  border-bottom: var(--dig-stroke-width, 2px) solid currentColor;
+  content: "";
+  opacity: 0.92;
+  transform: translateX(-50%);
+}
+
+.gear-check {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: var(--dig-stroke-width, 2px) solid var(--dig-border);
+  border-radius: 999px;
+  background: var(--dig-accent);
+  color: var(--dig-game-on-accent, var(--dig-surface-elevated));
+  font-weight: 900;
+}
+
+.gear-check::before {
+  width: 10px;
+  height: 6px;
+  border-bottom: var(--dig-stroke-width, 2px) solid currentColor;
+  border-left: var(--dig-stroke-width, 2px) solid currentColor;
+  content: "";
+  transform: translateY(-1px) rotate(-45deg);
 }
 
 .command-search {
@@ -1290,6 +2295,8 @@ a {
   .commerce-shell,
   .inbox-shell,
   .finance-shell,
+  .signal-dual-shell,
+  .signal-main-grid,
   .palette-lab-grid {
     grid-template-columns: 1fr;
   }
@@ -1372,7 +2379,26 @@ a {
 
   .media-hero-card,
   .track-row,
-  .player-bar {
+  .player-bar,
+  .signal-pipeline,
+  .signal-ladder div {
     grid-template-columns: 1fr;
+  }
+
+  .signal-topbar,
+  .signal-tape {
+    align-items: start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .signal-tape span {
+    width: 100%;
+    border-right: 0;
+  }
+
+  .signal-hero-metric strong {
+    font-size: 36px;
   }
 }

@@ -3,7 +3,7 @@ kind: catalog-manifest
 description: Stable catalog contract shared across installed language packs.
 fields:
   slug: stable catalog id
-  kind: brand-catalog | color-palette-catalog
+  kind: brand-catalog | color-palette-catalog | style-catalog
   category: catalog group
   status: draft | active | deprecated
   token_contract: versioned required Dig token roles
@@ -45,6 +45,13 @@ categories:
       kind: color-palette-catalog
       category: palettes
       token_contract: palette_v1
+  styles:
+    kind: style-catalog
+    name: Style Catalogs
+    required_frontmatter:
+      kind: style-catalog
+      category: styles
+      token_contract: style_v1
 token_contracts:
   brand_v1:
     required_token_roles:
@@ -68,6 +75,65 @@ token_contracts:
       - --dig-accent-strong
       - --dig-accent-2-strong
       - --dig-border-strong
+  style_v1:
+    extends: brand_v1
+    required_token_roles:
+      - --dig-accent-strong
+      - --dig-accent-2-strong
+      - --dig-border-strong
+      - --dig-stroke-width
+      - --dig-stroke-width-strong
+      - --dig-shadow-chunky
+      - --dig-motion-bounce
+archetype_token_contracts:
+  mobile-game-companion:
+    applies_to:
+      kind: style-catalog
+      render_archetype: mobile-game-companion
+    required_token_roles:
+      - --dig-game-sky-start
+      - --dig-game-sky-mid
+      - --dig-game-sky-end
+      - --dig-game-hill-front
+      - --dig-game-hill-mid
+      - --dig-game-hill-back
+      - --dig-game-cloud
+      - --dig-mascot-primary
+      - --dig-mascot-secondary
+      - --dig-mascot-face
+      - --dig-mascot-belly
+      - --dig-mission-surface
+      - --dig-coach-surface-start
+      - --dig-coach-surface-end
+      - --dig-gear-surface
+      - --dig-gear-icon-surface
+      - --dig-game-on-accent
+  signal-ops-console:
+    applies_to:
+      kind: style-catalog
+      render_archetype: signal-ops-console
+    required_token_roles:
+      - --dig-signal-paper-bg
+      - --dig-signal-paper-panel
+      - --dig-signal-paper-border
+      - --dig-signal-terminal-bg
+      - --dig-signal-terminal-panel
+      - --dig-signal-terminal-border
+      - --dig-signal-terminal-text
+      - --dig-signal-terminal-muted
+      - --dig-signal-terminal-tape-bg
+      - --dig-signal-positive
+      - --dig-signal-negative
+      - --dig-signal-warning
+      - --dig-signal-info
+      - --dig-signal-grid-line
+      - --dig-signal-tape-bg
+      - --dig-signal-node
+      - --dig-signal-node-active
+      - --dig-signal-book-bid
+      - --dig-signal-book-ask
+      - --dig-signal-chart-line
+      - --dig-signal-chart-fill
 catalogs:
   - slug: dig
     kind: brand-catalog
@@ -99,6 +165,18 @@ catalogs:
     token_contract: brand_v1
     status: active
     default_for: [product-theater, system-native, premium-launch]
+  - slug: cozy-arcade
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [gamified-mobile, mascot-companion, habit-play, kids-learning]
+  - slug: quant-signal-console
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [prediction-market, quant-trading, agent-ops, simulation-console, realtime-signals]
 # Legacy alias for older tooling. Keep this equal to token_contracts.brand_v1
 # so palette-only requirements do not break existing brand catalogs.
 required_token_roles:

@@ -6,6 +6,7 @@
 - **HTML (`renders/`)** 是用于人类视觉验证、结构检查、block contract 阅读和兼容性检查的运维界面。
 - **Markdown (`references/catalogs/`、`references/layouts/`、`references/blocks/`)** 是提供给 AI 的系统规则、语法词典、结构 recipe 和模块协议。
 - **Palette (`references/catalogs/palettes/` + `~/.config/dig-ui-skill/palettes/`)** 是以整体配色为入口的 catalog 线。内置 palette 属于仓库资产，用户从 Palette Lab 导入的 custom palette 属于仓库外个人资产。
+- **Style (`references/catalogs/styles/` + `~/.config/dig-ui-skill/styles/`)** 是以完整视觉语法为入口的 catalog 线。内置 style 属于仓库资产，用户从 Style Lab 导入的 custom style 属于仓库外个人资产。
 - **Dig Read / Anti-Tells / Preflight / Workflows** 是参照 taste-skill 落地的 agent 执行纪律：先判断任务，再选择资产，最后过滤反模式并通过校验收口。
 
 当你需要微调设计系统（例如：把 Hero Title 放大，调整主按钮圆角，或新增一个运行态详情页协议）时，优先先判断任务语义，再选择 layout/catalog/block，而不是直接从视觉皮肤或组件开始。
@@ -82,7 +83,7 @@ npx dig-ui-skill update --all
 
 `update` 会刷新标准资产，但会保留目标目录中已有的 `references/global-rules.local.md`。如果还没有 local rules，CLI 只会提示运行 `init-local` / `sync-local`，不会自动生成个人偏好。
 
-`update` 也会保留用户 palette 资产。用户自定义 palette 的真源在 `~/.config/dig-ui-skill/palettes/`；已安装 skill 中的 `references/local/palettes/` 只是同步副本。
+`update` 也会保留用户 palette / style 资产。用户自定义 palette 的真源在 `~/.config/dig-ui-skill/palettes/`，用户自定义 style 的真源在 `~/.config/dig-ui-skill/styles/`；已安装 skill 中的 `references/local/palettes/` 与 `references/local/styles/` 只是同步副本。
 
 个人 Global Rules 推荐放在仓库外配置中心，再同步到各工具：
 
@@ -144,6 +145,40 @@ npx dig-ui-skill palette sync --all
 ```
 
 导入的 custom palette 只属于用户资产，不写回内置 `references/catalogs/palettes/`。CLI 会校验 `schema`、`token_contract`、anchors/roles 与 `--dig-*` token 的一致性；不一致的 JSON 会被拒绝。
+
+---
+
+## 🧩 Style Catalog 与 Style Lab
+
+当用户不是从品牌或单纯配色切入，而是从「截图风格」「完整界面气质」「材质/形态/插画/组件语言」切入时，优先选择 `style-catalog`，例如 `references/catalogs/styles/cozy-arcade.md` 或 `references/catalogs/styles/quant-signal-console.md`。Style catalog 与 brand catalog、color palette catalog 并列，不替代它们。
+
+Style catalog 的 source of truth 仍是 Markdown：
+
+- `## Style Contract` 的 fenced YAML block 定义适用场景、避免场景、mood、shape、surface、illustration、component mapping 和 motion。
+- `render.archetype` 必须显式声明；没有专属样张时使用 `token-sheet`。
+- `## Dig UI CSS Tokens` 的 fenced CSS block 定义实际 Dig token 和 archetype 相关 token。
+- `renders/styles/*.html` 只是运维预览和导出界面，不自动写回 Markdown。
+
+Style Lab 支持把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 导出为 `dig.style.export.v1` 的 customstyle 资产。确认后有两条路径：
+
+1. 内置 catalog 维护：把确认后的 contract/token 回写到对应 style Markdown，再运行 render/validate。
+2. 用户个人资产：点击 Style Lab 的导出 ZIP，再通过 CLI 导入到用户配置中心。
+
+用户 style CLI：
+
+```bash
+# 导入导出的 JSON、Markdown 或 ZIP，并同步到 Codex
+npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260712-120000.zip codex
+
+# 查看用户 style
+npx dig-ui-skill style list
+npx dig-ui-skill style show quant-signal-console
+
+# 同步到所有已安装工具
+npx dig-ui-skill style sync --all
+```
+
+导入的 customstyle 只属于用户资产，不写回内置 `references/catalogs/styles/`，也不进入内置 manifest。CLI 会校验 `schema`、`token_contract`、`render.archetype`、Style Contract 和 required `--dig-*` token；缺少核心 token 或使用不可用占位值会被拒绝。
 
 ---
 
@@ -264,7 +299,7 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 | Catalog | `references/catalogs/**/*.md` | `renders/<category>/<slug>.html` |
 | Layout | `references/layouts/<slug>.md` | Markdown contract + QA Notes |
 | Block | `references/blocks/**/*.md` | Markdown contract + manifest 校验 |
-| Local Extensions | `references/local/` | `extends` / overrides 文档化维护 |
+| Local Extensions | `references/local/` | `extends` / overrides / synced user palettes and styles 文档化维护 |
 
 当前内置 20 个 layout，覆盖 marketing、docs、workspace、dashboard、settings、runtime 等常见 Dig 产品界面。索引入口：
 
@@ -536,11 +571,11 @@ npx dig-ui-skill local sync
 
 ## 🎨 史诗级毛玻璃 Hub 手册导航中心 (`renders/index.html`)
 
-为了方便设计师和开发者极其直观地在 74 个 catalog 预览中探索，我们开发了**设计系统 Hub 首页**：
+为了方便设计师和开发者极其直观地在 76 个 catalog 预览中探索，我们开发了**设计系统 Hub 首页**：
 
 - **专属强调色 Glow Hover 动效**：每个品牌卡片在 hover 时，会自动读取并在背景散发该品牌专属强调色（如 Stripe 的紫色、Claude 的暖色、Ferrari 的红色）的柔和光影。
 - **实时模糊搜索 (Search)**：支持在顶部输入框输入任意品牌名称或关键词进行毫秒级过滤。
-- **智能分类导航标签 (Tabs)**：以毛玻璃卡片和极高保真的排版设计，将 catalog 预览有序归类为 AI 平台、开发工具、DevOps、金融科技、色彩目录等分类。
+- **智能分类导航标签 (Tabs)**：以毛玻璃卡片和极高保真的排版设计，将 catalog 预览有序归类为 AI 平台、开发工具、DevOps、金融科技、色彩目录、style catalog 等分类。
 
 ---
 

@@ -60,16 +60,20 @@ const LOCALIZED_MARKDOWN_PATTERN = /\.(en|zh-CN)\.md$/;
 const USER_CONFIG_DIR = path.join(os.homedir(), ".config", "dig-ui-skill");
 const USER_LOCAL_RULES_PATH = path.join(USER_CONFIG_DIR, "global-rules.local.md");
 const USER_PALETTES_DIR = path.join(USER_CONFIG_DIR, "palettes");
+const USER_STYLES_DIR = path.join(USER_CONFIG_DIR, "styles");
 const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
 const LOCAL_PALETTES_RELATIVE = path.join("references", "local", "palettes");
+const LOCAL_STYLES_RELATIVE = path.join("references", "local", "styles");
 
 const PROTECTED_RELATIVE_PATHS = new Set([
   "references/global-rules.local.md",
   LOCAL_PALETTES_RELATIVE,
+  LOCAL_STYLES_RELATIVE,
 ]);
 const SKIP_COPY_RELATIVE_PATHS = new Set([
   "references/global-rules.local.md",
   LOCAL_PALETTES_RELATIVE,
+  LOCAL_STYLES_RELATIVE,
 ]);
 const SKIP_COPY_FILE_NAMES = new Set([".DS_Store"]);
 
@@ -92,6 +96,78 @@ const LOCAL_RULE_SECTIONS = [
   "Interaction / Icons",
 ];
 
+const STYLE_BRAND_REQUIRED_TOKEN_ROLES = [
+  "--dig-bg",
+  "--dig-bg-soft",
+  "--dig-surface",
+  "--dig-surface-strong",
+  "--dig-surface-elevated",
+  "--dig-text",
+  "--dig-text-muted",
+  "--dig-text-soft",
+  "--dig-accent",
+  "--dig-accent-2",
+  "--dig-border",
+  "--dig-grid-line",
+  "--dig-control-bg",
+  "--dig-control-bg-hover",
+];
+
+const STYLE_V1_ADDITIONAL_TOKEN_ROLES = [
+  "--dig-accent-strong",
+  "--dig-accent-2-strong",
+  "--dig-border-strong",
+  "--dig-stroke-width",
+  "--dig-stroke-width-strong",
+  "--dig-shadow-chunky",
+  "--dig-motion-bounce",
+];
+
+const STYLE_ARCHETYPE_TOKEN_ROLES = {
+  "mobile-game-companion": [
+    "--dig-game-sky-start",
+    "--dig-game-sky-mid",
+    "--dig-game-sky-end",
+    "--dig-game-hill-front",
+    "--dig-game-hill-mid",
+    "--dig-game-hill-back",
+    "--dig-game-cloud",
+    "--dig-mascot-primary",
+    "--dig-mascot-secondary",
+    "--dig-mascot-face",
+    "--dig-mascot-belly",
+    "--dig-mission-surface",
+    "--dig-coach-surface-start",
+    "--dig-coach-surface-end",
+    "--dig-gear-surface",
+    "--dig-gear-icon-surface",
+    "--dig-game-on-accent",
+  ],
+  "signal-ops-console": [
+    "--dig-signal-paper-bg",
+    "--dig-signal-paper-panel",
+    "--dig-signal-paper-border",
+    "--dig-signal-terminal-bg",
+    "--dig-signal-terminal-panel",
+    "--dig-signal-terminal-border",
+    "--dig-signal-terminal-text",
+    "--dig-signal-terminal-muted",
+    "--dig-signal-terminal-tape-bg",
+    "--dig-signal-positive",
+    "--dig-signal-negative",
+    "--dig-signal-warning",
+    "--dig-signal-info",
+    "--dig-signal-grid-line",
+    "--dig-signal-tape-bg",
+    "--dig-signal-node",
+    "--dig-signal-node-active",
+    "--dig-signal-book-bid",
+    "--dig-signal-book-ask",
+    "--dig-signal-chart-line",
+    "--dig-signal-chart-fill",
+  ],
+};
+
 const CURSOR_RULE_TEMPLATE = path.join(
   PACKAGE_ROOT,
   "adapters",
@@ -109,6 +185,7 @@ Usage:
   dig-ui-skill validate renders
   dig-ui-skill local <action> [options]
   dig-ui-skill palette <action> [options]
+  dig-ui-skill style <action> [options]
   dig-ui-skill init-local [options]
   dig-ui-skill sync-local <target> [options]
   dig-ui-skill import-local <target> [options]
@@ -122,6 +199,7 @@ Targets:
 User config (local rules source of truth):
   ~/.config/dig-ui-skill/global-rules.local.md
   ~/.config/dig-ui-skill/palettes/
+  ~/.config/dig-ui-skill/styles/
 
 Local actions:
   local path                         Print the user local rules path
@@ -138,6 +216,14 @@ Palette actions:
                                      Import an exported custom palette into user config
   palette sync [target|--all]        Sync user palettes into installed skill local assets
   palette show <id-or-file>          Print an imported user palette JSON
+
+Style actions:
+  style path                         Print the user local styles directory
+  style list                         List imported user styles
+  style import <md|json|zip> [target|--all]
+                                     Import a custom style into user config
+  style sync [target|--all]          Sync user styles into installed skill local assets
+  style show <id-or-file>            Print an imported user style asset
 
 Options:
   --all                 Install/update/sync all supported targets
@@ -168,6 +254,9 @@ Examples:
   npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip
   npx dig-ui-skill palette sync --all
   npx dig-ui-skill palette list
+  npx dig-ui-skill style import ~/Downloads/my-console-style.md
+  npx dig-ui-skill style sync --all
+  npx dig-ui-skill style list
   npx dig-ui-skill import-local cursor
   npx dig-ui-skill status
 `);
@@ -292,9 +381,9 @@ function parseArgs(argv) {
       throw new Error(`Unknown option: ${arg}`);
     }
 
-    if ((options.command === "local" || options.command === "palette") && !options.localAction) {
+    if ((options.command === "local" || options.command === "palette" || options.command === "style") && !options.localAction) {
       options.localAction = arg;
-    } else if (options.command === "local" || options.command === "palette") {
+    } else if (options.command === "local" || options.command === "palette" || options.command === "style") {
       options.values.push(arg);
     } else if (options.command === "render" || options.command === "validate") {
       options.targets.push(arg);
@@ -1029,6 +1118,472 @@ async function runPaletteCommand(options) {
   }
 }
 
+function sanitizeStyleAssetName(rawName) {
+  const cleaned = String(rawName || "")
+    .trim()
+    .replace(/\.(md|json|zip)$/i, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return cleaned || `customstyle-${new Date().toISOString().replace(/[:.]/g, "-")}`;
+}
+
+async function uniqueStyleAssetPath(baseName, extension) {
+  await ensureDir(USER_STYLES_DIR);
+  let candidate = path.join(USER_STYLES_DIR, `${baseName}.${extension}`);
+  let index = 2;
+  while (await pathExists(candidate)) {
+    candidate = path.join(USER_STYLES_DIR, `${baseName}-${index}.${extension}`);
+    index += 1;
+  }
+  return candidate;
+}
+
+function getRequiredStyleTokenRoles(archetype) {
+  return [
+    ...STYLE_BRAND_REQUIRED_TOKEN_ROLES,
+    ...STYLE_V1_ADDITIONAL_TOKEN_ROLES,
+    ...(STYLE_ARCHETYPE_TOKEN_ROLES[archetype] ?? []),
+  ];
+}
+
+function hasMeaningfulStyleTokenValue(value) {
+  const normalized = String(value ?? "").trim().replace(/^["']|["']$/g, "").trim();
+  return normalized !== "" && normalized !== "undefined" && normalized !== "null" && normalized !== "~";
+}
+
+function getStyleAssetSlug(fileName, content) {
+  try {
+    if (fileName.endsWith(".json")) {
+      const payload = JSON.parse(content);
+      return typeof payload.slug === "string" ? payload.slug.trim() : "";
+    }
+    if (fileName.endsWith(".md")) {
+      return parseFrontmatterFields(content).slug ?? "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
+async function findStyleAssetPathBySlug(slug) {
+  await ensureDir(USER_STYLES_DIR);
+  const entries = (await fsp.readdir(USER_STYLES_DIR, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && (entry.name.endsWith(".json") || entry.name.endsWith(".md")))
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const matches = [];
+  for (const entry of entries) {
+    const fullPath = path.join(USER_STYLES_DIR, entry.name);
+    try {
+      const content = await fsp.readFile(fullPath, "utf8");
+      if (getStyleAssetSlug(entry.name, content) === slug) {
+        const stat = await fsp.stat(fullPath);
+        matches.push({ fullPath, mtimeMs: stat.mtimeMs });
+      }
+    } catch {
+      // Ignore malformed or transiently unavailable local assets while resolving another slug.
+    }
+  }
+  matches.sort((a, b) => b.mtimeMs - a.mtimeMs || a.fullPath.localeCompare(b.fullPath));
+  return matches[0]?.fullPath ?? "";
+}
+
+async function resolveStyleAssetPath(id) {
+  const rawId = String(id || "").trim();
+  if (!rawId) {
+    throw new Error("style asset id is required");
+  }
+
+  if (path.isAbsolute(rawId)) {
+    if (await pathExists(rawId)) {
+      return rawId;
+    }
+    if (!/\.(md|json)$/i.test(rawId)) {
+      for (const extension of ["json", "md"]) {
+        const candidate = `${rawId}.${extension}`;
+        if (await pathExists(candidate)) {
+          return candidate;
+        }
+      }
+    }
+    throw new Error(`Style asset not found: ${rawId}`);
+  }
+
+  const baseName = path.basename(rawId);
+  const candidates = /\.(md|json)$/i.test(baseName)
+    ? [path.join(USER_STYLES_DIR, baseName)]
+    : [
+        path.join(USER_STYLES_DIR, `${baseName}.json`),
+        path.join(USER_STYLES_DIR, `${baseName}.md`),
+      ];
+
+  for (const candidate of candidates) {
+    if (await pathExists(candidate)) {
+      return candidate;
+    }
+  }
+
+  if (!/\.(md|json)$/i.test(baseName)) {
+    const slugMatch = await findStyleAssetPathBySlug(baseName);
+    if (slugMatch) {
+      return slugMatch;
+    }
+  }
+
+  throw new Error(`Style asset not found: ${baseName}`);
+}
+
+function parseStoredZipStyleAsset(buffer, sourcePath) {
+  let offset = 0;
+  let jsonAsset = null;
+  while (offset + 30 <= buffer.length) {
+    const signature = buffer.readUInt32LE(offset);
+    if (signature !== 0x04034b50) {
+      break;
+    }
+    const method = buffer.readUInt16LE(offset + 8);
+    const compressedSize = buffer.readUInt32LE(offset + 18);
+    const fileNameLength = buffer.readUInt16LE(offset + 26);
+    const extraLength = buffer.readUInt16LE(offset + 28);
+    const nameStart = offset + 30;
+    const nameEnd = nameStart + fileNameLength;
+    const dataStart = nameEnd + extraLength;
+    const dataEnd = dataStart + compressedSize;
+    const fileName = buffer.subarray(nameStart, nameEnd).toString("utf8");
+    const lowerName = fileName.toLowerCase();
+
+    if (lowerName.endsWith(".md") || lowerName.endsWith(".json")) {
+      if (method !== 0) {
+        throw new Error(`Unsupported compressed style asset in ${sourcePath}. Exported Dig styles use stored ZIP entries.`);
+      }
+      const asset = {
+        extension: lowerName.endsWith(".md") ? "md" : "json",
+        content: buffer.subarray(dataStart, dataEnd).toString("utf8"),
+      };
+      if (asset.extension === "md") {
+        return asset;
+      }
+      jsonAsset = jsonAsset ?? asset;
+    }
+
+    offset = dataEnd;
+  }
+  if (jsonAsset) {
+    return jsonAsset;
+  }
+  throw new Error(`No style Markdown or JSON found in ${sourcePath}`);
+}
+
+async function readStyleAsset(sourcePath) {
+  const absolutePath = path.resolve(sourcePath);
+  const buffer = await fsp.readFile(absolutePath);
+  if (absolutePath.toLowerCase().endsWith(".zip")) {
+    return parseStoredZipStyleAsset(buffer, absolutePath);
+  }
+  const lowerPath = absolutePath.toLowerCase();
+  if (lowerPath.endsWith(".md")) {
+    return { extension: "md", content: buffer.toString("utf8") };
+  }
+  if (lowerPath.endsWith(".json")) {
+    return { extension: "json", content: buffer.toString("utf8") };
+  }
+  throw new Error("style import requires a Markdown, JSON, or ZIP file path");
+}
+
+function parseFrontmatterFields(markdown) {
+  const match = markdown.match(/^---\s*\n([\s\S]*?)\n---/);
+  if (!match) {
+    return {};
+  }
+  const fields = {};
+  for (const line of match[1].split("\n")) {
+    const fieldMatch = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
+    if (fieldMatch) {
+      fields[fieldMatch[1]] = fieldMatch[2].trim().replace(/^["']|["']$/g, "");
+    }
+  }
+  return fields;
+}
+
+function extractMarkdownSectionOutsideFences(content, heading) {
+  const lines = String(content || "").split("\n");
+  const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const target = new RegExp(`^##\\s+${escapedHeading}\\s*$`);
+  const nextHeading = /^##\s+/;
+  const collected = [];
+  let collecting = false;
+  let inFence = false;
+  let fenceChar = "";
+  let fenceLength = 0;
+
+  for (const line of lines) {
+    const fenceMatch = line.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const marker = fenceMatch[1];
+      if (!inFence) {
+        inFence = true;
+        fenceChar = marker[0];
+        fenceLength = marker.length;
+      } else if (marker[0] === fenceChar && marker.length >= fenceLength) {
+        inFence = false;
+        fenceChar = "";
+        fenceLength = 0;
+      }
+    }
+
+    if (!inFence && target.test(line)) {
+      collecting = true;
+      continue;
+    }
+    if (collecting && !inFence && nextHeading.test(line)) {
+      break;
+    }
+    if (collecting) {
+      collected.push(line);
+    }
+  }
+
+  return collected.join("\n").trim();
+}
+
+function extractMarkdownFencedCodeBlock(content, heading, language) {
+  const section = extractMarkdownSectionOutsideFences(content, heading);
+  if (!section) {
+    return "";
+  }
+  const escapedLanguage = language.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = section.match(new RegExp(`\`\`\`${escapedLanguage}\\s*\\n([\\s\\S]*?)\\n\`\`\``));
+  return match ? match[1].trim() : "";
+}
+
+function parseStyleCssTokens(cssText) {
+  const tokens = {};
+  for (const match of String(cssText || "").matchAll(/(--dig-[\w-]+)\s*:\s*([^;]*);/g)) {
+    tokens[match[1]] = match[2].trim();
+  }
+  return tokens;
+}
+
+function parseStyleRenderArchetype(markdown) {
+  const match = markdown.match(/\nrender:\s*\n(?:[^\n]*\n)*?\s*archetype:\s*["']?([^"'\n]+)/);
+  return match ? match[1].trim() : "";
+}
+
+function assertStyleTokenContract(tokens, archetype, sourcePath, label) {
+  if (!tokens || typeof tokens !== "object" || !hasMeaningfulStyleTokenValue(tokens["--dig-bg"])) {
+    throw new Error(`${label} missing Dig tokens (${sourcePath})`);
+  }
+  for (const tokenRole of getRequiredStyleTokenRoles(archetype)) {
+    if (!hasMeaningfulStyleTokenValue(tokens[tokenRole])) {
+      throw new Error(`${label} missing token role ${tokenRole} (${sourcePath})`);
+    }
+  }
+}
+
+function validateStyleMarkdown(markdown, sourcePath) {
+  const fields = parseFrontmatterFields(markdown);
+  if (fields.kind !== "style-catalog") {
+    throw new Error(`Style Markdown must declare kind: style-catalog (${sourcePath})`);
+  }
+  if (fields.category !== "styles") {
+    throw new Error(`Style Markdown must declare category: styles (${sourcePath})`);
+  }
+  if (fields.token_contract !== "style_v1") {
+    throw new Error(`Style Markdown must declare token_contract: style_v1 (${sourcePath})`);
+  }
+  if (!fields.slug) {
+    throw new Error(`Style Markdown missing frontmatter slug (${sourcePath})`);
+  }
+  const archetype = parseStyleRenderArchetype(markdown);
+  if (!archetype) {
+    throw new Error(`Style Markdown must declare render.archetype (${sourcePath})`);
+  }
+  if (!markdown.includes("## Style Contract") || !markdown.includes("## Dig UI CSS Tokens")) {
+    throw new Error(`Style Markdown must include Style Contract and Dig UI CSS Tokens sections (${sourcePath})`);
+  }
+  const tokenBlock = extractMarkdownFencedCodeBlock(markdown, "Dig UI CSS Tokens", "css");
+  if (!tokenBlock) {
+    throw new Error(`Style Markdown must include Dig UI CSS Tokens fenced css block (${sourcePath})`);
+  }
+  assertStyleTokenContract(parseStyleCssTokens(tokenBlock), archetype, sourcePath, "Style Markdown");
+  return { slug: fields.slug, name: fields.name_zh || fields.name_en || fields.name || fields.slug };
+}
+
+function validateStyleJsonPayload(payload, sourcePath) {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Style payload must be a JSON object");
+  }
+  if (payload.schema !== "dig.style.export.v1") {
+    throw new Error("Style payload schema must be dig.style.export.v1");
+  }
+  if (payload.token_contract !== "style_v1") {
+    throw new Error("Style payload token_contract must be style_v1");
+  }
+  if (!payload.slug) {
+    throw new Error(`Style payload missing slug (${sourcePath})`);
+  }
+  if (!payload.render?.archetype) {
+    throw new Error(`Style payload missing render.archetype (${sourcePath})`);
+  }
+  if (!payload.style_contract) {
+    throw new Error(`Style payload missing style_contract (${sourcePath})`);
+  }
+  assertStyleTokenContract(payload.tokens, payload.render.archetype, sourcePath, "Style payload");
+  return {
+    ...payload,
+    user_asset: {
+      ...(payload.user_asset ?? {}),
+      imported_at: new Date().toISOString(),
+      source_file: path.resolve(sourcePath),
+    },
+  };
+}
+
+async function runStyleImport(options) {
+  const sourcePath = options.values[0];
+  if (!sourcePath) {
+    throw new Error("style import requires a Markdown, JSON, or ZIP file path");
+  }
+
+  const asset = await readStyleAsset(sourcePath);
+  let baseName;
+  let destContent = asset.content;
+  if (asset.extension === "md") {
+    const metadata = validateStyleMarkdown(asset.content, sourcePath);
+    baseName = sanitizeStyleAssetName(metadata.slug || path.basename(sourcePath));
+    console.log("Imported local style");
+    console.log(`  name: ${metadata.name}`);
+  } else {
+    const payload = validateStyleJsonPayload(JSON.parse(asset.content), sourcePath);
+    baseName = sanitizeStyleAssetName(payload.export_id || payload.slug || path.basename(sourcePath));
+    destContent = `${JSON.stringify(payload, null, 2)}\n`;
+    console.log("Imported local style");
+    console.log(`  name: ${payload.name?.zh || payload.name?.en || payload.slug}`);
+    console.log(`  archetype: ${payload.render.archetype}`);
+  }
+
+  const destPath = await uniqueStyleAssetPath(baseName, asset.extension);
+  await fsp.writeFile(destPath, destContent.endsWith("\n") ? destContent : `${destContent}\n`, "utf8");
+  console.log(`  file: ${destPath}`);
+
+  const syncTargets = collectStyleSyncTargets(options, options.values.slice(1));
+  if (syncTargets.length > 0) {
+    console.log("");
+    await runStyleSync({ ...options, all: false, targets: syncTargets });
+  }
+}
+
+async function runStyleList() {
+  await ensureDir(USER_STYLES_DIR);
+  const entries = (await fsp.readdir(USER_STYLES_DIR, { withFileTypes: true }))
+    .filter((entry) => entry.isFile() && (entry.name.endsWith(".json") || entry.name.endsWith(".md")))
+    .map((entry) => entry.name)
+    .sort();
+  if (entries.length === 0) {
+    console.log(`No local styles found: ${USER_STYLES_DIR}`);
+    return;
+  }
+  for (const entry of entries) {
+    const fullPath = path.join(USER_STYLES_DIR, entry);
+    try {
+      const content = await fsp.readFile(fullPath, "utf8");
+      if (entry.endsWith(".json")) {
+        const payload = JSON.parse(content);
+        console.log(`${entry}  ${payload.name?.zh || payload.name?.en || payload.slug || "-"}  ${payload.render?.archetype || "-"}`);
+      } else {
+        const metadata = validateStyleMarkdown(content, fullPath);
+        console.log(`${entry}  ${metadata.name}  markdown`);
+      }
+    } catch {
+      console.log(`${entry}  unreadable`);
+    }
+  }
+}
+
+async function runStyleShow(options) {
+  const id = options.values[0];
+  if (!id) {
+    throw new Error("style show requires an id or asset file name");
+  }
+  const fullPath = await resolveStyleAssetPath(id);
+  const content = await fsp.readFile(fullPath, "utf8");
+  process.stdout.write(content);
+  if (!content.endsWith("\n")) {
+    process.stdout.write("\n");
+  }
+}
+
+function collectStyleSyncTargets(options, rawTargets = []) {
+  if (options.all) {
+    return Object.keys(TARGETS);
+  }
+  if (options.targets.length > 0) {
+    return options.targets;
+  }
+  return rawTargets.map(normalizeTarget);
+}
+
+function resolveStyleSyncTargets(options) {
+  const targets = collectStyleSyncTargets(options, options.values);
+  if (targets.length === 0) {
+    throw new Error("style sync requires a target (codex, cursor, claude-code) or --all");
+  }
+  return targets;
+}
+
+async function syncStylesIntoSkillDir(skillDir) {
+  await ensureDir(USER_STYLES_DIR);
+  const destDir = path.join(skillDir, LOCAL_STYLES_RELATIVE);
+  await removePath(destDir);
+  await copyDirectory(USER_STYLES_DIR, destDir);
+  return destDir;
+}
+
+async function syncStylesToTarget(targetKey) {
+  const target = TARGETS[targetKey];
+  const skillDir = target.skillDir();
+  if (!(await pathExists(skillDir))) {
+    console.warn(`${target.label}: skipped — skill is not installed at ${skillDir}`);
+    return { status: "skipped", reason: "missing-skill" };
+  }
+
+  const destDir = await syncStylesIntoSkillDir(skillDir);
+  console.log(`${target.label}: synced ${USER_STYLES_DIR} -> ${destDir}`);
+  return { status: "synced" };
+}
+
+async function runStyleSync(options) {
+  const targets = resolveStyleSyncTargets(options);
+  console.log(`User styles: ${USER_STYLES_DIR}`);
+  console.log("");
+  for (const targetKey of targets) {
+    await syncStylesToTarget(targetKey);
+  }
+}
+
+async function runStyleCommand(options) {
+  const action = options.localAction;
+  switch (action) {
+    case "path":
+      console.log(USER_STYLES_DIR);
+      break;
+    case "list":
+      await runStyleList();
+      break;
+    case "import":
+      await runStyleImport(options);
+      break;
+    case "sync":
+      await runStyleSync(options);
+      break;
+    case "show":
+      await runStyleShow(options);
+      break;
+    default:
+      throw new Error("style requires an action: path, list, import, sync, or show");
+  }
+}
+
 async function copyFileSafe(sourcePath, destPath) {
   await ensureDir(path.dirname(destPath));
   await fsp.copyFile(sourcePath, destPath);
@@ -1191,6 +1746,9 @@ async function copySkillAssets(sourceRoot, destRoot) {
 
   if (await pathExists(USER_PALETTES_DIR)) {
     await syncPalettesIntoSkillDir(destRoot);
+  }
+  if (await pathExists(USER_STYLES_DIR)) {
+    await syncStylesIntoSkillDir(destRoot);
   }
 }
 
@@ -1550,6 +2108,9 @@ async function main() {
       case "palette":
         await runPaletteCommand(options);
         break;
+      case "style":
+        await runStyleCommand(options);
+        break;
       case "init-local":
         await runInitLocal(options);
         break;
@@ -1564,7 +2125,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use install, update, render, validate, local, palette, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use install, update, render, validate, local, palette, style, init-local, sync-local, import-local, or status.`,
         );
     }
   } catch (error) {

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
+import childProcess from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -30,6 +32,7 @@ const requiredPaths = [
   "references/local/block-rules.md",
   "references/local/layouts/.gitkeep",
   "references/local/blocks/.gitkeep",
+  "references/local/styles/.gitkeep",
   "references/local/overrides/.gitkeep",
   "references/catalogs/palettes/.gitkeep",
   "references/blocks/README.md",
@@ -83,10 +86,26 @@ const paletteV1AdditionalTokenRoles = [
   "--dig-border-strong",
 ];
 
+const styleV1AdditionalTokenRoles = [
+  "--dig-accent-strong",
+  "--dig-accent-2-strong",
+  "--dig-border-strong",
+  "--dig-stroke-width",
+  "--dig-stroke-width-strong",
+  "--dig-shadow-chunky",
+  "--dig-motion-bounce",
+];
+
 const paletteRequiredFrontmatter = {
   kind: "color-palette-catalog",
   category: "palettes",
   token_contract: "palette_v1",
+};
+
+const styleRequiredFrontmatter = {
+  kind: "style-catalog",
+  category: "styles",
+  token_contract: "style_v1",
 };
 
 const paletteRequiredAnchors = ["canvas", "ink", "primary", "support"];
@@ -106,6 +125,63 @@ const paletteRequiredSiteRoles = [
   "disabled_text",
   "overlay",
 ];
+const styleRequiredContractMarkers = [
+  "best_for:",
+  "avoid_for:",
+  "mood:",
+  "shape_language:",
+  "surface_language:",
+  "illustration_language:",
+  "component_mapping:",
+  "motion_language:",
+];
+const mobileGameCompanionTokenRoles = [
+  "--dig-game-sky-start",
+  "--dig-game-sky-mid",
+  "--dig-game-sky-end",
+  "--dig-game-hill-front",
+  "--dig-game-hill-mid",
+  "--dig-game-hill-back",
+  "--dig-game-cloud",
+  "--dig-mascot-primary",
+  "--dig-mascot-secondary",
+  "--dig-mascot-face",
+  "--dig-mascot-belly",
+  "--dig-mission-surface",
+  "--dig-coach-surface-start",
+  "--dig-coach-surface-end",
+  "--dig-gear-surface",
+  "--dig-gear-icon-surface",
+  "--dig-game-on-accent",
+];
+const signalOpsConsoleTokenRoles = [
+  "--dig-signal-paper-bg",
+  "--dig-signal-paper-panel",
+  "--dig-signal-paper-border",
+  "--dig-signal-terminal-bg",
+  "--dig-signal-terminal-panel",
+  "--dig-signal-terminal-border",
+  "--dig-signal-terminal-text",
+  "--dig-signal-terminal-muted",
+  "--dig-signal-terminal-tape-bg",
+  "--dig-signal-positive",
+  "--dig-signal-negative",
+  "--dig-signal-warning",
+  "--dig-signal-info",
+  "--dig-signal-grid-line",
+  "--dig-signal-tape-bg",
+  "--dig-signal-node",
+  "--dig-signal-node-active",
+  "--dig-signal-book-bid",
+  "--dig-signal-book-ask",
+  "--dig-signal-chart-line",
+  "--dig-signal-chart-fill",
+];
+
+const styleBaseTokenRoles = [
+  ...brandV1RequiredTokenRoles,
+  ...styleV1AdditionalTokenRoles,
+];
 
 function exists(rel) {
   return fs.existsSync(path.join(__dirname, rel));
@@ -121,6 +197,22 @@ function listMarkdownFiles(dirRel) {
     if (entry.isDirectory()) {
       out.push(...listMarkdownFiles(rel));
     } else if (entry.name.endsWith(".md") && entry.name !== "README.md") {
+      out.push(rel);
+    }
+  }
+  return out.sort();
+}
+
+function listHtmlFiles(dirRel) {
+  const dir = path.join(__dirname, dirRel);
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    const rel = path.relative(__dirname, full);
+    if (entry.isDirectory()) {
+      out.push(...listHtmlFiles(rel));
+    } else if (entry.name.endsWith(".html")) {
       out.push(rel);
     }
   }
@@ -165,6 +257,109 @@ function warn(message, details = "") {
   return { level: "WARN", message, details };
 }
 
+function fixtureTokenValue(token) {
+  if (token.includes("stroke-width")) return "2px";
+  if (token === "--dig-shadow-chunky") return "0 12px 0 rgba(17, 17, 17, 0.18)";
+  if (token === "--dig-motion-bounce") return "cubic-bezier(.2, .9, .2, 1.1)";
+  if (token.includes("text") || token.includes("border") || token.includes("grid")) return "#111111";
+  if (token.includes("bg") || token.includes("surface") || token.includes("control")) return "#F8F6EF";
+  if (token.includes("accent")) return "#3CC7A5";
+  return "#A7B8C4";
+}
+
+function buildStyleJsonFixture(overrides = {}) {
+  const archetype = overrides.archetype || "token-sheet";
+  const archetypeTokens = {
+    "mobile-game-companion": mobileGameCompanionTokenRoles,
+    "signal-ops-console": signalOpsConsoleTokenRoles,
+  }[archetype] ?? [];
+  const tokens = Object.fromEntries(
+    [...styleBaseTokenRoles, ...archetypeTokens].map((token) => [token, fixtureTokenValue(token)]),
+  );
+  return {
+    schema: "dig.style.export.v1",
+    token_contract: "style_v1",
+    slug: "validator-style",
+    export_id: "validator-style.customstyle-20260712-160000",
+    name: { zh: "Validator Style", en: "Validator Style" },
+    description: { zh: "Validator fixture", en: "Validator fixture" },
+    render: { archetype },
+    style_contract: [
+      "best_for:",
+      "  - validator",
+      "avoid_for:",
+      "  - production",
+      "mood:",
+      "  - test",
+      "shape_language:",
+      "  stroke: test",
+      "surface_language:",
+      "  canvas: test",
+      "illustration_language:",
+      "  assets: test",
+      "component_mapping:",
+      "  sample: test",
+      "motion_language:",
+      "  transition: test",
+    ].join("\n"),
+    tokens,
+    css: Object.entries(tokens).map(([token, value]) => `${token}: ${value};`).join("\n"),
+    ...overrides,
+  };
+}
+
+function buildStyleMarkdownFixture(overrides = {}) {
+  const archetype = overrides.archetype || "signal-ops-console";
+  const slug = overrides.slug || "validator-md-style";
+  const archetypeTokens = {
+    "mobile-game-companion": mobileGameCompanionTokenRoles,
+    "signal-ops-console": signalOpsConsoleTokenRoles,
+  }[archetype] ?? [];
+  const tokens = overrides.tokens ?? Object.fromEntries(
+    [...styleBaseTokenRoles, ...archetypeTokens].map((token) => [token, fixtureTokenValue(token)]),
+  );
+  const css = Object.entries(tokens).map(([token, value]) => `${token}: ${value};`).join("\n");
+  return `---
+slug: ${slug}
+name: Validator Markdown Style
+kind: style-catalog
+category: styles
+token_contract: style_v1
+render:
+  archetype: ${archetype}
+---
+
+# Validator Markdown Style
+
+## Style Contract
+
+\`\`\`yaml
+best_for:
+  - validator
+avoid_for:
+  - production
+mood:
+  - test
+shape_language:
+  stroke: test
+surface_language:
+  canvas: test
+illustration_language:
+  assets: test
+component_mapping:
+  sample: test
+motion_language:
+  transition: test
+\`\`\`
+
+## Dig UI CSS Tokens
+
+\`\`\`css
+${css}
+\`\`\`
+`;
+}
+
 function parseFrontmatter(content) {
   const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
   if (!match) return {};
@@ -176,6 +371,10 @@ function parseFrontmatter(content) {
     }
   }
   return fields;
+}
+
+function hasExplicitRenderArchetype(content) {
+  return /\nrender:\s*\n(?:[^\n]*\n)*?\s*archetype:\s*["']?[^"'\n]+/.test(content);
 }
 
 function normalizeYamlScalar(value) {
@@ -513,6 +712,19 @@ function validateCatalogManifest() {
     }
   }
 
+  if (!contracts.style_v1) {
+    issues.push(fail("Catalog manifest missing token contract", "style_v1"));
+  } else {
+    if (contracts.style_v1.extends !== "brand_v1") {
+      issues.push(fail("style_v1 must extend brand_v1", contracts.style_v1.extends || "missing extends"));
+    }
+    for (const token of styleV1AdditionalTokenRoles) {
+      if (!contracts.style_v1.required_token_roles.includes(token)) {
+        issues.push(fail("style_v1 missing required token role", token));
+      }
+    }
+  }
+
   for (const slug of ["dig", "mono", "editorial", "wise", "apple"]) {
     const match = content.match(new RegExp(`- slug: ${slug}\\n([\\s\\S]*?)(?=\\n  - slug:|\\n#|$)`));
     if (!match) {
@@ -530,6 +742,27 @@ function validateCatalogManifest() {
 
   if (!content.includes("palettes:") || !content.includes("kind: color-palette-catalog")) {
     issues.push(fail("Catalog manifest missing palettes category contract", "category palettes / kind color-palette-catalog"));
+  }
+  if (!content.includes("styles:") || !content.includes("kind: style-catalog")) {
+    issues.push(fail("Catalog manifest missing styles category contract", "category styles / kind style-catalog"));
+  }
+  if (!content.includes("archetype_token_contracts:") || !content.includes("mobile-game-companion:")) {
+    issues.push(fail("Catalog manifest missing mobile-game-companion archetype token contract"));
+  } else {
+    for (const token of mobileGameCompanionTokenRoles) {
+      if (!content.includes(`- ${token}`)) {
+        issues.push(fail("mobile-game-companion contract missing token role", token));
+      }
+    }
+  }
+  if (!content.includes("signal-ops-console:")) {
+    issues.push(fail("Catalog manifest missing signal-ops-console archetype token contract"));
+  } else {
+    for (const token of signalOpsConsoleTokenRoles) {
+      if (!content.includes(`- ${token}`)) {
+        issues.push(fail("signal-ops-console contract missing token role", token));
+      }
+    }
   }
 
   return issues;
@@ -642,8 +875,259 @@ function validatePaletteCatalogPlacement() {
         ),
       );
     }
+
+    const styleMarkers = Object.entries(styleRequiredFrontmatter).filter(
+      ([key, expected]) => fields[key] === expected,
+    );
+
+    if (styleMarkers.length && parentDir !== "references/catalogs/styles") {
+      issues.push(
+        fail(
+          "Style catalog contract must live under references/catalogs/styles",
+          `${rel} declares ${styleMarkers.map(([key]) => key).join(", ")}`,
+        ),
+      );
+    }
   }
 
+  return issues;
+}
+
+function validateStyleCatalogs() {
+  const issues = [];
+  const styleDir = path.join(__dirname, "references/catalogs/styles");
+  if (!fs.existsSync(styleDir)) {
+    issues.push(fail("Missing style catalog directory", "references/catalogs/styles"));
+    return issues;
+  }
+
+  const files = listMarkdownFiles("references/catalogs/styles").filter(
+    (rel) => !languageSuffixPattern.test(path.basename(rel)),
+  );
+  for (const rel of files) {
+    const content = read(rel);
+    const fields = parseFrontmatter(content);
+    const parentDir = path.dirname(rel);
+    const fileSlug = path.basename(rel, ".md");
+    const slug = fields.slug || fileSlug;
+
+    if (parentDir !== "references/catalogs/styles") {
+      issues.push(fail(`Style ${slug} must be a direct styles catalog file`, rel));
+    }
+    if (fields.slug !== fileSlug) {
+      issues.push(fail(`Style ${slug} slug must match filename`, `${fields.slug || "missing slug"} !== ${fileSlug}`));
+    }
+    for (const [key, expected] of Object.entries(styleRequiredFrontmatter)) {
+      if (fields[key] !== expected) {
+        issues.push(fail(`Style ${slug} frontmatter ${key} must be '${expected}'`, fields[key] || "missing"));
+      }
+    }
+
+    const contractBlock = extractFencedCodeBlockFromSection(content, "Style Contract", "yaml");
+    if (!contractBlock) {
+      issues.push(fail(`Style ${slug} missing canonical style contract`, "## Style Contract fenced yaml block"));
+    } else {
+      for (const marker of styleRequiredContractMarkers) {
+        if (!contractBlock.includes(marker)) {
+          issues.push(fail(`Style ${slug} missing style contract marker`, marker));
+        }
+      }
+    }
+    if (!hasExplicitRenderArchetype(content)) {
+      issues.push(fail(`Style ${slug} missing explicit render archetype`, "render.archetype is required for style catalogs"));
+    }
+
+    const tokenBlock = extractFencedCodeBlockFromSection(content, "Dig UI CSS Tokens", "css");
+    if (!tokenBlock) {
+      issues.push(fail(`Style ${slug} missing canonical CSS token block`, "## Dig UI CSS Tokens fenced css block"));
+    } else {
+      const tokens = parseCssTokens(tokenBlock);
+      const usesMobileGameCompanion = content.includes("archetype: mobile-game-companion");
+      const usesSignalOpsConsole = content.includes("archetype: signal-ops-console");
+      const requiredTokens = [
+        ...brandV1RequiredTokenRoles,
+        ...styleV1AdditionalTokenRoles,
+        ...(usesMobileGameCompanion ? mobileGameCompanionTokenRoles : []),
+        ...(usesSignalOpsConsole ? signalOpsConsoleTokenRoles : []),
+      ];
+      for (const token of requiredTokens) {
+        if (!Object.hasOwn(tokens, token)) {
+          issues.push(fail(`Style ${slug} missing token role`, token));
+        } else if (!hasMeaningfulValue(tokens[token])) {
+          issues.push(fail(`Style ${slug} token role has empty value`, token));
+        }
+      }
+    }
+  }
+
+  return issues;
+}
+
+function validateInstallerCanonicalCatalogPassthrough() {
+  const issues = [];
+  const binContent = read("bin/dig-ui-skill.mjs");
+  const copyIndex = binContent.indexOf("await copySkillAssets(sourceRoot, destRoot);");
+  const languageIndex = binContent.indexOf("await applyLanguagePack(sourceRoot, destRoot, language);");
+
+  if (!binContent.includes('const SKILL_DIRS = ["references"')) {
+    issues.push(fail("Installer must copy references before language overlay", "SKILL_DIRS should include references"));
+  }
+  if (copyIndex === -1 || languageIndex === -1 || copyIndex > languageIndex) {
+    issues.push(
+      fail(
+        "Installer language pack must overlay after full asset copy",
+        "canonical palette/style catalogs rely on copySkillAssets before applyLanguagePack",
+      ),
+    );
+  }
+  if (!binContent.includes("LOCALIZED_MARKDOWN_PATTERN.test(path.basename(filePath))")) {
+    issues.push(
+      fail(
+        "Installer localized cleanup must only remove localized markdown",
+        "canonical palettes/styles must survive removeLocalizedSourceFiles",
+      ),
+    );
+  }
+  for (const requiredSnippet of [
+    "USER_STYLES_DIR",
+    "LOCAL_STYLES_RELATIVE",
+    "dig-ui-skill style <action>",
+    "dig.style.export.v1",
+    "async function resolveStyleAssetPath",
+    "async function findStyleAssetPathBySlug",
+    "function getRequiredStyleTokenRoles",
+    "function assertStyleTokenContract",
+    "function parseStyleCssTokens",
+    "async function runStyleImport",
+    "async function syncStylesIntoSkillDir",
+    "await syncStylesIntoSkillDir(destRoot)",
+    "case \"style\":",
+  ]) {
+    if (!binContent.includes(requiredSnippet)) {
+      issues.push(fail("Installer missing customstyle workflow support", requiredSnippet));
+    }
+  }
+  for (const rel of [
+    "references/catalogs/palettes/palette01.md",
+    "references/catalogs/styles/cozy-arcade.md",
+    "references/catalogs/styles/quant-signal-console.md",
+  ]) {
+    if (!exists(rel)) {
+      issues.push(fail("Missing canonical catalog passthrough asset", rel));
+    }
+  }
+  return issues;
+}
+
+function runSkillCli(args, homeDir) {
+  return childProcess.execFileSync(
+    process.execPath,
+    [path.join(__dirname, "bin", "dig-ui-skill.mjs"), ...args],
+    {
+      cwd: __dirname,
+      env: { ...process.env, HOME: homeDir },
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "pipe"],
+    },
+  );
+}
+
+function validateCustomStyleCliWorkflow() {
+  const issues = [];
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "dig-ui-style-cli-"));
+  try {
+    const validFixturePath = path.join(tempRoot, "validator-style.json");
+    fs.writeFileSync(validFixturePath, `${JSON.stringify(buildStyleJsonFixture(), null, 2)}\n`, "utf8");
+
+    runSkillCli(["style", "import", validFixturePath], tempRoot);
+    const showOutput = runSkillCli(["style", "show", "validator-style"], tempRoot);
+    if (!showOutput.includes('"slug": "validator-style"')) {
+      issues.push(fail("style show <slug> must resolve Style Lab JSON imports by payload slug", showOutput.slice(0, 200)));
+    }
+    if (!showOutput.includes('"export_id": "validator-style.customstyle-20260712-160000"')) {
+      issues.push(fail("style show <slug> returned the wrong customstyle asset", "expected Style Lab export_id fixture"));
+    }
+
+    const validMarkdownFixturePath = path.join(tempRoot, "validator-md-style.md");
+    fs.writeFileSync(validMarkdownFixturePath, buildStyleMarkdownFixture(), "utf8");
+    runSkillCli(["style", "import", validMarkdownFixturePath], tempRoot);
+    const markdownShowOutput = runSkillCli(["style", "show", "validator-md-style"], tempRoot);
+    if (!markdownShowOutput.includes("slug: validator-md-style")) {
+      issues.push(fail("style show <slug> must resolve valid Markdown customstyles", markdownShowOutput.slice(0, 200)));
+    }
+
+    const invalidFixturePath = path.join(tempRoot, "invalid-style.json");
+    fs.writeFileSync(
+      invalidFixturePath,
+      `${JSON.stringify(buildStyleJsonFixture({ tokens: { "--dig-bg": "#ffffff" } }), null, 2)}\n`,
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", invalidFixturePath], tempRoot);
+      issues.push(fail("style import must reject incomplete style_v1 token payloads", "invalid-style.json imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("missing token role")) {
+        issues.push(fail("style import incomplete-token failure should identify missing token roles", output.slice(0, 240)));
+      }
+    }
+
+    const unusableJsonTokens = Object.fromEntries(styleBaseTokenRoles.map((token) => [token, "~"]));
+    const unusableJsonFixturePath = path.join(tempRoot, "unusable-style.json");
+    fs.writeFileSync(
+      unusableJsonFixturePath,
+      `${JSON.stringify(buildStyleJsonFixture({ slug: "unusable-json-style", tokens: unusableJsonTokens }), null, 2)}\n`,
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", unusableJsonFixturePath], tempRoot);
+      issues.push(fail("style import must reject unusable JSON style_v1 token values", "unusable-style.json imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("missing token role") && !output.includes("missing Dig tokens")) {
+        issues.push(fail("style import unusable JSON-token failure should identify missing token roles", output.slice(0, 240)));
+      }
+    }
+
+    const invalidMarkdownFixturePath = path.join(tempRoot, "invalid-style.md");
+    fs.writeFileSync(
+      invalidMarkdownFixturePath,
+      buildStyleMarkdownFixture({ slug: "invalid-md-style", tokens: { "--dig-bg": "#ffffff" } }),
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", invalidMarkdownFixturePath], tempRoot);
+      issues.push(fail("style import must reject incomplete Markdown style_v1 token payloads", "invalid-style.md imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("missing token role")) {
+        issues.push(fail("style import incomplete Markdown-token failure should identify missing token roles", output.slice(0, 240)));
+      }
+    }
+
+    const unusableMarkdownTokens = Object.fromEntries(
+      [...styleBaseTokenRoles, ...signalOpsConsoleTokenRoles].map((token) => [token, "~"]),
+    );
+    const unusableMarkdownFixturePath = path.join(tempRoot, "unusable-style.md");
+    fs.writeFileSync(
+      unusableMarkdownFixturePath,
+      buildStyleMarkdownFixture({ slug: "unusable-md-style", tokens: unusableMarkdownTokens }),
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", unusableMarkdownFixturePath], tempRoot);
+      issues.push(fail("style import must reject unusable Markdown style_v1 token values", "unusable-style.md imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("missing token role") && !output.includes("missing Dig tokens")) {
+        issues.push(fail("style import unusable Markdown-token failure should identify missing token roles", output.slice(0, 240)));
+      }
+    }
+  } catch (error) {
+    issues.push(fail("customstyle CLI workflow validation crashed", error.message));
+  } finally {
+    fs.rmSync(tempRoot, { recursive: true, force: true });
+  }
   return issues;
 }
 
@@ -653,8 +1137,14 @@ function validateRenderRegistryContract() {
   if (!syncContent.includes('"palettes": {"name": "Color Palettes", "items": [], "brands": []}')) {
     issues.push(fail("sync_renders.py missing palettes registry with items + legacy brands"));
   }
+  if (!syncContent.includes('"styles": {"name": "Style Catalogs", "items": [], "brands": []}')) {
+    issues.push(fail("sync_renders.py missing styles registry with items + legacy brands"));
+  }
   if (!syncContent.includes('"palettes": "site-palette-showcase"')) {
     issues.push(fail("sync_renders.py missing palette render archetype default", "site-palette-showcase"));
+  }
+  if (!syncContent.includes('"styles": "token-sheet"')) {
+    issues.push(fail("sync_renders.py style render archetype default must be neutral", "token-sheet"));
   }
   for (const requiredHelper of ["parse_existing_catalog_data", "merge_catalog_data", "write_catalog_registry"]) {
     if (!syncContent.includes(`def ${requiredHelper}(`)) {
@@ -679,8 +1169,22 @@ function validateRenderRegistryContract() {
     '"category": "palettes"',
     '"token_contract": "palette_v1"',
     "DEFAULT_PALETTE_SUPPORT_CANDIDATES",
+    "STYLE_REQUIRED_FRONTMATTER",
+    "STYLE_V1_ADDITIONAL_TOKEN_ROLES",
+    "STYLE_REQUIRED_CONTRACT_MARKERS",
+    "MOBILE_GAME_COMPANION_TOKEN_ROLES",
+    "SIGNAL_OPS_CONSOLE_TOKEN_ROLES",
+    "def is_light_color(",
+    "def parse_render_setting(",
+    "color-scheme: light dark;",
     "def parse_palette_support_candidates(",
     "def build_palette_lab_section(",
+    '"kind": "style-catalog"',
+    '"category": "styles"',
+    '"token_contract": "style_v1"',
+    "mobile-game-companion",
+    "signal-ops-console",
+    "render.archetype is required for style catalogs",
     "palette_candidates = parse_palette_support_candidates(md_content)",
     "primaryStrong",
     "supportStrong",
@@ -689,6 +1193,16 @@ function validateRenderRegistryContract() {
     "data-palette-lab",
     "data-palette-candidate",
     "function initPaletteLab()",
+    "function buildStyleExportPayload(",
+    "function parseStyleTokenCss(",
+    "function buildStyleTokenCss(",
+    "const styleTokenCss = lab.getAttribute('data-style-token-block')",
+    "const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss)",
+    "tokens: styleTokens",
+    "function downloadStyleZip(",
+    "function initStyleLab()",
+    "dig.style.export.v1",
+    "data-style-lab",
     "navigator.clipboard.writeText",
   ]) {
     if (!syncContent.includes(requiredSnippet)) {
@@ -703,9 +1217,64 @@ function validateRenderRegistryContract() {
     ".palette-candidate",
     ".palette-copy-btn[data-copy-state=\"error\"]",
     ".palette-token-diff",
+    ".style-lab-shell",
+    ".style-export-btn[data-export-state=\"success\"]",
   ]) {
     if (!previewCss.includes(requiredSnippet)) {
       issues.push(fail("assets/catalog-preview.css missing Palette Lab style", requiredSnippet));
+    }
+  }
+  for (const requiredSnippet of [
+    ".signal-dual-shell",
+    ".signal-paper",
+    ".signal-terminal",
+    ".signal-topology",
+    ".topology-map",
+    ".signal-book",
+    ".distribution-plot",
+    ".depth-plot",
+  ]) {
+    if (!previewCss.includes(requiredSnippet)) {
+      issues.push(fail("assets/catalog-preview.css missing Signal Ops style", requiredSnippet));
+    }
+  }
+
+  const quantSignalRender = read("renders/styles/quant-signal-console.html");
+  if (!quantSignalRender.includes("color-scheme: light dark;")) {
+    issues.push(fail("quant-signal-console render must advertise dual color scheme", "color-scheme: light dark;"));
+  }
+  for (const requiredSnippet of [
+    "function parseStyleTokenCss(",
+    "function buildStyleTokenCss(",
+    "const styleTokenCss = lab.getAttribute('data-style-token-block')",
+    "const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss)",
+    "tokens: styleTokens",
+    "--dig-signal-paper-bg",
+  ]) {
+    if (!quantSignalRender.includes(requiredSnippet)) {
+      issues.push(fail("quant-signal-console render must export complete customstyle tokens", requiredSnippet));
+    }
+  }
+  if (quantSignalRender.includes("const styleCss = styleTokenCss ||")) {
+    issues.push(fail("quant-signal-console render must rebuild CSS from final style token payload", "const styleCss = styleTokenCss ||"));
+  }
+  if (quantSignalRender.includes("tokens: collectStyleTokens()")) {
+    issues.push(fail("quant-signal-console render must not export only visible token table values", "tokens: collectStyleTokens()"));
+  }
+  for (const requiredSnippet of [
+    "relationship graph simulation",
+    "EDGE DISTRIBUTION · 24H",
+    "bid ask ladder",
+    "LIQUIDITY DEPTH",
+  ]) {
+    if (!quantSignalRender.includes(requiredSnippet)) {
+      issues.push(fail("quant-signal-console render must use semantic Signal Ops chart modules", requiredSnippet));
+    }
+  }
+  for (const rel of listHtmlFiles("renders/styles")) {
+    const styleRender = read(rel);
+    if (/body::before\s*\{[\s\S]*?#52525b[\s\S]*?background-size:\s*8px\s+8px;[\s\S]*?\}/.test(styleRender)) {
+      issues.push(fail("Style render contains legacy hard-coded body::before background override", rel));
     }
   }
 
@@ -732,6 +1301,20 @@ function validateRenderRegistryContract() {
         }
         if (!Array.isArray(palettes.brands)) {
           issues.push(fail("renders/index.html palettes group missing legacy brands array"));
+        }
+      }
+      const styles = catalogData.styles;
+      if (!styles) {
+        issues.push(fail("renders/index.html catalogData missing styles group"));
+      } else {
+        if (styles.name !== "Style Catalogs") {
+          issues.push(fail("renders/index.html styles group has wrong name", styles.name || "missing name"));
+        }
+        if (!Array.isArray(styles.items)) {
+          issues.push(fail("renders/index.html styles group missing items array"));
+        }
+        if (!Array.isArray(styles.brands)) {
+          issues.push(fail("renders/index.html styles group missing legacy brands array"));
         }
       }
       for (const [category, group] of Object.entries(catalogData)) {
@@ -772,6 +1355,9 @@ function main() {
   issues.push(...validateCatalogManifest());
   issues.push(...validatePaletteCatalogPlacement());
   issues.push(...validatePaletteCatalogs());
+  issues.push(...validateStyleCatalogs());
+  issues.push(...validateInstallerCanonicalCatalogPassthrough());
+  issues.push(...validateCustomStyleCliWorkflow());
   issues.push(...validateRenderRegistryContract());
 
   const fails = issues.filter((issue) => issue.level === "FAIL");

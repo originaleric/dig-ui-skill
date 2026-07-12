@@ -15,27 +15,29 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 
 - **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、页面/组件一致性、select 用法和交互纪律。规则以英文为主规范，并提供中文翻译对照。
 - **Dig Read**：定义 Agent 的第一轮判断：先识别任务、选择 layout/catalog/block 资产，并给出信息密度、品牌表达、交互能量和任务关键性 dials。
-- **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮、组件映射和以配色为入口的 palette 系统。
+- **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮、组件映射、以配色为入口的 palette 系统和完整 style 语法。
 - **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
 - **Blocks**：定义可复用 primitive 和 product module 协议，例如 input、modal、runtime log stream、table toolbar、notification item、search result row、settings row。
 - **Anti-Tells / Preflight / Workflows**：过滤 AI 常见坏味道，并把 review、redesign、execution 等任务变成可重复流程。
 - **Rendered Previews**：提供 catalog 视觉语言预览，便于人类先确认风格方向。
-- **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block，而不 fork 官方资产。
+- **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block / palette / style，而不 fork 官方资产。
 - **CLI Installers**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code。
 
 ## 当前包含
 
-- 74 个 catalog 预览，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业、Dig 原生风格和色彩目录。
+- 76 个 catalog 预览，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业、Dig 原生风格、色彩目录和 style catalog。
 - 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
 - `renders/index.html` 静态 catalog 视觉预览 Hub。
 - 支持 `references/catalogs/palettes/` 下的 color palette catalog，首条为 `palette01`。
 - Palette render 内置 Palette Lab，可临时试色、导出包含 JSON + HTML 的 ZIP，并把用户自定义 palette 导入 `~/.config/dig-ui-skill/palettes/`。
+- 支持 `references/catalogs/styles/` 下的 style catalog，首批为 `cozy-arcade` 和 `quant-signal-console`。
+- Style render 内置 Style Lab，可把完整 `Style Contract`、render archetype 和 `--dig-*` token 导出为用户自定义 style，并导入 `~/.config/dig-ui-skill/styles/`。
 - Layout 和 Block 是 Markdown 协议资产，分别维护在 `references/layouts/` 与 `references/blocks/`。
 - 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
 - Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
 - `npm run validate:renders` Render Ops 与 parity 校验。
 - 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
-- 基于 `~/.config/dig-ui-skill/palettes/` 的个人 palette 同步。
+- 基于 `~/.config/dig-ui-skill/palettes/` 与 `~/.config/dig-ui-skill/styles/` 的个人 palette/style 同步。
 
 ## Highlight：通过 AI Agent 沉淀个人规则
 
@@ -82,6 +84,14 @@ npx dig-ui-skill status
 npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip codex
 npx dig-ui-skill palette list
 npx dig-ui-skill palette sync --all
+```
+
+导入从 Style Lab 导出的自定义 style：
+
+```bash
+npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260712-120000.zip codex
+npx dig-ui-skill style list
+npx dig-ui-skill style sync --all
 ```
 
 ## 在各工具中使用
@@ -228,7 +238,7 @@ dig-ui-skill/
 │   ├── shared/                      # layout/catalog/block 稳定 manifest
 │   ├── workflows/                   # 可复用 Agent 工作流
 │   ├── blocks/                      # Block library；源码维护 .en.md / .zh-CN.md 兄弟文件
-│   ├── local/                       # 项目级 layout / block 扩展
+│   ├── local/                       # 项目级 layout/block 扩展与同步后的用户 palette/style
 │   ├── anti-tells.md                # 已安装语言的 Dig 反模式过滤
 │   ├── preflight.md                 # 已安装语言的交付前 gate
 │   ├── catalogs/                    # 视觉 catalog；源码维护 .en.md / .zh-CN.md 兄弟文件

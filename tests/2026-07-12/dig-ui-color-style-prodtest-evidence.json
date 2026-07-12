@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-07-12T09:06:48.635Z",
+  "repo_root": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+  "temp_repo_root": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill",
+  "command_results": [
+    {
+      "command": "node --check bin/dig-ui-skill.mjs",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 34,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "node --check validate-dig-render-ops.mjs",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 32,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": "npm run validate:renders",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 600,
+      "stdout": "> dig-ui-skill@0.1.0 validate:renders\n> node validate-dig-render-ops.mjs\n\n\nDig Render Ops Validator — 0 FAIL, 0 WARN",
+      "stderr": ""
+    },
+    {
+      "command": "npm run validate:catalogs",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 223,
+      "stdout": "> dig-ui-skill@0.1.0 validate:catalogs\n> node validate-dig-catalog-preview.mjs renders\n\nCatalog render validation passed for 76 preview(s).",
+      "stderr": ""
+    }
+  ],
+  "palette_lab": {
+    "target_url": "file:///Users/dig/Documents/%E6%96%87%E7%A8%BF%20-%20XinYe%E7%9A%84MacBook%20Pro%20(5)/Projects/dig-dev/dig-ui-skill/renders/palettes/palette01.html",
+    "mutated_tokens": {
+      "--dig-accent": "#1257C4",
+      "--dig-accent-2": "#0A8F66"
+    },
+    "computed_accent": "#1257C4",
+    "diff_accent": "#1257C4",
+    "zip_path": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/palette01-custompalette.zip",
+    "json_entry": "palette01.custompalette-20260712-170647.json",
+    "json_path": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/palette01-custompalette.json",
+    "cli_import": {
+      "command": "node bin/dig-ui-skill.mjs palette import /Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/palette01-custompalette.json",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 39,
+      "stdout": "Imported local palette\n  file: /private/tmp/dig-ui-prodtest-home/.config/dig-ui-skill/palettes/palette01.custompalette-20260712-170647.json\n  name: 默认系统蓝\n  primary: #1257C4\n  support: #0A8F66",
+      "stderr": ""
+    }
+  },
+  "style_lab": {
+    "target_url": "file:///Users/dig/Documents/%E6%96%87%E7%A8%BF%20-%20XinYe%E7%9A%84MacBook%20Pro%20(5)/Projects/dig-dev/dig-ui-skill/renders/styles/quant-signal-console.html",
+    "mutated_tokens": {
+      "--dig-accent": "#C2185B"
+    },
+    "computed_accent": "#C2185B",
+    "zip_path": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/quant-signal-console-customstyle.zip",
+    "json_entry": "quant-signal-console.customstyle-20260712-170648.json",
+    "json_path": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/quant-signal-console-customstyle.json",
+    "cli_import": {
+      "command": "node bin/dig-ui-skill.mjs style import /Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/quant-signal-console-customstyle.json",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 43,
+      "stdout": "Imported local style\n  name: 量化信号控制台\n  archetype: signal-ops-console\n  file: /private/tmp/dig-ui-prodtest-home/.config/dig-ui-skill/styles/quant-signal-console.customstyle-20260712-170648.json",
+      "stderr": ""
+    },
+    "cli_show": {
+      "command": "node bin/dig-ui-skill.mjs style show quant-signal-console",
+      "cwd": "/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill",
+      "status": 0,
+      "duration_ms": 38,
+      "stdout": "{\n  \"schema\": \"dig.style.export.v1\",\n  \"token_contract\": \"style_v1\",\n  \"source\": \"dig-ui-skill/render\",\n  \"exported_at\": \"2026-07-12T09:06:48.044Z\",\n  \"slug\": \"quant-signal-console\",\n  \"export_id\": \"quant-signal-console.customstyle-20260712-170648\",\n  \"name\": {\n    \"zh\": \"量化信号控制台\",\n    \"en\": \"Quant Signal Console\"\n  },\n  \"description\": {\n    \"zh\": \"一套从用户截图归纳出的高密度实时信号控制台风格，适合预测市场、量化交易、AI agent 调度、仿真监控和实时决策系统。\",\n    \"en\": \"A dense real-time signal console style distilled from user-provided screenshots, suited for prediction markets, quant trading, AI agent orchestration, simulation monitoring, and real-time decision systems.\"\n  },\n  \"render\": {\n    \"archetype\": \"signal-ops-console\"\n  },\n  \"style_contract\": \"best_for:\\n  - prediction market terminal\\n  - quant trading dashboard\\n  - AI agent ops console\\n  - market simulation\\n  - realtime signal scanner\\n  - order book and execution cockpit\\n  - dense analytics cockpit\\navoid_for:\\n  - consumer onboarding\\n  - lifestyle marketing\\n  - playful mascot flow\\n  - low-density SaaS landing page\\n  - editorial storytelling\\nmood:\\n  - realtime\\n  - analytical\\n  - instrumented\\n  - tactical\\n  - data-dense\\n  - simulation-driven\\nsource_reference:\\n  type: user-provided-screenshots\\n  summary: \\\"Dense market and agent-operation screenshots combining prediction-market metrics, dot-matrix numerals, order books, live tapes, topology graphs, mini charts, and red/green signal states in both paper-light and terminal-dark modes.\\\"\\nshape_language:\\n  stroke: \\\"Thin 1px instrument borders, stronger outlines only for active trades, selected pipeline steps, and critical signals.\\\"\\n  radius: \\\"Small radii, clipped panels, compact rounded chips, and terminal-like segmented controls.\\\"\\n  density: \\\"High information density with clear grids, tiny labels, and stable module boundaries.\\\"\\n  controls: \\\"Compact buttons and tabs may be below marketing size, but execution actions must remain readable and stable.\\\"\\nsurface_language:\\n  canvas: \\\"Theme-dual: paper-light for research/report mode, terminal-dark for live trading or night-monitoring mode.\\\"\\n  panels: \\\"Flat instrument panels with thin borders, subtle fills, and minimal elevation.\\\"\\n  data_regions: \\\"Tables, tape strips, charts, maps, and pipeline cards sit in fixed modules rather than decorative cards.\\\"\\n  emphasis: \\\"Use status fills, signal color, and numeric weight instead of glow-heavy hero treatment.\\\"\\nillustration_language:\\n  charts: \\\"Mini candlesticks, sparklines, bar distributions, node graphs, and signal paths are first-class visual material.\\\"\\n  topology: \\\"Network graphs and agent paths use dots, lines, and labels rather than figurative illustration.\\\"\\n  typography: \\\"Dot-matrix numerals and monospace labels carry the retro terminal character.\\\"\\ncomponent_mapping:\\n  metric_tape: \\\"Top or bottom live tape for session, UTC, wallet, PnL, win rate, edge, latency, or throughput.\\\"\\n  signal_card: \\\"Compact current opportunity, confidence, odds, edge, and recommended action.\\\"\\n  order_book: \\\"Bid/ask ladder, size, spread, price, and fill state.\\\"\\n  agent_pipeline: \\\"Scan, signal, predict, compare, execute, review, or similar staged process.\\\"\\n  topology_map: \\\"Relationship graph, swarm topology, signal path, market cluster, or dependency map.\\\"\\n  micro_chart: \\\"Tiny chart module for trend, distribution, PnL, latency, or volume.\\\"\\nmotion_language:\\n  energy: \\\"Realtime but restrained: blinking live dots, updating numerals, tape scroll, and progress pulse.\\\"\\n  limits: \\\"No cyberpunk neon wash, no large hero animation, no decorative particle field that harms data readability.\\\"\\ntheme_modes:\\n  paper_light: \\\"White, warm off-white, pale gray, red/green/gold signal accents, research-report precision.\\\"\\n  terminal_dark: \\\"Near-black, deep graphite panels, mint/teal positive states, red negative states, low-glare trading-desk contrast.\\\"\\naccessibility:\\n  contrast: \\\"Signal color must never be the only state cue; pair color with labels, arrows, signs, or patterns.\\\"\\n  density: \\\"Tiny labels are acceptable for chrome, but primary values and actions must remain readable.\\\"\\n  stability: \\\"Live updates must not resize panels, tables, or pipeline steps.\\\"\",\n  \"tokens\": {\n    \"--dig-bg\": \"#F5F3EE\",\n    \"--dig-bg-soft\": \"#EBE8DF\",\n    \"--dig-surface\": \"#FBFAF5\",\n    \"--dig-surface-strong\": \"#ECE9E1\",\n    \"--dig-surface-elevated\": \"#FFFFFF\",\n    \"--dig-text\": \"#171717\",\n    \"--dig-text-muted\": \"#696B67\",\n    \"--dig-text-soft\": \"#969892\",\n    \"--dig-accent\": \"#C2185B\",\n    \"--dig-accent-strong\": \"#A93242\",\n    \"--dig-accent-2\": \"#3AA66F\",\n    \"--dig-accent-2-strong\": \"#24784E\",\n    \"--dig-border\": \"#D7D3C9\",\n    \"--dig-border-strong\": \"#20201E\",\n    \"--dig-grid-line\": \"rgba(24, 24, 22, 0.08)\",\n    \"--dig-control-bg\": \"#F4F2EC\",\n    \"--dig-control-bg-hover\": \"#EBE7DC\",\n    \"--dig-success\": \"#3AA66F\",\n    \"--dig-warning\": \"#C39322\",\n    \"--dig-danger\": \"#D4485A\",\n    \"--dig-info\": \"#2784C7\",\n    \"--dig-font-sans\": \"\\\"Inter\\\", \\\"IBM Plex Sans\\\", \\\"PingFang SC\\\", \\\"Noto Sans SC\\\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", sans-serif\",\n    \"--dig-font-display\": \"\\\"IBM Plex Mono\\\", \\\"Berkeley Mono\\\", \\\"SFMono-Regular\\\", Consolas, \\\"Liberation Mono\\\", monospace\",\n    \"--dig-font-mono\": \"\\\"IBM Plex Mono\\\", \\\"Berkeley Mono\\\", \\\"SFMono-Regular\\\", Consolas, \\\"Liberation Mono\\\", monospace\",\n    \"--dig-font-serif\": \"ui-serif, Georgia, \\\"Times New Roman\\\", serif\",\n    \"--dig-text-xs\": \"10px\",\n    \"--dig-text-sm\": \"12px\",\n    \"--dig-text-md\": \"14px\",\n    \"--dig-text-lg\": \"16px\",\n    \"--dig-text-xl\": \"20px\",\n    \"--dig-text-2xl\": \"26px\",\n    \"--dig-text-3xl\": \"34px\",\n    \"--dig-text-4xl\": \"48px\",\n    \"--dig-text-5xl\": \"72px\",\n    \"--dig-leading-tight\": \"1.02\",\n    \"--dig-leading-normal\": \"1.42\",\n    \"--dig-tracking-tight\": \"0\",\n    \"--dig-radius-sm\": \"4px\",\n    \"--dig-radius-md\": \"8px\",\n    \"--dig-radius-lg\": \"12px\",\n    \"--dig-radius-xl\": \"18px\",\n    \"--dig-radius-pill\": \"999px\",\n    \"--dig-stroke-width\": \"1px\",\n    \"--dig-stroke-width-strong\": \"2px\",\n    \"--dig-shadow-panel\": \"0 1px 0 rgba(24, 24, 22, 0.08), 0 18px 44px rgba(24, 24, 22, 0.08)\",\n    \"--dig-shadow-soft\": \"0 10px 28px rgba(24, 24, 22, 0.08)\",\n    \"--dig-shadow-chunky\": \"0 2px 0 #20201e\",\n    \"--dig-glow-accent\": \"0 0 0 1px rgba(212, 72, 90, 0.22), 0 16px 28px rgba(212, 72, 90, 0.14)\",\n    \"--dig-glow-secondary\": \"0 0 0 1px rgba(58, 166, 111, 0.22), 0 16px 28px rgba(58, 166, 111, 0.12)\",\n    \"--dig-motion-bounce\": \"cubic-bezier(0.2, 0.8, 0.2, 1)\",\n    \"--dig-signal-paper-bg\": \"#F5F3EE\",\n    \"--dig-signal-paper-panel\": \"#FBFAF5\",\n    \"--dig-signal-paper-border\": \"#D7D3C9\",\n    \"--dig-signal-terminal-bg\": \"#080909\",\n    \"--dig-signal-terminal-panel\": \"#111414\",\n    \"--dig-signal-terminal-border\": \"#2A302E\",\n    \"--dig-signal-terminal-text\": \"#F6F8F4\",\n    \"--dig-signal-terminal-muted\": \"#8F9995\",\n    \"--dig-signal-terminal-tape-bg\": \"rgba(255, 255, 255, 0.035)\",\n    \"--dig-signal-positive\": \"#4BD8A0\",\n    \"--dig-signal-negative\": \"#FF5268\",\n    \"--dig-signal-warning\": \"#C99B24\",\n    \"--dig-signal-info\": \"#4AA3FF\",\n    \"--dig-signal-grid-line\": \"rgba(105, 107, 103, 0.18)\",\n    \"--dig-signal-tape-bg\": \"rgba(23, 23, 23, 0.04)\",\n    \"--dig-signal-node\": \"#171717\",\n    \"--dig-signal-node-active\": \"#D4485A\",\n    \"--dig-signal-book-bid\": \"rgba(58, 166, 111, 0.22)\",\n    \"--dig-signal-book-ask\": \"rgba(212, 72, 90, 0.2)\",\n    \"--dig-signal-chart-line\": \"#3AA66F\",\n    \"--dig-signal-chart-fill\": \"rgba(58, 166, 111, 0.14)\"\n  },\n  \"css\": \"--dig-bg: #F5F3EE;\\n--dig-bg-soft: #EBE8DF;\\n--dig-surface: #FBFAF5;\\n--dig-surface-strong: #ECE9E1;\\n--dig-surface-elevated: #FFFFFF;\\n--dig-text: #171717;\\n--dig-text-muted: #696B67;\\n--dig-text-soft: #969892;\\n--dig-accent: #C2185B;\\n--dig-accent-strong: #A93242;\\n--dig-accent-2: #3AA66F;\\n--dig-accent-2-strong: #24784E;\\n--dig-border: #D7D3C9;\\n--dig-border-strong: #20201E;\\n--dig-grid-line: rgba(24, 24, 22, 0.08);\\n--dig-control-bg: #F4F2EC;\\n--dig-control-bg-hover: #EBE7DC;\\n--dig-success: #3AA66F;\\n--dig-warning: #C39322;\\n--dig-danger: #D4485A;\\n--dig-info: #2784C7;\\n--dig-font-sans: \\\"Inter\\\", \\\"IBM Plex Sans\\\", \\\"PingFang SC\\\", \\\"Noto Sans SC\\\", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", sans-serif;\\n--dig-font-display: \\\"IBM Plex Mono\\\", \\\"Berkeley Mono\\\", \\\"SFMono-Regular\\\", Consolas, \\\"Liberation Mono\\\", monospace;\\n--dig-font-mono: \\\"IBM Plex Mono\\\", \\\"Berkeley Mono\\\", \\\"SFMono-Regular\\\", Consolas, \\\"Liberation Mono\\\", monospace;\\n--dig-font-serif: ui-serif, Georgia, \\\"Times New Roman\\\", serif;\\n--dig-text-xs: 10px;\\n--dig-text-sm: 12px;\\n--dig-text-md: 14px;\\n--dig-text-lg: 16px;\\n--dig-text-xl: 20px;\\n--dig-text-2xl: 26px;\\n--dig-text-3xl: 34px;\\n--dig-text-4xl: 48px;\\n--dig-text-5xl: 72px;\\n--dig-leading-tight: 1.02;\\n--dig-leading-normal: 1.42;\\n--dig-tracking-tight: 0;\\n--dig-radius-sm: 4px;\\n--dig-radius-md: 8px;\\n--dig-radius-lg: 12px;\\n--dig-radius-xl: 18px;\\n--dig-radius-pill: 999px;\\n--dig-stroke-width: 1px;\\n--dig-stroke-width-strong: 2px;\\n--dig-shadow-panel: 0 1px 0 rgba(24, 24, 22, 0.08), 0 18px 44px rgba(24, 24, 22, 0.08);\\n--dig-shadow-soft: 0 10px 28px rgba(24, 24, 22, 0.08);\\n--dig-shadow-chunky: 0 2px 0 #20201e;\\n--dig-glow-accent: 0 0 0 1px rgba(212, 72, 90, 0.22), 0 16px 28px rgba(212, 72, 90, 0.14);\\n--dig-glow-secondary: 0 0 0 1px rgba(58, 166, 111, 0.22), 0 16px 28px rgba(58, 166, 111, 0.12);\\n--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);\\n--dig-signal-paper-bg: #F5F3EE;\\n--dig-signal-paper-panel: #FBFAF5;\\n--dig-signal-paper-border: #D7D3C9;\\n--dig-signal-terminal-bg: #080909;\\n--dig-signal-terminal-panel: #111414;\\n--dig-signal-terminal-border: #2A302E;\\n--dig-signal-terminal-text: #F6F8F4;\\n--dig-signal-terminal-muted: #8F9995;\\n--dig-signal-terminal-tape-bg: rgba(255, 255, 255, 0.035);\\n--dig-signal-positive: #4BD8A0;\\n--dig-signal-negative: #FF5268;\\n--dig-signal-warning: #C99B24;\\n--dig-signal-info: #4AA3FF;\\n--dig-signal-grid-line: rgba(105, 107, 103, 0.18);\\n--dig-signal-tape-bg: rgba(23, 23, 23, 0.04);\\n--dig-signal-node: #171717;\\n--dig-signal-node-active: #D4485A;\\n--dig-signal-book-bid: rgba(58, 166, 111, 0.22);\\n--dig-signal-book-ask: rgba(212, 72, 90, 0.2);\\n--dig-signal-chart-line: #3AA66F;\\n--dig-signal-chart-fill: rgba(58, 166, 111, 0.14);\",\n  \"derivation\": {\n    \"status\": \"style-contract-export\",\n    \"note\": \"This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.\"\n  },\n  \"user_asset\": {\n    \"imported_at\": \"2026-07-12T09:06:48.129Z\",\n    \"source_file\": \"/Users/dig/Documents/文稿 - XinYe的MacBook Pro (5)/Projects/dig-dev/dig-ui-skill/tests/2026-07-12/quant-signal-console-customstyle.json\"\n  }\n}\n",
+      "stderr": ""
+    }
+  },
+  "regenerate": {
+    "temp_repo": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill",
+    "palette": {
+      "markdown": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill/references/catalogs/palettes/palette01.md",
+      "render": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill/renders/palettes/palette01.html",
+      "expected_token": "--dig-accent: #13579B;",
+      "sync": {
+        "command": "python3 sync_renders.py palette01",
+        "cwd": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill",
+        "status": 0,
+        "duration_ms": 125,
+        "stdout": "🎯 Target set to: palette01\n🔄 Starting compilation & synchronization of 1 catalogs...\n✅ Synced & Bilingualized: renders/palettes/palette01.html\n🔄 Updating central handbook catalogData registry in renders/index.html...\n🎉 Central handbook registry index.html updated successfully!\n🎉 Sync completed successfully! All previews are perfectly aligned bilingually.",
+        "stderr": ""
+      }
+    },
+    "style": {
+      "markdown": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill/references/catalogs/styles/quant-signal-console.md",
+      "render": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill/renders/styles/quant-signal-console.html",
+      "expected_token": "--dig-signal-positive: #12AB8F;",
+      "sync": {
+        "command": "python3 sync_renders.py quant-signal-console",
+        "cwd": "/private/tmp/dig-ui-prodtest-work/dig-ui-skill",
+        "status": 0,
+        "duration_ms": 72,
+        "stdout": "🎯 Target set to: quant-signal-console\n🔄 Starting compilation & synchronization of 1 catalogs...\n✅ Synced & Bilingualized: renders/styles/quant-signal-console.html\n🔄 Updating central handbook catalogData registry in renders/index.html...\n🎉 Central handbook registry index.html updated successfully!\n🎉 Sync completed successfully! All previews are perfectly aligned bilingually.",
+        "stderr": ""
+      }
+    }
+  }
+}
