@@ -115,6 +115,29 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 
 ---
 
+## 🔌 DigKit Bridge Runtime
+
+`dig-ui-skill run` 是给 DigKit `ui.design` provider=cli 使用的稳定文件协议。它不是通用代码生成器入口，也不会直接写业务仓库文件；它只读取输入 JSON，输出 DigKit 能物化的 design envelope。
+
+```bash
+dig-ui-skill run --input-json input.json --output-json output.json
+```
+
+输入遵循 DigKit `ui.design` request：`task`、`prompt`、可选 `framework`、`target`、`catalog`、`layout`、`context_files` 与 `options.return_patch`。输出包含：
+
+- `summary` / `task` / `catalog` / `layout` / `metadata`
+- 当 `options.return_patch=true` 时，返回 `artifact_outputs`，其中 `file_content` 和 `diff` 使用 label 交给 DigKit 物化
+- `apply_plan` 使用 `dig-ui-skill.apply_plan.v1`，通过 `content_artifact_label` / `diff_artifact_label` 关联 artifact
+
+边界约定：
+
+- Dig UI Skill 负责 Dig UI catalog / layout 选择、基础源码 artifact 与 apply plan envelope。
+- DigKit 负责 artifact ID、canonical digest、审批、workspace policy、路径权限、幂等和真实文件写入。
+- bridge 生成源码时会按 HTML / Vue / JSX 属性上下文转义 catalog 与 layout；`context_files.path` 只接受安全相对路径。
+- Contract smoke 入口为 `npm run test:bridge`。
+
+---
+
 ## 🎨 Color Palette Catalog 与 Palette Lab
 
 当用户不是从品牌切入，而是从「整体配色」「网站 palette」「视觉 mood」切入时，优先选择 `paletteXX` catalog，例如 `references/catalogs/palettes/palette01.md`。Palette catalog 与品牌 catalog 并列，不替代 `dig`、`mono`、`editorial` 等视觉语言。

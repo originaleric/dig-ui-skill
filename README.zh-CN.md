@@ -5,7 +5,7 @@
 
 > 面向 Codex、Cursor、Claude Code 的 prompt-as-code 设计系统资产。
 
-`dig-ui-skill` 是一套 AI-first 的前端设计系统。它不以传统组件库的方式发布，而是把设计规则、视觉 catalog、layout recipe、token 协议和静态预览组织成结构化 Markdown，让 AI 编程 Agent 能稳定生成符合 Dig 气质的产品 UI。
+`dig-ui-skill` 是一套 AI-first 的前端设计系统。它不以传统组件库的方式发布，而是把设计规则、视觉 catalog、layout recipe、token 协议和静态预览组织成结构化 Markdown，并通过 CLI 提供安装同步与 DigKit bridge runtime，让 AI 编程 Agent 能稳定生成符合 Dig 气质的产品 UI。
 
 [English README](./README.md) · [安装指南](./INSTALL.md) · [使用指南](./USAGE.md)
 
@@ -21,7 +21,7 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - **Anti-Tells / Preflight / Workflows**：过滤 AI 常见坏味道，并把 review、redesign、execution 等任务变成可重复流程。
 - **Rendered Previews**：提供 catalog 视觉语言预览，便于人类先确认风格方向。
 - **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block / palette / style，而不 fork 官方资产。
-- **CLI Installers**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code。
+- **CLI Installers / Bridge Runtime**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code，并提供稳定的 DigKit `ui.design` 文件协议。
 
 ## 当前包含
 
@@ -36,6 +36,7 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 - 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
 - Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
 - `npm run validate:renders` Render Ops 与 parity 校验。
+- 通过 `dig-ui-skill run --input-json <path> --output-json <path>` 提供 DigKit bridge runtime。
 - 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
 - 基于 `~/.config/dig-ui-skill/palettes/` 与 `~/.config/dig-ui-skill/styles/` 的个人 palette/style 同步。
 
@@ -93,6 +94,14 @@ npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
+
+直接运行 DigKit bridge 协议：
+
+```bash
+dig-ui-skill run --input-json input.json --output-json output.json
+```
+
+bridge 会读取 DigKit `ui.design` 请求，并写出包含 `summary`、`task`、`catalog`、`layout`、`metadata`、可选 `artifact_outputs` 与可选 `dig-ui-skill.apply_plan.v1` 的 JSON envelope。artifact 物化、审批、workspace policy 与文件写入由 DigKit 负责。
 
 ## 在各工具中使用
 
@@ -247,7 +256,7 @@ dig-ui-skill/
 ├── assets/                          # Catalog 预览 CSS 与 Dig 视觉资产
 ├── adapters/                        # 工具适配模板
 ├── agents/                          # Agent 元数据
-├── bin/dig-ui-skill.mjs             # 安装与同步 CLI
+├── bin/dig-ui-skill.mjs             # 安装、同步与 DigKit bridge CLI
 ├── sync-renders.sh                  # Render 同步入口
 ├── sync_renders.py                  # Catalog 预览编译器
 ├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
@@ -322,6 +331,7 @@ npm install
 ```bash
 npm run validate:catalogs
 npm run validate:renders
+npm run test:bridge
 ```
 
 ## 开源注意事项

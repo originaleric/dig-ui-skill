@@ -29,6 +29,7 @@
     "validate-dig-render-ops.mjs"
   ],
   "scripts": {
+    "test:bridge": "node tests/2026-07-13/digkit-bridge-contract.mjs",
     "sync:all": "./sync-renders.sh --all",
     "validate:catalogs": "node validate-dig-catalog-preview.mjs renders",
     "validate:renders": "node validate-dig-render-ops.mjs"

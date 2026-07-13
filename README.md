@@ -5,7 +5,7 @@
 
 > Prompt-as-code design system assets for Codex, Cursor, and Claude Code.
 
-Dig UI Skill is an AI-first design system packaged as structured Markdown, static HTML previews, and a small installer CLI. Instead of shipping a conventional component library, it gives AI coding agents the design rules, layout recipes, token contracts, and visual references they need to generate consistent product UI.
+Dig UI Skill is an AI-first design system packaged as structured Markdown, static HTML previews, and a small CLI. Instead of shipping a conventional component library, it gives AI coding agents the design rules, layout recipes, token contracts, and visual references they need to generate consistent product UI.
 
 [中文文档](./README.zh-CN.md) · [Installation](./INSTALL.md) · [Usage Guide](./USAGE.md)
 
@@ -21,7 +21,7 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - **Anti-tells, preflight, and workflows** keep common AI UI drift out of generated surfaces and make review/redesign/execution tasks repeatable.
 - **Rendered previews** give humans a fast way to inspect catalog visual language before using it in production code.
 - **Local extensions** let projects add their own layouts, blocks, palettes, and styles through `references/local/` without forking the official assets.
-- **CLI installers** keep the same skill synchronized across Codex, Cursor, and Claude Code.
+- **CLI installers and bridge runtime** keep the same skill synchronized across Codex, Cursor, and Claude Code, and expose a stable DigKit `ui.design` file protocol.
 
 ## What's Included
 
@@ -36,6 +36,7 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 - Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
 - Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
 - Render ops validation via `npm run validate:renders`.
+- DigKit bridge runtime via `dig-ui-skill run --input-json <path> --output-json <path>`.
 - Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
 - Optional user palette/style synchronization through `~/.config/dig-ui-skill/palettes/` and `~/.config/dig-ui-skill/styles/`.
 
@@ -93,6 +94,14 @@ npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
+
+Run the DigKit bridge protocol directly:
+
+```bash
+dig-ui-skill run --input-json input.json --output-json output.json
+```
+
+The bridge reads a DigKit `ui.design` request and writes a JSON envelope with `summary`, `task`, `catalog`, `layout`, `metadata`, optional `artifact_outputs`, and an optional `dig-ui-skill.apply_plan.v1`. DigKit owns artifact materialization, approval, workspace policy, and file writes.
 
 ## Use In Your AI Tool
 
@@ -247,7 +256,7 @@ dig-ui-skill/
 ├── assets/                          # Catalog preview CSS and Dig visual assets
 ├── adapters/                        # Tool-specific adapters
 ├── agents/                          # Agent metadata
-├── bin/dig-ui-skill.mjs             # Installer and sync CLI
+├── bin/dig-ui-skill.mjs             # Installer, sync, and DigKit bridge CLI
 ├── sync-renders.sh                  # Render synchronization entry point
 ├── sync_renders.py                  # Catalog preview compiler
 ├── validate-dig-catalog-preview.mjs # Catalog QA validator
@@ -322,6 +331,7 @@ Validate previews:
 ```bash
 npm run validate:catalogs
 npm run validate:renders
+npm run test:bridge
 ```
 
 ## Open Source Notes

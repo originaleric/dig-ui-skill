@@ -2,6 +2,7 @@
 
 import fs from "node:fs";
 import fsp from "node:fs/promises";
+import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -179,6 +180,7 @@ function printHelp() {
   console.log(`dig-ui-skill — install and update Dig UI skill across AI tools
 
 Usage:
+  dig-ui-skill run --input-json <path> --output-json <path>
   dig-ui-skill install <target> [options]
   dig-ui-skill update <target> [options]
   dig-ui-skill render <catalogs|layouts|blocks|all>
@@ -226,6 +228,8 @@ Style actions:
   style show <id-or-file>            Print an imported user style asset
 
 Options:
+  --input-json <path>    Read DigKit ui.design bridge input JSON
+  --output-json <path>   Write DigKit ui.design bridge output JSON
   --all                 Install/update/sync all supported targets
   --link                Use symlink instead of copy for skill install (local dev)
   --link-local          Use symlink instead of copy when syncing local rules
@@ -241,6 +245,7 @@ Options:
   -h, --help            Show this help
 
 Examples:
+  dig-ui-skill run --input-json input.json --output-json output.json
   npx dig-ui-skill install cursor
   npx dig-ui-skill install cursor --lang en
   npx dig-ui-skill install codex --lang zh-CN
@@ -279,6 +284,8 @@ function parseArgs(argv) {
     source: PACKAGE_ROOT,
     project: null,
     lang: null,
+    inputJson: null,
+    outputJson: null,
     localAction: null,
     section: null,
     values: [],
@@ -362,6 +369,18 @@ function parseArgs(argv) {
 
     if (arg === "--lang") {
       options.lang = normalizeLanguage(args[index + 1] ?? "");
+      index += 2;
+      continue;
+    }
+
+    if (arg === "--input-json") {
+      options.inputJson = path.resolve(args[index + 1] ?? "");
+      index += 2;
+      continue;
+    }
+
+    if (arg === "--output-json") {
+      options.outputJson = path.resolve(args[index + 1] ?? "");
       index += 2;
       continue;
     }
@@ -1979,6 +1998,261 @@ async function runValidate(options) {
   runChecked("node", [path.join(PACKAGE_ROOT, "validate-dig-render-ops.mjs")]);
 }
 
+function digestBytes(data) {
+  return `sha256:${crypto.createHash("sha256").update(data).digest("hex")}`;
+}
+
+function digestString(value) {
+  return digestBytes(Buffer.from(String(value ?? ""), "utf8"));
+}
+
+function normalizeBridgeChoice(value, fallback) {
+  const normalized = String(value ?? "").trim();
+  if (!normalized || normalized === "auto") {
+    return fallback;
+  }
+  return normalized;
+}
+
+function inferBridgeLayout(input) {
+  const explicit = normalizeBridgeChoice(input.layout, "");
+  if (explicit) {
+    return explicit;
+  }
+
+  const haystack = [
+    input.task,
+    input.prompt,
+    input.target?.kind,
+    input.target?.audience,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (/\b(log|runtime|console|debug|trace|agent run)\b/.test(haystack)) {
+    return "runtime-console";
+  }
+  if (/\b(table|workspace|list|data)\b/.test(haystack)) {
+    return "data-table-workspace";
+  }
+  if (/\b(settings|preference|config)\b/.test(haystack)) {
+    return "settings-form";
+  }
+  if (/\bdocs|article|documentation\b/.test(haystack)) {
+    return "docs-article";
+  }
+  if (/\breview|preflight\b/.test(haystack)) {
+    return "report-insight";
+  }
+  return "dashboard-overview";
+}
+
+function selectBridgeTargetFile(input) {
+  const files = Array.isArray(input.context_files) ? input.context_files : [];
+  const preferred = files
+    .map((file) => ({
+      file,
+      path: normalizeBridgeArtifactPath(file?.path),
+    }))
+    .find((candidate) => candidate.path && /\.(tsx|jsx|html|vue)$/i.test(candidate.path));
+  if (preferred?.path) {
+    return {
+      path: preferred.path,
+      before: String(preferred.file?.content ?? ""),
+      action: "update",
+    };
+  }
+
+  if (input.framework === "html") {
+    return { path: "src/index.html", before: "", action: "update" };
+  }
+  if (input.framework === "vue") {
+    return { path: "src/App.vue", before: "", action: "update" };
+  }
+  return { path: "src/App.tsx", before: "", action: "update" };
+}
+
+function normalizeBridgeArtifactPath(rawPath) {
+  const text = String(rawPath ?? "").trim().replaceAll("\\", "/");
+  if (!text || text.includes("\0") || /[\r\n]/.test(text)) {
+    return "";
+  }
+  if (path.posix.isAbsolute(text)) {
+    return "";
+  }
+  const cleaned = path.posix.normalize(text);
+  if (cleaned === "." || cleaned === ".." || cleaned.startsWith("../")) {
+    return "";
+  }
+  return cleaned;
+}
+
+function buildBridgeFileContent(input, catalog, layout) {
+  const prompt = String(input.prompt ?? "").trim();
+  const title = prompt
+    ? prompt.replace(/\s+/g, " ").slice(0, 96)
+    : "Dig UI Production Surface";
+  const framework = normalizeBridgeChoice(input.framework, "react");
+
+  if (framework === "html") {
+    const catalogAttribute = escapeMarkupAttribute(catalog);
+    const layoutAttribute = escapeMarkupAttribute(layout);
+    return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dig UI</title>
+  </head>
+  <body>
+    <main class="dig-shell" data-catalog="${catalogAttribute}" data-layout="${layoutAttribute}">
+      <h1>${escapeHtml(title)}</h1>
+      <p>Generated by dig-ui-skill bridge.</p>
+    </main>
+  </body>
+</html>
+`;
+  }
+
+  if (framework === "vue") {
+    const catalogAttribute = escapeMarkupAttribute(catalog);
+    const layoutAttribute = escapeMarkupAttribute(layout);
+    return `<template>
+  <main class="dig-shell" data-catalog="${catalogAttribute}" data-layout="${layoutAttribute}">
+    <h1>${escapeHtml(title)}</h1>
+    <p>Generated by dig-ui-skill bridge.</p>
+  </main>
+</template>
+`;
+  }
+
+  const catalogAttribute = escapeMarkupAttribute(catalog);
+  const layoutAttribute = escapeMarkupAttribute(layout);
+  return `export default function App() {
+  return (
+    <main className="dig-shell" data-catalog="${catalogAttribute}" data-layout="${layoutAttribute}">
+      <section className="dig-page-header">
+        <p className="dig-eyebrow">Dig UI</p>
+        <h1>${escapeJsxText(title)}</h1>
+        <p>Generated by dig-ui-skill bridge.</p>
+      </section>
+    </main>
+  );
+}
+`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function escapeMarkupAttribute(value) {
+  return escapeHtml(value)
+    .replaceAll("'", "&#39;")
+    .replaceAll("\t", "&#9;")
+    .replaceAll("\n", "&#10;")
+    .replaceAll("\r", "&#13;");
+}
+
+function escapeJsxText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("{", "&#123;")
+    .replaceAll("}", "&#125;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function buildUnifiedDiff(filePath, before, after) {
+  const beforeLines = String(before ?? "").split("\n");
+  const afterLines = String(after ?? "").split("\n");
+  const removed = beforeLines
+    .filter((line, index) => !(index === beforeLines.length - 1 && line === ""))
+    .map((line) => `-${line}`)
+    .join("\n");
+  const added = afterLines
+    .filter((line, index) => !(index === afterLines.length - 1 && line === ""))
+    .map((line) => `+${line}`)
+    .join("\n");
+  return `--- ${filePath}
++++ ${filePath}
+@@
+${removed ? `${removed}\n` : ""}${added}
+`;
+}
+
+async function runBridge(options) {
+  if (!options.inputJson || !options.outputJson) {
+    throw new Error("run requires --input-json <path> and --output-json <path>");
+  }
+
+  const input = JSON.parse(await fsp.readFile(options.inputJson, "utf8"));
+  const catalog = normalizeBridgeChoice(input.catalog, "dig");
+  const layout = inferBridgeLayout(input);
+  const version = readPackageVersion(PACKAGE_ROOT);
+  const summary = `Dig UI ${input.task || "design"} bridge output using ${layout} + ${catalog}.`;
+  const output = {
+    summary,
+    task: String(input.task ?? "design"),
+    catalog,
+    layout,
+    metadata: {
+      dig_ui_skill_version: version,
+      schema_version: "dig-ui-skill.bridge.v1",
+      catalog,
+      layout,
+      style_profile: "dig-ui-bridge",
+      theme_digest: digestString(`${catalog}:${layout}:theme`),
+      design_system_digest: digestString(`${version}:${catalog}:${layout}`),
+    },
+  };
+
+  if (input.options?.return_patch) {
+    const target = selectBridgeTargetFile(input);
+    const content = buildBridgeFileContent(input, catalog, layout);
+    const diff = buildUnifiedDiff(target.path, target.before, content);
+    output.patch = diff;
+    output.artifact_outputs = [
+      {
+        label: "file1",
+        role: "file_content",
+        content_type: "text/plain",
+        content,
+      },
+      {
+        label: "diff1",
+        role: "diff",
+        content_type: "text/x-diff",
+        content: diff,
+      },
+    ];
+    output.apply_plan = {
+      schema_version: "dig-ui-skill.apply_plan.v1",
+      workspace_id: "default",
+      summary,
+      operations: [
+        {
+          action: target.action,
+          path: target.path,
+          expected_sha256: digestString(target.before),
+          after_sha256: digestString(content),
+          content_artifact_label: "file1",
+          diff_artifact_label: "diff1",
+          diff_summary: `Update ${target.path} with Dig UI ${layout} structure and ${catalog} catalog markers.`,
+        },
+      ],
+    };
+  }
+
+  await ensureDir(path.dirname(options.outputJson));
+  await fsp.writeFile(options.outputJson, `${JSON.stringify(output, null, 2)}\n`, "utf8");
+}
+
 async function getTargetStatus(targetKey) {
   const target = TARGETS[targetKey];
   const skillDir = target.skillDir();
@@ -2090,6 +2364,9 @@ async function main() {
     }
 
     switch (options.command) {
+      case "run":
+        await runBridge(options);
+        break;
       case "install":
         await runInstall(options);
         break;
@@ -2125,7 +2402,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use install, update, render, validate, local, palette, style, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use run, install, update, render, validate, local, palette, style, init-local, sync-local, import-local, or status.`,
         );
     }
   } catch (error) {

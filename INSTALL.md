@@ -118,6 +118,30 @@ npx dig-ui-skill update --all
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
 | `--lang <en\|zh-CN>` | 安装指定语言；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
+| `--input-json <path>` | `run`：读取 DigKit `ui.design` bridge 输入 JSON |
+| `--output-json <path>` | `run`：写入 DigKit `ui.design` bridge 输出 JSON |
+
+## DigKit Bridge Runtime
+
+DigKit 使用 `provider=cli` 对接真实 `dig-ui-skill` binary 时，调用固定文件协议：
+
+```bash
+dig-ui-skill run --input-json input.json --output-json output.json
+```
+
+该命令读取 DigKit `ui.design` 输入，并输出符合 bridge contract 的 JSON envelope：
+
+- `summary`、`task`、`catalog`、`layout`、`metadata`
+- 当 `options.return_patch=true` 时，返回 `artifact_outputs`
+- 可选 `apply_plan`，schema 为 `dig-ui-skill.apply_plan.v1`
+
+`dig-ui-skill` 只生成 envelope；artifact 物化、apply plan digest、审批、workspace 边界、幂等和文件写入由 DigKit 负责。CLI 会对生成源码中的 catalog/layout 属性做上下文转义，并只从 `context_files` 选择安全相对源码路径。
+
+本仓库 contract smoke：
+
+```bash
+npm run test:bridge
+```
 
 Palette helper：
 
