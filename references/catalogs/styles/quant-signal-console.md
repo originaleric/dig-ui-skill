@@ -177,6 +177,15 @@ accessibility:
 --dig-signal-chart-fill: rgba(58, 166, 111, 0.14);
 ```
 
+## Dig UI Dark Tokens
+
+```css
+--dig-bg: #080909; --dig-bg-soft: #0e1111; --dig-surface: #111414; --dig-surface-strong: #171b1a; --dig-surface-elevated: #1d2221;
+--dig-text: #f5f7f2; --dig-text-muted: #9ba39f; --dig-text-soft: #69736f; --dig-accent: #ff6476; --dig-accent-2: #4bd8a0;
+--dig-border: #2a302e; --dig-border-strong: #c7d0ca; --dig-grid-line: rgba(155, 163, 159, .18); --dig-control-bg: #151918; --dig-control-bg-hover: #202624;
+--dig-success: #4bd8a0; --dig-warning: #c99b24; --dig-danger: #ff5268; --dig-info: #4aa3ff;
+```
+
 The `--dig-signal-*` tokens are archetype tokens for the `signal-ops-console` render. They keep the shared preview reusable: the archetype owns the instrument structure, while this style owns signal color, paper-light and terminal-dark surfaces, graph states, and order-book emphasis.
 
 ## Component Rules

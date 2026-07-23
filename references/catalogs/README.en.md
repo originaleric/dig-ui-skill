@@ -59,6 +59,8 @@ In addition to brand catalogs and color palette catalogs, `dig-ui` supports styl
 
 Style catalogs fit requests that specify a screenshot style, non-brand style, material language, shape language, illustration style, or component character. They answer not only which colors to use, but also how shape, stroke, surface, illustration, motion, component mapping, and fit/avoid criteria should work.
 
+Before choosing a built-in style, read [styles/README.md](./styles/README.md). It routes all styles by task, avoid boundary, and preview archetype; choose one style catalog as the base visual system for a task.
+
 New style catalogs must live in `references/catalogs/styles/` and declare this frontmatter:
 
 ```yaml
@@ -67,13 +69,13 @@ category: styles
 token_contract: style_v1
 ```
 
-The official style facts must live in the fenced YAML block under `## Style Contract`. At minimum, cover `best_for`, `avoid_for`, `mood`, `shape_language`, `surface_language`, `illustration_language`, `component_mapping`, and `motion_language`. CSS tokens must still live in the fenced CSS block under `## Dig UI CSS Tokens`.
+The official style facts must live in the fenced YAML block under `## Style Contract`. At minimum, cover `best_for`, `avoid_for`, `mood`, `shape_language`, `surface_language`, `illustration_language`, `component_mapping`, and `motion_language`. Light CSS tokens live under `## Dig UI CSS Tokens`; dark CSS tokens live under `## Dig UI Dark Tokens`. Both modes must cover the core surface, text, border, control, and semantic-state roles.
 
 Style catalogs must explicitly declare `render.archetype`. When no dedicated sample exists yet, use the neutral `token-sheet`; do not let one style silently inherit another style's industry sample.
 
 When a style uses a dedicated render archetype, such as `mobile-game-companion` or `signal-ops-console`, that archetype's scene colors, mascot colors, mission card colors, gear-slot colors, signal colors, order-book colors, topology node colors, and related roles must come from catalog tokens. Shared CSS should provide structure and token fallbacks only; it must not carry private visual facts for one style.
 
-Style renders provide a Style Lab export action. It packages the current `Style Contract`, `render.archetype`, and visible `--dig-*` tokens into a `dig.style.export.v1` `customstyle` asset. Import exported styles with `dig-ui-skill style import <file>` into `~/.config/dig-ui-skill/styles/`, then sync them with `dig-ui-skill style sync <target|--all>` into `references/local/styles/`. A `customstyle` belongs to the user; it is not written back to `references/catalogs/styles/` and does not become part of the built-in manifest.
+Style renders provide a Style Lab export action. It packages the current `Style Contract`, `render.archetype`, visible `--dig-*` tokens, and both `theme_tokens.light` / `theme_tokens.dark` maps into a `dig.style.export.v1` `customstyle` asset. Import exported styles with `dig-ui-skill style import <file>` into `~/.config/dig-ui-skill/styles/`, then sync them with `dig-ui-skill style sync <target|--all>` into `references/local/styles/`. A `customstyle` belongs to the user; it is not written back to `references/catalogs/styles/` and does not become part of the built-in manifest. Legacy assets without `theme_tokens` remain importable for compatibility, but cannot act as a dual-theme source of truth.
 
 ## Render Intent
 
@@ -100,6 +102,10 @@ Currently supported `archetype` values:
 - `site-palette-showcase`: Default palette-catalog sample, showing site background, text, CTA, cards, links, and supporting accents.
 - `mobile-game-companion`: Gamified mobile apps, mascot stages, mission cards, gear selection, reward chips, and bottom primary actions.
 - `signal-ops-console`: Dense realtime signal consoles, showing metric tapes, agent pipelines, topology maps, order books, and micro charts across paper-light and terminal-dark modes.
+- `strategy-workspace`: Strategy recommendations, evidence matrices, owners, and review checkpoints.
+- `research-workbench`: Samples, methods, evidence, and interpretation in a research workspace.
+- `builder-journey`: Modular learning, construction, and collaboration paths.
+- `editorial-story`: A narrative product page with one thesis, one supporting signal, and one clear action.
 - `token-sheet`: Default fallback that shows only the generic token sample.
 
 When adding a catalog with a clear industry scenario, prefer declaring `render.archetype`. If there is no clear scenario yet, keep the fallback.

@@ -175,14 +175,16 @@ npx dig-ui-skill palette sync --all
 
 当用户不是从品牌或单纯配色切入，而是从「截图风格」「完整界面气质」「材质/形态/插画/组件语言」切入时，优先选择 `style-catalog`，例如 `references/catalogs/styles/cozy-arcade.md` 或 `references/catalogs/styles/quant-signal-console.md`。Style catalog 与 brand catalog、color palette catalog 并列，不替代它们。
 
+选择内置 style 前，先读 [references/catalogs/styles/README.md](references/catalogs/styles/README.md)：它用任务、avoid 边界和预览 archetype 路由 12 个 style；一次任务只选择其中一条基础 style 线。
+
 Style catalog 的 source of truth 仍是 Markdown：
 
 - `## Style Contract` 的 fenced YAML block 定义适用场景、避免场景、mood、shape、surface、illustration、component mapping 和 motion。
 - `render.archetype` 必须显式声明；没有专属样张时使用 `token-sheet`。
-- `## Dig UI CSS Tokens` 的 fenced CSS block 定义实际 Dig token 和 archetype 相关 token。
+- `## Dig UI CSS Tokens` 与 `## Dig UI Dark Tokens` 的 fenced CSS block 分别定义 light/dark token；两套都必须完整覆盖 surface、text、border、control 与 semantic-state token。
 - `renders/styles/*.html` 只是运维预览和导出界面，不自动写回 Markdown。
 
-Style Lab 支持把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 导出为 `dig.style.export.v1` 的 customstyle 资产。确认后有两条路径：
+Style Lab 支持把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 导出为 `dig.style.export.v1` 的 customstyle 资产，其中 `theme_tokens.light` / `theme_tokens.dark` 与对应两份 CSS 都会同时打包。确认后有两条路径：
 
 1. 内置 catalog 维护：把确认后的 contract/token 回写到对应 style Markdown，再运行 render/validate。
 2. 用户个人资产：点击 Style Lab 的导出 ZIP，再通过 CLI 导入到用户配置中心。
@@ -201,7 +203,7 @@ npx dig-ui-skill style show quant-signal-console
 npx dig-ui-skill style sync --all
 ```
 
-导入的 customstyle 只属于用户资产，不写回内置 `references/catalogs/styles/`，也不进入内置 manifest。CLI 会校验 `schema`、`token_contract`、`render.archetype`、Style Contract 和 required `--dig-*` token；缺少核心 token 或使用不可用占位值会被拒绝。
+导入的 customstyle 只属于用户资产，不写回内置 `references/catalogs/styles/`，也不进入内置 manifest。CLI 会校验 `schema`、`token_contract`、`render.archetype`、Style Contract 和 required `--dig-*` token；带双主题的资产还会逐项校验两个 mode。缺少核心 token 或使用不可用占位值会被拒绝；旧版没有 `theme_tokens` 的资产仍可导入，但不能作为双主题 source of truth。
 
 ---
 

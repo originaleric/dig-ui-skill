@@ -65,6 +65,8 @@ Common catalogs:
 
 Use brand catalogs when the user names a brand, product, or established visual language. Use palette catalogs when the user asks for mood, overall palette, or color composition. Use style catalogs when the user asks for a complete visual language that is not primarily a brand or color palette. Use customstyle when the user explicitly names a local style asset or asks to reuse a previously exported style. Do not mix multiple base catalogs in one page or coherent component group.
 
+When using a built-in style catalog, read `references/catalogs/styles/README.md` before selecting the specific style. It routes by task, avoid boundary, and render archetype so a style is not chosen only for a similar color or headline mood.
+
 ### 4. Choose Blocks
 
 When common components or product modules are involved, read `references/blocks/README.md` and relevant block files. Prefer block protocols over inventing repeated local structures.

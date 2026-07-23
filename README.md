@@ -25,13 +25,13 @@ AI agents are good at producing UI quickly, but they drift when a project does n
 
 ## What's Included
 
-- 76 catalog previews across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, Dig-native styles, color palette catalogs, and style catalogs.
+- 86 catalog previews across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, Dig-native styles, color palette catalogs, and style catalogs.
 - 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
 - Static catalog preview hub at `renders/index.html`.
 - Color palette catalog support through `references/catalogs/palettes/`, starting with `palette01`.
 - Palette Lab in palette renders for trying anchor colors, exporting a ZIP with JSON + HTML, and importing user-owned custom palettes into `~/.config/dig-ui-skill/palettes/`.
-- Style catalog support through `references/catalogs/styles/`, starting with `cozy-arcade` and `quant-signal-console`.
-- Style Lab in style renders for exporting a complete `Style Contract`, render archetype, and `--dig-*` tokens as user-owned custom styles in `~/.config/dig-ui-skill/styles/`.
+- Style catalog support through `references/catalogs/styles/`, including Cozy Arcade, Quant Signal Console, Strategy Report, Research Lab, Brick Builder, Archive Dotmatrix, Concept Minimal, Semantic Translation, Business Editorial, Torn Editorial Collage, Midcentury Noir, and Cel Sci-Fi.
+- Style Lab in style renders for switching and exporting complete light/dark token maps (`theme_tokens.light` / `theme_tokens.dark`), a `Style Contract`, render archetype, and `--dig-*` tokens as user-owned custom styles in `~/.config/dig-ui-skill/styles/`.
 - Layout and block assets are Markdown contracts, maintained in `references/layouts/` and `references/blocks/`.
 - Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
 - Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
@@ -94,6 +94,8 @@ npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
+
+`style_v1` Markdown assets require both `## Dig UI CSS Tokens` and `## Dig UI Dark Tokens`. Legacy JSON assets without `theme_tokens` remain importable for compatibility, but are not dual-theme source-of-truth assets.
 
 Run the DigKit bridge protocol directly:
 

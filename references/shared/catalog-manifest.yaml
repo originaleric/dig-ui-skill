@@ -85,6 +85,28 @@ token_contracts:
       - --dig-stroke-width-strong
       - --dig-shadow-chunky
       - --dig-motion-bounce
+    theme_modes:
+      required: [light, dark]
+      required_token_roles:
+        - --dig-bg
+        - --dig-bg-soft
+        - --dig-surface
+        - --dig-surface-strong
+        - --dig-surface-elevated
+        - --dig-text
+        - --dig-text-muted
+        - --dig-text-soft
+        - --dig-accent
+        - --dig-accent-2
+        - --dig-border
+        - --dig-border-strong
+        - --dig-grid-line
+        - --dig-control-bg
+        - --dig-control-bg-hover
+        - --dig-success
+        - --dig-warning
+        - --dig-danger
+        - --dig-info
 archetype_token_contracts:
   mobile-game-companion:
     applies_to:
@@ -177,6 +199,66 @@ catalogs:
     token_contract: style_v1
     status: draft
     default_for: [prediction-market, quant-trading, agent-ops, simulation-console, realtime-signals]
+  - slug: strategy-report
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [strategy, operating-review, planning, business-analysis]
+  - slug: research-lab
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [research, experiments, engineering-analysis, scientific-knowledge]
+  - slug: brick-builder
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [learning-path, project-builder, collaborative-planning, maker-workflow]
+  - slug: archive-dotmatrix
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [knowledge-base, research-notes, ai-notebook, personal-archive]
+  - slug: concept-minimal
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [concept-landing, product-thesis, focused-onboarding, premium-empty-state]
+  - slug: semantic-translation
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [product-explanation, concept-workspace, guided-onboarding, interactive-demo]
+  - slug: business-editorial
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [market-intelligence, trend-report, company-research, product-narrative]
+  - slug: torn-editorial-collage
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [creator-community, cultural-event, campaign-hub, course-discovery]
+  - slug: midcentury-noir
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [premium-service, product-story, portfolio, design-onboarding]
+  - slug: cel-sci-fi
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [experimental-ai, developer-education, launch-narrative, systems-explainer]
 # Legacy alias for older tooling. Keep this equal to token_contracts.brand_v1
 # so palette-only requirements do not break existing brand catalogs.
 required_token_roles:

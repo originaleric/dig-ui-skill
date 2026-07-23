@@ -135,6 +135,13 @@ const styleRequiredContractMarkers = [
   "component_mapping:",
   "motion_language:",
 ];
+const styleThemeTokenRoles = [
+  "--dig-bg", "--dig-bg-soft", "--dig-surface", "--dig-surface-strong",
+  "--dig-surface-elevated", "--dig-text", "--dig-text-muted", "--dig-text-soft",
+  "--dig-accent", "--dig-accent-2", "--dig-border", "--dig-border-strong",
+  "--dig-grid-line", "--dig-control-bg", "--dig-control-bg-hover", "--dig-success",
+  "--dig-warning", "--dig-danger", "--dig-info",
+];
 const mobileGameCompanionTokenRoles = [
   "--dig-game-sky-start",
   "--dig-game-sky-mid",
@@ -276,6 +283,13 @@ function buildStyleJsonFixture(overrides = {}) {
   const tokens = Object.fromEntries(
     [...styleBaseTokenRoles, ...archetypeTokens].map((token) => [token, fixtureTokenValue(token)]),
   );
+  const themeTokens = {
+    ...tokens,
+    "--dig-success": "#3CC7A5",
+    "--dig-warning": "#D39B28",
+    "--dig-danger": "#D84C52",
+    "--dig-info": "#4A8BEB",
+  };
   return {
     schema: "dig.style.export.v1",
     token_contract: "style_v1",
@@ -301,8 +315,12 @@ function buildStyleJsonFixture(overrides = {}) {
       "  sample: test",
       "motion_language:",
       "  transition: test",
+      "theme_modes:",
+      "  light: test",
+      "  dark: test",
     ].join("\n"),
     tokens,
+    theme_tokens: { light: themeTokens, dark: themeTokens },
     css: Object.entries(tokens).map(([token, value]) => `${token}: ${value};`).join("\n"),
     ...overrides,
   };
@@ -318,7 +336,14 @@ function buildStyleMarkdownFixture(overrides = {}) {
   const tokens = overrides.tokens ?? Object.fromEntries(
     [...styleBaseTokenRoles, ...archetypeTokens].map((token) => [token, fixtureTokenValue(token)]),
   );
-  const css = Object.entries(tokens).map(([token, value]) => `${token}: ${value};`).join("\n");
+  const themeTokens = {
+    ...tokens,
+    "--dig-success": "#3CC7A5",
+    "--dig-warning": "#D39B28",
+    "--dig-danger": "#D84C52",
+    "--dig-info": "#4A8BEB",
+  };
+  const css = Object.entries(themeTokens).map(([token, value]) => `${token}: ${value};`).join("\n");
   return `---
 slug: ${slug}
 name: Validator Markdown Style
@@ -350,9 +375,18 @@ component_mapping:
   sample: test
 motion_language:
   transition: test
+theme_modes:
+  light: test
+  dark: test
 \`\`\`
 
 ## Dig UI CSS Tokens
+
+\`\`\`css
+${css}
+\`\`\`
+
+## Dig UI Dark Tokens
 
 \`\`\`css
 ${css}
@@ -957,6 +991,22 @@ function validateStyleCatalogs() {
           issues.push(fail(`Style ${slug} token role has empty value`, token));
         }
       }
+      for (const token of styleThemeTokenRoles) {
+        if (!Object.hasOwn(tokens, token) || !hasMeaningfulValue(tokens[token])) {
+          issues.push(fail(`Style ${slug} light theme missing token role`, token));
+        }
+      }
+    }
+    const darkTokenBlock = extractFencedCodeBlockFromSection(content, "Dig UI Dark Tokens", "css");
+    if (!darkTokenBlock) {
+      issues.push(fail(`Style ${slug} missing canonical dark token block`, "## Dig UI Dark Tokens fenced css block"));
+    } else {
+      const darkTokens = parseCssTokens(darkTokenBlock);
+      for (const token of styleThemeTokenRoles) {
+        if (!Object.hasOwn(darkTokens, token) || !hasMeaningfulValue(darkTokens[token])) {
+          issues.push(fail(`Style ${slug} dark theme missing token role`, token));
+        }
+      }
     }
   }
 
@@ -1048,12 +1098,65 @@ function validateCustomStyleCliWorkflow() {
       issues.push(fail("style show <slug> returned the wrong customstyle asset", "expected Style Lab export_id fixture"));
     }
 
+    const incompleteThemeFixturePath = path.join(tempRoot, "incomplete-theme-style.json");
+    const incompleteThemeFixture = buildStyleJsonFixture();
+    incompleteThemeFixture.theme_tokens = {
+      light: { ...incompleteThemeFixture.theme_tokens.light },
+      dark: { ...incompleteThemeFixture.theme_tokens.dark },
+    };
+    delete incompleteThemeFixture.theme_tokens.dark["--dig-danger"];
+    fs.writeFileSync(incompleteThemeFixturePath, `${JSON.stringify(incompleteThemeFixture, null, 2)}\n`, "utf8");
+    try {
+      runSkillCli(["style", "import", incompleteThemeFixturePath], tempRoot);
+      issues.push(fail("style import must reject incomplete dual-theme payloads", "incomplete-theme-style.json imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("dark theme missing token role --dig-danger")) {
+        issues.push(fail("style import dual-theme failure should identify the mode and token role", output.slice(0, 240)));
+      }
+    }
+
     const validMarkdownFixturePath = path.join(tempRoot, "validator-md-style.md");
     fs.writeFileSync(validMarkdownFixturePath, buildStyleMarkdownFixture(), "utf8");
     runSkillCli(["style", "import", validMarkdownFixturePath], tempRoot);
     const markdownShowOutput = runSkillCli(["style", "show", "validator-md-style"], tempRoot);
     if (!markdownShowOutput.includes("slug: validator-md-style")) {
       issues.push(fail("style show <slug> must resolve valid Markdown customstyles", markdownShowOutput.slice(0, 200)));
+    }
+
+    const incompleteThemeMarkdownPath = path.join(tempRoot, "incomplete-theme-style.md");
+    fs.writeFileSync(
+      incompleteThemeMarkdownPath,
+      buildStyleMarkdownFixture({ slug: "incomplete-theme-md-style" }).replace(
+        /(## Dig UI Dark Tokens[\s\S]*?)--dig-danger: #D84C52;/,
+        "$1",
+      ),
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", incompleteThemeMarkdownPath], tempRoot);
+      issues.push(fail("style import must reject incomplete dual-theme Markdown", "incomplete-theme-style.md imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("dark theme missing token role --dig-danger")) {
+        issues.push(fail("Markdown dual-theme failure should identify the mode and token role", output.slice(0, 240)));
+      }
+    }
+
+    const legacyMarkdownFixturePath = path.join(tempRoot, "legacy-style.md");
+    fs.writeFileSync(
+      legacyMarkdownFixturePath,
+      buildStyleMarkdownFixture({ slug: "legacy-md-style" }).replace(/\n## Dig UI Dark Tokens[\s\S]*$/, "\n"),
+      "utf8",
+    );
+    try {
+      runSkillCli(["style", "import", legacyMarkdownFixturePath], tempRoot);
+      issues.push(fail("style import must reject style_v1 Markdown without a dark token block", "legacy-style.md imported successfully"));
+    } catch (error) {
+      const output = `${error.stdout || ""}${error.stderr || ""}`;
+      if (!output.includes("must include Dig UI Dark Tokens fenced css block")) {
+        issues.push(fail("legacy Markdown failure should identify the missing dark token block", output.slice(0, 240)));
+      }
     }
 
     const invalidFixturePath = path.join(tempRoot, "invalid-style.json");
@@ -1172,6 +1275,7 @@ function validateRenderRegistryContract() {
     "STYLE_REQUIRED_FRONTMATTER",
     "STYLE_V1_ADDITIONAL_TOKEN_ROLES",
     "STYLE_REQUIRED_CONTRACT_MARKERS",
+    "STYLE_THEME_TOKEN_ROLES",
     "MOBILE_GAME_COMPANION_TOKEN_ROLES",
     "SIGNAL_OPS_CONSOLE_TOKEN_ROLES",
     "def is_light_color(",
@@ -1196,11 +1300,20 @@ function validateRenderRegistryContract() {
     "function buildStyleExportPayload(",
     "function parseStyleTokenCss(",
     "function buildStyleTokenCss(",
+    "String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\\\s*:\\\\s*([^;]+);/g)",
     "const styleTokenCss = lab.getAttribute('data-style-token-block')",
+    "const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block')",
     "const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss)",
+    "const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss)",
     "tokens: styleTokens",
+    "theme_tokens: { light: styleTokens, dark: styleDarkTokens }",
+    '`${baseName}.dark.tokens.css`',
     "function downloadStyleZip(",
     "function initStyleLab()",
+    "function initStyleTheme()",
+    "data-theme-switcher",
+    "document.documentElement.dataset.styleTheme = resolvedMode",
+    'html[data-style-theme="dark"]',
     "dig.style.export.v1",
     "data-style-lab",
     "navigator.clipboard.writeText",
@@ -1260,6 +1373,45 @@ function validateRenderRegistryContract() {
   }
   if (quantSignalRender.includes("tokens: collectStyleTokens()")) {
     issues.push(fail("quant-signal-console render must not export only visible token table values", "tokens: collectStyleTokens()"));
+  }
+  for (const rel of listHtmlFiles("renders/styles")) {
+    const styleRender = read(rel);
+    for (const requiredSnippet of [
+      'class="theme-switch-capsule" data-theme-switcher hidden',
+      "html[data-style-theme=\"dark\"]",
+      "function initStyleTheme()",
+      "String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\s*:\\s*([^;]+);/g)",
+    ]) {
+      if (!styleRender.includes(requiredSnippet)) {
+        issues.push(fail("Style render missing executable dual-theme behavior", `${rel}: ${requiredSnippet}`));
+      }
+    }
+    const themeOverrideCount = (styleRender.match(/html\[data-style-theme="dark"\]/g) || []).length;
+    if (themeOverrideCount !== 1) {
+      issues.push(fail("Style render must contain exactly one generated dark-theme override", `${rel}: ${themeOverrideCount}`));
+    }
+    const darkTokenMatch = styleRender.match(/data-style-dark-token-block="([^"]*)"/);
+    if (!darkTokenMatch) {
+      issues.push(fail("Style render missing canonical dark token export source", rel));
+    } else {
+      const exportedDarkTokens = parseCssTokens(darkTokenMatch[1]);
+      for (const token of styleThemeTokenRoles) {
+        if (!hasMeaningfulValue(exportedDarkTokens[token])) {
+          issues.push(fail("Style render dark export source missing token role", `${rel}: ${token}`));
+        }
+      }
+    }
+  }
+  for (const [rel, zhText] of [
+    ["renders/styles/strategy-report.html", "策略工作台"],
+    ["renders/styles/research-lab.html", "研究工作台"],
+    ["renders/styles/brick-builder.html", "搭建旅程"],
+    ["renders/styles/cel-sci-fi.html", "社论叙事"],
+  ]) {
+    const styleRender = read(rel);
+    if (!styleRender.includes(`data-zh=\"${zhText}\"`)) {
+      issues.push(fail("New style archetype must provide bilingual sample copy", `${rel}: ${zhText}`));
+    }
   }
   for (const requiredSnippet of [
     "relationship graph simulation",

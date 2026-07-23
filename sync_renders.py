@@ -66,6 +66,13 @@ STYLE_REQUIRED_CONTRACT_MARKERS = [
     "component_mapping:",
     "motion_language:",
 ]
+STYLE_THEME_TOKEN_ROLES = [
+    "--dig-bg", "--dig-bg-soft", "--dig-surface", "--dig-surface-strong",
+    "--dig-surface-elevated", "--dig-text", "--dig-text-muted", "--dig-text-soft",
+    "--dig-accent", "--dig-accent-2", "--dig-border", "--dig-border-strong",
+    "--dig-grid-line", "--dig-control-bg", "--dig-control-bg-hover", "--dig-success",
+    "--dig-warning", "--dig-danger", "--dig-info",
+]
 MOBILE_GAME_COMPANION_TOKEN_ROLES = [
     "--dig-game-sky-start",
     "--dig-game-sky-mid",
@@ -473,6 +480,17 @@ def validate_palette_contract(md_content, category_slug, catalog_slug, rel_path)
                 fail_catalog(f"Style {catalog_slug} missing token role '{token}'")
             if not has_meaningful_value(tokens[token]):
                 fail_catalog(f"Style {catalog_slug} token role '{token}' has empty value")
+        for token in STYLE_THEME_TOKEN_ROLES:
+            if token not in tokens or not has_meaningful_value(tokens[token]):
+                fail_catalog(f"Style {catalog_slug} light theme missing token role '{token}'")
+        dark_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI Dark Tokens", "css")
+        if not dark_token_block:
+            fail_catalog(f"Style {catalog_slug} missing canonical dark token block: ## Dig UI Dark Tokens fenced css block")
+        else:
+            dark_tokens = parse_css_tokens(dark_token_block)
+            for token in STYLE_THEME_TOKEN_ROLES:
+                if token not in dark_tokens or not has_meaningful_value(dark_tokens[token]):
+                    fail_catalog(f"Style {catalog_slug} dark theme missing token role '{token}'")
         return
     if category_slug != "palettes":
         return
@@ -671,11 +689,11 @@ def build_palette_lab_section(support_candidates=None):
               </div>
             </div>"""
 
-def build_style_lab_section(style_contract="", css_token_block=""):
+def build_style_lab_section(style_contract="", css_token_block="", dark_token_block=""):
     contract_attr = escape_attr(style_contract)
     token_attr = escape_attr(css_token_block)
     return f"""
-            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="{contract_attr}" data-style-token-block="{token_attr}">
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="{contract_attr}" data-style-token-block="{token_attr}" data-style-dark-token-block="{escape_attr(dark_token_block)}">
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
@@ -697,9 +715,37 @@ def build_style_lab_section(style_contract="", css_token_block=""):
               </div>
             </section>"""
 
+def bilingual_element(tag, zh, en, attrs=""):
+    attr_prefix = f" {attrs.strip()}" if attrs.strip() else ""
+    return (
+        f'<{tag}{attr_prefix} data-zh="{escape_attr(zh)}" data-en="{escape_attr(en)}">'
+        f'{html.escape(zh)}</{tag}>'
+    )
+
 def build_archetype_section(archetype, brand_name, palette_candidates=None):
     brand = html.escape(brand_name)
     templates = {
+        "strategy-workspace": f"""
+          <section class="surface section" id="sample">
+            <div class="section-head">{bilingual_element("h3", "策略工作台", "Strategy Workspace")}{bilingual_element("p", "决策、证据、负责人和下次复盘保持在同一稳定层级。", "Decision, evidence, owner, and next review stay in one stable hierarchy.")}</div>
+            <div class="mini-grid"><article>{bilingual_element("strong", "建议", "Recommendation")}{bilingual_element("span", "整合激活路径", "Consolidate activation path")}</article><article>{bilingual_element("strong", "置信度", "Confidence")}{bilingual_element("span", "高 · 82%", "High · 82%")}</article><article>{bilingual_element("strong", "复盘", "Review")}{bilingual_element("span", "周五 · 负责人：Maya", "Fri · Owner: Maya")}</article></div>
+            <div class="table-card"><table class="token-table"><thead><tr>{bilingual_element("th", "证据", "Evidence")}{bilingual_element("th", "信号", "Signal")}{bilingual_element("th", "决策", "Decision")}</tr></thead><tbody><tr>{bilingual_element("td", "激活分群", "Activation cohort")}{bilingual_element("td", "+18%", "+18%")}{bilingual_element("td", "扩大", "Scale")}</tr><tr>{bilingual_element("td", "支持负荷", "Support load")}{bilingual_element("td", "+6%", "+6%")}{bilingual_element("td", "观察", "Monitor")}</tr></tbody></table></div>
+          </section>""",
+        "research-workbench": f"""
+          <section class="surface section" id="sample">
+            <div class="section-head">{bilingual_element("h3", "研究工作台", "Research Workbench")}{bilingual_element("p", "观察证据、方法与解释彼此独立且可追溯。", "Observed evidence, method, and interpretation remain distinct and traceable.")}</div>
+            <div class="type-grid"><article class="type-card">{bilingual_element("strong", "样本 A-17", "Specimen A-17")}<div class="type-showcase type-hero">0.82</div>{bilingual_element("div", "置信度 / 124 个样本", "confidence / 124 samples", 'class="meta-small mono"')}</article><article class="type-card">{bilingual_element("strong", "方法记录", "Method note")}{bilingual_element("div", "将选定结构与基线比较，并保留单位、来源和限制条件。", "Compare the selected structure against the baseline and retain units, source, and caveat.", 'class="type-showcase type-body"')}</article></div>
+          </section>""",
+        "builder-journey": f"""
+          <section class="surface section" id="sample">
+            <div class="section-head">{bilingual_element("h3", "搭建旅程", "Build Journey")}{bilingual_element("p", "可见的组装路径展示已完成、下一步解锁项及其负责人。", "A visible assembly path shows what is done, what unlocks next, and who owns it.")}</div>
+            <div class="mini-grid"><article>{bilingual_element("strong", "01 · 选择套件", "01 · Pick kit")}{bilingual_element("span", "已完成", "Complete")}</article><article>{bilingual_element("strong", "02 · 连接模块", "02 · Connect modules")}{bilingual_element("span", "进行中", "In progress")}</article><article>{bilingual_element("strong", "03 · 分享成果", "03 · Share build")}{bilingual_element("span", "下一步解锁", "Unlocked next")}</article></div>
+          </section>""",
+        "editorial-story": f"""
+          <section class="surface section" id="sample">
+            <div class="section-head">{bilingual_element("h3", "社论叙事", "Editorial Story")}{bilingual_element("p", "一个主张、一个支撑信号和一个行动共同建立阅读路径。", "One proposition, one supporting signal, and one action establish the reading path.")}</div>
+            <div class="type-grid"><article class="type-card">{bilingual_element("strong", "信号", "Signal")}{bilingual_element("div", "让下一步行动清晰可见。", "Make the next move visible.", 'class="type-showcase type-hero"')}</article><article class="type-card">{bilingual_element("strong", "上下文", "Context")}{bilingual_element("div", "紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。", "A compact supporting frame gives the claim evidence without turning the page into a card wall.", 'class="type-showcase type-body"')}</article></div>
+          </section>""",
         "command-palette-marketing": f"""
           <section class="surface section archetype-section command-preview" id="sample">
             <div class="section-head">
@@ -1027,7 +1073,7 @@ def build_archetype_section(archetype, brand_name, palette_candidates=None):
             </div>
           </section>""")
 
-def build_page_grid(archetype, brand_name, palette_candidates=None, category_slug="", style_contract="", css_token_block=""):
+def build_page_grid(archetype, brand_name, palette_candidates=None, category_slug="", style_contract="", css_token_block="", dark_token_block=""):
     palette_lab_link = ""
     if archetype == "site-palette-showcase":
         palette_lab_link = '            <a href="#palette-lab" data-zh="试色" data-en="Palette Lab">试色</a>\n'
@@ -1035,7 +1081,7 @@ def build_page_grid(archetype, brand_name, palette_candidates=None, category_slu
     style_lab_section = ""
     if category_slug == "styles":
         style_lab_link = '            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>\n'
-        style_lab_section = build_style_lab_section(style_contract, css_token_block)
+        style_lab_section = build_style_lab_section(style_contract, css_token_block, dark_token_block)
     return f"""
       <div class="page-grid">
         <aside class="surface side-rail">
@@ -1351,6 +1397,14 @@ def main():
             html_content = f.read()
         if category_slug == "styles":
             html_content = strip_legacy_inline_preview_overrides(html_content)
+            html_content = re.sub(
+                r'\n\s*html\[data-style-theme="dark"\]\s*\{[\s\S]*?\n\s*\}',
+                "",
+                html_content,
+            )
+        style_contract_block = extract_fenced_code_block_from_section(md_content, "Style Contract", "yaml") if category_slug == "styles" else ""
+        style_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI CSS Tokens", "css") if category_slug == "styles" else ""
+        style_dark_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI Dark Tokens", "css") if category_slug == "styles" else ""
 
         # Parse color-scheme from render intent and tokens. Style catalogs may be
         # theme-dual even when their base token canvas is light.
@@ -1370,9 +1424,19 @@ def main():
         elif cs_match:
             color_scheme = cs_match.group(0)
 
+        # Style previews own a real two-mode token layer. The base :root block is
+        # light; the dark block is activated by html[data-style-theme="dark"]
+        # without changing DOM structure or component semantics.
+        style_theme_css = ""
+        if category_slug == "styles" and style_dark_token_block:
+            style_theme_css = f'''\n      html[data-style-theme="dark"] {{
+        color-scheme: dark;
+        {style_dark_token_block}
+      }}'''
+
         # Update root variables block using regex
         root_pattern = r'(:root\s*\{)[^}]*(\})'
-        root_replace = f"\\1\n        {color_scheme}\n{tokens_str}\n    \\2"
+        root_replace = f"\\1\n        {color_scheme}\n{tokens_str}\n    \\2{style_theme_css}"
         html_content = re.sub(root_pattern, root_replace, html_content)
 
         # Update title tag
@@ -1407,8 +1471,6 @@ def main():
         )
 
         # Rebuild the central preview body from the selected catalog render archetype.
-        style_contract_block = extract_fenced_code_block_from_section(md_content, "Style Contract", "yaml") if category_slug == "styles" else ""
-        style_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI CSS Tokens", "css") if category_slug == "styles" else ""
         page_grid = build_page_grid(
             render_archetype,
             brand_name,
@@ -1416,6 +1478,7 @@ def main():
             category_slug,
             style_contract_block,
             style_token_block,
+            style_dark_token_block,
         )
         html_content = re.sub(
             r'\n\s*<div class="page-grid">.*?\n\s*</main>',
@@ -1558,16 +1621,73 @@ def main():
     </style>"""
             html_content = html_content.replace("</style>", switcher_css)
 
+        if ".theme-switch-capsule" not in html_content:
+            theme_switcher_css = """
+      /* Floating Theme Switcher */
+      .theme-switch-capsule {
+        position: fixed;
+        top: 72px;
+        right: 24px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--dig-border);
+        border-radius: var(--dig-radius-pill);
+        background: var(--dig-surface-elevated);
+        box-shadow: var(--dig-shadow-soft);
+        z-index: 9999;
+      }
+      .theme-switch-capsule[hidden] { display: none; }
+      .theme-btn {
+        min-height: 44px;
+        min-width: 44px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: var(--dig-radius-pill);
+        background: transparent;
+        color: var(--dig-text-muted);
+        font: 600 12px/1 var(--dig-font-sans);
+        cursor: pointer;
+      }
+      .theme-btn[aria-pressed="true"] {
+        background: var(--dig-accent);
+        color: var(--dig-bg);
+      }
+      .theme-btn:focus-visible {
+        outline: 2px solid var(--dig-accent-2);
+        outline-offset: 2px;
+      }
+    </style>"""
+            html_content = html_content.replace("</style>", theme_switcher_css)
+
         # Inject switcher capsule HTML if not present
         if "class=\"lang-switch-capsule\"" not in html_content:
-            switcher_html = """<body>
-    <!-- Floating Language Switcher Capsule -->
+            switcher_html = """\n    <!-- Floating Language Switcher Capsule -->
     <div class="lang-switch-capsule">
       <button class="lang-btn" data-lang="zh">中</button>
       <span class="lang-split">/</span>
       <button class="lang-btn" data-lang="en">EN</button>
     </div>"""
-            html_content = html_content.replace("<body>", switcher_html)
+            html_content = re.sub(
+                r"<body(?:\s+[^>]*)?>",
+                lambda match: f"{match.group(0)}{switcher_html}",
+                html_content,
+                count=1,
+            )
+
+        if "class=\"theme-switch-capsule\"" not in html_content:
+            theme_switcher_html = """\n    <!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->
+    <div class="theme-switch-capsule" data-theme-switcher hidden>
+      <button type="button" class="theme-btn" data-theme-mode="light" data-zh="亮" data-en="Light" aria-pressed="false">亮</button>
+      <button type="button" class="theme-btn" data-theme-mode="dark" data-zh="暗" data-en="Dark" aria-pressed="false">暗</button>
+    </div>"""
+            html_content = re.sub(
+                r"<body(?:\s+[^>]*)?>",
+                lambda match: f"{match.group(0)}{theme_switcher_html}",
+                html_content,
+                count=1,
+            )
 
         # Clean up any pre-existing bilingual script controllers (including broken ones) to force update
         html_content = re.sub(
@@ -2105,26 +2225,22 @@ def main():
 
         function parseStyleTokenCss(cssText) {
           const tokens = {};
-          String(cssText || '').split('\\n').forEach(line => {
-            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\\s*:\\s*([^;]+);?/);
-            if (!match) return;
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\s*:\\s*([^;]+);/g)) {
             tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
-          });
+          }
           return tokens;
         }
 
         function buildStyleTokenCss(tokens, cssText = '') {
           const lines = [];
           const seen = new Set();
-          String(cssText || '').split('\\n').forEach(line => {
-            const match = line.match(/(--dig-[A-Za-z0-9_-]+)\\s*:/);
-            if (!match) return;
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\s*:/g)) {
             const token = match[1];
             if (Object.prototype.hasOwnProperty.call(tokens, token)) {
               lines.push(`${token}: ${tokens[token]};`);
               seen.add(token);
             }
-          });
+          }
           Object.keys(tokens).sort().forEach(token => {
             if (!seen.has(token)) {
               lines.push(`${token}: ${tokens[token]};`);
@@ -2133,17 +2249,44 @@ def main():
           return lines.join('\\n');
         }
 
+        function initStyleTheme() {
+          const lab = document.querySelector('[data-style-lab]');
+          const switcher = document.querySelector('[data-theme-switcher]');
+          const darkTokens = parseStyleTokenCss(lab?.getAttribute('data-style-dark-token-block') || '');
+          if (!lab || !switcher || Object.keys(darkTokens).length === 0) return;
+
+          switcher.hidden = false;
+          const applyStyleTheme = mode => {
+            const resolvedMode = mode === 'dark' ? 'dark' : 'light';
+            document.documentElement.dataset.styleTheme = resolvedMode;
+            document.documentElement.style.colorScheme = resolvedMode;
+            localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+              button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
+            });
+          };
+
+          const savedTheme = localStorage.getItem('dig-ui-style-theme');
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : 'light');
+          switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+            button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
+          });
+        }
+
         function buildStyleExportPayload(lab) {
           const title = document.querySelector('.brand-title-h1');
           const description = document.querySelector('.brand-description-p');
           const timestamp = formatPaletteTimestamp();
           const slug = getStyleSlug();
           const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
           const styleTokens = {
             ...parseStyleTokenCss(styleTokenCss),
             ...collectStyleTokens()
           };
+          const styleDarkTokens = parseStyleTokenCss(styleDarkTokenCss);
           const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
           return {
             schema: 'dig.style.export.v1',
             token_contract: 'style_v1',
@@ -2165,6 +2308,8 @@ def main():
             style_contract: lab.getAttribute('data-style-contract') || '',
             tokens: styleTokens,
             css: styleCss,
+            theme_tokens: { light: styleTokens, dark: styleDarkTokens },
+            theme_css: { light: styleCss, dark: styleDarkCss },
             derivation: {
               status: 'style-contract-export',
               note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
@@ -2177,7 +2322,8 @@ def main():
           const zip = makeZip([
             { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\\n' },
             { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\\n` },
-            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\\n` }
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\\n` },
+            { name: `${baseName}.dark.tokens.css`, content: `${payload.theme_css?.dark || ''}\\n` }
           ]);
           const url = URL.createObjectURL(zip);
           const link = document.createElement('a');
@@ -2278,6 +2424,7 @@ def main():
         refreshTokenVisualizers();
         initPaletteLab();
         initStyleLab();
+        initStyleTheme();
       });"""
             if "// Dynamic Token Visualizer" in html_content:
                 html_content = re.sub(
@@ -2295,6 +2442,7 @@ def main():
             html_content,
             count=1
         )
+        html_content = re.sub(r"[ \t]+\n", "\n", html_content)
 
         # Save HTML page
         with open(html_file, "w", encoding="utf-8") as f:

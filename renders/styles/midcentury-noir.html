@@ -3,48 +3,48 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dig UI Quant Signal Console Render</title>
+    <title>Dig UI Midcentury Noir Render</title>
     <link rel="stylesheet" href="../../assets/catalog-preview.css" />
     <style>
       :root {
-        color-scheme: light dark;
-        --dig-bg: #f5f3ee;
-        --dig-bg-soft: #ebe8df;
-        --dig-surface: #fbfaf5;
-        --dig-surface-strong: #ece9e1;
-        --dig-surface-elevated: #ffffff;
-        --dig-text: #171717;
-        --dig-text-muted: #696b67;
-        --dig-text-soft: #969892;
-        --dig-accent: #d4485a;
-        --dig-accent-strong: #a93242;
-        --dig-accent-2: #3aa66f;
-        --dig-accent-2-strong: #24784e;
-        --dig-border: #d7d3c9;
-        --dig-border-strong: #20201e;
-        --dig-grid-line: rgba(24, 24, 22, 0.08);
-        --dig-control-bg: #f4f2ec;
-        --dig-control-bg-hover: #ebe7dc;
-        --dig-success: #3aa66f;
-        --dig-warning: #c39322;
-        --dig-danger: #d4485a;
-        --dig-info: #2784c7;
-        --dig-font-sans: "Inter", "IBM Plex Sans", "PingFang SC", "Noto Sans SC", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        --dig-font-display: "IBM Plex Mono", "Berkeley Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        --dig-font-mono: "IBM Plex Mono", "Berkeley Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-        --dig-font-serif: ui-serif, Georgia, "Times New Roman", serif;
-        --dig-text-xs: 10px;
-        --dig-text-sm: 12px;
-        --dig-text-md: 14px;
-        --dig-text-lg: 16px;
-        --dig-text-xl: 20px;
-        --dig-text-2xl: 26px;
-        --dig-text-3xl: 34px;
-        --dig-text-4xl: 48px;
-        --dig-text-5xl: 72px;
-        --dig-leading-tight: 1.02;
-        --dig-leading-normal: 1.42;
-        --dig-tracking-tight: 0;
+        color-scheme: light;
+        --dig-bg: #f6f0e4;
+        --dig-bg-soft: #e9dfcf;
+        --dig-surface: #fffaf0;
+        --dig-surface-strong: #e8dcc9;
+        --dig-surface-elevated: #fffdf7;
+        --dig-text: #29231e;
+        --dig-text-muted: #665c51;
+        --dig-text-soft: #958a7b;
+        --dig-accent: #b94731;
+        --dig-accent-strong: #8f3020;
+        --dig-accent-2: #9e7721;
+        --dig-accent-2-strong: #7e5c16;
+        --dig-border: #b8a995;
+        --dig-border-strong: #29231e;
+        --dig-grid-line: rgba(41, 35, 30, 0.11);
+        --dig-control-bg: #f0e7d8;
+        --dig-control-bg-hover: #e4d8c7;
+        --dig-success: #397653;
+        --dig-warning: #9e7721;
+        --dig-danger: #b6423b;
+        --dig-info: #3e6fa8;
+        --dig-font-sans: "Inter", "PingFang SC", "Noto Sans SC", sans-serif;
+        --dig-font-display: "Space Grotesk", "PingFang SC", sans-serif;
+        --dig-font-mono: "IBM Plex Mono", Consolas, monospace;
+        --dig-font-serif: "Source Han Serif SC", Georgia, serif;
+        --dig-text-xs: 11px;
+        --dig-text-sm: 13px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 20px;
+        --dig-text-xl: 28px;
+        --dig-text-2xl: 40px;
+        --dig-text-3xl: 58px;
+        --dig-text-4xl: 78px;
+        --dig-text-5xl: 104px;
+        --dig-leading-tight: 0.98;
+        --dig-leading-normal: 1.48;
+        --dig-tracking-tight: -0.035em;
         --dig-radius-sm: 4px;
         --dig-radius-md: 8px;
         --dig-radius-lg: 12px;
@@ -52,40 +52,19 @@
         --dig-radius-pill: 999px;
         --dig-stroke-width: 1px;
         --dig-stroke-width-strong: 2px;
-        --dig-shadow-panel: 0 1px 0 rgba(24, 24, 22, 0.08), 0 18px 44px rgba(24, 24, 22, 0.08);
-        --dig-shadow-soft: 0 10px 28px rgba(24, 24, 22, 0.08);
-        --dig-shadow-chunky: 0 2px 0 #20201e;
-        --dig-glow-accent: 0 0 0 1px rgba(212, 72, 90, 0.22), 0 16px 28px rgba(212, 72, 90, 0.14);
-        --dig-glow-secondary: 0 0 0 1px rgba(58, 166, 111, 0.22), 0 16px 28px rgba(58, 166, 111, 0.12);
+        --dig-shadow-panel: 0 1px 0 rgba(245, 239, 223, 0.1);
+        --dig-shadow-soft: 0 20px 44px rgba(0, 0, 0, 0.3);
+        --dig-shadow-chunky: 0 2px 0 #f5efdf;
+        --dig-glow-accent: 0 0 0 1px rgba(225, 86, 56, 0.28);
+        --dig-glow-secondary: 0 0 0 1px rgba(230, 196, 95, 0.25);
         --dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);
-        --dig-signal-paper-bg: #f5f3ee;
-        --dig-signal-paper-panel: #fbfaf5;
-        --dig-signal-paper-border: #d7d3c9;
-        --dig-signal-terminal-bg: #080909;
-        --dig-signal-terminal-panel: #111414;
-        --dig-signal-terminal-border: #2a302e;
-        --dig-signal-terminal-text: #f6f8f4;
-        --dig-signal-terminal-muted: #8f9995;
-        --dig-signal-terminal-tape-bg: rgba(255, 255, 255, 0.035);
-        --dig-signal-positive: #4bd8a0;
-        --dig-signal-negative: #ff5268;
-        --dig-signal-warning: #c99b24;
-        --dig-signal-info: #4aa3ff;
-        --dig-signal-grid-line: rgba(105, 107, 103, 0.18);
-        --dig-signal-tape-bg: rgba(23, 23, 23, 0.04);
-        --dig-signal-node: #171717;
-        --dig-signal-node-active: #d4485a;
-        --dig-signal-book-bid: rgba(58, 166, 111, 0.22);
-        --dig-signal-book-ask: rgba(212, 72, 90, 0.2);
-        --dig-signal-chart-line: #3aa66f;
-        --dig-signal-chart-fill: rgba(58, 166, 111, 0.14);
     }
       html[data-style-theme="dark"] {
         color-scheme: dark;
-        --dig-bg: #080909; --dig-bg-soft: #0e1111; --dig-surface: #111414; --dig-surface-strong: #171b1a; --dig-surface-elevated: #1d2221;
---dig-text: #f5f7f2; --dig-text-muted: #9ba39f; --dig-text-soft: #69736f; --dig-accent: #ff6476; --dig-accent-2: #4bd8a0;
---dig-border: #2a302e; --dig-border-strong: #c7d0ca; --dig-grid-line: rgba(155, 163, 159, .18); --dig-control-bg: #151918; --dig-control-bg-hover: #202624;
---dig-success: #4bd8a0; --dig-warning: #c99b24; --dig-danger: #ff5268; --dig-info: #4aa3ff;
+        --dig-bg: #171615; --dig-bg-soft: #252321; --dig-surface: #211f1d; --dig-surface-strong: #302d29; --dig-surface-elevated: #3b3732;
+--dig-text: #f5efdf; --dig-text-muted: #c2b9a8; --dig-text-soft: #8f877b; --dig-accent: #e15638; --dig-accent-2: #e6c45f;
+--dig-border: #514b43; --dig-border-strong: #f5efdf; --dig-grid-line: rgba(245, 239, 223, .11); --dig-control-bg: #302d29; --dig-control-bg-hover: #413c36;
+--dig-success: #5fb37a; --dig-warning: #e6c45f; --dig-danger: #ee7466; --dig-info: #78aeea;
       }
 /* Floating Language Switcher */
       .lang-switch-capsule {
@@ -166,7 +145,7 @@
       }
     </style>
   </head>
-  <body data-render-archetype="signal-ops-console">
+  <body data-render-archetype="editorial-story">
     <!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->
     <div class="theme-switch-capsule" data-theme-switcher hidden>
       <button type="button" class="theme-btn" data-theme-mode="light" data-zh="亮" data-en="Light" aria-pressed="false">亮</button>
@@ -182,9 +161,9 @@
     <main class="preview-shell">
       <section class="hero">
         <div class="surface hero-main">
-          <span class="eyebrow"><span class="brand-name-label" data-zh="量化信号控制台" data-en="Quant Signal Console">量化信号控制台</span> Catalog / Dig UI</span>
-          <h1 class="brand-title-h1" data-zh="量化信号控制台" data-en="Quant Signal Console">量化信号控制台</h1>
-          <p class="brand-description-p" data-zh="一套从用户截图归纳出的高密度实时信号控制台风格，适合预测市场、量化交易、AI agent 调度、仿真监控和实时决策系统。" data-en="A dense real-time signal console style distilled from user-provided screenshots, suited for prediction markets, quant trading, AI agent orchestration, simulation monitoring, and real-time decision systems.">一套从用户截图归纳出的高密度实时信号控制台风格，适合预测市场、量化交易、AI agent 调度、仿真监控和实时决策系统。</p>
+          <span class="eyebrow"><span class="brand-name-label" data-zh="中世纪黑色现代主义" data-en="Midcentury Noir">中世纪黑色现代主义</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1" data-zh="中世纪黑色现代主义" data-en="Midcentury Noir">中世纪黑色现代主义</h1>
+          <p class="brand-description-p" data-zh="黑色主导、限色、几何扁平插画与强排版构成的高级叙事型产品视觉语法。" data-en="A premium narrative product language of black-led surfaces, limited color, flat geometry, and decisive type.">黑色主导、限色、几何扁平插画与强排版构成的高级叙事型产品视觉语法。</p>
         </div>
 
         <aside class="surface surface-strong hero-side">
@@ -210,240 +189,70 @@
 
         <div class="content">
 
-          <section class="surface section archetype-section signal-ops-preview" id="sample">
-            <div class="section-head">
-              <h3 data-zh="信号控制台样张" data-en="Signal Ops Console Sample">信号控制台样张</h3>
-              <p data-zh="展示 paper-light 与 terminal-dark 两种主题下的实时指标、agent pipeline、拓扑图、盘口和微型图表。" data-en="Shows realtime metrics, agent pipelines, topology, order books, and micro charts across paper-light and terminal-dark modes.">展示 paper-light 与 terminal-dark 两种主题下的实时指标、agent pipeline、拓扑图、盘口和微型图表。</p>
-            </div>
-            <div class="signal-dual-shell">
-              <article class="signal-console signal-paper">
-                <header class="signal-topbar">
-                  <strong>Quant Signal Console Signal Desk</strong>
-                  <span>LIVE · UTC 20:01:41 · CONF 97.4%</span>
-                </header>
-                <div class="signal-tape">
-                  <span>WALLET 0x9f...1b7</span>
-                  <span>ALL-TIME PNL <b class="pos">+$369,000</b></span>
-                  <span>WIN RATE <b class="pos">78%</b></span>
-                  <span>EDGE <b class="warn">+38</b></span>
-                </div>
-                <div class="signal-main-grid">
-                  <section class="signal-hero-metric">
-                    <span>REALIZED PNL · LIVE</span>
-                    <strong>381,328</strong>
-                    <p><b class="pos">+20 054</b> today · 84 days · +$1.60/sec live</p>
-                  </section>
-                  <section class="signal-card">
-                    <span>LIVE SIGNAL</span>
-                    <strong>BTC T DOWN</strong>
-                    <p>confidence 94.7% · edge +24</p>
-                    <button>Short BTC</button>
-                  </section>
-                  <section class="signal-pipeline">
-                    <div class="done"><b>01</b><span>Scan</span></div>
-                    <div class="done"><b>02</b><span>Signal</span></div>
-                    <div class="active"><b>03</b><span>Predict</span></div>
-                    <div><b>04</b><span>Execute</span></div>
-                  </section>
-                  <section class="signal-topology" aria-label="relationship graph simulation">
-                    <header><span>RELATIONSHIP GRAPH · BTC T+24H</span><b>nodes 69 · edge 125</b></header>
-                    <svg class="topology-map" viewBox="0 0 520 210" role="img" aria-label="Signal relationship graph with labeled clusters">
-                      <defs>
-                        <linearGradient id="topologyPath" x1="0%" x2="100%" y1="0%" y2="0%">
-                          <stop offset="0%" stop-color="var(--dig-signal-positive, #4bd8a0)" stop-opacity="0.36" />
-                          <stop offset="50%" stop-color="var(--dig-signal-info, #4aa3ff)" stop-opacity="0.24" />
-                          <stop offset="100%" stop-color="var(--dig-signal-negative, #ff5268)" stop-opacity="0.34" />
-                        </linearGradient>
-                      </defs>
-                      <path class="range" d="M28 126 C86 70 146 92 196 116 S304 158 368 112 444 64 496 92" />
-                      <path class="edge" d="M54 130 L126 96 L204 126 L276 78 L354 118 L444 72" />
-                      <path class="edge weak" d="M126 96 L218 52 L318 96 L432 150" />
-                      <path class="edge weak" d="M204 126 L282 164 L354 118" />
-                      <g class="node-group bull">
-                        <circle cx="54" cy="130" r="12" />
-                        <text x="72" y="134">BULL</text>
-                      </g>
-                      <g class="node-group">
-                        <circle cx="126" cy="96" r="7" />
-                        <text x="137" y="88">BAYES</text>
-                      </g>
-                      <g class="node-group active">
-                        <circle cx="204" cy="126" r="17" />
-                        <text x="177" y="158">MISPRICE</text>
-                      </g>
-                      <g class="node-group">
-                        <circle cx="276" cy="78" r="8" />
-                        <text x="288" y="74">ANCHOR</text>
-                      </g>
-                      <g class="node-group risk">
-                        <circle cx="354" cy="118" r="11" />
-                        <text x="370" y="122">BEAR</text>
-                      </g>
-                      <g class="node-group active">
-                        <circle cx="444" cy="72" r="14" />
-                        <text x="462" y="76">EDGE</text>
-                      </g>
-                      <circle class="speck pos" cx="92" cy="158" r="3" />
-                      <circle class="speck neg" cx="244" cy="44" r="4" />
-                      <circle class="speck warn" cx="318" cy="154" r="5" />
-                      <circle class="speck pos" cx="478" cy="132" r="3" />
-                    </svg>
-                    <footer><span><i class="dot pos"></i>bull path</span><span><i class="dot neg"></i>bear signal</span><span><i class="dot warn"></i>cluster hub</span></footer>
-                  </section>
-                  <section class="signal-book">
-                    <div><span>ASK</span><b class="neg">0.4590</b><em style="--depth:76%"></em></div>
-                    <div><span>ASK</span><b class="neg">0.4570</b><em style="--depth:42%"></em></div>
-                    <div><span>BID</span><b class="pos">0.4555</b><em style="--depth:68%"></em></div>
-                    <div><span>BID</span><b class="pos">0.4530</b><em style="--depth:38%"></em></div>
-                  </section>
-                  <section class="signal-chart" aria-label="edge distribution">
-                    <header><span>EDGE DISTRIBUTION · 24H</span><b>+38 avg</b></header>
-                    <div class="distribution-plot">
-                      <i style="--h:26%; --tone:bid"><span>+12</span></i>
-                      <i style="--h:54%; --tone:bid"><span>+21</span></i>
-                      <i style="--h:36%; --tone:bid"><span>+18</span></i>
-                      <i style="--h:72%; --tone:bid"><span>+42</span></i>
-                      <i style="--h:62%; --tone:bid"><span>+38</span></i>
-                      <i style="--h:86%; --tone:edge"><span>+76</span></i>
-                    </div>
-                    <div class="distribution-axis"><span>min +12</span><span>median +31</span><span>max +76</span></div>
-                  </section>
-                </div>
-              </article>
-              <article class="signal-console signal-terminal">
-                <header class="signal-topbar">
-                  <strong>Paper Trading</strong>
-                  <span>CONNECTED · 4:08 REMAINING</span>
-                </header>
-                <div class="signal-tape">
-                  <span>BAL $724.56</span>
-                  <span>EQUITY $997.31</span>
-                  <span>UNREALIZED <b class="neg">-2.69</b></span>
-                  <span>RETURN <b class="neg">-0.27%</b></span>
-                </div>
-                <div class="signal-dark-grid">
-                  <section class="signal-order-form">
-                    <strong>Place Order</strong>
-                    <div class="seg"><button class="active">Up</button><button>Down</button></div>
-                    <div class="seg"><button class="active">Buy</button><button>Sell</button></div>
-                    <input value="100" aria-label="shares" readonly>
-                    <button class="submit">Buy Up</button>
-                  </section>
-                  <section class="signal-ladder" aria-label="bid ask ladder">
-                    <header><span>MARKET</span><span>BID</span><span>ASK</span><span>SPREAD</span></header>
-                    <div><b>UP</b><span class="pos">0.5409</span><span>0.5456</span><small>0.0090</small></div>
-                    <div><b>DOWN</b><span class="neg">0.4590</span><span>0.4545</span><small>0.0078</small></div>
-                    <div><b>LAST TRADE</b><span class="pos">BUY 500</span><span>@ 0.5509</span><small>filled</small></div>
-                  </section>
-                  <section class="signal-terminal-chart" aria-label="liquidity depth">
-                    <header><span>LIQUIDITY DEPTH</span><b>$27.7K</b></header>
-                    <div class="depth-plot">
-                      <i style="--h:22%; --side:bid"><span>0.52</span></i>
-                      <i style="--h:48%; --side:bid"><span>0.53</span></i>
-                      <i style="--h:34%; --side:ask"><span>0.54</span></i>
-                      <i style="--h:72%; --side:bid"><span>0.55</span></i>
-                      <i style="--h:58%; --side:bid"><span>0.56</span></i>
-                      <i style="--h:86%; --side:bid"><span>0.57</span></i>
-                      <i style="--h:42%; --side:ask"><span>0.58</span></i>
-                    </div>
-                    <div class="depth-axis"><span>bid depth</span><span>mid 0.5455</span><span>ask wall</span></div>
-                  </section>
-                </div>
-              </article>
-            </div>
+          <section class="surface section" id="sample">
+            <div class="section-head"><h3 data-zh="社论叙事" data-en="Editorial Story">社论叙事</h3><p data-zh="一个主张、一个支撑信号和一个行动共同建立阅读路径。" data-en="One proposition, one supporting signal, and one action establish the reading path.">一个主张、一个支撑信号和一个行动共同建立阅读路径。</p></div>
+            <div class="type-grid"><article class="type-card"><strong data-zh="信号" data-en="Signal">信号</strong><div class="type-showcase type-hero" data-zh="让下一步行动清晰可见。" data-en="Make the next move visible.">让下一步行动清晰可见。</div></article><article class="type-card"><strong data-zh="上下文" data-en="Context">上下文</strong><div class="type-showcase type-body" data-zh="紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。" data-en="A compact supporting frame gives the claim evidence without turning the page into a card wall.">紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。</div></article></div>
           </section>
 
-            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for:
-  - prediction market terminal
-  - quant trading dashboard
-  - AI agent ops console
-  - market simulation
-  - realtime signal scanner
-  - order book and execution cockpit
-  - dense analytics cockpit
-avoid_for:
-  - consumer onboarding
-  - lifestyle marketing
-  - playful mascot flow
-  - low-density SaaS landing page
-  - editorial storytelling
-mood:
-  - realtime
-  - analytical
-  - instrumented
-  - tactical
-  - data-dense
-  - simulation-driven
-source_reference:
-  type: user-provided-screenshots
-  summary: &quot;Dense market and agent-operation screenshots combining prediction-market metrics, dot-matrix numerals, order books, live tapes, topology graphs, mini charts, and red/green signal states in both paper-light and terminal-dark modes.&quot;
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for: [premium service landing, product story, portfolio, cultural guide, design-forward onboarding]
+avoid_for: [dense admin, realtime monitoring, kid education, multi-accent analytics]
+mood: [cinematic, composed, premium, graphic, restrained]
 shape_language:
-  stroke: &quot;Thin 1px instrument borders, stronger outlines only for active trades, selected pipeline steps, and critical signals.&quot;
-  radius: &quot;Small radii, clipped panels, compact rounded chips, and terminal-like segmented controls.&quot;
-  density: &quot;High information density with clear grids, tiny labels, and stable module boundaries.&quot;
-  controls: &quot;Compact buttons and tabs may be below marketing size, but execution actions must remain readable and stable.&quot;
+  stroke: &quot;Flat geometric silhouettes, strong frames, and sparse screen-print-like marks.&quot;
+  radius: &quot;Low radii, sharp composition, and pill controls reserved for interaction.&quot;
+  density: &quot;Spacious composition with one subject and one primary action per section.&quot;
+  controls: &quot;High-contrast controls have explicit focus and disabled treatment.&quot;
 surface_language:
-  canvas: &quot;Theme-dual: paper-light for research/report mode, terminal-dark for live trading or night-monitoring mode.&quot;
-  panels: &quot;Flat instrument panels with thin borders, subtle fills, and minimal elevation.&quot;
-  data_regions: &quot;Tables, tape strips, charts, maps, and pipeline cards sit in fixed modules rather than decorative cards.&quot;
-  emphasis: &quot;Use status fills, signal color, and numeric weight instead of glow-heavy hero treatment.&quot;
+  canvas: &quot;Black is dominant in dark mode; light mode retains strong ink fields rather than becoming generic white SaaS.&quot;
+  panels: &quot;Large uninterrupted fields with one accent color and minimal paper-grain texture.&quot;
+  emphasis: &quot;One accent color carries selected states and narrative emphasis.&quot;
 illustration_language:
-  charts: &quot;Mini candlesticks, sparklines, bar distributions, node graphs, and signal paths are first-class visual material.&quot;
-  topology: &quot;Network graphs and agent paths use dots, lines, and labels rather than figurative illustration.&quot;
-  typography: &quot;Dot-matrix numerals and monospace labels carry the retro terminal character.&quot;
+  imagery: &quot;Products, people, places, and concepts are simplified into recognizable flat graphic forms.&quot;
+  diagrams: &quot;Use a short visual sequence or directional geometry, never a crowded infographic.&quot;
 component_mapping:
-  metric_tape: &quot;Top or bottom live tape for session, UTC, wallet, PnL, win rate, edge, latency, or throughput.&quot;
-  signal_card: &quot;Compact current opportunity, confidence, odds, edge, and recommended action.&quot;
-  order_book: &quot;Bid/ask ladder, size, spread, price, and fill state.&quot;
-  agent_pipeline: &quot;Scan, signal, predict, compare, execute, review, or similar staged process.&quot;
-  topology_map: &quot;Relationship graph, swarm topology, signal path, market cluster, or dependency map.&quot;
-  micro_chart: &quot;Tiny chart module for trend, distribution, PnL, latency, or volume.&quot;
+  graphic_hero: &quot;One illustrated subject, a complete proposition, and one action.&quot;
+  feature_frame: &quot;A focused product benefit inside a bold ink field.&quot;
+  story_sequence: &quot;Three or fewer narrative frames with stable reading order.&quot;
+  callout: &quot;A compact high-contrast note for a quote, proof point, or selected option.&quot;
 motion_language:
-  energy: &quot;Realtime but restrained: blinking live dots, updating numerals, tape scroll, and progress pulse.&quot;
-  limits: &quot;No cyberpunk neon wash, no large hero animation, no decorative particle field that harms data readability.&quot;
-theme_modes:
-  paper_light: &quot;White, warm off-white, pale gray, red/green/gold signal accents, research-report precision.&quot;
-  terminal_dark: &quot;Near-black, deep graphite panels, mint/teal positive states, red negative states, low-glare trading-desk contrast.&quot;
-accessibility:
-  contrast: &quot;Signal color must never be the only state cue; pair color with labels, arrows, signs, or patterns.&quot;
-  density: &quot;Tiny labels are acceptable for chrome, but primary values and actions must remain readable.&quot;
-  stability: &quot;Live updates must not resize panels, tables, or pipeline steps.&quot;" data-style-token-block="--dig-bg: #f5f3ee;
---dig-bg-soft: #ebe8df;
---dig-surface: #fbfaf5;
---dig-surface-strong: #ece9e1;
---dig-surface-elevated: #ffffff;
---dig-text: #171717;
---dig-text-muted: #696b67;
---dig-text-soft: #969892;
---dig-accent: #d4485a;
---dig-accent-strong: #a93242;
---dig-accent-2: #3aa66f;
---dig-accent-2-strong: #24784e;
---dig-border: #d7d3c9;
---dig-border-strong: #20201e;
---dig-grid-line: rgba(24, 24, 22, 0.08);
---dig-control-bg: #f4f2ec;
---dig-control-bg-hover: #ebe7dc;
---dig-success: #3aa66f;
---dig-warning: #c39322;
---dig-danger: #d4485a;
---dig-info: #2784c7;
---dig-font-sans: &quot;Inter&quot;, &quot;IBM Plex Sans&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
---dig-font-display: &quot;IBM Plex Mono&quot;, &quot;Berkeley Mono&quot;, &quot;SFMono-Regular&quot;, Consolas, &quot;Liberation Mono&quot;, monospace;
---dig-font-mono: &quot;IBM Plex Mono&quot;, &quot;Berkeley Mono&quot;, &quot;SFMono-Regular&quot;, Consolas, &quot;Liberation Mono&quot;, monospace;
---dig-font-serif: ui-serif, Georgia, &quot;Times New Roman&quot;, serif;
---dig-text-xs: 10px;
---dig-text-sm: 12px;
---dig-text-md: 14px;
---dig-text-lg: 16px;
---dig-text-xl: 20px;
---dig-text-2xl: 26px;
---dig-text-3xl: 34px;
---dig-text-4xl: 48px;
---dig-text-5xl: 72px;
---dig-leading-tight: 1.02;
---dig-leading-normal: 1.42;
---dig-tracking-tight: 0;
+  energy: &quot;Opacity, clipping, and color changes keep the cinematic pacing controlled.&quot;
+  limits: &quot;No glossy 3D, neon glow, or continuous film-grain animation.&quot;" data-style-token-block="--dig-bg: #f6f0e4;
+--dig-bg-soft: #e9dfcf;
+--dig-surface: #fffaf0;
+--dig-surface-strong: #e8dcc9;
+--dig-surface-elevated: #fffdf7;
+--dig-text: #29231e;
+--dig-text-muted: #665c51;
+--dig-text-soft: #958a7b;
+--dig-accent: #b94731;
+--dig-accent-strong: #8f3020;
+--dig-accent-2: #9e7721;
+--dig-accent-2-strong: #7e5c16;
+--dig-border: #b8a995;
+--dig-border-strong: #29231e;
+--dig-grid-line: rgba(41, 35, 30, 0.11);
+--dig-control-bg: #f0e7d8;
+--dig-control-bg-hover: #e4d8c7;
+--dig-success: #397653;
+--dig-warning: #9e7721;
+--dig-danger: #b6423b;
+--dig-info: #3e6fa8;
+--dig-font-sans: &quot;Inter&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, sans-serif;
+--dig-font-display: &quot;Space Grotesk&quot;, &quot;PingFang SC&quot;, sans-serif;
+--dig-font-mono: &quot;IBM Plex Mono&quot;, Consolas, monospace;
+--dig-font-serif: &quot;Source Han Serif SC&quot;, Georgia, serif;
+--dig-text-xs: 11px;
+--dig-text-sm: 13px;
+--dig-text-md: 16px;
+--dig-text-lg: 20px;
+--dig-text-xl: 28px;
+--dig-text-2xl: 40px;
+--dig-text-3xl: 58px;
+--dig-text-4xl: 78px;
+--dig-text-5xl: 104px;
+--dig-leading-tight: 0.98;
+--dig-leading-normal: 1.48;
+--dig-tracking-tight: -0.035em;
 --dig-radius-sm: 4px;
 --dig-radius-md: 8px;
 --dig-radius-lg: 12px;
@@ -451,36 +260,15 @@ accessibility:
 --dig-radius-pill: 999px;
 --dig-stroke-width: 1px;
 --dig-stroke-width-strong: 2px;
---dig-shadow-panel: 0 1px 0 rgba(24, 24, 22, 0.08), 0 18px 44px rgba(24, 24, 22, 0.08);
---dig-shadow-soft: 0 10px 28px rgba(24, 24, 22, 0.08);
---dig-shadow-chunky: 0 2px 0 #20201e;
---dig-glow-accent: 0 0 0 1px rgba(212, 72, 90, 0.22), 0 16px 28px rgba(212, 72, 90, 0.14);
---dig-glow-secondary: 0 0 0 1px rgba(58, 166, 111, 0.22), 0 16px 28px rgba(58, 166, 111, 0.12);
---dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);
---dig-signal-paper-bg: #f5f3ee;
---dig-signal-paper-panel: #fbfaf5;
---dig-signal-paper-border: #d7d3c9;
---dig-signal-terminal-bg: #080909;
---dig-signal-terminal-panel: #111414;
---dig-signal-terminal-border: #2a302e;
---dig-signal-terminal-text: #f6f8f4;
---dig-signal-terminal-muted: #8f9995;
---dig-signal-terminal-tape-bg: rgba(255, 255, 255, 0.035);
---dig-signal-positive: #4bd8a0;
---dig-signal-negative: #ff5268;
---dig-signal-warning: #c99b24;
---dig-signal-info: #4aa3ff;
---dig-signal-grid-line: rgba(105, 107, 103, 0.18);
---dig-signal-tape-bg: rgba(23, 23, 23, 0.04);
---dig-signal-node: #171717;
---dig-signal-node-active: #d4485a;
---dig-signal-book-bid: rgba(58, 166, 111, 0.22);
---dig-signal-book-ask: rgba(212, 72, 90, 0.2);
---dig-signal-chart-line: #3aa66f;
---dig-signal-chart-fill: rgba(58, 166, 111, 0.14);" data-style-dark-token-block="--dig-bg: #080909; --dig-bg-soft: #0e1111; --dig-surface: #111414; --dig-surface-strong: #171b1a; --dig-surface-elevated: #1d2221;
---dig-text: #f5f7f2; --dig-text-muted: #9ba39f; --dig-text-soft: #69736f; --dig-accent: #ff6476; --dig-accent-2: #4bd8a0;
---dig-border: #2a302e; --dig-border-strong: #c7d0ca; --dig-grid-line: rgba(155, 163, 159, .18); --dig-control-bg: #151918; --dig-control-bg-hover: #202624;
---dig-success: #4bd8a0; --dig-warning: #c99b24; --dig-danger: #ff5268; --dig-info: #4aa3ff;">
+--dig-shadow-panel: 0 1px 0 rgba(245, 239, 223, 0.1);
+--dig-shadow-soft: 0 20px 44px rgba(0, 0, 0, 0.3);
+--dig-shadow-chunky: 0 2px 0 #f5efdf;
+--dig-glow-accent: 0 0 0 1px rgba(225, 86, 56, 0.28);
+--dig-glow-secondary: 0 0 0 1px rgba(230, 196, 95, 0.25);
+--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);" data-style-dark-token-block="--dig-bg: #171615; --dig-bg-soft: #252321; --dig-surface: #211f1d; --dig-surface-strong: #302d29; --dig-surface-elevated: #3b3732;
+--dig-text: #f5efdf; --dig-text-muted: #c2b9a8; --dig-text-soft: #8f877b; --dig-accent: #e15638; --dig-accent-2: #e6c45f;
+--dig-border: #514b43; --dig-border-strong: #f5efdf; --dig-grid-line: rgba(245, 239, 223, .11); --dig-control-bg: #302d29; --dig-control-bg-hover: #413c36;
+--dig-success: #5fb37a; --dig-warning: #e6c45f; --dig-danger: #ee7466; --dig-info: #78aeea;">
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>

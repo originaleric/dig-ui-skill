@@ -33,6 +33,8 @@
 
 `style-catalog` 是和 brand catalog、color palette catalog 并列的抽象。它用于截图风格、非品牌风格、材质/形态/插画/组件气质等完整视觉语法，例如 `cozy-arcade`、`quant-signal-console`。
 
+选择内置 style 前，先读 [styles/README.md](./styles/README.md)。它按任务、avoid 边界与预览 archetype 路由全部 style；一次任务只选择一条 style 作为基础视觉系统。
+
 新建 style catalog 必须放在 `references/catalogs/styles/`，并声明：
 
 ```yaml
@@ -41,13 +43,13 @@ category: styles
 token_contract: style_v1
 ```
 
-Style catalog 必须包含 `## Style Contract` fenced YAML block，并覆盖适用场景、避免场景、mood、shape、surface、illustration、component mapping 和 motion。
+Style catalog 必须包含 `## Style Contract` fenced YAML block，并覆盖适用场景、避免场景、mood、shape、surface、illustration、component mapping 和 motion。`## Dig UI CSS Tokens` 定义 light token，`## Dig UI Dark Tokens` 定义 dark token；两者都必须覆盖核心 surface、text、border、control 与 semantic-state role。
 
 Style catalog 必须显式声明 `render.archetype`。如果没有合适的专属样张，先使用中性的 `token-sheet`，不要让一个 style 默默继承另一个 style 的行业样张。
 
 如果 style 使用专属 render archetype，例如 `mobile-game-companion` 或 `signal-ops-console`，该 archetype 的场景颜色、吉祥物颜色、任务卡颜色、装备槽颜色、信号色、盘口色、拓扑节点色等必须由 catalog token 提供；共享 CSS 只负责结构和 token fallback，不承载某个 style 的私有视觉事实。
 
-Style render 会提供 Style Lab 导出入口，把当前 `Style Contract`、`render.archetype` 和 `--dig-*` token 打包成 `dig.style.export.v1` 的 `customstyle` 资产。导出的 style 通过 `dig-ui-skill style import <file>` 进入 `~/.config/dig-ui-skill/styles/`，再通过 `dig-ui-skill style sync <target|--all>` 同步到 `references/local/styles/`。`customstyle` 属于用户资产，不写回 `references/catalogs/styles/`，也不进入内置 manifest。
+Style render 会提供 Style Lab 导出入口，把当前 `Style Contract`、`render.archetype`、`--dig-*` token 和 `theme_tokens.light` / `theme_tokens.dark` 一并打包成 `dig.style.export.v1` 的 `customstyle` 资产。导出的 style 通过 `dig-ui-skill style import <file>` 进入 `~/.config/dig-ui-skill/styles/`，再通过 `dig-ui-skill style sync <target|--all>` 同步到 `references/local/styles/`。`customstyle` 属于用户资产，不写回 `references/catalogs/styles/`，也不进入内置 manifest。旧版没有 `theme_tokens` 的资产仍可兼容导入，但不能作为双主题 source of truth。
 
 ## Render Intent
 
@@ -73,6 +75,10 @@ render:
 - `finance-mobile-app`：移动优先金融、余额、转账、汇率、卡片控制。
 - `mobile-game-companion`：游戏化移动应用、吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。
 - `signal-ops-console`：高密度实时信号控制台，同时展示 paper-light 与 terminal-dark 下的指标磁带、agent pipeline、拓扑图、盘口和微型图表。
+- `strategy-workspace`：策略建议、证据矩阵、责任人与复盘节点。
+- `research-workbench`：样本、方法、证据和解释的研究工作台。
+- `builder-journey`：模块化学习、搭建和协作路径。
+- `editorial-story`：一个主张、一个支撑信号和一个明确行动的叙事型产品页面。
 - `token-sheet`：默认 fallback，仅展示通用 token 样张。
 
 新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。

@@ -59,6 +59,8 @@ Palette render 会提供 Palette Lab 试色区，用于临时调整 anchor 颜�
 
 Style catalog 适合用户指定「截图风格」「非品牌风格」「材质/形态/插画/组件气质」的场景。它不只回答颜色怎么用，还必须回答 shape、stroke、surface、illustration、motion、component mapping 和适用/不适用场景。
 
+选择具体 style 前，读取 [styles/README.md](./styles/README.md)。它按任务、avoid 边界与 render archetype 路由；多个 style 都可能适用时，优先选择与任务冲突最少的一项。
+
 新建 style catalog 必须放在 `references/catalogs/styles/`，并在 frontmatter 显式声明：
 
 ```yaml
@@ -68,6 +70,8 @@ token_contract: style_v1
 ```
 
 Style 的正式风格事实必须写在 `## Style Contract` 的 fenced YAML block 里。至少覆盖 `best_for`、`avoid_for`、`mood`、`shape_language`、`surface_language`、`illustration_language`、`component_mapping` 和 `motion_language`。CSS token 仍必须写在 `## Dig UI CSS Tokens` 的 fenced CSS block 里。
+
+Style 必须同时提供 `## Dig UI Dark Tokens` fenced CSS block。前者定义 light mode，后者定义 dark mode；两者都必须覆盖 theme contract 的核心 surface、text、border、control 与 semantic-state token。Style Lab 会将它们分别导出为 `theme_tokens.light` 与 `theme_tokens.dark`。
 
 Style catalog 必须显式声明 `render.archetype`。如果没有合适的专属样张，先使用中性的 `token-sheet`，不要让一个 style 默默继承另一个 style 的行业样张。
 
@@ -100,6 +104,10 @@ render:
 - `site-palette-showcase`：色彩目录默认样张，展示整站背景、文字、CTA、卡片、链接和辅助强调。
 - `mobile-game-companion`：游戏化移动应用、吉祥物舞台、任务卡、装备选择、奖励芯片和底部主动作。
 - `signal-ops-console`：高密度实时信号控制台，同时展示 paper-light 与 terminal-dark 下的指标磁带、agent pipeline、拓扑图、盘口和微型图表。
+- `strategy-workspace`：策略建议、证据矩阵、责任人与复盘节点。
+- `research-workbench`：样本、方法、证据和解释的研究工作台。
+- `builder-journey`：模块化学习、搭建和协作路径。
+- `editorial-story`：一个主张、一个支撑信号和一个明确行动的叙事型产品页面。
 - `token-sheet`：默认 fallback，仅展示通用 token 样张。
 
 新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。

@@ -173,6 +173,8 @@ npx dig-ui-skill style show quant-signal-console
 npx dig-ui-skill style sync --all
 ```
 
+`style_v1` Markdown 必须同时包含 `## Dig UI CSS Tokens` 与 `## Dig UI Dark Tokens`。Style Lab 导出的 ZIP 会包含两套 token CSS 与 `theme_tokens.light` / `theme_tokens.dark`；旧版 JSON 资产仍可导入，但不具备双主题事实源资格。
+
 示例：
 
 ```bash
@@ -191,7 +193,7 @@ npx dig-ui-skill render all
 npx dig-ui-skill validate renders
 ```
 
-`render` 用于生成 catalog 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、layout/block Markdown 协议完整性和 catalog preview switching。
+`render` 用于生成 catalog 运维预览；`validate renders` 会检查 render ops 资产、双语 parity、layout/block Markdown 协议完整性、catalog preview switching，以及 style 的 light/dark token、主题控件和导出契约。
 
 Layout 和 Block 不再生成 HTML render 页面；它们是 Markdown 协议资产。Markdown、shared manifest 和 catalog token 仍是 source of truth。
 

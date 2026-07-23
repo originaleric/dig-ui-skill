@@ -33,6 +33,15 @@ dig-ui-skill validate renders
 
 `render all` is kept as a convenience alias for catalog render sync.
 
+## Style Render Integrity
+
+For `style-catalog` previews, Markdown remains the source of truth and the render must expose it without drift:
+
+- `## Dig UI CSS Tokens` is the light token map and `## Dig UI Dark Tokens` is the dark token map; both are required by `style_v1`.
+- The preview must switch modes by replacing token values only, persist the selected mode, and keep its component structure unchanged.
+- Style Lab exports both maps as `theme_tokens.light` / `theme_tokens.dark`, plus light and dark token CSS files. The exported JSON must be importable by `dig-ui-skill style import`.
+- Re-running catalog sync must be idempotent: one preview owns one dark-token override and one theme control.
+
 ## Layout / Block Review
 
 - Layout recipes must document slots, applicable scenarios, avoid-when rules, responsive behavior, and QA notes.

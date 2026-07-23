@@ -25,13 +25,13 @@ AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很�
 
 ## 当前包含
 
-- 76 个 catalog 预览，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业、Dig 原生风格、色彩目录和 style catalog。
+- 86 个 catalog 预览，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业、Dig 原生风格、色彩目录和 style catalog。
 - 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
 - `renders/index.html` 静态 catalog 视觉预览 Hub。
 - 支持 `references/catalogs/palettes/` 下的 color palette catalog，首条为 `palette01`。
 - Palette render 内置 Palette Lab，可临时试色、导出包含 JSON + HTML 的 ZIP，并把用户自定义 palette 导入 `~/.config/dig-ui-skill/palettes/`。
-- 支持 `references/catalogs/styles/` 下的 style catalog，首批为 `cozy-arcade` 和 `quant-signal-console`。
-- Style render 内置 Style Lab，可把完整 `Style Contract`、render archetype 和 `--dig-*` token 导出为用户自定义 style，并导入 `~/.config/dig-ui-skill/styles/`。
+- 支持 `references/catalogs/styles/` 下的 style catalog，内置 `cozy-arcade`、`quant-signal-console`、`strategy-report`、`research-lab`、`brick-builder`、`archive-dotmatrix`、`concept-minimal`、`semantic-translation`、`business-editorial`、`torn-editorial-collage`、`midcentury-noir` 与 `cel-sci-fi`。
+- Style render 内置 Style Lab，可切换并导出完整 light/dark token map（`theme_tokens.light` / `theme_tokens.dark`）、`Style Contract`、render archetype 和 `--dig-*` token，作为用户自定义 style 导入 `~/.config/dig-ui-skill/styles/`。
 - Layout 和 Block 是 Markdown 协议资产，分别维护在 `references/layouts/` 与 `references/blocks/`。
 - 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
 - Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
@@ -94,6 +94,8 @@ npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
+
+`style_v1` Markdown 必须同时提供 `## Dig UI CSS Tokens` 与 `## Dig UI Dark Tokens`。旧版没有 `theme_tokens` 的 JSON 资产仍可兼容导入，但不能作为双主题的 source of truth。
 
 直接运行 DigKit bridge 协议：
 

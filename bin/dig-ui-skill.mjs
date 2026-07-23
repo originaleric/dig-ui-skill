@@ -1399,6 +1399,25 @@ function assertStyleTokenContract(tokens, archetype, sourcePath, label) {
   }
 }
 
+function assertStyleThemeTokenContract(themeTokens, archetype, sourcePath, label) {
+  if (!themeTokens || typeof themeTokens !== "object") {
+    throw new Error(`${label} missing theme token maps (${sourcePath})`);
+  }
+  const requiredThemeRoles = [
+    "--dig-bg", "--dig-bg-soft", "--dig-surface", "--dig-surface-strong", "--dig-surface-elevated",
+    "--dig-text", "--dig-text-muted", "--dig-text-soft", "--dig-accent", "--dig-accent-2",
+    "--dig-border", "--dig-border-strong", "--dig-grid-line", "--dig-control-bg", "--dig-control-bg-hover",
+    "--dig-success", "--dig-warning", "--dig-danger", "--dig-info",
+  ];
+  for (const mode of ["light", "dark"]) {
+    for (const tokenRole of requiredThemeRoles) {
+      if (!hasMeaningfulStyleTokenValue(themeTokens[mode]?.[tokenRole])) {
+        throw new Error(`${label} ${mode} theme missing token role ${tokenRole} (${sourcePath})`);
+      }
+    }
+  }
+}
+
 function validateStyleMarkdown(markdown, sourcePath) {
   const fields = parseFrontmatterFields(markdown);
   if (fields.kind !== "style-catalog") {
@@ -1425,6 +1444,19 @@ function validateStyleMarkdown(markdown, sourcePath) {
     throw new Error(`Style Markdown must include Dig UI CSS Tokens fenced css block (${sourcePath})`);
   }
   assertStyleTokenContract(parseStyleCssTokens(tokenBlock), archetype, sourcePath, "Style Markdown");
+  const darkTokenBlock = extractMarkdownFencedCodeBlock(markdown, "Dig UI Dark Tokens", "css");
+  if (!darkTokenBlock) {
+    throw new Error(`Style Markdown must include Dig UI Dark Tokens fenced css block (${sourcePath})`);
+  }
+  assertStyleThemeTokenContract(
+    {
+      light: parseStyleCssTokens(tokenBlock),
+      dark: parseStyleCssTokens(darkTokenBlock),
+    },
+    archetype,
+    sourcePath,
+    "Style Markdown",
+  );
   return { slug: fields.slug, name: fields.name_zh || fields.name_en || fields.name || fields.slug };
 }
 
@@ -1448,6 +1480,9 @@ function validateStyleJsonPayload(payload, sourcePath) {
     throw new Error(`Style payload missing style_contract (${sourcePath})`);
   }
   assertStyleTokenContract(payload.tokens, payload.render.archetype, sourcePath, "Style payload");
+  if (payload.theme_tokens) {
+    assertStyleThemeTokenContract(payload.theme_tokens, payload.render.archetype, sourcePath, "Style payload");
+  }
   return {
     ...payload,
     user_asset: {

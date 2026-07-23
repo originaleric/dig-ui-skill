@@ -169,6 +169,15 @@ accessibility:
 --dig-game-on-accent: #ffffff;
 ```
 
+## Dig UI Dark Tokens
+
+```css
+--dig-bg: #1f1715; --dig-bg-soft: #2b211e; --dig-surface: #352823; --dig-surface-strong: #423027; --dig-surface-elevated: #4e392e;
+--dig-text: #fff6df; --dig-text-muted: #dcc6a9; --dig-text-soft: #9f8c77; --dig-accent: #ff8a7e; --dig-accent-2: #7ce0ad;
+--dig-border: #6b5141; --dig-border-strong: #fff0c9; --dig-grid-line: rgba(255, 246, 223, .11); --dig-control-bg: #3b2d26; --dig-control-bg-hover: #4a382e;
+--dig-success: #67c98d; --dig-warning: #ffd06c; --dig-danger: #ff7772; --dig-info: #75c8ff;
+```
+
 The `--dig-game-*`, `--dig-mascot-*`, `--dig-mission-*`, `--dig-coach-*`, and `--dig-gear-*` tokens are archetype tokens for the `mobile-game-companion` render. They keep the shared preview reusable: the archetype owns structure, while this style owns the cartoon world, mascot, and game-loop surface colors.
 
 ## Component Rules

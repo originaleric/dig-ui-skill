@@ -65,6 +65,8 @@ using <layout> layout + <catalog> catalog.
 
 用户明确指定本地 style 资产或复用已导出的风格时使用 `customstyle`。同一页面或同一组组件不要混用多个 base catalog。
 
+当决定使用内置 style catalog 时，读取 `references/catalogs/styles/README.md` 后再选择具体 style。它按任务、avoid 边界与 render archetype 路由，避免仅因颜色或标题气质相似而误选 style。
+
 ### 4. 选择 blocks
 
 涉及常见组件或业务模块时，读取 `references/blocks/README.md` 和相关 block 文件。优先使用 block 协议，不临时发明重复结构。
