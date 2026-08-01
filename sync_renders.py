@@ -650,7 +650,6 @@ def build_palette_lab_section(support_candidates=None):
         f'''              <label class="palette-lab-row">
                 <span class="palette-lab-role" data-zh="{label_zh}" data-en="{label_en}">{label_zh}</span>
                 <span class="palette-lab-token">{token}</span>
-                <span class="palette-lab-swatch" data-palette-swatch="{role}"></span>
                 <input class="palette-lab-input" data-palette-input="{role}" inputmode="text" maxlength="9" aria-label="{label_en} hex" />
                 <input class="palette-lab-color" data-palette-color="{role}" type="color" aria-label="{label_en} color picker" />
               </label>'''
@@ -1832,15 +1831,11 @@ def main():
             const value = cssColorToHex(getTokenValue(token));
             const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
             const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
-            const swatch = lab.querySelector(`[data-palette-swatch="${role}"]`);
             if (textInput && value && textInput.value.toUpperCase() !== value) {
               textInput.value = value;
             }
             if (colorInput && value && colorInput.value.toUpperCase() !== value) {
               colorInput.value = value;
-            }
-            if (swatch && value) {
-              swatch.style.background = value;
             }
           });
 

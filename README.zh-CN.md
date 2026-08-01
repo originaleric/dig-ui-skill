@@ -1,68 +1,72 @@
-# Dig UI Skill
+<p align="center">
+  <img src="./assets/dig-mark.png" width="72" alt="Dig UI logo">
+</p>
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
-[![npm package](https://img.shields.io/badge/npm-dig--ui--skill-red.svg)](https://www.npmjs.com/package/dig-ui-skill)
+<h1 align="center">Dig UI Skill</h1>
 
-> 面向 Codex、Cursor、Claude Code 的 prompt-as-code 设计系统资产。
+<p align="center">
+  面向产品 UI 的 Agent 可读设计系统。
+</p>
 
-`dig-ui-skill` 是一套 AI-first 的前端设计系统。它不以传统组件库的方式发布，而是把设计规则、视觉 catalog、layout recipe、token 协议和静态预览组织成结构化 Markdown，并通过 CLI 提供安装同步与 DigKit bridge runtime，让 AI 编程 Agent 能稳定生成符合 Dig 气质的产品 UI。
+<p align="center">
+  一条命令，让 Codex、Cursor 和 Claude Code 拥有一套可持续使用的 UI 设计语言。
+</p>
 
-[English README](./README.md) · [安装指南](./INSTALL.md) · [使用指南](./USAGE.md)
+<p align="center">
+  <a href="./README.md">English</a> ·
+  <a href="./INSTALL.zh-CN.md">安装指南</a> ·
+  <a href="./USAGE.zh-CN.md">使用指南</a> ·
+  <a href="./renders/index.html">Catalog 预览</a> ·
+  <a href="#user-content-personal-customization">个人定制</a> ·
+  <a href="#最新动态">最新动态</a> ·
+  <a href="#你可以构建什么">你可以构建什么</a> ·
+  <a href="#路线图">路线图</a>
+</p>
 
-## 为什么需要它
+<p align="center">
+  <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
+  <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-86-0071e3">
+  <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
+  <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
+</p>
 
-AI 很擅长快速生成界面，但如果没有清晰的设计语言，它很容易在颜色、间距、信息密度、响应式顺序和交互细节上漂移。Dig UI Skill 把这些隐性规则显性化：
+<p align="center">
+  <img src="./assets/readme-hero.png" alt="Dig UI Skill 预览" width="100%">
+</p>
 
-- **Global Rules**：定义跨项目行为，例如 i18n、dark/light、控件形态、页面/组件一致性、select 用法和交互纪律。规则以英文为主规范，并提供中文翻译对照。
-- **Dig Read**：定义 Agent 的第一轮判断：先识别任务、选择 layout/catalog/block 资产，并给出信息密度、品牌表达、交互能量和任务关键性 dials。
-- **Catalogs**：定义视觉气质，例如颜色 token、字体、surface、圆角、按钮、组件映射、以配色为入口的 palette 系统和完整 style 语法。
-- **Layout Recipes**：定义信息结构，例如 slot、grid、主次关系、响应式顺序和 QA Notes。
-- **Blocks**：定义可复用 primitive 和 product module 协议，例如 input、modal、runtime log stream、table toolbar、notification item、search result row、settings row。
-- **Anti-Tells / Preflight / Workflows**：过滤 AI 常见坏味道，并把 review、redesign、execution 等任务变成可重复流程。
-- **Rendered Previews**：提供 catalog 视觉语言预览，便于人类先确认风格方向。
-- **Local Extensions**：通过 `references/local/` 沉淀项目级 layout / block / palette / style，而不 fork 官方资产。
-- **CLI Installers / Bridge Runtime**：把同一套 skill 同步安装到 Codex、Cursor 和 Claude Code，并提供稳定的 DigKit `ui.design` 文件协议。
-
-## 当前包含
-
-- 86 个 catalog 预览，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车工业、Dig 原生风格、色彩目录和 style catalog。
-- 20 套 layout recipe，覆盖 dashboard、docs、runtime console、table workspace、settings、onboarding、pricing、search、auth、marketing 等页面类型。
-- `renders/index.html` 静态 catalog 视觉预览 Hub。
-- 支持 `references/catalogs/palettes/` 下的 color palette catalog，首条为 `palette01`。
-- Palette render 内置 Palette Lab，可临时试色、导出包含 JSON + HTML 的 ZIP，并把用户自定义 palette 导入 `~/.config/dig-ui-skill/palettes/`。
-- 支持 `references/catalogs/styles/` 下的 style catalog，内置 `cozy-arcade`、`quant-signal-console`、`strategy-report`、`research-lab`、`brick-builder`、`archive-dotmatrix`、`concept-minimal`、`semantic-translation`、`business-editorial`、`torn-editorial-collage`、`midcentury-noir` 与 `cel-sci-fi`。
-- Style render 内置 Style Lab，可切换并导出完整 light/dark token map（`theme_tokens.light` / `theme_tokens.dark`）、`Style Contract`、render archetype 和 `--dig-*` token，作为用户自定义 style 导入 `~/.config/dig-ui-skill/styles/`。
-- Layout 和 Block 是 Markdown 协议资产，分别维护在 `references/layouts/` 与 `references/blocks/`。
-- 从 taste-skill 借鉴的 Dig Read 与产品化 dials：`references/dig-read.md`。
-- Dig 反模式过滤、交付前 gate 与工作流：`references/anti-tells.md`、`references/preflight.md`、`references/workflows/`。
-- `npm run validate:renders` Render Ops 与 parity 校验。
-- 通过 `dig-ui-skill run --input-json <path> --output-json <path>` 提供 DigKit bridge runtime。
-- 基于 `~/.config/dig-ui-skill/global-rules.local.md` 的个人规则同步。
-- 基于 `~/.config/dig-ui-skill/palettes/` 与 `~/.config/dig-ui-skill/styles/` 的个人 palette/style 同步。
-
-## Highlight：通过 AI Agent 沉淀个人规则
-
-Dig UI 允许用户直接把长期 UI 偏好教给 Codex、Cursor 或 Claude Code，不需要额外配置任何 AI API key。你可以这样说：
+Dig UI Skill 是面向 AI 编程 Agent 的 prompt-as-code 设计系统。它不是传统的组件库；它为 Agent 提供 catalog、layout recipe、block contract、workflow、本地扩展规则和可视化预览，让产品界面能稳定地延续同一种设计语言。
 
 ```text
-使用 dig-ui。把这个加入我的本地 global rules：
-Header 保持紧凑并固定顶部，右侧放语言切换、主题切换和用户菜单。
-```
-
-Agent 会读取 `references/local-rules-builder.md`，写入 `~/.config/dig-ui-skill/global-rules.local.md`，再同步到已安装工具。也可以用 CLI helper 做机械写入：
-
-```bash
-npx dig-ui-skill local add --section "Header / Topbar" "Header stays compact and sticky."
+Catalog 提供品味。
+Palette 与 Style 提供扩展性。
+个人规则提供所有权。
+Layout 与 Block 提供结构。
+Workflow 让过程可以重复。
 ```
 
 ## 快速开始
 
-安装到某个 AI 工具：
+安装到一个 AI 工具：
 
 ```bash
 npx dig-ui-skill install codex
 npx dig-ui-skill install cursor
 npx dig-ui-skill install claude-code
+```
+
+安装到所有支持的工具并查看状态：
+
+```bash
+npx dig-ui-skill install --all
+npx dig-ui-skill status
+```
+
+在对话中这样使用：
+
+```text
+使用 Dig UI。先阅读 references/dig-read.md，使用 dashboard-overview layout，
+应用 dig catalog，并在交付前执行 preflight。
 ```
 
 选择安装语言：
@@ -72,249 +76,263 @@ npx dig-ui-skill install codex --lang zh-CN
 npx dig-ui-skill install codex --lang en
 ```
 
-一次安装到所有支持工具：
+<a name="personal-customization"></a>
 
-```bash
-npx dig-ui-skill install --all
-npx dig-ui-skill status
+## <img src="./assets/readme-personalization-title-zh-CN.png" alt="个人定制" height="24">
+
+让 Agent 记住你希望长期保留的 UI 判断。Dig UI Skill 会将自然语言偏好沉淀为用户拥有的规则、palette 与 style，并在 Codex、Cursor 和 Claude Code 之间保持一致。
+
+<p align="center">
+  <img src="./assets/readme-personalization.png" alt="自然语言 UI 偏好保存为用户配置并同步到多个 AI 工具" width="100%">
+</p>
+
+| 保留 | 拥有 | 同步 |
+| --- | --- | --- |
+| 需要持续生效的 layout、密度、层级和交互偏好。 | 仓库外的 `global-rules.local.md`、custom palette 与 custom style。 | 将同一份个人资产同步到每个已安装的 AI 工具。 |
+
+直接告诉 Agent 你想保留什么：
+
+```text
+使用 dig-ui。把这条加入我的 local rules：
+Dashboard toolbar 的 filter 保持在左侧，primary action 保持在右侧，默认使用紧凑密度。
 ```
 
-导入从 Palette Lab 导出的自定义 palette：
+Agent 会遵循 `references/local-rules-builder.md`，把规则写入 `~/.config/dig-ui-skill/global-rules.local.md`，并完成同步；不需要 fork 官方资产，也不需要额外配置 AI API key。
 
 ```bash
-npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip codex
+npx dig-ui-skill local add --section "Toolbars / Filters / Actions" "Keep filters left and primary actions right."
+npx dig-ui-skill palette sync --all
+npx dig-ui-skill style sync --all
+```
+
+## 最新动态
+
+| 日期 | 更新 | 意义 |
+| --- | --- | --- |
+| **2026-07-23** | **Style 路由与双主题预览**上线。 | 内置 style 按任务和避坑边界路由；Style Lab 将完整的 light/dark token map 作为用户资产导出。 |
+| **2026-07-13** | **DigKit Bridge Runtime**上线，支持 `dig-ui-skill run --input-json <path> --output-json <path>`。 | DigKit 能通过 `ui.design` bridge 调用真实 binary，并获得稳定的设计 envelope、可选 artifact 与 apply plan。 |
+| **2026-07-10** | **Color Palette Catalog 与 Palette Lab**上线。 | 可以从颜色优先的 catalog 开始，在 Palette Lab 调整锚点色，导出 ZIP，并在工具间同步自定义 palette。 |
+| **2026-06-29** | **Layout 与 Block render**不再作为规范预览。 | Catalog 保留视觉 render；layout 与 block 保持为 Markdown contract，避免结构和行为出现第二份视觉真源。 |
+| **2026-06-28** | **Dig Read、dials、anti-tells、preflight 与 workflows**完成整合。 | Agent 会在写 UI 前选择 layout、catalog、block、密度、品牌表达、交互能量和交付检查。 |
+
+## 你可以构建什么
+
+| 你的目标 | Dig UI Skill 会帮助你 | 从这里开始 |
+| --- | --- | --- |
+| 审查已有 UI | 检查 layout 一致性、catalog 匹配度、缺失状态、响应式行为和常见 AI UI 漂移。 | `references/workflows/review.md` |
+| 生成产品 dashboard | 选择 layout recipe，应用 catalog，使用 block contract，并运行 preflight。 | `references/layouts/dashboard-overview.md` |
+| 构建 agent/runtime 执行界面 | 使用 execution workflow、日志 block、步骤时间线和高密度操作型表面。 | `references/layouts/agent-run-detail.md` |
+| 定制色彩系统 | 从 palette catalog 开始，通过 Palette Lab 导出并同步 custom palette。 | `references/catalogs/palettes/` |
+| 沉淀完整视觉语法 | 导出 style contract，并同步为本地 custom style。 | `references/catalogs/styles/` |
+| 教会 Agent 你的 UI 偏好 | 在仓库外持久化 local global rules、palette 和 style。 | `references/local-rules-builder.md` |
+| 集成 DigKit | 通过文件型 `ui.design` bridge protocol 调用 binary。 | `dig-ui-skill run --input-json input.json --output-json output.json` |
+
+## 核心系统
+
+| 层级 | 职责 | 入口 |
+| --- | --- | --- |
+| **Dig Read** | 任务的第一轮判断、资产选择与产品 dials。 | `references/dig-read.md` |
+| **Catalog** | 73 套产品 UI 视觉语言：token、排版、surface、组件、密度和气质。 | `references/catalogs/` |
+| **Palette** | 颜色优先的定制、Palette Lab 与可导入的 palette contract。 | `references/catalogs/palettes/` |
+| **Style** | 完整视觉语法、render archetype、双主题 token 与 custom style 导出。 | `references/catalogs/styles/` |
+| **Layouts** | 信息架构、slot、响应式顺序与 QA notes。 | `references/layouts/` |
+| **Blocks** | 可复用 primitive 与产品模块的行为 contract。 | `references/blocks/` |
+| **Workflows** | 可重复的 review、redesign、execution 与 image-reference 流程。 | `references/workflows/` |
+| **Preflight** | 对状态、结构、catalog 选择和反模式的交付 gate。 | `references/preflight.md` |
+
+## Catalogs
+
+每个页面或组件组只选择一套基础 catalog。Catalog 提供成熟的产品 UI 语言，Palette 从颜色关系切入，Style 则携带完整的视觉语法。
+
+### Catalog
+
+<p align="center">
+  <img src="./assets/readme-catalog-detail.png" alt="Catalog 的 token、排版、surface 与颜色角色" width="100%">
+</p>
+
+当你已有成熟产品界面、已知视觉语言，或需要可靠默认基线时，从这里开始。Catalog 是 Agent 可读的设计 contract，不是照抄用的截图，也不是要导入的组件包。
+
+**包含：**73 套产品 UI catalog，覆盖 AI、SaaS、金融科技、开发工具、DevOps、创意工具、电商、媒体、汽车与 Dig 基础风格。可以从 `dig`、`mono`、`wise`、`apple` 开始，并在 [`renders/index.html`](./renders/index.html) 浏览完整预览。
+
+**如何定制：**保留内置 catalog 作为视觉基线，再通过 local global rules、layout 和 block 加入项目约束。个人偏好应放入 local assets，而不是 fork 一套官方 catalog。
+
+### Palette
+
+<p align="center">
+  <img src="./assets/readme-palette-detail.png" alt="Palette Lab 的颜色锚点与角色映射" width="100%">
+</p>
+
+当颜色关系是主要决策时，从这里开始：锚点色、现有色板、整体氛围或站点级颜色系统。
+
+**包含：**内置 palette catalog 与 Palette Lab；它将 canvas、ink、primary、support 和语义角色映射为可用的 Dig token。
+
+**如何定制：**在 Palette Lab 调整锚点色，导出 `custompalette`，再导入并同步到各工具：
+
+```bash
+npx dig-ui-skill palette import ~/Downloads/palette01.custompalette.zip codex
 npx dig-ui-skill palette list
 npx dig-ui-skill palette sync --all
 ```
 
-导入从 Style Lab 导出的自定义 style：
+用户 palette 保存在 `~/.config/dig-ui-skill/palettes/`，同步到 `references/local/palettes/`，不会改动内置 catalog 集。
+
+### Style
+
+<p align="center">
+  <img src="./assets/readme-style-detail.png" alt="Quant Signal Console 的对比 UI surface 样张" width="100%">
+</p>
+
+当你需要的不只是主题色时，从这里开始。Style 会将材质选择、surface 行为、组件气质、render archetype 和完整 light/dark token contract 一起带入任务。
+
+**包含：**12 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`business-editorial` 与 `research-lab`。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
+
+**如何定制：**从 Style Lab 导出 `customstyle`，再导入并同步到各工具：
 
 ```bash
-npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260712-120000.zip codex
+npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle.zip codex
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
 
-`style_v1` Markdown 必须同时提供 `## Dig UI CSS Tokens` 与 `## Dig UI Dark Tokens`。旧版没有 `theme_tokens` 的 JSON 资产仍可兼容导入，但不能作为双主题的 source of truth。
+用户 style 保存在 `~/.config/dig-ui-skill/styles/`，同步到 `references/local/styles/`。它们始终是用户资产，不会成为内置 catalog 条目。
 
-直接运行 DigKit bridge 协议：
+## Layout 与 Blocks
 
-```bash
-dig-ui-skill run --input-json input.json --output-json output.json
+Catalog 定义外观，layout 定义结构，block 定义可重复的 UI 行为。
+
+Dig UI Skill 包含 **20 套 layout recipe**，覆盖 dashboard、docs、runtime console、table workspace、settings form、onboarding、pricing、search、auth 和 marketing 页面。
+
+Block 覆盖基础控件和产品模块：
+
+```text
+button, input, select, tooltip, modal, tabs
+table-toolbar, runtime-log-stream, run-status-header
+step-timeline, settings-row, notification-item, search-result-row
 ```
 
-bridge 会读取 DigKit `ui.design` 请求，并写出包含 `summary`、`task`、`catalog`、`layout`、`metadata`、可选 `artifact_outputs` 与可选 `dig-ui-skill.apply_plan.v1` 的 JSON envelope。artifact 物化、审批、workspace policy 与文件写入由 DigKit 负责。
+核心路径：
 
-## 在各工具中使用
+```text
+references/layouts/
+references/blocks/
+references/shared/layout-manifest.yaml
+references/shared/block-manifest.yaml
+```
+
+## Workflows
+
+Workflow 让 Dig UI Skill 不只是静态资产库，而是一套可重复的 Agent 工作方式。
+
+```text
+references/workflows/review.md
+references/workflows/redesign.md
+references/workflows/execution.md
+references/workflows/image-reference.md
+references/anti-tells.md
+references/preflight.md
+```
+
+它们支持审查既有 UI、在保留业务含义的前提下重新设计界面、构建 execution/runtime 页面、从视觉参考翻译实现，并在交付前过滤常见 AI UI 漂移。
+
+## 在 AI 工具中使用
 
 ### Codex
-
-安装：
 
 ```bash
 npx dig-ui-skill install codex
 ```
 
-然后在任意项目中新开 Codex 会话，明确要求使用 Dig UI：
-
 ```text
-使用 dig-ui skill。请按 Dig catalog 和 dashboard-overview layout 审查这个页面。
-```
-
-后续更新：
-
-```bash
-npx dig-ui-skill update codex
+使用 dig-ui skill。按照 Dig catalog 和 dashboard-overview layout 审查这个页面。
 ```
 
 ### Cursor
 
-安装个人 skill：
-
 ```bash
 npx dig-ui-skill install cursor
-```
-
-如果希望某个仓库更稳定地触发 Dig UI，再安装项目 rule：
-
-```bash
 npx dig-ui-skill install cursor --project /path/to/your/repo
 ```
 
-然后在 Cursor 里这样要求：
-
 ```text
-使用 Dig UI。请把这个页面对齐 references/layouts/settings-form.md，并应用 references/catalogs/other/dig.md。
-```
-
-后续更新：
-
-```bash
-npx dig-ui-skill update cursor
+使用 Dig UI。将 references/layouts/settings-form.md 和 references/catalogs/other/dig.md 应用到这个界面。
 ```
 
 ### Claude Code
 
-安装：
-
 ```bash
 npx dig-ui-skill install claude-code
-# 别名
 npx dig-ui-skill install claude
 ```
 
-然后用 `/dig-ui`（如果可用）或自然语言触发：
-
 ```text
-使用 Dig UI 重构这个界面。先采用 runtime-console layout，再应用 mono catalog。
+使用 Dig UI 重构这个界面。从 runtime-console layout 开始，并应用 mono catalog。
 ```
 
-后续更新：
+## DigKit Bridge
+
+直接运行 DigKit bridge protocol：
 
 ```bash
-npx dig-ui-skill update claude-code
+dig-ui-skill run --input-json input.json --output-json output.json
 ```
 
-本仓库开发时，从当前目录作为 source 安装：
+Bridge 读取 DigKit 的 `ui.design` request，并写出 JSON envelope，其中包含 `summary`、`task`、`catalog`、`layout`、`metadata`、可选的 `artifact_outputs` 与可选的 `dig-ui-skill.apply_plan.v1`。DigKit 负责 artifact 物化、审批、workspace policy 和文件写入。
 
-```bash
-node bin/dig-ui-skill.mjs install cursor --source .
-node bin/dig-ui-skill.mjs install --all --source .
-```
+## 示例
 
-## 日常使用方式
-
-先执行 Dig Read：
+审查一个 UI：
 
 ```text
-references/dig-read.md
+使用 Dig UI。用 references/workflows/review.md、references/layouts/settings-form.md 和 references/catalogs/other/dig.md 审查这个 settings 页面。
 ```
 
-用它识别 task type、目标用户/任务、候选 layout、catalog 和 dials：
+生成运行界面：
 
 ```text
-execution page for engineers debugging an agent run,
-using agent-run-detail layout + mono catalog.
-
-INFORMATION_DENSITY: 8
-BRAND_EXPRESSIVENESS: 3
-INTERACTION_ENERGY: 6
-OPERATIONAL_CRITICALITY: 9
+使用 Dig UI。使用 agent-run-detail layout、mono catalog、run-status-header、step-timeline 和 runtime-log-stream blocks 构建 agent 运行详情页。
 ```
 
-再选 layout recipe：
+定制个人品味：
 
 ```text
-references/layouts/dashboard-overview.md
+使用 Dig UI。添加一条 local rule：dashboard toolbar 默认保持紧凑，filter 在左，primary action 在右。
 ```
 
-再选 catalog：
-
-```text
-references/catalogs/other/dig.md
-references/catalogs/other/mono.md
-references/catalogs/fintech/wise.md
-references/catalogs/media-consumer/apple.md
-```
-
-然后让 AI 编程 Agent 组合它们：
-
-```text
-先使用 references/dig-read.md。
-使用 references/layouts/dashboard-overview.md 作为结构。
-使用 references/catalogs/other/dig.md 作为视觉语言。
-交付前使用 references/anti-tells.md 和 references/preflight.md。
-文案必须进入 i18n 字典，支持 dark/light，并使用 token 化控件。
-```
-
-修改 catalog 后同步完整 Render Ops：
-
-```bash
-dig-ui-skill render all
-dig-ui-skill validate renders
-```
-
-## 目录结构
+## 仓库结构
 
 ```text
 dig-ui-skill/
-├── SKILL.md                         # Codex 兼容工具读取的 skill 入口
+├── SKILL.md                         # 供 Codex 兼容工具使用的 skill 入口
 ├── references/
 │   ├── global-rules.md              # 跨 catalog 行为规则
-│   ├── global-rules.zh-CN.md        # global rules 中文翻译
-│   ├── global-rules.local.example.md
-│   ├── dig-read.md                  # Agent 任务判断与 Dig 产品 dials
-│   ├── tokens.md                    # 共享 token 协议
-│   ├── primitives.md                # 基础布局与交互规则
-│   ├── shared/                      # layout/catalog/block 稳定 manifest
-│   ├── workflows/                   # 可复用 Agent 工作流
-│   ├── blocks/                      # Block library；源码维护 .en.md / .zh-CN.md 兄弟文件
-│   ├── local/                       # 项目级 layout/block 扩展与同步后的用户 palette/style
-│   ├── anti-tells.md                # 已安装语言的 Dig 反模式过滤
-│   ├── preflight.md                 # 已安装语言的交付前 gate
-│   ├── catalogs/                    # 视觉 catalog；源码维护 .en.md / .zh-CN.md 兄弟文件
-│   └── layouts/                     # Layout recipe；源码维护 .en.md / .zh-CN.md 兄弟文件
-├── renders/                         # catalog 静态预览产物
-├── assets/                          # Catalog 预览 CSS 与 Dig 视觉资产
-├── adapters/                        # 工具适配模板
+│   ├── dig-read.md                  # Agent 任务判断与产品 dials
+│   ├── catalogs/                    # Catalog、palette 与 style 资产
+│   ├── layouts/                     # Layout recipe
+│   ├── blocks/                      # Primitive 与产品 block contract
+│   ├── workflows/                   # 可重复的 Agent workflow
+│   ├── local/                       # 项目级扩展
+│   ├── anti-tells.md                # 常见 AI UI 漂移过滤器
+│   └── preflight.md                 # 交付 gate
+├── renders/                         # 静态 catalog 预览产物
+├── assets/                          # README 资源和 catalog 预览 CSS
+├── adapters/                        # 工具适配器
 ├── agents/                          # Agent 元数据
-├── bin/dig-ui-skill.mjs             # 安装、同步与 DigKit bridge CLI
-├── sync-renders.sh                  # Render 同步入口
-├── sync_renders.py                  # Catalog 预览编译器
-├── validate-dig-catalog-preview.mjs # Catalog QA 校验器
-└── validate-dig-render-ops.mjs      # Render Ops 与 parity 校验器
+└── bin/dig-ui-skill.mjs             # 安装、同步与 bridge CLI
 ```
 
-## Render Ops 与 Local Extensions
+## 路线图
 
-Render Ops 只有一个维护视图：
+| 方向 | 状态 |
+| --- | --- |
+| README 开源化与 hero 资源 | 进行中 |
+| NOTICE 与商标/来源边界说明 | 公开发布前计划完成 |
+| CONTRIBUTING 指南与 good-first-issue 标签 | 公开发布前计划完成 |
+| 更多 palette catalog | 计划中 |
+| 更多 style catalog 与 render archetype | 计划中 |
+| 更多面向 agent/runtime UI 的产品 block contract | 计划中 |
+| DigKit bridge schema 加固与真实 binary smoke coverage | 进行中 |
 
-```text
-renders/index.html          # catalog hub
-```
-
-Layout 和 Block 通过 Markdown contract、manifest 与 QA Notes 维护，不再生成 HTML render 页面。项目级资产放在 `references/local/`。local layout / block 优先用 `extends`，真正替换官方行为时放到 `references/local/overrides/`，并写明 owner 和 reason。
-
-## 个人规则
-
-团队默认规则在：
-
-```text
-references/global-rules.md
-```
-
-该文件是英文主规范。中文翻译在：
-
-```text
-references/global-rules.zh-CN.md
-```
-
-个人覆写规则建议放在仓库外：
-
-```text
-~/.config/dig-ui-skill/global-rules.local.md
-```
-
-初始化并同步：
-
-```bash
-npx dig-ui-skill init-local
-npx dig-ui-skill sync-local --all --from-config
-```
-
-宿主 Agent 可以帮你写个人偏好，不需要额外配置 API key。你可以直接要求 Codex、Cursor 或 Claude Code 使用 Dig UI 更新本地 global rules；Agent 会读取 `references/local-rules-builder.md`，写入 `~/.config/dig-ui-skill/global-rules.local.md`，再同步到各工具。
-
-也可以使用 CLI helper：
-
-```bash
-npx dig-ui-skill local path
-npx dig-ui-skill local show
-npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
-```
-
-仓库已忽略 `references/global-rules.local.md`，避免个人偏好进入公开发布。
-
-## 本地开发
+## 开发
 
 安装依赖：
 
@@ -328,20 +346,36 @@ npm install
 ./sync-renders.sh
 ```
 
-运行预览校验：
+校验 catalog 预览：
 
 ```bash
 npm run validate:catalogs
 npm run validate:renders
-npm run test:bridge
 ```
 
-## 开源注意事项
+开发时从当前仓库作为安装源：
 
-Catalog 文件用于描述公开产品界面的设计语言参考。品牌名、产品名、Logo 和商标归各自权利人所有。本项目与这些公司没有从属、背书或赞助关系。
+```bash
+node bin/dig-ui-skill.mjs install cursor --source .
+node bin/dig-ui-skill.mjs install --all --source .
+```
 
-新增 catalog 时，请优先写设计系统分析和抽象规则，不要加入专有资产、授权字体、截图、私有设计 token 或未授权品牌文件。
+## 参与贡献
 
-## 协议
+本仓库正在为公开开源做准备。在专门的 `CONTRIBUTING.md` 落地前，请保持改动小而易审查，并明确遵守 source-of-truth 边界：
 
-本项目使用 [Apache License 2.0](./LICENSE)。
+- Catalog 描述视觉语言与 token。
+- Layout 描述信息架构与 slot。
+- Block 描述可复用 UI 行为 contract。
+- Workflow 描述可重复的 Agent 流程。
+- 用户 palette、style 与个人规则保留在官方资产集之外。
+
+## 开源说明
+
+Catalog 文件记录的是从公开产品界面抽象出的设计语言观察和规则。产品名、Logo 与商标均归各自权利人所有；本项目与这些公司不存在隶属、背书或赞助关系。
+
+贡献 catalog 时，请提供设计系统分析，而不是复制专有资产。不要提交私有品牌文件、授权字体、截图、机密设计 token 或未经授权的品牌资产。
+
+## 许可证
+
+本项目采用 [Apache License 2.0](./LICENSE)。

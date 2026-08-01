@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dig UI Skill README Hero</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --bg-soft: #080a0d;
+      --surface: rgba(18, 21, 26, 0.92);
+      --surface-strong: rgba(27, 31, 38, 0.96);
+      --surface-soft: rgba(255, 255, 255, 0.05);
+      --text: #ffffff;
+      --muted: #a7b0ba;
+      --soft: #6f7a86;
+      --border: rgba(255, 255, 255, 0.16);
+      --border-strong: rgba(255, 255, 255, 0.28);
+      --blue: #0071e3;
+      --blue-soft: #4fb3ff;
+      --cyan: #2aa7b8;
+      --warn: #f3b64c;
+      --green: #71d18a;
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 28px;
+      --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #111;
+      font-family: var(--font-sans);
+      color: var(--text);
+    }
+
+    .hero {
+      width: 1800px;
+      height: 1000px;
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.032) 1px, transparent 1px),
+        radial-gradient(circle at 72% 18%, rgba(0, 113, 227, 0.20), transparent 34%),
+        linear-gradient(135deg, #000000 0%, #071017 48%, #020304 100%);
+      background-size: 40px 40px, 40px 40px, auto, auto;
+      padding: 72px;
+    }
+
+    .shell {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 0.86fr 1.05fr 1.08fr;
+      gap: 28px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 34px 100px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 750;
+      font-size: 19px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      background: #ffffff;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .brand-mark img {
+      width: 23px;
+      height: 23px;
+      object-fit: contain;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      letter-spacing: 0;
+    }
+
+    .eyebrow {
+      color: var(--blue-soft);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .pill-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      min-height: 34px;
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 0 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.045);
+      font-size: 13px;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .pill.active {
+      border-color: rgba(79, 179, 255, 0.55);
+      color: #ffffff;
+      background: rgba(0, 113, 227, 0.22);
+    }
+
+    .intro {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .intro-body {
+      min-height: 0;
+      padding: 30px 34px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 52px;
+      line-height: 1.02;
+      letter-spacing: 0;
+      font-weight: 820;
+    }
+
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 20px;
+      line-height: 1.45;
+      max-width: 500px;
+    }
+
+    .prompt {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #05080b;
+      padding: 18px;
+      display: grid;
+      gap: 13px;
+    }
+
+    .prompt code {
+      color: #d8e7f7;
+      font-size: 16px;
+      line-height: 1.5;
+      white-space: normal;
+    }
+
+    .dials {
+      display: grid;
+      gap: 10px;
+    }
+
+    .dial {
+      display: grid;
+      grid-template-columns: 160px 1fr 24px;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--blue-soft));
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-top: 1px solid var(--border);
+    }
+
+    .stat {
+      padding: 18px 26px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:nth-child(2n) {
+      border-right: 0;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .map {
+      padding: 30px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+    }
+
+    .map-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .map-title h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .system-map {
+      position: relative;
+      display: grid;
+      gap: 15px;
+      padding: 8px 0;
+    }
+
+    .lane {
+      min-height: 98px;
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .lane-icon {
+      position: relative;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-weight: 800;
+    }
+
+    .lane-icon::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      bottom: -8px;
+      left: 50%;
+      width: 2px;
+      background: linear-gradient(180deg, transparent, rgba(79, 179, 255, 0.65), transparent);
+      transform: translateX(-50%);
+    }
+
+    .node-dot {
+      width: 40px;
+      height: 40px;
+      position: relative;
+      z-index: 1;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(79, 179, 255, 0.55);
+      background: #07131f;
+      box-shadow: 0 0 0 6px rgba(0, 113, 227, 0.12);
+    }
+
+    .lane-card {
+      padding: 18px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.048);
+    }
+
+    .lane-card.mainline {
+      border-color: rgba(79, 179, 255, 0.48);
+      background: linear-gradient(135deg, rgba(0, 113, 227, 0.24), rgba(255, 255, 255, 0.055));
+    }
+
+    .lane-card h3 {
+      margin: 0 0 7px;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+
+    .lane-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .branch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .mini {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.042);
+    }
+
+    .mini h4 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .swatches {
+      display: flex;
+      gap: 8px;
+      margin-top: 13px;
+    }
+
+    .swatch {
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+    }
+
+    .foundation {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .foundation-item {
+      padding: 15px 15px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+    }
+
+    .foundation-item strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 7px;
+    }
+
+    .foundation-item span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .preview {
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .preview-body {
+      padding: 28px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 18px;
+      background: #06080b;
+    }
+
+    .run-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+      padding: 22px;
+      border-radius: 22px;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+    }
+
+    .run-header h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: 0;
+    }
+
+    .run-header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .status {
+      min-height: 42px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 16px;
+      background: rgba(42, 167, 184, 0.14);
+      color: #b9f2fb;
+      border: 1px solid rgba(42, 167, 184, 0.38);
+      font-size: 13px;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+
+    .status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--cyan);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.045);
+      border-radius: 18px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--font-mono);
+      margin-bottom: 10px;
+    }
+
+    .metric strong {
+      font-size: 29px;
+      letter-spacing: 0;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 14px;
+      min-height: 0;
+    }
+
+    .steps,
+    .logs {
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.04);
+      overflow: hidden;
+    }
+
+    .section-head {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+
+    .step-list {
+      display: grid;
+      padding: 15px;
+      gap: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .check {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 113, 227, 0.20);
+      border: 1px solid rgba(79, 179, 255, 0.45);
+      color: var(--blue-soft);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .log-lines {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #c6d1dc;
+    }
+
+    .log-line {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 12px;
+      min-height: 24px;
+      align-items: center;
+    }
+
+    .time {
+      color: var(--soft);
+    }
+
+    .accent {
+      color: var(--blue-soft);
+    }
+
+    .success {
+      color: var(--green);
+    }
+
+    .footer-strip {
+      position: absolute;
+      left: 72px;
+      right: 72px;
+      bottom: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+      font-family: var(--font-mono);
+    }
+  </style>
+</head>
+<body>
+  <main class="hero" aria-label="Dig UI Skill from prompt to product UI">
+    <section class="shell">
+      <article class="panel intro">
+        <div class="panel-head">
+          <div class="brand">
+            <span class="brand-mark"><img src="./dig-mark.png" alt=""></span>
+            <span>Dig UI Skill</span>
+          </div>
+          <span class="pill active">prompt-as-code</span>
+        </div>
+        <div class="intro-body">
+          <div>
+            <div class="eyebrow">from prompt to product UI</div>
+            <h1 class="title">Agent-readable design systems.</h1>
+          </div>
+          <p class="lead">Give Codex, Cursor, and Claude Code the catalogs, layouts, blocks, and workflows they need to build consistent product interfaces.</p>
+          <div class="prompt">
+            <div class="eyebrow">Dig Read</div>
+            <code class="mono">Build a runtime console with mono catalog. Use agent-run-detail layout, runtime-log-stream block, and preflight before delivery.</code>
+            <div class="dials">
+              <div class="dial"><span>INFORMATION</span><div class="track"><div class="fill" style="width: 80%"></div></div><span>8</span></div>
+              <div class="dial"><span>BRAND</span><div class="track"><div class="fill" style="width: 50%"></div></div><span>5</span></div>
+              <div class="dial"><span>INTERACTION</span><div class="track"><div class="fill" style="width: 70%"></div></div><span>7</span></div>
+              <div class="dial"><span>CRITICALITY</span><div class="track"><div class="fill" style="width: 90%"></div></div><span>9</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><strong>86</strong><span>catalog previews</span></div>
+          <div class="stat"><strong>20</strong><span>layout recipes</span></div>
+        </div>
+      </article>
+
+      <article class="panel map">
+        <div class="map-title">
+          <div>
+            <div class="eyebrow">design system map</div>
+            <h2>One catalog system, three ways to start.</h2>
+          </div>
+          <span class="pill">Codex / Cursor / Claude Code</span>
+        </div>
+
+        <div class="system-map">
+          <div class="lane">
+            <div class="lane-icon"><span class="node-dot">1</span></div>
+            <div class="lane-card mainline">
+              <h3>Catalog</h3>
+              <p>73 curated catalog previews for product UI, from baseline systems to public product references.</p>
+              <div class="pill-row" style="margin-top: 14px;">
+                <span class="pill active">dig</span>
+                <span class="pill">mono</span>
+                <span class="pill">wise</span>
+                <span class="pill">apple</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-icon"><span class="node-dot">2</span></div>
+            <div class="branch-grid">
+              <div class="mini">
+                <h4>Palette</h4>
+                <p class="mono" style="color: var(--muted); margin: 0; font-size: 12px;">color anchors -> tokens -> custom palette</p>
+                <div class="swatches">
+                  <span class="swatch" style="background: #0071e3"></span>
+                  <span class="swatch" style="background: #2aa7b8"></span>
+                  <span class="swatch" style="background: #f3b64c"></span>
+                  <span class="swatch" style="background: #eaf4ff"></span>
+                </div>
+              </div>
+              <div class="mini">
+                <h4>Style</h4>
+                <p class="mono" style="color: var(--muted); margin: 0; font-size: 12px;">visual grammar -> archetype -> light/dark tokens</p>
+                <div class="swatches">
+                  <span class="swatch" style="background: #12151a"></span>
+                  <span class="swatch" style="background: #6df0ff"></span>
+                  <span class="swatch" style="background: #d4ff5f"></span>
+                  <span class="swatch" style="background: #ffffff"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="lane">
+            <div class="lane-icon"><span class="node-dot">3</span></div>
+            <div class="lane-card">
+              <h3>Personal Customization</h3>
+              <p>Persist local rules, custom palettes, and custom styles across your AI tools without forking the official assets.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="foundation">
+          <div class="foundation-item"><strong>Layouts</strong><span>Information architecture, slots, responsive order.</span></div>
+          <div class="foundation-item"><strong>Blocks</strong><span>Reusable primitive and product module protocols.</span></div>
+          <div class="foundation-item"><strong>Workflows</strong><span>Review, redesign, execution, image-reference.</span></div>
+        </div>
+      </article>
+
+      <article class="panel preview">
+        <div class="panel-head">
+          <span class="eyebrow">generated surface</span>
+          <div class="pill-row">
+            <span class="pill active">dark</span>
+            <span class="pill">light</span>
+          </div>
+        </div>
+        <div class="preview-body">
+          <div class="run-header">
+            <div>
+              <h2>Agent run detail</h2>
+              <p>catalog: mono · layout: agent-run-detail · block: runtime-log-stream</p>
+            </div>
+            <span class="status">Running</span>
+          </div>
+
+          <div class="metrics">
+            <div class="metric"><span>SUCCESS RATE</span><strong>98.2%</strong></div>
+            <div class="metric"><span>LATENCY</span><strong>1.4s</strong></div>
+            <div class="metric"><span>STEPS</span><strong>12/14</strong></div>
+          </div>
+
+          <div class="workspace">
+            <section class="steps">
+              <div class="section-head"><span>STEP TIMELINE</span><span>preflight: on</span></div>
+              <div class="step-list">
+                <div class="step"><span class="check">✓</span><div><strong>Read task context</strong><span>Selected layout, catalog, and blocks.</span></div></div>
+                <div class="step"><span class="check">✓</span><div><strong>Apply catalog tokens</strong><span>Dark and light profiles stay semantic.</span></div></div>
+                <div class="step"><span class="check">3</span><div><strong>Render product surface</strong><span>Runtime states and controls remain aligned.</span></div></div>
+                <div class="step"><span class="check">4</span><div><strong>Run anti-tells</strong><span>Remove drift before delivery.</span></div></div>
+              </div>
+            </section>
+
+            <section class="logs">
+              <div class="section-head"><span>RUNTIME LOG</span><span>live</span></div>
+              <div class="log-lines">
+                <div class="log-line"><span class="time">00:01</span><span><span class="accent">dig-read</span> selected agent-run-detail + mono</span></div>
+                <div class="log-line"><span class="time">00:03</span><span>loaded catalog tokens and block contracts</span></div>
+                <div class="log-line"><span class="time">00:08</span><span>mapped layout slots to stable regions</span></div>
+                <div class="log-line"><span class="time">00:12</span><span><span class="success">ok</span> dark/light token coverage complete</span></div>
+                <div class="log-line"><span class="time">00:15</span><span>preflight queued for final review</span></div>
+                <div class="log-line"><span class="time">00:19</span><span>ready for Codex, Cursor, Claude Code</span></div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer-strip">
+      <span>catalog · palette · style · personal rules · layouts · blocks · workflows</span>
+      <span>DigKit bridge: ui.design</span>
+    </div>
+  </main>
+</body>
+</html>

@@ -4,4 +4,6 @@ __pycache__/
 .specstory/
 references/global-rules.local.md
 .cursor/rules/dig-ui.mdc
-
+.vscode/
+updates/
+tests/

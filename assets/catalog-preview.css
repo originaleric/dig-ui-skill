@@ -687,7 +687,7 @@ a {
 
 .palette-lab-row {
   display: grid;
-  grid-template-columns: minmax(74px, 0.6fr) minmax(112px, 0.8fr) 34px minmax(112px, 1fr) 48px;
+  grid-template-columns: minmax(74px, 0.6fr) minmax(112px, 0.8fr) minmax(112px, 1fr) 28px;
   align-items: center;
   gap: 10px;
   min-height: 58px;
@@ -709,7 +709,6 @@ a {
   font-size: 12px;
 }
 
-.palette-lab-swatch,
 .palette-candidate-dot {
   display: inline-block;
   width: 24px;
@@ -720,8 +719,7 @@ a {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--dig-bg), transparent 14%);
 }
 
-.palette-lab-input,
-.palette-lab-color {
+.palette-lab-input {
   height: 44px;
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-pill);
@@ -746,8 +744,39 @@ a {
 }
 
 .palette-lab-color {
-  width: 52px;
-  padding: 4px 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--dig-text), transparent 72%);
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.palette-lab-color::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.palette-lab-color::-webkit-color-swatch,
+.palette-lab-color::-moz-color-swatch {
+  border: 0;
+  border-radius: 999px;
+}
+
+.palette-copy-btn {
+  border-color: var(--dig-text);
+  background: var(--dig-text);
+  color: var(--dig-bg);
+}
+
+.palette-copy-btn:hover {
+  border-color: var(--dig-text);
+  background: color-mix(in srgb, var(--dig-text), var(--dig-bg) 12%);
+  color: var(--dig-bg);
+  box-shadow: none;
 }
 
 .palette-candidate-panel strong {
@@ -785,8 +814,9 @@ a {
 }
 
 .palette-copy-btn[data-copy-state="error"] {
-  border-color: var(--dig-border-strong);
-  color: var(--dig-text);
+  border-color: var(--dig-danger);
+  background: var(--dig-danger);
+  color: #fff;
 }
 
 .palette-export-btn[data-export-state="success"] {
@@ -2349,7 +2379,7 @@ a {
   }
 
   .palette-lab-row {
-    grid-template-columns: 34px minmax(0, 1fr) 52px;
+    grid-template-columns: minmax(0, 1fr) 28px;
   }
 
   .palette-lab-role {
@@ -2361,7 +2391,6 @@ a {
     order: 2;
   }
 
-  .palette-lab-swatch,
   .palette-lab-input,
   .palette-lab-color {
     order: 1;

@@ -1,63 +1,53 @@
-# Dig UI Skill
+<p align="center">
+  <img src="./assets/dig-mark.png" width="72" alt="Dig UI logo">
+</p>
 
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
-[![npm package](https://img.shields.io/badge/npm-dig--ui--skill-red.svg)](https://www.npmjs.com/package/dig-ui-skill)
+<h1 align="center">Dig UI Skill</h1>
 
-> Prompt-as-code design system assets for Codex, Cursor, and Claude Code.
+<p align="center">
+  Agent-readable design systems for product UI.
+</p>
 
-Dig UI Skill is an AI-first design system packaged as structured Markdown, static HTML previews, and a small CLI. Instead of shipping a conventional component library, it gives AI coding agents the design rules, layout recipes, token contracts, and visual references they need to generate consistent product UI.
+<p align="center">
+  One command to give Codex, Cursor, and Claude Code a durable UI design language.
+</p>
 
-[中文文档](./README.zh-CN.md) · [Installation](./INSTALL.md) · [Usage Guide](./USAGE.md)
+<p align="center">
+  <a href="./README.zh-CN.md">中文</a> ·
+  <a href="./INSTALL.md">Installation</a> ·
+  <a href="./USAGE.md">Usage Guide</a> ·
+  <a href="./renders/index.html">Catalog Previews</a> ·
+  <a href="#user-content-personal-customization">Personal Customization</a> ·
+  <a href="#latest-highlights">Latest Highlights</a> ·
+  <a href="#what-you-can-build">What You Can Build</a> ·
+  <a href="#roadmap">Roadmap</a>
+</p>
 
-## Why This Exists
+<p align="center">
+  <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
+  <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-86-0071e3">
+  <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
+  <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
+</p>
 
-AI agents are good at producing UI quickly, but they drift when a project does not give them a durable design language. Dig UI Skill makes that design language explicit:
+<p align="center">
+  <img src="./assets/readme-hero.png" alt="Dig UI Skill preview" width="100%">
+</p>
 
-- **Global rules** define cross-project behavior such as i18n, dark/light mode, control shape, layout/component consistency, select usage, and interaction discipline. The canonical rules are English-first, with a Chinese translation for review.
-- **Dig Read** defines the agent's first reasoning pass: identify the task, choose layout/catalog/block assets, and set density, brand, interaction, and criticality dials before writing UI.
-- **Catalogs** define visual taste through tokens, typography, surface rules, component mappings, color-first palette systems, and complete style grammars.
-- **Layout recipes** define information architecture, slots, responsive order, and QA notes.
-- **Blocks** define reusable primitive and product-module protocols such as inputs, modals, runtime log streams, table toolbars, notification items, search result rows, and settings rows.
-- **Anti-tells, preflight, and workflows** keep common AI UI drift out of generated surfaces and make review/redesign/execution tasks repeatable.
-- **Rendered previews** give humans a fast way to inspect catalog visual language before using it in production code.
-- **Local extensions** let projects add their own layouts, blocks, palettes, and styles through `references/local/` without forking the official assets.
-- **CLI installers and bridge runtime** keep the same skill synchronized across Codex, Cursor, and Claude Code, and expose a stable DigKit `ui.design` file protocol.
-
-## What's Included
-
-- 86 catalog previews across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, Dig-native styles, color palette catalogs, and style catalogs.
-- 20 layout recipes for dashboards, docs, runtime consoles, tables, settings forms, onboarding, pricing, search, auth, and marketing pages.
-- Static catalog preview hub at `renders/index.html`.
-- Color palette catalog support through `references/catalogs/palettes/`, starting with `palette01`.
-- Palette Lab in palette renders for trying anchor colors, exporting a ZIP with JSON + HTML, and importing user-owned custom palettes into `~/.config/dig-ui-skill/palettes/`.
-- Style catalog support through `references/catalogs/styles/`, including Cozy Arcade, Quant Signal Console, Strategy Report, Research Lab, Brick Builder, Archive Dotmatrix, Concept Minimal, Semantic Translation, Business Editorial, Torn Editorial Collage, Midcentury Noir, and Cel Sci-Fi.
-- Style Lab in style renders for switching and exporting complete light/dark token maps (`theme_tokens.light` / `theme_tokens.dark`), a `Style Contract`, render archetype, and `--dig-*` tokens as user-owned custom styles in `~/.config/dig-ui-skill/styles/`.
-- Layout and block assets are Markdown contracts, maintained in `references/layouts/` and `references/blocks/`.
-- Dig Read and product dials adapted from taste-skill style execution discipline: `references/dig-read.md`.
-- Dig anti-pattern filters, preflight gate, and workflow playbooks: `references/anti-tells.md`, `references/preflight.md`, and `references/workflows/`.
-- Render ops validation via `npm run validate:renders`.
-- DigKit bridge runtime via `dig-ui-skill run --input-json <path> --output-json <path>`.
-- Optional local rule synchronization through `~/.config/dig-ui-skill/global-rules.local.md`.
-- Optional user palette/style synchronization through `~/.config/dig-ui-skill/palettes/` and `~/.config/dig-ui-skill/styles/`.
-
-## Highlight: Personal Rules Through Your AI Agent
-
-Dig UI lets users teach their IDE agent long-term UI preferences without configuring another AI API key. Ask Codex, Cursor, or Claude Code to update your local global rules:
+Dig UI Skill is a prompt-as-code design system for AI coding agents. It does not ship a conventional component library. Instead, it gives agents the catalogs, layout recipes, block contracts, workflows, local extension rules, and preview renders they need to generate consistent product interfaces.
 
 ```text
-Use dig-ui. Add this to my local global rules:
-Header stays compact and sticky, with language switcher, theme switcher, and user menu on the right.
-```
-
-The agent reads `references/local-rules-builder.md`, writes `~/.config/dig-ui-skill/global-rules.local.md`, then syncs it across installed tools. CLI helpers are available for mechanical writes:
-
-```bash
-npx dig-ui-skill local add --section "Header / Topbar" "Header stays compact and sticky."
+Catalog gives taste.
+Palette and Style give extensibility.
+Personal rules give ownership.
+Layouts and blocks give structure.
+Workflows make it repeatable.
 ```
 
 ## Quick Start
 
-Install the skill into one AI tool:
+Install Dig UI Skill into one AI tool:
 
 ```bash
 npx dig-ui-skill install codex
@@ -65,37 +55,219 @@ npx dig-ui-skill install cursor
 npx dig-ui-skill install claude-code
 ```
 
-Choose the installed language:
-
-```bash
-npx dig-ui-skill install codex --lang zh-CN
-npx dig-ui-skill install codex --lang en
-```
-
-Install it everywhere:
+Install everywhere and check status:
 
 ```bash
 npx dig-ui-skill install --all
 npx dig-ui-skill status
 ```
 
-Import a custom palette exported from Palette Lab:
+Use it from your agent:
+
+```text
+Use Dig UI. Start with references/dig-read.md, use the dashboard-overview layout, apply the dig catalog, and run preflight before delivery.
+```
+
+Choose the installed language:
 
 ```bash
-npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip codex
+npx dig-ui-skill install codex --lang en
+npx dig-ui-skill install codex --lang zh-CN
+```
+
+<a name="personal-customization"></a>
+
+## <img src="./assets/readme-personalization-title-en.png" alt="Personal Customization" height="24">
+
+Teach your agent the UI decisions you want to keep. Dig UI Skill turns natural-language preferences into user-owned rules, palettes, and styles that stay aligned across Codex, Cursor, and Claude Code.
+
+<p align="center">
+  <img src="./assets/readme-personalization.png" alt="Natural-language UI preference saved as user configuration and synchronized across AI tools" width="100%">
+</p>
+
+| Keep | Own | Sync |
+| --- | --- | --- |
+| Layout, density, hierarchy, and interaction preferences that should persist. | `global-rules.local.md`, custom palettes, and custom styles outside the repository. | The same personal assets into every installed AI tool. |
+
+Tell your agent what you want to retain:
+
+```text
+Use dig-ui. Add this to my local rules:
+Dashboard toolbars keep filters left, primary actions right, and density compact by default.
+```
+
+The agent follows `references/local-rules-builder.md`, writes the rule to `~/.config/dig-ui-skill/global-rules.local.md`, and syncs it without forking the official assets or configuring another AI API key.
+
+```bash
+npx dig-ui-skill local add --section "Toolbars / Filters / Actions" "Keep filters left and primary actions right."
+npx dig-ui-skill palette sync --all
+npx dig-ui-skill style sync --all
+```
+
+## Latest Highlights
+
+| Date | Highlight | Why it matters |
+| --- | --- | --- |
+| **2026-07-23** | **Style routing and dual-theme previews** landed. | Built-in style catalogs now route by task and avoid boundary, while Style Lab exports complete light/dark token maps as a user-owned contract. |
+| **2026-07-13** | **DigKit Bridge Runtime** landed with `dig-ui-skill run --input-json <path> --output-json <path>`. | DigKit can call the real binary through the `ui.design` bridge and receive a stable design envelope, optional artifacts, and an apply plan. |
+| **2026-07-10** | **Color Palette Catalog and Palette Lab** landed. | Users can start from color-first catalogs, tune anchors in Palette Lab, export ZIP assets, and sync custom palettes across tools. |
+| **2026-06-29** | **Layout and block renders were retired** as canonical UI previews. | Catalogs remain visual renders; layouts and blocks stay Markdown contracts so structure and behavior do not become a second visual source of truth. |
+| **2026-06-28** | **Dig Read, dials, anti-tells, preflight, and workflows** were consolidated. | Agents now choose layout, catalog, blocks, density, brand energy, interaction energy, and delivery checks before writing UI. |
+
+## What You Can Build
+
+| You want to... | Use Dig UI Skill to... | Start with |
+| --- | --- | --- |
+| Review an existing UI | Check layout consistency, catalog fit, missing states, responsive behavior, and common AI UI drift. | `references/workflows/review.md` |
+| Generate a product dashboard | Pick a layout recipe, apply a catalog, use block contracts, and run preflight. | `references/layouts/dashboard-overview.md` |
+| Build runtime or agent execution screens | Use execution workflows, log blocks, step timelines, and high-density operational surfaces. | `references/layouts/agent-run-detail.md` |
+| Customize a color system | Start from palette catalogs, export from Palette Lab, and sync a custom palette. | `references/catalogs/palettes/` |
+| Capture a complete visual grammar | Export a style contract and sync it as a local custom style. | `references/catalogs/styles/` |
+| Teach your agent personal UI taste | Persist local global rules, palettes, and styles outside the repository. | `references/local-rules-builder.md` |
+| Integrate with DigKit | Call the binary with a file-based `ui.design` bridge protocol. | `dig-ui-skill run --input-json input.json --output-json output.json` |
+
+## Core System
+
+| Layer | Role | Source |
+| --- | --- | --- |
+| **Dig Read** | First-pass task framing, asset selection, and product dials. | `references/dig-read.md` |
+| **Catalog** | 73 curated product UI languages: tokens, typography, surface rules, components, density, and tone. | `references/catalogs/` |
+| **Palette** | Color-first customization, Palette Lab, and importable palette contracts. | `references/catalogs/palettes/` |
+| **Style** | Full visual grammars, render archetypes, dual-theme tokens, and custom style exports. | `references/catalogs/styles/` |
+| **Layouts** | Information architecture, slots, responsive order, and QA notes. | `references/layouts/` |
+| **Blocks** | Reusable primitive and product-module behavior contracts. | `references/blocks/` |
+| **Workflows** | Repeatable review, redesign, execution, and image-reference processes. | `references/workflows/` |
+| **Preflight** | Delivery gate for states, structure, catalog choice, and anti-patterns. | `references/preflight.md` |
+
+## Catalogs
+
+Choose one base catalog for a page or component group. Catalog gives you a mature product UI language, Palette starts from color relationships, and Style carries a complete visual grammar.
+
+### Catalog
+
+<p align="center">
+  <img src="./assets/readme-catalog-detail.png" alt="Catalog tokens, typography, surfaces, and color roles" width="100%">
+</p>
+
+Start here when a known product language, a mature product surface, or a reliable baseline is your reference. Catalogs are agent-readable design contracts, not screenshots to copy and not component packages to import.
+
+**Includes:** 73 product UI catalogs across AI, SaaS, fintech, dev tools, DevOps, creative tools, commerce, media, automotive, and Dig foundations. Start with `dig`, `mono`, `wise`, or `apple`, then browse the full set in [`renders/index.html`](./renders/index.html).
+
+**Customize:** keep the built-in catalog as the visual base and add project-specific rules through local global rules, layouts, and blocks. Personal preferences belong in local assets rather than a fork of an official catalog.
+
+### Palette
+
+<p align="center">
+  <img src="./assets/readme-palette-detail.png" alt="Palette Lab color anchors and role mapping" width="100%">
+</p>
+
+Start here when color relationships are the primary decision: an anchor color, an existing palette, a mood, or a site-level color system.
+
+**Includes:** built-in palette catalogs and Palette Lab, which maps canvas, ink, primary, support, and semantic roles into usable Dig tokens.
+
+**Customize:** tune anchors in Palette Lab, export a `custompalette`, then import and sync it across tools:
+
+```bash
+npx dig-ui-skill palette import ~/Downloads/palette01.custompalette.zip codex
 npx dig-ui-skill palette list
 npx dig-ui-skill palette sync --all
 ```
 
-Import a custom style exported from Style Lab:
+User-owned palettes live in `~/.config/dig-ui-skill/palettes/` and sync into `references/local/palettes/` without changing the built-in catalog set.
+
+### Style
+
+<p align="center">
+  <img src="./assets/readme-style-detail.png" alt="Quant Signal Console style preview with contrasting UI surfaces" width="100%">
+</p>
+
+Start here when you need more than a color theme. A style carries material choices, surface behavior, component tone, render archetype, and a complete light/dark token contract together.
+
+**Includes:** 12 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `business-editorial`, and `research-lab`. The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
+
+**Customize:** export a `customstyle` from Style Lab, then import and sync it across tools:
 
 ```bash
-npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle-20260712-120000.zip codex
+npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle.zip codex
 npx dig-ui-skill style list
 npx dig-ui-skill style sync --all
 ```
 
-`style_v1` Markdown assets require both `## Dig UI CSS Tokens` and `## Dig UI Dark Tokens`. Legacy JSON assets without `theme_tokens` remain importable for compatibility, but are not dual-theme source-of-truth assets.
+User-owned styles live in `~/.config/dig-ui-skill/styles/` and sync into `references/local/styles/`. They remain user assets, not built-in catalog entries.
+
+## Layouts And Blocks
+
+Catalogs define look. Layouts define structure. Blocks define repeatable UI behavior.
+
+Dig UI Skill includes **20 layout recipes** for dashboards, docs, runtime consoles, table workspaces, settings forms, onboarding, pricing, search, auth, and marketing pages.
+
+Blocks cover primitive and product-module protocols:
+
+```text
+button, input, select, tooltip, modal, tabs
+table-toolbar, runtime-log-stream, run-status-header
+step-timeline, settings-row, notification-item, search-result-row
+```
+
+Core paths:
+
+```text
+references/layouts/
+references/blocks/
+references/shared/layout-manifest.yaml
+references/shared/block-manifest.yaml
+```
+
+## Workflows
+
+Workflows turn Dig UI Skill from a static asset library into a repeatable agent process.
+
+```text
+references/workflows/review.md
+references/workflows/redesign.md
+references/workflows/execution.md
+references/workflows/image-reference.md
+references/anti-tells.md
+references/preflight.md
+```
+
+Use them to review an existing UI, redesign a surface while preserving business meaning, build execution and runtime screens, translate from visual references, and filter common AI UI drift before delivery.
+
+## Use In Your AI Tool
+
+### Codex
+
+```bash
+npx dig-ui-skill install codex
+```
+
+```text
+Use the dig-ui skill. Review this page against the Dig catalog and the dashboard-overview layout.
+```
+
+### Cursor
+
+```bash
+npx dig-ui-skill install cursor
+npx dig-ui-skill install cursor --project /path/to/your/repo
+```
+
+```text
+Use Dig UI. Apply references/layouts/settings-form.md and references/catalogs/other/dig.md to this screen.
+```
+
+### Claude Code
+
+```bash
+npx dig-ui-skill install claude-code
+npx dig-ui-skill install claude
+```
+
+```text
+Use Dig UI to refactor this UI. Start from the runtime-console layout and apply the mono catalog.
+```
+
+## DigKit Bridge
 
 Run the DigKit bridge protocol directly:
 
@@ -105,133 +277,24 @@ dig-ui-skill run --input-json input.json --output-json output.json
 
 The bridge reads a DigKit `ui.design` request and writes a JSON envelope with `summary`, `task`, `catalog`, `layout`, `metadata`, optional `artifact_outputs`, and an optional `dig-ui-skill.apply_plan.v1`. DigKit owns artifact materialization, approval, workspace policy, and file writes.
 
-## Use In Your AI Tool
+## Examples
 
-### Codex
-
-Install:
-
-```bash
-npx dig-ui-skill install codex
-```
-
-Then open a new Codex session in any project and ask for Dig UI explicitly:
+Review a UI:
 
 ```text
-Use the dig-ui skill. Review this page against the Dig catalog and the dashboard-overview layout.
+Use Dig UI. Review this settings page with references/workflows/review.md, references/layouts/settings-form.md, and references/catalogs/other/dig.md.
 ```
 
-Update later:
-
-```bash
-npx dig-ui-skill update codex
-```
-
-### Cursor
-
-Install the personal skill:
-
-```bash
-npx dig-ui-skill install cursor
-```
-
-For a repository where you want more reliable activation, also install the project rule:
-
-```bash
-npx dig-ui-skill install cursor --project /path/to/your/repo
-```
-
-Then ask Cursor to use Dig UI:
+Generate a runtime surface:
 
 ```text
-Use Dig UI. Apply references/layouts/settings-form.md and references/catalogs/other/dig.md to this screen.
+Use Dig UI. Build an agent run detail page with agent-run-detail layout, mono catalog, run-status-header, step-timeline, and runtime-log-stream blocks.
 ```
 
-Update later:
-
-```bash
-npx dig-ui-skill update cursor
-```
-
-### Claude Code
-
-Install:
-
-```bash
-npx dig-ui-skill install claude-code
-# alias
-npx dig-ui-skill install claude
-```
-
-Then trigger it with `/dig-ui` if available, or by natural language:
+Customize taste:
 
 ```text
-Use Dig UI to refactor this UI. Start from the runtime-console layout and apply the mono catalog.
-```
-
-Update later:
-
-```bash
-npx dig-ui-skill update claude-code
-```
-
-Use the local repository as the source while developing:
-
-```bash
-node bin/dig-ui-skill.mjs install cursor --source .
-node bin/dig-ui-skill.mjs install --all --source .
-```
-
-## Daily Workflow
-
-Start with Dig Read:
-
-```text
-references/dig-read.md
-```
-
-Use it to identify the task type, target user/job, likely layout, catalog, and dials:
-
-```text
-execution page for engineers debugging an agent run,
-using agent-run-detail layout + mono catalog.
-
-INFORMATION_DENSITY: 8
-BRAND_EXPRESSIVENESS: 3
-INTERACTION_ENERGY: 6
-OPERATIONAL_CRITICALITY: 9
-```
-
-Then choose a layout recipe:
-
-```text
-references/layouts/dashboard-overview.md
-```
-
-Then choose a catalog:
-
-```text
-references/catalogs/other/dig.md
-references/catalogs/other/mono.md
-references/catalogs/fintech/wise.md
-references/catalogs/media-consumer/apple.md
-```
-
-Ask your AI coding agent to combine them:
-
-```text
-Use references/dig-read.md first.
-Use references/layouts/dashboard-overview.md for structure.
-Apply references/catalogs/other/dig.md for visual language.
-Use references/anti-tells.md and references/preflight.md before delivery.
-Keep copy in i18n dictionaries, support dark/light mode, and use tokenized controls.
-```
-
-Sync catalog render ops views after changing catalogs:
-
-```bash
-dig-ui-skill render all
-dig-ui-skill validate renders
+Use Dig UI. Add a local rule that dashboard toolbars keep filters left, primary actions right, and density compact by default.
 ```
 
 ## Repository Structure
@@ -241,78 +304,32 @@ dig-ui-skill/
 ├── SKILL.md                         # Skill entry used by Codex-compatible tools
 ├── references/
 │   ├── global-rules.md              # Cross-catalog behavior rules
-│   ├── global-rules.zh-CN.md        # Chinese translation of global rules
-│   ├── global-rules.local.example.md
-│   ├── dig-read.md                  # Agent task framing and Dig product dials
-│   ├── tokens.md                    # Shared token contract
-│   ├── primitives.md                # Base layout and interaction rules
-│   ├── shared/                      # Stable manifests for layouts, catalogs, and blocks
+│   ├── dig-read.md                  # Agent task framing and product dials
+│   ├── catalogs/                    # Catalog, palette, and style assets
+│   ├── layouts/                     # Layout recipes
+│   ├── blocks/                      # Primitive and product block contracts
 │   ├── workflows/                   # Repeatable agent workflows
-│   ├── blocks/                      # Block library; source keeps .en.md / .zh-CN.md siblings
-│   ├── local/                       # Project-level layout/block extensions and synced user palettes/styles
-│   ├── anti-tells.md                # Installed-language Dig anti-pattern filters
-│   ├── preflight.md                 # Installed-language delivery gate
-│   ├── catalogs/                    # Visual catalogs; source keeps .en.md / .zh-CN.md siblings
-│   └── layouts/                     # Layout recipes; source keeps .en.md / .zh-CN.md siblings
-├── renders/                         # Catalog preview output
-├── assets/                          # Catalog preview CSS and Dig visual assets
+│   ├── local/                       # Project-level extensions
+│   ├── anti-tells.md                # Common AI UI drift filters
+│   └── preflight.md                 # Delivery gate
+├── renders/                         # Static catalog preview output
+├── assets/                          # README assets and catalog preview CSS
 ├── adapters/                        # Tool-specific adapters
 ├── agents/                          # Agent metadata
-├── bin/dig-ui-skill.mjs             # Installer, sync, and DigKit bridge CLI
-├── sync-renders.sh                  # Render synchronization entry point
-├── sync_renders.py                  # Catalog preview compiler
-├── validate-dig-catalog-preview.mjs # Catalog QA validator
-└── validate-dig-render-ops.mjs      # Render ops and parity validator
+└── bin/dig-ui-skill.mjs             # Installer, sync, and bridge CLI
 ```
 
-## Render Ops And Local Extensions
+## Roadmap
 
-Render ops has one maintenance view:
-
-```text
-renders/index.html          # catalog hub
-```
-
-Layout and block assets are reviewed through their Markdown contracts, manifests, and QA notes instead of generated HTML pages. Project-specific assets live in `references/local/`. Prefer `extends` for local layouts and blocks, and put true replacements in `references/local/overrides/` with an owner and reason.
-
-## Local Rules
-
-Team defaults live in:
-
-```text
-references/global-rules.md
-```
-
-This English file is the canonical source. A Chinese translation is available at:
-
-```text
-references/global-rules.zh-CN.md
-```
-
-Personal overrides should live outside the repository:
-
-```text
-~/.config/dig-ui-skill/global-rules.local.md
-```
-
-Create and sync them with:
-
-```bash
-npx dig-ui-skill init-local
-npx dig-ui-skill sync-local --all --from-config
-```
-
-Host agents can help write personal preferences without any extra API key. Ask Codex, Cursor, or Claude Code to use Dig UI and update your local global rules; the agent should read `references/local-rules-builder.md`, write `~/.config/dig-ui-skill/global-rules.local.md`, then sync it.
-
-CLI helpers are also available:
-
-```bash
-npx dig-ui-skill local path
-npx dig-ui-skill local show
-npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
-```
-
-The repository ignores `references/global-rules.local.md` so personal preferences do not leak into public releases.
+| Area | Status |
+| --- | --- |
+| README open-source polish and hero assets | Active |
+| NOTICE and trademark/source boundary notes | Planned before public launch |
+| CONTRIBUTING guide and good-first-issue labels | Planned before public launch |
+| More palette catalogs | Planned |
+| More style catalogs and render archetypes | Planned |
+| More product block contracts for agent/runtime UIs | Planned |
+| DigKit bridge schema hardening and real-binary smoke coverage | Active |
 
 ## Development
 
@@ -328,19 +345,35 @@ Sync catalog previews:
 ./sync-renders.sh
 ```
 
-Validate previews:
+Validate catalog previews:
 
 ```bash
 npm run validate:catalogs
 npm run validate:renders
-npm run test:bridge
 ```
+
+Use the local repository as the install source while developing:
+
+```bash
+node bin/dig-ui-skill.mjs install cursor --source .
+node bin/dig-ui-skill.mjs install --all --source .
+```
+
+## Contributing
+
+This repository is being prepared for public open source release. Until a dedicated `CONTRIBUTING.md` lands, prefer small, reviewable changes and keep the source-of-truth boundaries clear:
+
+- Catalogs describe visual language and tokens.
+- Layouts describe information architecture and slots.
+- Blocks describe reusable UI behavior contracts.
+- Workflows describe repeatable agent processes.
+- User palettes, styles, and personal rules stay outside the official asset set.
 
 ## Open Source Notes
 
-The catalog files describe design-language references inspired by public product surfaces. Brand names, product names, logos, and trademarks belong to their respective owners. This project is not affiliated with, endorsed by, or sponsored by those companies.
+Catalog files describe design-language observations and abstract rules inspired by public product surfaces. Product names, logos, and trademarks belong to their respective owners. This project is not affiliated with, endorsed by, or sponsored by those companies.
 
-If you contribute a new catalog, prefer descriptive design-system analysis over copied proprietary assets. Do not add private brand files, licensed fonts, screenshots, or confidential design tokens.
+If you contribute a new catalog, prefer design-system analysis over copied proprietary assets. Do not add private brand files, licensed fonts, screenshots, confidential design tokens, or unauthorized brand assets.
 
 ## License
 

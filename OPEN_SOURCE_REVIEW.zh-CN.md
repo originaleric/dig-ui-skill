@@ -4,12 +4,12 @@ Review 日期：2026-06-05
 
 ## 结论
 
-项目已经具备开源基础：有清晰的 skill 入口、CLI、多端安装路径、参考资产、渲染预览和 layout 校验。最值得优先补齐的是许可证、英文首页、中文镜像文档、贡献路径、安全策略、商标/第三方品牌免责声明，以及发布前的 npm/GitHub 元数据。
+项目已经具备开源基础：有清晰的 skill 入口、CLI、多端安装路径、参考资产、渲染预览和 layout 校验。当前最值得优先补齐的是贡献路径、安全策略、商标/第三方品牌免责声明，以及发布前的 npm/GitHub 元数据。
 
 ## 已补齐
 
-- `README.md`：改为英文 GitHub 首页结构，突出定位、特性、快速开始、开发命令、开源说明和协议。
-- `README.zh-CN.md`：新增中文 README，便于中文用户直接理解和安装。
+- `README.md` / `README.zh-CN.md`：使用同一套开源首页结构，突出定位、特性、快速开始、最新动态、开发命令、开源说明和协议。
+- `INSTALL.md` / `INSTALL.zh-CN.md`、`USAGE.md` / `USAGE.zh-CN.md`：英文作为默认文档，中文镜像保留详尽安装与维护说明；两种语言的首页和指南互相链接。
 - `LICENSE`：新增 Apache-2.0 协议文本。
 - `package.json` / `package-lock.json`：补充 `license: "Apache-2.0"`，并把中文 README 纳入 npm package files。
 
@@ -47,9 +47,9 @@ Review 日期：2026-06-05
 
    `package.json.files` 已经限制 npm 包内容，但发布前建议固定跑 `npm pack --dry-run`，确认不会把本地规则、临时文件、内部计划或非必要更新记录打入包内。
 
-3. **英文文档生态还可以继续完善**
+3. **双语文档需要持续同步**
 
-   当前 `INSTALL.md` 和 `USAGE.md` 仍是中文。若面向更广泛的 GitHub 用户，建议后续新增 `INSTALL.en.md` / `USAGE.en.md`，或把英文作为默认文档、中文使用 `.zh-CN.md` 镜像。
+   当前默认英文入口和中文镜像已经齐全。后续新增 CLI 能力、workflow 或对外承诺时，应同步更新两种语言的 README、安装指南和使用指南，并在发布前检查链接与 npm pack 产物。
 
 4. **版本策略需要公开**
 
@@ -64,7 +64,7 @@ Review 日期：2026-06-05
 - 在 README 增加 preview 截图或 GIF，展示 `renders/index.html` 和 layout preview。
 - 增加 `CODE_OF_CONDUCT.md`，如果计划接受外部贡献。
 - 增加 issue templates：bug report、catalog request、layout request。
-- 把 `plans/` 和 `updates/` 的公开价值再筛选一次，内部决策记录可保留在仓库，但 npm 包不一定需要包含。
+- 不发布 `plans/` 与 `updates/` 等内部决策、实现记录；它们保留在本地工作区即可。
 
 ## 协议建议
 

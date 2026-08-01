@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dig UI Personal Customization Preview</title>
+  <style>
+    :root {
+      --bg: #080a0d;
+      --surface: #11161c;
+      --surface-strong: #171d24;
+      --text: #f7f9fb;
+      --muted: #a7b0ba;
+      --soft: #6f7a86;
+      --border: rgba(255, 255, 255, 0.15);
+      --accent: #0071e3;
+      --accent-soft: #4fb3ff;
+      --success: #4bd8a0;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #000;
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    .canvas {
+      width: 1600px;
+      height: 720px;
+      overflow: hidden;
+      padding: 52px 58px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+        radial-gradient(circle at 82% 14%, rgba(0, 113, 227, 0.16), transparent 28%),
+        var(--bg);
+      background-size: 36px 36px, 36px 36px, auto, auto;
+    }
+
+    .topline {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 32px;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow,
+    .path,
+    .footer {
+      color: var(--accent-soft);
+      font: 700 13px/1.2 var(--mono);
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 8px 0 0;
+      max-width: 770px;
+      font-size: 38px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .topline p {
+      max-width: 390px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.5;
+      text-align: right;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1.08fr 0.95fr 0.8fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .panel {
+      min-height: 450px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(17, 22, 28, 0.94);
+    }
+
+    .panel-label {
+      margin-bottom: 16px;
+      color: var(--soft);
+      font: 700 12px/1.2 var(--mono);
+      letter-spacing: 0;
+    }
+
+    .prompt {
+      display: grid;
+      gap: 16px;
+    }
+
+    .prompt code {
+      display: block;
+      min-height: 236px;
+      padding: 20px;
+      border: 1px solid rgba(79, 179, 255, 0.38);
+      border-radius: 12px;
+      background: #070b10;
+      color: #dceafb;
+      font: 15px/1.65 var(--mono);
+      white-space: pre-wrap;
+    }
+
+    .prompt .accent { color: var(--accent-soft); }
+
+    .saved {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: #b8f5d9;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .saved::before,
+    .target-status::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .config-path {
+      margin-bottom: 18px;
+      color: var(--accent-soft);
+      font: 13px/1.45 var(--mono);
+      overflow-wrap: anywhere;
+    }
+
+    .asset-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .asset {
+      padding: 15px 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .asset:first-child { border-top: 0; }
+
+    .asset strong {
+      display: block;
+      margin-bottom: 7px;
+      font: 700 13px/1.35 var(--mono);
+    }
+
+    .asset span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .sync-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 54px;
+    }
+
+    .target {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 15px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .target:first-child { border-top: 0; }
+
+    .target strong { font-size: 16px; }
+
+    .target-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font: 12px/1 var(--mono);
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 21px;
+      color: var(--muted);
+      text-transform: none;
+    }
+  </style>
+</head>
+<body>
+  <main class="canvas" aria-label="Personal customization flow">
+    <header class="topline">
+      <div>
+        <div class="eyebrow">Personal customization</div>
+        <h1>Teach your agent the UI decisions you want to keep.</h1>
+      </div>
+      <p>Natural-language preferences become user-owned assets and stay aligned across your AI tools.</p>
+    </header>
+
+    <section class="flow">
+      <article class="panel prompt">
+        <div class="panel-label">NATURAL-LANGUAGE PREFERENCE</div>
+        <code><span class="accent">Use dig-ui.</span> Add this to my local rules:
+
+Dashboard toolbars keep filters left, primary actions right, and density compact by default.</code>
+        <span class="saved">Saved as a local rule</span>
+      </article>
+
+      <article class="panel">
+        <div class="panel-label">USER CONFIGURATION</div>
+        <div class="config-path">~/.config/dig-ui-skill/</div>
+        <div class="asset-list">
+          <div class="asset"><strong>global-rules.local.md</strong><span>Long-term layout and interaction preferences.</span></div>
+          <div class="asset"><strong>palettes/</strong><span>Palette Lab exports that belong to the user.</span></div>
+          <div class="asset"><strong>styles/</strong><span>Style contracts with light/dark token maps.</span></div>
+        </div>
+      </article>
+
+      <article class="panel">
+        <div class="panel-label">SYNCED TARGETS</div>
+        <div class="sync-list">
+          <div class="target"><strong>Codex</strong><span class="target-status">in sync</span></div>
+          <div class="target"><strong>Cursor</strong><span class="target-status">in sync</span></div>
+          <div class="target"><strong>Claude Code</strong><span class="target-status">in sync</span></div>
+        </div>
+      </article>
+    </section>
+
+    <footer class="footer"><span>user-owned configuration · no repository fork</span><span>local rules · palettes · styles</span></footer>
+  </main>
+</body>
+</html>
