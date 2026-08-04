@@ -103,6 +103,20 @@ dig-ui-skill validate renders
 
 render 只用于 catalog 视觉维护预览，不是第二套规范；layout 和 block 以 Markdown 协议为准。若 render 与 markdown 冲突，以 markdown / manifest 为准。
 
+## 个人 Local Rules
+
+当用户明确要求“记住”、“沉淀”或“加入我的 Dig 本地规则”时，当前 Host Agent 必须读取 `references/local-rules-builder.md`，将偏好归类、去重并写入用户配置中心：
+
+```text
+~/.config/dig-ui-skill/global-rules.local.md
+```
+
+- 这是个人规则的唯一真源；不要编辑共享 `references/global-rules.md`，也不要编辑项目仓库中的 ignored local 文件。
+- 使用 `local add --no-sync` 写入后再同步：用户未指定范围时执行 `dig-ui-skill local sync --all --from-config`，仅同步已安装的受支持 Host Agent；指定范围时只同步该目标并显式使用 `--from-config`。
+- 规则写入完成后，报告章节、写入内容和各目标的同步结果。
+- 仅当用户明确要求持久化时写入；讨论、建议或不明确的偏好不得自动沉淀。
+- Host Agent 是通用角色，不假定当前工具为 Codex、Cursor、Claude Code 或任何特定产品。
+
 ## Runtime 命名边界
 
 `runtime` 历史上既像 page type 又像视觉皮肤。新规则中优先使用：

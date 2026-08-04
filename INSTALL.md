@@ -4,6 +4,8 @@
 
 `dig-ui-skill` provides one CLI for installing the same design-system skill into the personal skill directories of Codex, Cursor, and Claude Code.
 
+<a name="installation"></a>
+
 ## Quick Start
 
 ```bash
@@ -94,14 +96,14 @@ After an update, they are synced back into each installed skill under `reference
 | `--link-local` | Symlink local rules from the user configuration directory. |
 | `--with-local` | Sync user local rules after `update`. |
 | `--from-config` | Resolve a local-rule conflict with the configuration copy. |
-| `--from-target` | Import the target copy into the configuration directory. |
+| `--from <target\|file>` | Select a local-rule import source. |
+| `--output <file>` | Select a local-rule export destination. |
+| `--force` | Replace a conflicting local-rule source or existing export. |
 | `--backup` | Create a `.backup` before overwriting. |
 | `--skip-conflicts` | Continue while skipping conflicting targets. |
 | `--source <path>` | Install from a local repository. |
 | `--project <path>` | Add Cursor's project rule. |
 | `--lang <en|zh-CN>` | Install a language; `zh-CN` is the default. |
-| `--input-json <path>` | Read a DigKit `ui.design` bridge request. |
-| `--output-json <path>` | Write a DigKit `ui.design` bridge response. |
 
 ## Custom Palettes And Styles
 
@@ -127,11 +129,16 @@ Personal UI preferences have one repository-external source of truth:
 ~/.config/dig-ui-skill/global-rules.local.md
 ```
 
+[`references/global-rules.local.example.md`](./references/global-rules.local.example.md) is the tracked, readable template. `local init` copies it into the user configuration; edit that copy rather than the repository example.
+
 ```bash
-npx dig-ui-skill init-local
-npx dig-ui-skill sync-local --all
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local init
+npx dig-ui-skill local sync --all
+npx dig-ui-skill local sync --all --from-config
 npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
+npx dig-ui-skill local import --from codex --force --backup
+npx dig-ui-skill local import --from ./global-rules.local.md
+npx dig-ui-skill local export --output ./global-rules.local.md
 ```
 
 See the [English usage guide](./USAGE.md) for workflows and maintenance, or the [Chinese installation guide](./INSTALL.zh-CN.md) for the detailed Chinese reference.

@@ -190,9 +190,6 @@ Usage:
   dig-ui-skill local <action> [options]
   dig-ui-skill palette <action> [options]
   dig-ui-skill style <action> [options]
-  dig-ui-skill init-local [options]
-  dig-ui-skill sync-local <target> [options]
-  dig-ui-skill import-local <target> [options]
   dig-ui-skill status
 
 Targets:
@@ -210,6 +207,8 @@ Local actions:
   local show                         Print user local rules
   local init                         Create user local rules from the example
   local sync [target|--all]          Sync user local rules to installed tools
+  local import --from <target|file>  Import rules into user config
+  local export --output <file>       Export user rules to a Markdown file
   local add --section <heading> <bullet>
                                      Add a preference bullet under a canonical section
 
@@ -238,7 +237,9 @@ Options:
   --no-sync             With local add, write only; do not sync to installed tools
   --with-local          After update, sync user local rules to targets
   --from-config         On conflict, overwrite target with user config
-  --from-target         On conflict, import target local rules into user config
+  --from <target|file>  Source for local import
+  --output <file>       Destination for local export
+  --force               Overwrite a conflicting import or existing export
   --backup              Before overwrite, create a .backup file
   --skip-conflicts      Skip conflicting targets and continue
   --source <path>       Source repo path (default: package root)
@@ -254,9 +255,12 @@ Examples:
   npx dig-ui-skill install cursor --project .
   npx dig-ui-skill install --all --source .
   npx dig-ui-skill update --all --with-local --from-config
-  npx dig-ui-skill init-local
-  npx dig-ui-skill sync-local --all --from-config
+  npx dig-ui-skill local init
+  npx dig-ui-skill local sync --all --from-config
   npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
+  npx dig-ui-skill local import --from codex --force --backup
+  npx dig-ui-skill local import --from ./global-rules.local.md
+  npx dig-ui-skill local export --output ./global-rules.local.md
   npx dig-ui-skill local show
   npx dig-ui-skill palette import ~/Downloads/palette01.custompalette-20260710-120000.zip
   npx dig-ui-skill palette sync --all
@@ -264,8 +268,9 @@ Examples:
   npx dig-ui-skill style import ~/Downloads/my-console-style.md
   npx dig-ui-skill style sync --all
   npx dig-ui-skill style list
-  npx dig-ui-skill import-local cursor
   npx dig-ui-skill status
+
+Legacy compatibility aliases: init-local, sync-local, import-local.
 `);
 }
 
@@ -280,6 +285,9 @@ function parseArgs(argv) {
     withLocal: false,
     fromConfig: false,
     fromTarget: false,
+    from: null,
+    output: null,
+    force: false,
     backup: false,
     noSync: false,
     skipConflicts: false,
@@ -341,6 +349,24 @@ function parseArgs(argv) {
 
     if (arg === "--from-target") {
       options.fromTarget = true;
+      index += 1;
+      continue;
+    }
+
+    if (arg === "--from") {
+      options.from = args[index + 1] ?? "";
+      index += 2;
+      continue;
+    }
+
+    if (arg === "--output") {
+      options.output = args[index + 1] ?? "";
+      index += 2;
+      continue;
+    }
+
+    if (arg === "--force") {
+      options.force = true;
       index += 1;
       continue;
     }
@@ -600,11 +626,55 @@ async function runInitLocal(options) {
   await fsp.copyFile(examplePath, USER_LOCAL_RULES_PATH);
   console.log(`Created: ${USER_LOCAL_RULES_PATH}`);
   console.log("Edit this file as your personal rules source of truth.");
-  console.log("Run `dig-ui-skill sync-local --all --from-config` to sync to all tools.");
+  console.log("Run `dig-ui-skill local sync --all --from-config` to sync to all tools.");
+}
+
+async function importLocalRulesFromPath(sourcePath, sourceLabel, options) {
+  if (!(await pathExists(sourcePath))) {
+    throw new Error(`Local rules source not found: ${sourcePath}`);
+  }
+
+  const sourceStat = await fsp.stat(sourcePath);
+  if (!sourceStat.isFile()) {
+    throw new Error(`Local rules source must be a file: ${sourcePath}`);
+  }
+
+  if (path.resolve(sourcePath) === path.resolve(USER_LOCAL_RULES_PATH)) {
+    console.log(`Already using ${sourcePath} as the user local rules source.`);
+    return { status: "imported" };
+  }
+
+  const configExists = await pathExists(USER_LOCAL_RULES_PATH);
+  if (configExists && (await filesContentEqual(sourcePath, USER_LOCAL_RULES_PATH))) {
+    console.log(`Already imported: ${sourceLabel}`);
+    return { status: "imported" };
+  }
+
+  if (configExists && !options.force) {
+    console.warn(`User config conflict — ${sourceLabel} differs from ${USER_LOCAL_RULES_PATH}`);
+    console.warn("  Use --force to replace the user config; add --backup to keep a backup.");
+    return { status: "conflict" };
+  }
+
+  if (configExists && options.backup) {
+    const backup = await backupFile(USER_LOCAL_RULES_PATH);
+    console.log(`  backed up config to ${backup}`);
+  }
+
+  await ensureDir(USER_CONFIG_DIR);
+  await fsp.copyFile(sourcePath, USER_LOCAL_RULES_PATH);
+  console.log(`Imported ${sourceLabel} to ${USER_LOCAL_RULES_PATH}`);
+  return { status: "imported" };
 }
 
 async function syncLocalToTarget(targetKey, options) {
   const target = TARGETS[targetKey];
+  const skillDir = target.skillDir();
+  if (!(await pathExists(skillDir))) {
+    console.warn(`${target.label}: skipped — skill is not installed at ${skillDir}`);
+    return { status: "skipped", reason: "not-installed" };
+  }
+
   const targetPath = getTargetLocalRulesPath(targetKey);
   const configPath = USER_LOCAL_RULES_PATH;
   const configExists = await pathExists(configPath);
@@ -615,23 +685,12 @@ async function syncLocalToTarget(targetKey, options) {
       console.warn(`${target.label}: skipped — no local rules at ${targetPath}`);
       return { status: "skipped", reason: "no-target" };
     }
-
-    if (configExists && !(await filesContentEqual(configPath, targetPath))) {
-      if (options.backup) {
-        const backup = await backupFile(configPath);
-        console.log(`  backed up config to ${backup}`);
-      }
-    }
-
-    await ensureDir(USER_CONFIG_DIR);
-    await fsp.copyFile(targetPath, configPath);
-    console.log(`${target.label}: imported to ${configPath}`);
-    return { status: "imported" };
+    return importLocalRulesFromPath(targetPath, target.label, options);
   }
 
   if (!configExists) {
     console.warn(`${target.label}: skipped — user config not found`);
-    console.warn(`  Run \`dig-ui-skill init-local\` to create ${configPath}`);
+    console.warn(`  Run \`dig-ui-skill local init\` to create ${configPath}`);
     return { status: "skipped", reason: "no-config" };
   }
 
@@ -665,7 +724,7 @@ async function syncLocalToTarget(targetKey, options) {
       console.warn(`  config: ${configPath}`);
       console.warn(`  target: ${targetPath}`);
       console.warn(
-        "  Use --from-config to overwrite, --from-target to import, or --skip-conflicts",
+        `  Use --from-config to overwrite, \`local import --from ${targetKey} --force\` to import, or --skip-conflicts`,
       );
       return { status: "conflict" };
     }
@@ -688,28 +747,39 @@ function resolveSyncTargets(options) {
   }
 
   if (options.targets.length === 0) {
-    throw new Error("sync-local requires a target (codex, cursor, claude-code) or --all");
+    throw new Error("local sync requires a target (codex, cursor, claude-code) or --all");
   }
 
   return options.targets;
 }
 
 async function runSyncLocal(options) {
+  if (options.fromTarget) {
+    console.warn("Warning: `--from-target` is deprecated; use `local import --from <target>`.");
+  }
   const targets = resolveSyncTargets(options);
   let conflicts = 0;
+  let failures = 0;
 
   console.log(`User config: ${USER_LOCAL_RULES_PATH}`);
   console.log(`Mode: ${options.linkLocal ? "symlink" : "copy"}`);
   console.log("");
 
   for (const targetKey of targets) {
-    const result = await syncLocalToTarget(targetKey, options);
-    if (result.status === "conflict") {
-      conflicts += 1;
+    try {
+      const result = await syncLocalToTarget(targetKey, options);
+      if (result.status === "conflict") {
+        conflicts += 1;
+      }
+    } catch (error) {
+      failures += 1;
+      console.error(
+        `${TARGETS[targetKey].label}: failed — ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
-  if (conflicts > 0) {
+  if (conflicts > 0 || failures > 0) {
     process.exitCode = 1;
   }
 }
@@ -719,8 +789,84 @@ async function runImportLocal(options) {
     throw new Error("import-local requires exactly one target (codex, cursor, claude-code)");
   }
 
-  options.fromTarget = true;
-  await runSyncLocal(options);
+  console.warn("Warning: `import-local` is deprecated; use `local import --from <target>`.");
+  await runLocalImport({ ...options, from: options.targets[0] });
+}
+
+function normalizeLocalSyncTarget(rawTarget) {
+  if (!TARGETS[rawTarget]) {
+    throw new Error(
+      `Unknown local rules target "${rawTarget}". Expected one of: ${Object.keys(TARGETS).join(", ")}`,
+    );
+  }
+  return rawTarget;
+}
+
+async function runLocalImport(options) {
+  if (options.all || options.values.length > 0) {
+    throw new Error("local import accepts exactly one source through --from <target|file>");
+  }
+
+  const source = (options.from ?? "").trim();
+  if (!source) {
+    throw new Error("local import requires --from <target|file>");
+  }
+
+  if (TARGETS[source]) {
+    const targetPath = getTargetLocalRulesPath(source);
+    const result = await importLocalRulesFromPath(targetPath, TARGETS[source].label, options);
+    if (result.status === "conflict") {
+      process.exitCode = 1;
+    }
+    return result;
+  }
+
+  const sourcePath = path.resolve(source);
+  if (path.extname(sourcePath).toLowerCase() !== ".md") {
+    throw new Error("local import file sources must use a .md extension");
+  }
+  const result = await importLocalRulesFromPath(sourcePath, sourcePath, options);
+  if (result.status === "conflict") {
+    process.exitCode = 1;
+  }
+  return result;
+}
+
+async function runLocalExport(options) {
+  if (options.all || options.values.length > 0) {
+    throw new Error("local export accepts only --output <file>");
+  }
+
+  const output = (options.output ?? "").trim();
+  if (!output) {
+    throw new Error("local export requires --output <file>");
+  }
+  if (!(await pathExists(USER_LOCAL_RULES_PATH))) {
+    throw new Error(`User local rules not found: ${USER_LOCAL_RULES_PATH}`);
+  }
+
+  const outputPath = path.resolve(output);
+  if (path.extname(outputPath).toLowerCase() !== ".md") {
+    throw new Error("local export output must use a .md extension");
+  }
+  if (outputPath === path.resolve(USER_LOCAL_RULES_PATH)) {
+    console.log(`Already using ${outputPath} as the user local rules source.`);
+    return;
+  }
+
+  if (await pathExists(outputPath)) {
+    if (!options.force) {
+      throw new Error(`Export output already exists: ${outputPath}. Use --force to overwrite it.`);
+    }
+    if (options.backup) {
+      const backup = await backupFile(outputPath);
+      console.log(`  backed up output to ${backup}`);
+    }
+  }
+
+  await ensureDir(path.dirname(outputPath));
+  await fsp.copyFile(USER_LOCAL_RULES_PATH, outputPath);
+  console.log(`Exported user local rules to ${outputPath}`);
 }
 
 function normalizeLocalSection(section) {
@@ -767,7 +913,7 @@ function addBulletToMarkdownSection(content, section, bullet) {
   const normalizedContent = ensureTrailingNewline(content.trim() ? content : createLocalRulesDocument());
   const bulletLine = `- ${bullet}`;
   const escapedSection = section.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const headingPattern = new RegExp(`^## ${escapedSection}\\s*$`, "m");
+  const headingPattern = new RegExp(`^(#{2,6}) ${escapedSection}\\s*$`, "m");
   const headingMatch = normalizedContent.match(headingPattern);
 
   if (!headingMatch || headingMatch.index === undefined) {
@@ -779,9 +925,10 @@ function addBulletToMarkdownSection(content, section, bullet) {
 
   const sectionStart = headingMatch.index;
   const afterHeadingIndex = sectionStart + headingMatch[0].length;
+  const headingLevel = headingMatch[1].length;
   const nextHeadingMatch = normalizedContent
     .slice(afterHeadingIndex)
-    .match(/\n## .+$/m);
+    .match(new RegExp(`\\n#{1,${headingLevel}}\\s+.+$`, "m"));
   const sectionEnd =
     nextHeadingMatch && nextHeadingMatch.index !== undefined
       ? afterHeadingIndex + nextHeadingMatch.index
@@ -842,7 +989,7 @@ async function runLocalAdd(options) {
   const syncOptions = {
     ...options,
     all: options.all || options.targets.length === 0,
-    fromConfig: true,
+    fromConfig: options.fromConfig,
     targets: options.targets,
   };
   await runSyncLocal(syncOptions);
@@ -864,6 +1011,16 @@ async function runLocalShow() {
 
 async function runLocalCommand(options) {
   const action = options.localAction;
+  if (options.from && action !== "import") {
+    throw new Error("--from is only supported by local import");
+  }
+  if (options.output && action !== "export") {
+    throw new Error("--output is only supported by local export");
+  }
+  if (options.force && action !== "import" && action !== "export") {
+    throw new Error("--force is only supported by local import and local export");
+  }
+
   switch (action) {
     case "path":
       console.log(USER_LOCAL_RULES_PATH);
@@ -878,16 +1035,21 @@ async function runLocalCommand(options) {
       await runSyncLocal({
         ...options,
         all: options.all || options.values.length === 0,
-        targets: options.values.map(normalizeTarget),
-        fromConfig: true,
+        targets: options.values.map(normalizeLocalSyncTarget),
       });
+      break;
+    case "import":
+      await runLocalImport(options);
+      break;
+    case "export":
+      await runLocalExport(options);
       break;
     case "add":
       await runLocalAdd(options);
       break;
     default:
       throw new Error(
-        "local requires an action: path, show, init, sync, or add",
+        "local requires an action: path, show, init, sync, import, export, or add",
       );
   }
 }
@@ -1923,11 +2085,11 @@ async function installSkillTarget(targetKey, sourceRoot, { link = false, lang = 
     const configExists = await pathExists(USER_LOCAL_RULES_PATH);
     if (configExists) {
       console.log(
-        "  tip: run `dig-ui-skill sync-local --all --from-config` to sync user config local rules",
+        "  tip: run `dig-ui-skill local sync --all --from-config` to sync user config local rules",
       );
     } else {
       console.log(
-        "  tip: run `dig-ui-skill init-local` then `sync-local --all --from-config` for personal overrides",
+        "  tip: run `dig-ui-skill local init` then `local sync --all --from-config` for personal overrides",
       );
     }
   }
@@ -2350,7 +2512,7 @@ async function runStatus() {
   console.log(`  path:    ${USER_LOCAL_RULES_PATH}`);
   console.log(`  present: ${configExists ? "yes" : "no"}`);
   if (!configExists) {
-    console.log("  tip: run `dig-ui-skill init-local` to create personal rules");
+    console.log("  tip: run `dig-ui-skill local init` to create personal rules");
   }
   console.log("");
 
@@ -2375,9 +2537,9 @@ async function runStatus() {
       console.log(`  local rules: ${localRulesStatus}`);
 
       if (!status.localRules && configExists) {
-        console.log("  tip: run `dig-ui-skill sync-local " + status.target + " --from-config`");
+        console.log("  tip: run `dig-ui-skill local sync " + status.target + " --from-config`");
       } else if (!status.localRules && !configExists && status.localExample) {
-        console.log("  tip: run `dig-ui-skill init-local` then `sync-local --all --from-config`");
+        console.log("  tip: run `dig-ui-skill local init` then `local sync --all --from-config`");
       }
     }
     console.log("");
@@ -2426,9 +2588,11 @@ async function main() {
         await runStyleCommand(options);
         break;
       case "init-local":
+        console.warn("Warning: `init-local` is deprecated; use `local init`.");
         await runInitLocal(options);
         break;
       case "sync-local":
+        console.warn("Warning: `sync-local` is deprecated; use `local sync`.");
         await runSyncLocal(options);
         break;
       case "import-local":
@@ -2439,7 +2603,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use run, install, update, render, validate, local, palette, style, init-local, sync-local, import-local, or status.`,
+          `Unknown command "${options.command}". Use run, install, update, render, validate, local, palette, style, or status.`,
         );
     }
   } catch (error) {

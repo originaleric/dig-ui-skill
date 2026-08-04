@@ -103,6 +103,20 @@ dig-ui-skill validate renders
 
 Render output is for catalog visual maintenance preview only. It is not a second source of truth. Layout and block assets remain Markdown contracts. When render and Markdown conflict, Markdown / manifest wins.
 
+## Personal Local Rules
+
+When a user explicitly asks to “remember,” “persist,” or “add this to my Dig local rules,” the current Host Agent must read `references/local-rules-builder.md`, classify and deduplicate the preference, then write it to the user configuration source of truth:
+
+```text
+~/.config/dig-ui-skill/global-rules.local.md
+```
+
+- This is the only personal-rules source of truth. Do not edit shared `references/global-rules.md` or an ignored local file in a project repository.
+- Write with `local add --no-sync` before synchronizing. If the user does not scope synchronization, run `dig-ui-skill local sync --all --from-config`; it synchronizes only installed supported Host Agents. When one target is specified, synchronize only that target with `--from-config`.
+- After writing, report the section, saved rule, and per-target sync result.
+- Persist only when the user explicitly asks. Do not store rules from discussion, suggestions, or ambiguous preferences.
+- Host Agent is a generic role; do not assume the current tool is Codex, Cursor, Claude Code, or any particular product.
+
 ## Runtime Naming Boundary
 
 `runtime` has historically meant both page type and visual skin. Prefer:

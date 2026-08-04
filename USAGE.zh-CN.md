@@ -16,6 +16,8 @@
 
 ---
 
+<a name="architecture-workflow"></a>
+
 ## 🧭 架构优先工作流
 
 这次架构优化借鉴 `taste-skill` 的做法，把 agent 执行过程固定为一条可复查链路：
@@ -84,9 +86,11 @@ npx dig-ui-skill update cursor
 npx dig-ui-skill update --all
 ```
 
-`update` 会刷新标准资产，但会保留目标目录中已有的 `references/global-rules.local.md`。如果还没有 local rules，CLI 只会提示运行 `init-local` / `sync-local`，不会自动生成个人偏好。
+`update` 会刷新标准资产，但会保留目标目录中已有的 `references/global-rules.local.md`。如果还没有 local rules，CLI 只会提示运行 `local init` / `local sync`，不会自动生成个人偏好。
 
 `update` 也会保留用户 palette / style 资产。用户自定义 palette 的真源在 `~/.config/dig-ui-skill/palettes/`，用户自定义 style 的真源在 `~/.config/dig-ui-skill/styles/`；已安装 skill 中的 `references/local/palettes/` 与 `references/local/styles/` 只是同步副本。
+
+<a name="local-rules"></a>
 
 ### 个人定制与 Global Rules
 
@@ -99,21 +103,23 @@ Dashboard toolbar 的 filter 保持在左侧，primary action 保持在右侧，
 
 个人 Global Rules 推荐放在仓库外配置中心，再同步到各工具：
 
+仓库内的 [`references/global-rules.local.example.md`](./references/global-rules.local.example.md) 可直接用来了解规则写法。`local init` 会将它复制到用户配置中心；仓库示例仅供参考，个人修改应写入配置中心。
+
 ```bash
 # 创建 ~/.config/dig-ui-skill/global-rules.local.md（已存在则不覆盖）
-npx dig-ui-skill init-local
+npx dig-ui-skill local init
 
 # 首次同步到 Codex / Cursor / Claude Code
-npx dig-ui-skill sync-local --all
+npx dig-ui-skill local sync --all
 
 # 编辑配置中心后，显式推送覆盖各端副本
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local sync --all --from-config
 
 # 更新标准资产后一并同步个人规则
 npx dig-ui-skill update --all --with-local --from-config
 ```
 
-当配置中心与目标工具目录的 local 文件内容不一致时，默认不覆盖并报告冲突；使用 `--from-config` 覆盖目标，或使用 `--from-target` 导入目标。
+当配置中心与目标工具目录的 local 文件内容不一致时，默认不覆盖并报告冲突；使用 `--from-config` 覆盖目标，或使用 `local import --from <target> --force` 导入目标。
 
 Cursor 个人 skill 安装到 `~/.cursor/skills/dig-ui`。如果某个业务仓库需要更稳定地触发 Dig UI，可额外安装项目 rule：
 
@@ -127,27 +133,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 
 ---
 
-## 🔌 DigKit Bridge Runtime
-
-`dig-ui-skill run` 是给 DigKit `ui.design` provider=cli 使用的稳定文件协议。它不是通用代码生成器入口，也不会直接写业务仓库文件；它只读取输入 JSON，输出 DigKit 能物化的 design envelope。
-
-```bash
-dig-ui-skill run --input-json input.json --output-json output.json
-```
-
-输入遵循 DigKit `ui.design` request：`task`、`prompt`、可选 `framework`、`target`、`catalog`、`layout`、`context_files` 与 `options.return_patch`。输出包含：
-
-- `summary` / `task` / `catalog` / `layout` / `metadata`
-- 当 `options.return_patch=true` 时，返回 `artifact_outputs`，其中 `file_content` 和 `diff` 使用 label 交给 DigKit 物化
-- `apply_plan` 使用 `dig-ui-skill.apply_plan.v1`，通过 `content_artifact_label` / `diff_artifact_label` 关联 artifact
-
-边界约定：
-
-- Dig UI Skill 负责 Dig UI catalog / layout 选择、基础源码 artifact 与 apply plan envelope。
-- DigKit 负责 artifact ID、canonical digest、审批、workspace policy、路径权限、幂等和真实文件写入。
-- bridge 生成源码时会按 HTML / Vue / JSX 属性上下文转义 catalog 与 layout；`context_files.path` 只接受安全相对路径。
-
----
+<a name="palette"></a>
 
 ## 🎨 Color Palette Catalog 与 Palette Lab
 
@@ -181,6 +167,8 @@ npx dig-ui-skill palette sync --all
 导入的 custom palette 只属于用户资产，不写回内置 `references/catalogs/palettes/`。CLI 会校验 `schema`、`token_contract`、anchors/roles 与 `--dig-*` token 的一致性；不一致的 JSON 会被拒绝。
 
 ---
+
+<a name="style"></a>
 
 ## 🧩 Style Catalog 与 Style Lab
 
@@ -324,6 +312,8 @@ AI 会自动去解析 HTML 修改代码，并把规矩准确地写入 `.md` 文�
 
 ---
 
+<a name="layouts-blocks"></a>
+
 ## 📐 Layout 结构资产（与 Catalog 平级）
 
 除 catalog 视觉 token 外，系统提供 **layout recipe** 层，负责页面区域划分、slot、响应式与信息密度。另有 **global rules** 层（`references/global-rules.md`，英文主规范；`references/global-rules.zh-CN.md` 为中文翻译）规定 i18n、dark/light、控件形态、一致性、React 组件化 select 等跨 catalog 行为；默认参与 AI 生成，可在对话中声明「不使用 global」关闭。
@@ -427,8 +417,8 @@ task_type: execution
 如果你希望长期保留个人生成偏好，推荐通过 CLI 创建仓库外配置中心：
 
 ```bash
-npx dig-ui-skill init-local
-npx dig-ui-skill sync-local --all
+npx dig-ui-skill local init
+npx dig-ui-skill local sync --all
 ```
 
 个人规则的唯一真源是 `~/.config/dig-ui-skill/global-rules.local.md`；各工具目录里的 `references/global-rules.local.md` 只是同步副本或软链接，不进入仓库提交。适合写入这类个人默认规则：
@@ -442,7 +432,7 @@ npx dig-ui-skill sync-local --all
 编辑配置中心后，先显式推送到各工具，再运行 render ops 校验：
 
 ```bash
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local sync --all --from-config
 npm run validate:renders
 ```
 
@@ -475,7 +465,7 @@ Agent 可使用这些机械 helper：
 npx dig-ui-skill local path
 npx dig-ui-skill local show
 npx dig-ui-skill local add --section "Header / Topbar" "Header stays sticky at the top with compact height."
-npx dig-ui-skill local sync
+npx dig-ui-skill local sync --all --from-config
 ```
 
 推荐工作流：

@@ -29,6 +29,8 @@ one catalog, and any relevant blocks. Check references/anti-tells.md and
 references/preflight.md before delivery.
 ```
 
+<a name="visual-system"></a>
+
 ## Choosing A Visual System
 
 Choose one base visual system per page or component group. Catalog, Palette, and Style are three ways into the same catalog system: use the entry that best matches the source of the visual decision, and do not combine them as competing bases.
@@ -42,6 +44,8 @@ Choose one base visual system per page or component group. Catalog, Palette, and
 
 Before selecting an internal style, read [`references/catalogs/styles/README.md`](./references/catalogs/styles/README.md). It routes styles by appropriate task, avoid boundary, and render archetype.
 
+<a name="palette"></a>
+
 ### Palette
 
 Palette catalogs are for color-first exploration. Palette Lab can export a user-owned asset that is imported into the configuration directory and then synced to installed tools.
@@ -51,6 +55,8 @@ npx dig-ui-skill palette import ~/Downloads/palette.custompalette.zip codex
 npx dig-ui-skill palette list
 npx dig-ui-skill palette sync --all
 ```
+
+<a name="style"></a>
 
 ### Style
 
@@ -71,6 +77,8 @@ Both user-owned asset types remain outside this repository:
 
 They are synced into an installed skill's `references/local/` directory, not written back to the built-in catalog set.
 
+<a name="local-rules"></a>
+
 ## Personal Customization
 
 Teach the agent UI decisions you want to keep: layout, density, hierarchy, and interaction preferences can become user-owned rules without forking an official catalog or adding another AI API key.
@@ -86,16 +94,22 @@ Long-term personal UI preferences are stored outside the repository:
 ~/.config/dig-ui-skill/global-rules.local.md
 ```
 
+Read [`references/global-rules.local.example.md`](./references/global-rules.local.example.md) for a concrete template. `local init` copies it into this user-owned path; the checked-in example remains a reference, not a place for personal edits.
+
 An agent follows `references/local-rules-builder.md` to route and write the preference. The CLI provides mechanical helpers:
 
 ```bash
-npx dig-ui-skill init-local
+npx dig-ui-skill local init
 npx dig-ui-skill local show
 npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local sync --all --from-config
+npx dig-ui-skill local import --from ./global-rules.local.md
+npx dig-ui-skill local export --output ./global-rules.local.md
 ```
 
 The configuration directory is the source of truth. Installed copies are synchronized replicas and should not become project-wide defaults.
+
+<a name="review-redesign"></a>
 
 ## Review And Redesign
 
@@ -115,16 +129,6 @@ then apply the mono catalog and report the missing states before delivery.
 
 Do not use a catalog to rewrite a layout's information architecture. Do not create an HTML render for a layout or block: those are Markdown contracts, while catalog render pages are previews.
 
-## DigKit Bridge Runtime
-
-The CLI can serve DigKit's file-based `ui.design` bridge protocol:
-
-```bash
-dig-ui-skill run --input-json input.json --output-json output.json
-```
-
-The result is a JSON envelope with `summary`, `task`, `catalog`, `layout`, `metadata`, optional `artifact_outputs`, and an optional `dig-ui-skill.apply_plan.v1`. Dig UI Skill produces the design response; DigKit owns artifact materialization, approval, workspace policy, idempotency, and file writes.
-
 ## Maintaining Catalogs
 
 Catalog Markdown is canonical. A catalog should define frontmatter, a visual/semantic contract, and the required `--dig-*` tokens. Style catalogs must provide both `## Dig UI CSS Tokens` and `## Dig UI Dark Tokens`.
@@ -138,6 +142,8 @@ npm run validate:renders
 ```
 
 `validate:renders` also checks language parity, layout/block Markdown contracts, catalog preview switching, and style dual-theme/export contracts.
+
+<a name="layouts-blocks"></a>
 
 ## Layouts And Blocks
 

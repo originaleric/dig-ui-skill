@@ -9,8 +9,8 @@ Copy or sync this file as `global-rules.local.md` to override or extend global r
 Prefer the CLI-managed user config outside the repository:
 
 ```bash
-npx dig-ui-skill init-local
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local init
+npx dig-ui-skill local sync --all --from-config
 ```
 
 Manual copy is also supported inside a tool skill directory:

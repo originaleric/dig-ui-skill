@@ -4,6 +4,8 @@
 
 `dig-ui-skill` 提供统一 CLI，将同一套设计系统 skill 安装到 Codex、Cursor、Claude Code 等工具的个人 skill 目录。
 
+<a name="installation"></a>
+
 ## 快速开始
 
 ```bash
@@ -114,31 +116,14 @@ npx dig-ui-skill update --all
 | `--link-local` | local 规则同步使用 symlink |
 | `--with-local` | `update` 后同步用户 local 规则 |
 | `--from-config` | 冲突时用配置中心覆盖目标 |
-| `--from-target` | 冲突时把目标导入配置中心 |
+| `--from <target\|file>` | 指定 local 规则导入来源 |
+| `--output <file>` | 指定 local 规则导出位置 |
+| `--force` | 覆盖冲突的 local 规则或已有导出文件 |
 | `--backup` | 覆盖前生成 `.backup` |
 | `--skip-conflicts` | 跳过冲突目标 |
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |
 | `--lang <en\|zh-CN>` | 安装指定语言；未指定时默认 `zh-CN`，更新时优先沿用已安装语言 |
-| `--input-json <path>` | `run`：读取 DigKit `ui.design` bridge 输入 JSON |
-| `--output-json <path>` | `run`：写入 DigKit `ui.design` bridge 输出 JSON |
-
-## DigKit Bridge Runtime
-
-DigKit 使用 `provider=cli` 对接真实 `dig-ui-skill` binary 时，调用固定文件协议：
-
-```bash
-dig-ui-skill run --input-json input.json --output-json output.json
-```
-
-该命令读取 DigKit `ui.design` 输入，并输出符合 bridge contract 的 JSON envelope：
-
-- `summary`、`task`、`catalog`、`layout`、`metadata`
-- 当 `options.return_patch=true` 时，返回 `artifact_outputs`
-- 可选 `apply_plan`，schema 为 `dig-ui-skill.apply_plan.v1`
-
-`dig-ui-skill` 只生成 envelope；artifact 物化、apply plan digest、审批、workspace 边界、幂等和文件写入由 DigKit 负责。CLI 会对生成源码中的 catalog/layout 属性做上下文转义，并只从 `context_files` 选择安全相对源码路径。
-
 Palette helper：
 
 ```bash
@@ -203,20 +188,22 @@ Layout 和 Block 不再生成 HTML render 页面；它们是 Markdown 协议资�
 
 这是个人规则的唯一真源。各工具 skill 目录里的 `references/global-rules.local.md` 只是同步副本（或通过 `--link-local` 软链接指向配置中心）。
 
+仓库中已跟踪的 [`references/global-rules.local.example.md`](./references/global-rules.local.example.md) 是可阅读的起始模板。`local init` 会将其复制到用户配置中心；请编辑该副本，不要修改仓库示例。
+
 ### 初始化与同步
 
 ```bash
 # 从示例初始化用户配置（已存在则不会覆盖）
-npx dig-ui-skill init-local
+npx dig-ui-skill local init
 
 # 同步到 Cursor / Codex / Claude Code（目标尚无 local 文件时）
-npx dig-ui-skill sync-local --all
+npx dig-ui-skill local sync --all
 
 # 编辑配置中心后，显式推送覆盖各端副本
-npx dig-ui-skill sync-local --all --from-config
+npx dig-ui-skill local sync --all --from-config
 
 # 只同步某一端
-npx dig-ui-skill sync-local cursor --from-config
+npx dig-ui-skill local sync cursor --from-config
 
 # 更新标准资产后一并同步 local 规则（内容不一致时需加 --from-config）
 npx dig-ui-skill update --all --with-local --from-config
@@ -237,7 +224,7 @@ npx dig-ui-skill local show
 npx dig-ui-skill local add --section "Header / Topbar" "Header uses compact height by default."
 
 # 只同步个人规则
-npx dig-ui-skill local sync
+npx dig-ui-skill local sync --all --from-config
 ```
 
 ### 冲突处理
@@ -247,16 +234,21 @@ npx dig-ui-skill local sync
 | 选项 | 说明 |
 |------|------|
 | `--from-config` | 用配置中心覆盖目标工具 |
-| `--from-target` | 把目标工具的 local 文件导入为配置中心主版本 |
 | `--backup` | 覆盖前生成 `.backup` 文件 |
 | `--skip-conflicts` | 跳过冲突目标，继续处理其他工具 |
 
 ```bash
 # 从 Cursor 导入已有 local 规则到配置中心
-npx dig-ui-skill import-local cursor
+npx dig-ui-skill local import --from cursor --force --backup
+
+# 从已有标准 local.md 导入配置中心
+npx dig-ui-skill local import --from ./global-rules.local.md
+
+# 导出配置中心规则为可移植 Markdown 文件
+npx dig-ui-skill local export --output ./global-rules.local.md
 
 # 强制用配置中心覆盖，并备份目标文件
-npx dig-ui-skill sync-local --all --from-config --backup
+npx dig-ui-skill local sync --all --from-config --backup
 ```
 
 ### 高级：软链接模式
@@ -264,7 +256,7 @@ npx dig-ui-skill sync-local --all --from-config --backup
 本机开发调试时，可让各工具直接指向配置中心文件：
 
 ```bash
-npx dig-ui-skill sync-local --all --link-local
+npx dig-ui-skill local sync --all --link-local
 npx dig-ui-skill update --all --with-local --link-local
 ```
 
