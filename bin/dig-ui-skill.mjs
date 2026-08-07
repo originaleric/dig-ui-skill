@@ -67,6 +67,7 @@ const USER_STYLES_DIR = path.join(USER_CONFIG_DIR, "styles");
 const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
 const LOCAL_PALETTES_RELATIVE = path.join("references", "local", "palettes");
 const LOCAL_STYLES_RELATIVE = path.join("references", "local", "styles");
+const DEFAULT_WORKBUDDY_EXPORT_FILE = path.join(USER_CONFIG_DIR, "dig-ui-workbuddy.zip");
 
 const PROTECTED_RELATIVE_PATHS = new Set([
   "references/global-rules.local.md",
@@ -190,6 +191,7 @@ Usage:
   dig-ui-skill local <action> [options]
   dig-ui-skill palette <action> [options]
   dig-ui-skill style <action> [options]
+  dig-ui-skill export workbuddy [options]
   dig-ui-skill status
 
 Targets:
@@ -228,6 +230,10 @@ Style actions:
   style sync [target|--all]          Sync user styles into installed skill local assets
   style show <id-or-file>            Print an imported user style asset
 
+Export actions:
+  export workbuddy [--output <zip>]  Create a WorkBuddy-uploadable skill ZIP
+                                     (defaults to ~/.config/dig-ui-skill/dig-ui-workbuddy.zip; replaces it when present)
+
 Options:
   --input-json <path>    Read DigKit ui.design bridge input JSON
   --output-json <path>   Write DigKit ui.design bridge output JSON
@@ -238,9 +244,9 @@ Options:
   --with-local          After update, sync user local rules to targets
   --from-config         On conflict, overwrite target with user config
   --from <target|file>  Source for local import
-  --output <file>       Destination for local export
-  --force               Overwrite a conflicting import or existing export
-  --backup              Before overwrite, create a .backup file
+  --output <file>       Destination for a local-rules or WorkBuddy export
+  --force               Overwrite a conflicting import or local-rules export
+  --backup              Before a local-rules overwrite, create a .backup file
   --skip-conflicts      Skip conflicting targets and continue
   --source <path>       Source repo path (default: package root)
   --project <path>      Cursor only: also install .cursor/rules/dig-ui.mdc
@@ -268,6 +274,8 @@ Examples:
   npx dig-ui-skill style import ~/Downloads/my-console-style.md
   npx dig-ui-skill style sync --all
   npx dig-ui-skill style list
+  npx dig-ui-skill export workbuddy
+  npx dig-ui-skill export workbuddy --output ~/Downloads/dig-ui-workbuddy.zip --lang en
   npx dig-ui-skill status
 
 Legacy compatibility aliases: init-local, sync-local, import-local.
@@ -297,6 +305,7 @@ function parseArgs(argv) {
     inputJson: null,
     outputJson: null,
     localAction: null,
+    exportAction: null,
     section: null,
     values: [],
     help: false,
@@ -431,6 +440,10 @@ function parseArgs(argv) {
     if ((options.command === "local" || options.command === "palette" || options.command === "style") && !options.localAction) {
       options.localAction = arg;
     } else if (options.command === "local" || options.command === "palette" || options.command === "style") {
+      options.values.push(arg);
+    } else if (options.command === "export" && !options.exportAction) {
+      options.exportAction = arg;
+    } else if (options.command === "export") {
       options.values.push(arg);
     } else if (options.command === "render" || options.command === "validate") {
       options.targets.push(arg);
@@ -1802,6 +1815,211 @@ async function runStyleCommand(options) {
   }
 }
 
+function crc32(buffer) {
+  let crc = 0xffffffff;
+  for (const byte of buffer) {
+    crc ^= byte;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+    }
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function toDosDateTime(date) {
+  const year = Math.min(2107, Math.max(1980, date.getFullYear()));
+  const dosDate = ((year - 1980) << 9) | ((date.getMonth() + 1) << 5) | date.getDate();
+  const dosTime = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+  return { date: dosDate, time: dosTime };
+}
+
+async function resolveOutputFilePath(outputPath) {
+  let resolvedPath = outputPath;
+  const seenPaths = new Set();
+
+  while (true) {
+    if (seenPaths.has(resolvedPath)) {
+      throw new Error(`Output path contains a symbolic link cycle: ${outputPath}`);
+    }
+    seenPaths.add(resolvedPath);
+
+    let stat;
+    try {
+      stat = await fsp.lstat(resolvedPath);
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        return resolvedPath;
+      }
+      throw error;
+    }
+
+    if (!stat.isSymbolicLink()) {
+      return resolvedPath;
+    }
+
+    const linkTarget = await fsp.readlink(resolvedPath);
+    resolvedPath = path.resolve(path.dirname(resolvedPath), linkTarget);
+  }
+}
+
+async function getOutputFileMode(outputPath) {
+  try {
+    const stat = await fsp.stat(outputPath);
+    return stat.isFile() ? stat.mode & 0o777 : 0o600;
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return 0o600;
+    }
+    throw error;
+  }
+}
+
+async function writeFileAtomically(outputPath, content) {
+  const resolvedOutputPath = await resolveOutputFilePath(outputPath);
+  const outputDir = path.dirname(resolvedOutputPath);
+  const mode = await getOutputFileMode(resolvedOutputPath);
+  const tempDir = await fsp.mkdtemp(path.join(outputDir, `.${path.basename(outputPath)}.tmp-`));
+  const tempPath = path.join(tempDir, path.basename(outputPath));
+
+  try {
+    await fsp.writeFile(tempPath, content, { mode });
+    await fsp.chmod(tempPath, mode);
+    await fsp.rename(tempPath, resolvedOutputPath);
+  } finally {
+    await fsp.rm(tempDir, { recursive: true, force: true });
+  }
+}
+
+async function writeStoredZip(sourceRoot, outputPath) {
+  const files = await listFilesRecursive(sourceRoot);
+  const localChunks = [];
+  const centralChunks = [];
+  let offset = 0;
+
+  for (const filePath of files.sort()) {
+    const relativePath = path.relative(sourceRoot, filePath).split(path.sep).join("/");
+    const fileName = Buffer.from(relativePath, "utf8");
+    const content = await fsp.readFile(filePath);
+    const stat = await fsp.stat(filePath);
+    const { date, time } = toDosDateTime(stat.mtime);
+    const checksum = crc32(content);
+
+    const localHeader = Buffer.alloc(30);
+    localHeader.writeUInt32LE(0x04034b50, 0);
+    localHeader.writeUInt16LE(20, 4);
+    localHeader.writeUInt16LE(0x0800, 6);
+    localHeader.writeUInt16LE(0, 8);
+    localHeader.writeUInt16LE(time, 10);
+    localHeader.writeUInt16LE(date, 12);
+    localHeader.writeUInt32LE(checksum, 14);
+    localHeader.writeUInt32LE(content.length, 18);
+    localHeader.writeUInt32LE(content.length, 22);
+    localHeader.writeUInt16LE(fileName.length, 26);
+    localHeader.writeUInt16LE(0, 28);
+    localChunks.push(localHeader, fileName, content);
+
+    const centralHeader = Buffer.alloc(46);
+    centralHeader.writeUInt32LE(0x02014b50, 0);
+    centralHeader.writeUInt16LE(0x0314, 4);
+    centralHeader.writeUInt16LE(20, 6);
+    centralHeader.writeUInt16LE(0x0800, 8);
+    centralHeader.writeUInt16LE(0, 10);
+    centralHeader.writeUInt16LE(time, 12);
+    centralHeader.writeUInt16LE(date, 14);
+    centralHeader.writeUInt32LE(checksum, 16);
+    centralHeader.writeUInt32LE(content.length, 20);
+    centralHeader.writeUInt32LE(content.length, 24);
+    centralHeader.writeUInt16LE(fileName.length, 28);
+    centralHeader.writeUInt16LE(0, 30);
+    centralHeader.writeUInt16LE(0, 32);
+    centralHeader.writeUInt16LE(0, 34);
+    centralHeader.writeUInt16LE(0, 36);
+    centralHeader.writeUInt32LE(0, 38);
+    centralHeader.writeUInt32LE(offset, 42);
+    centralChunks.push(centralHeader, fileName);
+    offset += localHeader.length + fileName.length + content.length;
+  }
+
+  const centralDirectory = Buffer.concat(centralChunks);
+  const endRecord = Buffer.alloc(22);
+  endRecord.writeUInt32LE(0x06054b50, 0);
+  endRecord.writeUInt16LE(0, 4);
+  endRecord.writeUInt16LE(0, 6);
+  endRecord.writeUInt16LE(files.length, 8);
+  endRecord.writeUInt16LE(files.length, 10);
+  endRecord.writeUInt32LE(centralDirectory.length, 12);
+  endRecord.writeUInt32LE(offset, 16);
+  endRecord.writeUInt16LE(0, 20);
+
+  await ensureDir(path.dirname(outputPath));
+  await writeFileAtomically(
+    outputPath,
+    Buffer.concat([...localChunks, centralDirectory, endRecord]),
+  );
+  return files.length;
+}
+
+function resolveWorkBuddyExportPath(options) {
+  const output = options.output
+    ? path.resolve(options.output)
+    : path.resolve(process.cwd(), DEFAULT_WORKBUDDY_EXPORT_FILE);
+  if (path.extname(output).toLowerCase() !== ".zip") {
+    throw new Error("WorkBuddy export output must use a .zip extension");
+  }
+  return output;
+}
+
+async function runWorkBuddyExport(options) {
+  if (options.values.length > 0 || options.all) {
+    throw new Error("export workbuddy accepts no positional values or --all");
+  }
+  if (options.link || options.linkLocal || options.withLocal || options.fromConfig || options.from || options.backup) {
+    throw new Error("export workbuddy does not support install, sync, import, or backup options");
+  }
+
+  validateSource(options.source);
+  const outputPath = resolveWorkBuddyExportPath(options);
+  const stagingRoot = await fsp.mkdtemp(path.join(os.tmpdir(), "dig-ui-workbuddy-"));
+  const language = await resolveInstallLanguage(stagingRoot, { lang: options.lang });
+  const localRulesPath = path.join(stagingRoot, LOCAL_RULES_RELATIVE);
+  const hasLocalRules = await pathExists(USER_LOCAL_RULES_PATH);
+  const hasPalettes = await pathExists(USER_PALETTES_DIR);
+  const hasStyles = await pathExists(USER_STYLES_DIR);
+
+  try {
+    await copySkillAssets(options.source, stagingRoot);
+    await applyLanguagePack(options.source, stagingRoot, language);
+    if (hasLocalRules) {
+      await copyFileSafe(USER_LOCAL_RULES_PATH, localRulesPath);
+    }
+
+    const fileCount = await writeStoredZip(stagingRoot, outputPath);
+    console.log(`Exported WorkBuddy skill bundle: ${outputPath}`);
+    console.log(`  language: ${language}`);
+    console.log(`  files: ${fileCount}`);
+    console.log(`  local rules: ${hasLocalRules ? "included" : "not present"}`);
+    console.log(`  palettes: ${hasPalettes ? "included" : "not present"}`);
+    console.log(`  styles: ${hasStyles ? "included" : "not present"}`);
+    console.log("  Upload this ZIP in WorkBuddy: Skills → Add Skill → Upload.");
+  } finally {
+    await fsp.rm(stagingRoot, { recursive: true, force: true });
+  }
+}
+
+async function runExportCommand(options) {
+  if (options.output && options.exportAction !== "workbuddy") {
+    throw new Error("--output is only supported by export workbuddy");
+  }
+
+  switch (options.exportAction) {
+    case "workbuddy":
+      await runWorkBuddyExport(options);
+      break;
+    default:
+      throw new Error("export requires a target: workbuddy");
+  }
+}
+
 async function copyFileSafe(sourcePath, destPath) {
   await ensureDir(path.dirname(destPath));
   await fsp.copyFile(sourcePath, destPath);
@@ -2587,6 +2805,9 @@ async function main() {
       case "style":
         await runStyleCommand(options);
         break;
+      case "export":
+        await runExportCommand(options);
+        break;
       case "init-local":
         console.warn("Warning: `init-local` is deprecated; use `local init`.");
         await runInitLocal(options);
@@ -2603,7 +2824,7 @@ async function main() {
         break;
       default:
         throw new Error(
-          `Unknown command "${options.command}". Use run, install, update, render, validate, local, palette, style, or status.`,
+          `Unknown command "${options.command}". Use run, install, update, render, validate, local, palette, style, export, or status.`,
         );
     }
   } catch (error) {

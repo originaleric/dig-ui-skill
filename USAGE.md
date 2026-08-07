@@ -109,6 +109,17 @@ npx dig-ui-skill local export --output ./global-rules.local.md
 
 The configuration directory is the source of truth. Installed copies are synchronized replicas and should not become project-wide defaults.
 
+## WorkBuddy Export
+
+Create a self-contained ZIP for WorkBuddy's **Skills → Add Skill → Upload** flow:
+
+```bash
+npx dig-ui-skill export workbuddy
+npx dig-ui-skill export workbuddy --output ~/Downloads/dig-ui-workbuddy.zip --lang en
+```
+
+The export includes the selected language and any user local rules, palettes, and styles. The default output is `~/.config/dig-ui-skill/dig-ui-workbuddy.zip`; running the command again replaces that ZIP or the path supplied through `--output`.
+
 <a name="review-redesign"></a>
 
 ## Review And Redesign

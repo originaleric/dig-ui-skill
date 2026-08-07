@@ -16,6 +16,7 @@ npx dig-ui-skill install claude-code
 npx dig-ui-skill install codex --lang zh-CN
 npx dig-ui-skill install codex --lang en
 npx dig-ui-skill update cursor
+npx dig-ui-skill export workbuddy
 npx dig-ui-skill status
 ```
 
@@ -53,6 +54,18 @@ npx dig-ui-skill install claude
 ```
 
 验证：运行 `claude`，用 `/dig-ui` 或自然语言触发 Dig UI 相关任务。
+
+## WorkBuddy
+
+WorkBuddy 通过「技能」界面导入本地 Skill 包，因此 CLI 只生成自包含的上传 ZIP，不会写入 WorkBuddy 的内部目录：
+
+```bash
+npx dig-ui-skill export workbuddy
+npx dig-ui-skill export workbuddy --output ~/Downloads/dig-ui-workbuddy.zip
+npx dig-ui-skill export workbuddy --lang en
+```
+
+导出包会包含所选语言，以及当前存在的用户 local rules、palette 与 style。`--output` 可省略，默认输出为 `~/.config/dig-ui-skill/dig-ui-workbuddy.zip`；每次导出都会直接覆盖目标 ZIP。在 WorkBuddy 中选择「技能 → 添加技能 → 上传技能」，然后选择该文件。
 
 ## Cursor
 
@@ -117,9 +130,9 @@ npx dig-ui-skill update --all
 | `--with-local` | `update` 后同步用户 local 规则 |
 | `--from-config` | 冲突时用配置中心覆盖目标 |
 | `--from <target\|file>` | 指定 local 规则导入来源 |
-| `--output <file>` | 指定 local 规则导出位置 |
-| `--force` | 覆盖冲突的 local 规则或已有导出文件 |
-| `--backup` | 覆盖前生成 `.backup` |
+| `--output <file>` | 指定 local 规则或 WorkBuddy 包导出位置 |
+| `--force` | 覆盖冲突的 local 规则或已有 local 规则导出；WorkBuddy 导出始终直接覆盖 ZIP。 |
+| `--backup` | local 规则覆盖前生成 `.backup` |
 | `--skip-conflicts` | 跳过冲突目标 |
 | `--source <path>` | 从本地仓库路径安装 |
 | `--project <path>` | Cursor：额外安装项目 `.cursor/rules/dig-ui.mdc` |

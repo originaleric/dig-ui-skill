@@ -74,6 +74,8 @@ npx dig-ui-skill install codex --lang en
 npx dig-ui-skill install codex --lang zh-CN
 ```
 
+To use Dig UI in WorkBuddy, see [WorkBuddy](#workbuddy).
+
 For installation and update details, see the [installation guide](./INSTALL.md#installation).
 
 <a name="personal-customization"></a>
@@ -287,6 +289,18 @@ npx dig-ui-skill install claude
 ```text
 Use Dig UI to refactor this UI. Start from the runtime-console layout and apply the mono catalog.
 ```
+
+### WorkBuddy
+
+Export a self-contained upload package:
+
+```bash
+npx dig-ui-skill export workbuddy
+```
+
+The default `~/.config/dig-ui-skill/dig-ui-workbuddy.zip` includes the selected language and current personal assets. In WorkBuddy, choose **Skills → Add Skill → Upload** and select the ZIP; re-running the command replaces it.
+
+For a custom output path or an English bundle, see [the WorkBuddy installation guide](./INSTALL.md#workbuddy).
 
 ## Examples
 

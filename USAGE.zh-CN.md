@@ -90,6 +90,17 @@ npx dig-ui-skill update --all
 
 `update` 也会保留用户 palette / style 资产。用户自定义 palette 的真源在 `~/.config/dig-ui-skill/palettes/`，用户自定义 style 的真源在 `~/.config/dig-ui-skill/styles/`；已安装 skill 中的 `references/local/palettes/` 与 `references/local/styles/` 只是同步副本。
 
+### WorkBuddy 导出
+
+为 WorkBuddy 的「技能 → 添加技能 → 上传技能」流程生成一个自包含 ZIP：
+
+```bash
+npx dig-ui-skill export workbuddy
+npx dig-ui-skill export workbuddy --output ~/Downloads/dig-ui-workbuddy.zip --lang en
+```
+
+导出包包含所选语言和当前用户 local rules、palette、style。默认输出路径是 `~/.config/dig-ui-skill/dig-ui-workbuddy.zip`；再次运行会直接覆盖该 ZIP，或覆盖 `--output` 指定的路径。
+
 <a name="local-rules"></a>
 
 ### 个人定制与 Global Rules

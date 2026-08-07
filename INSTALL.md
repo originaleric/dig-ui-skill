@@ -16,6 +16,7 @@ npx dig-ui-skill install claude-code
 npx dig-ui-skill install codex --lang en
 npx dig-ui-skill install codex --lang zh-CN
 npx dig-ui-skill update cursor
+npx dig-ui-skill export workbuddy
 npx dig-ui-skill status
 ```
 
@@ -69,6 +70,18 @@ npx dig-ui-skill install claude
 
 Use `/dig-ui` or a natural-language task that mentions Dig UI.
 
+## WorkBuddy
+
+WorkBuddy imports local Skill packages from its Skills screen, so the CLI exports a self-contained upload ZIP instead of writing into WorkBuddy's internal directories:
+
+```bash
+npx dig-ui-skill export workbuddy
+npx dig-ui-skill export workbuddy --output ~/Downloads/dig-ui-workbuddy.zip
+npx dig-ui-skill export workbuddy --lang en
+```
+
+The bundle includes the selected language plus the current user local rules, palettes, and styles when present. `--output` is optional and defaults to `~/.config/dig-ui-skill/dig-ui-workbuddy.zip`. Every export replaces the target ZIP. In WorkBuddy, select **Skills → Add Skill → Upload** and choose the exported file.
+
 ## Updating
 
 `update` refreshes the standard skill assets, including language files, references, preview assets, adapters, the CLI, and both English and Chinese top-level documentation. It never overwrites `references/global-rules.local.md`.
@@ -97,9 +110,9 @@ After an update, they are synced back into each installed skill under `reference
 | `--with-local` | Sync user local rules after `update`. |
 | `--from-config` | Resolve a local-rule conflict with the configuration copy. |
 | `--from <target\|file>` | Select a local-rule import source. |
-| `--output <file>` | Select a local-rule export destination. |
-| `--force` | Replace a conflicting local-rule source or existing export. |
-| `--backup` | Create a `.backup` before overwriting. |
+| `--output <file>` | Select a local-rules or WorkBuddy bundle export destination. |
+| `--force` | Replace a conflicting local-rule source or existing local-rules export. WorkBuddy exports always replace their ZIP. |
+| `--backup` | Create a `.backup` before a local-rules overwrite. |
 | `--skip-conflicts` | Continue while skipping conflicting targets. |
 | `--source <path>` | Install from a local repository. |
 | `--project <path>` | Add Cursor's project rule. |

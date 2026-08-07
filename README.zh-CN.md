@@ -75,6 +75,8 @@ npx dig-ui-skill install codex --lang zh-CN
 npx dig-ui-skill install codex --lang en
 ```
 
+在 WorkBuddy 中使用请参阅 [WorkBuddy 使用](#workbuddy-使用)。
+
 安装与更新详见[安装指南](./INSTALL.zh-CN.md#installation)。
 
 <a name="personal-customization"></a>
@@ -278,7 +280,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 使用 Dig UI。将 references/layouts/settings-form.md 和 references/catalogs/other/dig.md 应用到这个界面。
 ```
 
-### Claude Code
+
 
 ```bash
 npx dig-ui-skill install claude-code
@@ -288,6 +290,18 @@ npx dig-ui-skill install claude
 ```text
 使用 Dig UI 重构这个界面。从 runtime-console layout 开始，并应用 mono catalog。
 ```
+
+### WorkBuddy 使用
+
+导出一个可直接上传的自包含技能包：
+
+```bash
+npx dig-ui-skill export workbuddy
+```
+
+默认生成 `~/.config/dig-ui-skill/dig-ui-workbuddy.zip`，包含所选语言和当前个人资产。打开 WorkBuddy 后，选择「技能 → 添加技能 → 上传技能」并选择该 ZIP；再次运行命令会直接覆盖它。
+
+如需自定义输出位置或导出英文包，请参阅[安装指南中的 WorkBuddy 说明](./INSTALL.zh-CN.md#workbuddy)。
 
 ## 示例
 
