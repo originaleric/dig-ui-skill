@@ -141,7 +141,11 @@ DEFAULT_PALETTE_SUPPORT_CANDIDATES = [
 ]
 
 def is_canonical_catalog_markdown(file_name):
-    return file_name.endswith(".md") and not LOCALIZED_MARKDOWN_RE.search(file_name)
+    return (
+        file_name.endswith(".md")
+        and file_name != "README.md"
+        and not LOCALIZED_MARKDOWN_RE.search(file_name)
+    )
 
 def clean_description(desc):
     if not desc:
@@ -628,7 +632,7 @@ def build_token_section():
             </div>
           </section>"""
 
-def build_palette_lab_section(support_candidates=None):
+def build_palette_lab_section(support_candidates=None, lab_id="palette-lab", title_zh="Palette Lab", title_en="Palette Lab", description_zh="临时试色只更新当前预览页的 CSS variables；确认后再把 token 回写到 catalog。", description_en="Trial colors only update CSS variables in this preview; copy the tokens back to the catalog when approved."):
     candidates = support_candidates or DEFAULT_PALETTE_SUPPORT_CANDIDATES
     candidate_html = "\n".join([
         f'''                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="{candidate["value"]}" data-strong="{candidate["strong"]}">
@@ -656,11 +660,11 @@ def build_palette_lab_section(support_candidates=None):
         for role, label_en, label_zh, token in controls
     ])
     return f"""
-            <div class="palette-lab-shell" id="palette-lab" data-palette-lab>
+            <div class="palette-lab-shell" id="{lab_id}" data-palette-lab>
               <div class="palette-lab-head">
                 <div>
-                  <h4 data-zh="Palette Lab" data-en="Palette Lab">Palette Lab</h4>
-                  <p data-zh="临时试色只更新当前预览页的 CSS variables；确认后再把 token 回写到 catalog。" data-en="Trial colors only update CSS variables in this preview; copy the tokens back to the catalog when approved.">临时试色只更新当前预览页的 CSS variables；确认后再把 token 回写到 catalog。</p>
+                  <h4 data-zh="{title_zh}" data-en="{title_en}">{title_zh}</h4>
+                  <p data-zh="{description_zh}" data-en="{description_en}">{description_zh}</p>
                 </div>
                 <div class="palette-lab-actions">
                   <button type="button" class="btn btn-secondary palette-copy-btn" data-palette-copy data-zh="复制 Token" data-en="Copy Tokens">复制 Token</button>
@@ -691,14 +695,47 @@ def build_palette_lab_section(support_candidates=None):
 def build_style_lab_section(style_contract="", css_token_block="", dark_token_block=""):
     contract_attr = escape_attr(style_contract)
     token_attr = escape_attr(css_token_block)
+    controls = [
+        ("canvas", "Canvas", "画布", "--dig-bg"),
+        ("surface", "Surface", "面板", "--dig-surface"),
+        ("ink", "Ink", "文字", "--dig-text"),
+        ("primary", "Primary", "主强调色", "--dig-accent"),
+        ("support", "Support", "第二强调色", "--dig-accent-2"),
+        ("border", "Border", "边框", "--dig-border"),
+    ]
+    control_html = "\n".join([
+        f'''              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="{label_zh}" data-en="{label_en}">{label_zh}</span>
+                <span class="palette-lab-token">{token}</span>
+                <input class="palette-lab-input" data-style-input="{role}" inputmode="text" maxlength="9" aria-label="{label_en} hex" />
+                <input class="palette-lab-color" data-style-color="{role}" type="color" aria-label="{label_en} color picker" />
+              </label>'''
+        for role, label_en, label_zh, token in controls
+    ])
     return f"""
             <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="{contract_attr}" data-style-token-block="{token_attr}" data-style-dark-token-block="{escape_attr(dark_token_block)}">
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
-                  <p data-zh="把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。" data-en="Export this style's visual grammar, render archetype, and tokens as a user-local customstyle asset.">把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。</p>
+                  <p data-zh="在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。" data-en="Temporarily tune the active theme; switch Light / Dark to adjust each set independently. Export keeps both token sets in one customstyle.">在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。</p>
                 </div>
-                <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-style-copy data-zh="复制当前主题 Token" data-en="Copy Active Theme Tokens">复制当前主题 Token</button>
+                  <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                </div>
+              </div>
+              <div class="style-lab-tuner" aria-live="polite">
+                <div class="palette-lab-controls">
+{control_html}
+                </div>
+                <div class="palette-token-diff">
+                  <div><code>--dig-bg</code><span data-style-token="--dig-bg"></span></div>
+                  <div><code>--dig-surface</code><span data-style-token="--dig-surface"></span></div>
+                  <div><code>--dig-text</code><span data-style-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-style-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-2</code><span data-style-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-border</code><span data-style-token="--dig-border"></span></div>
+                </div>
               </div>
               <div class="style-lab-grid">
                 <article>
@@ -743,7 +780,7 @@ def build_archetype_section(archetype, brand_name, palette_candidates=None):
         "editorial-story": f"""
           <section class="surface section" id="sample">
             <div class="section-head">{bilingual_element("h3", "社论叙事", "Editorial Story")}{bilingual_element("p", "一个主张、一个支撑信号和一个行动共同建立阅读路径。", "One proposition, one supporting signal, and one action establish the reading path.")}</div>
-            <div class="type-grid"><article class="type-card">{bilingual_element("strong", "信号", "Signal")}{bilingual_element("div", "让下一步行动清晰可见。", "Make the next move visible.", 'class="type-showcase type-hero"')}</article><article class="type-card">{bilingual_element("strong", "上下文", "Context")}{bilingual_element("div", "紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。", "A compact supporting frame gives the claim evidence without turning the page into a card wall.", 'class="type-showcase type-body"')}</article></div>
+            <div class="type-grid"><article class="type-card">{bilingual_element("strong", "信号", "Signal")}{bilingual_element("div", "让下一步行动清晰可见。", "Make the next move visible.", 'class="type-showcase type-statement"')}</article><article class="type-card">{bilingual_element("strong", "上下文", "Context")}{bilingual_element("div", "紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。", "A compact supporting frame gives the claim evidence without turning the page into a card wall.", 'class="type-showcase type-body"')}</article></div>
           </section>""",
         "command-palette-marketing": f"""
           <section class="surface section archetype-section command-preview" id="sample">
@@ -1081,13 +1118,25 @@ def build_page_grid(archetype, brand_name, palette_candidates=None, category_slu
     if category_slug == "styles":
         style_lab_link = '            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>\n'
         style_lab_section = build_style_lab_section(style_contract, css_token_block, dark_token_block)
+    brand_lab_link = ""
+    brand_lab_section = ""
+    if category_slug not in {"styles", "palettes"}:
+        brand_lab_link = '            <a href="#brand-lab" data-zh="品牌试色" data-en="Brand Lab">品牌试色</a>\n'
+        brand_lab_section = build_palette_lab_section(
+            palette_candidates,
+            lab_id="brand-lab",
+            title_zh="Brand Lab",
+            title_en="Brand Lab",
+            description_zh="临时调整当前品牌 preview 的核心颜色角色；导出为可复用的 custompalette 用户资产。",
+            description_en="Temporarily tune this brand preview's core color roles, then export a reusable custompalette user asset.",
+        )
     return f"""
       <div class="page-grid">
         <aside class="surface side-rail">
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
             <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
-{palette_lab_link}{style_lab_link}            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+{palette_lab_link}{style_lab_link}{brand_lab_link}            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
             <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
         </aside>
@@ -1095,6 +1144,7 @@ def build_page_grid(archetype, brand_name, palette_candidates=None, category_slu
         <div class="content">
 {build_archetype_section(archetype, brand_name, palette_candidates)}
 {style_lab_section}
+{brand_lab_section}
 {build_color_section()}
 {build_token_section()}
         </div>
@@ -1573,120 +1623,51 @@ def main():
         for src, target in ui_translations.items():
             html_content = html_content.replace(src, target)
 
-        # Inject switcher capsule CSS if not present
-        if ".lang-switch-capsule" not in html_content:
-            switcher_css = """
-      /* Floating Language Switcher */
-      .lang-switch-capsule {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
-        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 4px 8px;
-        border-radius: 99px;
-        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
-        z-index: 9999;
-      }
-      .lang-btn {
-        background: transparent;
-        border: none;
-        color: var(--dig-text-soft, #62798c);
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 99px;
-        transition: all 0.2s ease;
-        font-family: var(--dig-font-sans), sans-serif;
-      }
-      .lang-btn.active {
-        background: var(--dig-accent, #37d67a);
-        color: var(--dig-bg, #0f1115);
-      }
-      .lang-btn:hover:not(.active) {
-        color: var(--dig-text, #ecf3f8);
-      }
-      .lang-split {
-        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
-        font-size: 12px;
-        user-select: none;
-      }
-    </style>"""
-            html_content = html_content.replace("</style>", switcher_css)
-
-        if ".theme-switch-capsule" not in html_content:
-            theme_switcher_css = """
-      /* Floating Theme Switcher */
-      .theme-switch-capsule {
-        position: fixed;
-        top: 72px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border: 1px solid var(--dig-border);
-        border-radius: var(--dig-radius-pill);
-        background: var(--dig-surface-elevated);
-        box-shadow: var(--dig-shadow-soft);
-        z-index: 9999;
-      }
-      .theme-switch-capsule[hidden] { display: none; }
-      .theme-btn {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0 12px;
-        border: 0;
-        border-radius: var(--dig-radius-pill);
-        background: transparent;
-        color: var(--dig-text-muted);
-        font: 600 12px/1 var(--dig-font-sans);
-        cursor: pointer;
-      }
-      .theme-btn[aria-pressed="true"] {
-        background: var(--dig-accent);
-        color: var(--dig-bg);
-      }
-      .theme-btn:focus-visible {
-        outline: 2px solid var(--dig-accent-2);
-        outline-offset: 2px;
-      }
-    </style>"""
-            html_content = html_content.replace("</style>", theme_switcher_css)
-
-        # Inject switcher capsule HTML if not present
-        if "class=\"lang-switch-capsule\"" not in html_content:
-            switcher_html = """\n    <!-- Floating Language Switcher Capsule -->
-    <div class="lang-switch-capsule">
-      <button class="lang-btn" data-lang="zh">中</button>
-      <span class="lang-split">/</span>
-      <button class="lang-btn" data-lang="en">EN</button>
+        # Preview controls are generated from one shared shell. Remove earlier
+        # inline capsule variants so every render receives the same local-rule UI.
+        html_content = re.sub(
+            r'\s*/\* Floating Language Switcher \*/[\s\S]*?(?=\s*</style>)',
+            '',
+            html_content,
+            count=1,
+        )
+        html_content = re.sub(
+            r'\s*<!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->\s*<div class="theme-switch-capsule"[^>]*>[\s\S]*?</div>',
+            '',
+            html_content,
+            count=1,
+        )
+        html_content = re.sub(
+            r'\s*<!-- Floating Language Switcher Capsule -->\s*<div class="lang-switch-capsule"[^>]*>[\s\S]*?</div>',
+            '',
+            html_content,
+            count=1,
+        )
+        html_content = re.sub(
+            r'\s*<!-- Preview Control Dock -->\s*<div class="preview-control-dock"[^>]*>[\s\S]*?</div>\s*(?=\s*<main)',
+            '',
+            html_content,
+            count=1,
+        )
+        preview_controls_html = """\n    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
     </div>"""
-            html_content = re.sub(
-                r"<body(?:\s+[^>]*)?>",
-                lambda match: f"{match.group(0)}{switcher_html}",
-                html_content,
-                count=1,
-            )
-
-        if "class=\"theme-switch-capsule\"" not in html_content:
-            theme_switcher_html = """\n    <!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->
-    <div class="theme-switch-capsule" data-theme-switcher hidden>
-      <button type="button" class="theme-btn" data-theme-mode="light" data-zh="亮" data-en="Light" aria-pressed="false">亮</button>
-      <button type="button" class="theme-btn" data-theme-mode="dark" data-zh="暗" data-en="Dark" aria-pressed="false">暗</button>
-    </div>"""
-            html_content = re.sub(
-                r"<body(?:\s+[^>]*)?>",
-                lambda match: f"{match.group(0)}{theme_switcher_html}",
-                html_content,
-                count=1,
-            )
+        html_content = re.sub(
+            r"<body(?:\s+[^>]*)?>",
+            lambda match: f"{match.group(0)}{preview_controls_html}",
+            html_content,
+            count=1,
+        )
 
         # Clean up any pre-existing bilingual script controllers (including broken ones) to force update
         html_content = re.sub(
@@ -1719,7 +1700,9 @@ def main():
 
         // Toggle active classes on switcher buttons
         document.querySelectorAll('.lang-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
         });
 
         // Translate all data-zh/data-en text nodes
@@ -1769,6 +1752,17 @@ def main():
         const paletteExportTokens = [
           ...paletteTrackedTokens
         ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
 
         function normalizeHex(raw) {
           const value = (raw || '').trim();
@@ -2244,6 +2238,54 @@ def main():
           return lines.join('\\n');
         }
 
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
         function initStyleTheme() {
           const lab = document.querySelector('[data-style-lab]');
           const switcher = document.querySelector('[data-theme-switcher]');
@@ -2256,13 +2298,16 @@ def main():
             document.documentElement.dataset.styleTheme = resolvedMode;
             document.documentElement.style.colorScheme = resolvedMode;
             localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
             switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
               button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
             });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
           };
 
           const savedTheme = localStorage.getItem('dig-ui-style-theme');
-          applyStyleTheme(savedTheme === 'dark' ? 'dark' : 'light');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
           switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
             button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
           });
@@ -2276,10 +2321,13 @@ def main():
           const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
           const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
           const styleTokens = {
-            ...parseStyleTokenCss(styleTokenCss),
-            ...collectStyleTokens()
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
           };
-          const styleDarkTokens = parseStyleTokenCss(styleDarkTokenCss);
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
           const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
           const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
           return {
@@ -2333,19 +2381,55 @@ def main():
         function initStyleLab() {
           const lab = document.querySelector('[data-style-lab]');
           if (!lab) return;
-          const exportButton = lab.querySelector('[data-style-export]');
-          if (!exportButton) return;
-          exportButton.addEventListener('click', () => {
-            const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
-            const payload = buildStyleExportPayload(lab);
-            downloadStyleZip(payload);
-            exportButton.dataset.exportState = 'success';
-            exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
-            window.setTimeout(() => {
-              delete exportButton.dataset.exportState;
-              setLanguage(activeLang);
-            }, 1200);
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
           });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
         }
 
         function initPaletteLab() {
@@ -2364,9 +2448,7 @@ def main():
           });
 
           lab.querySelectorAll('[data-palette-color]').forEach(input => {
-            input.addEventListener('input', () => {
-              setPaletteRole(input.getAttribute('data-palette-color'), input.value);
-            });
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
           });
 
           lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
@@ -2431,9 +2513,14 @@ def main():
             else:
                 html_content = html_content.replace("</body>", f"<script>\n{bilingual_js}\n    </script>\n  </body>")
 
+        default_theme = parse_render_setting(md_content, "default_theme") if category_slug == "styles" else ""
+        if category_slug == "styles" and default_theme == "dark":
+            html_content = re.sub(r'\sdata-style-theme="[^"]*"', "", html_content, count=1)
+            html_content = html_content.replace("<html ", '<html data-style-theme="dark" ', 1)
+
         html_content = re.sub(
-            r'<body(?:\s+data-render-archetype="[^"]*")?>',
-            f'<body data-render-archetype="{escape_attr(render_archetype)}">',
+            r'<body[^>]*>',
+            f'<body data-render-archetype="{escape_attr(render_archetype)}" data-render-canvas="{escape_attr(render_canvas)}" data-style-theme-default="{escape_attr(default_theme)}">',
             html_content,
             count=1
         )

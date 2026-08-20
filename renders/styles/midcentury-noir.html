@@ -66,99 +66,22 @@
 --dig-border: #514b43; --dig-border-strong: #f5efdf; --dig-grid-line: rgba(245, 239, 223, .11); --dig-control-bg: #302d29; --dig-control-bg-hover: #413c36;
 --dig-success: #5fb37a; --dig-warning: #e6c45f; --dig-danger: #ee7466; --dig-info: #78aeea;
       }
-/* Floating Language Switcher */
-      .lang-switch-capsule {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
-        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 4px 8px;
-        border-radius: 99px;
-        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
-        z-index: 9999;
-      }
-      .lang-btn {
-        background: transparent;
-        border: none;
-        color: var(--dig-text-soft, #62798c);
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 99px;
-        transition: all 0.2s ease;
-        font-family: var(--dig-font-sans), sans-serif;
-      }
-      .lang-btn.active {
-        background: var(--dig-accent, #0071e3);
-        color: var(--dig-bg, #000000);
-      }
-      .lang-btn:hover:not(.active) {
-        color: var(--dig-text, #ecf3f8);
-      }
-      .lang-split {
-        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
-        font-size: 12px;
-        user-select: none;
-      }
-
-      /* Floating Theme Switcher */
-      .theme-switch-capsule {
-        position: fixed;
-        top: 72px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border: 1px solid var(--dig-border);
-        border-radius: var(--dig-radius-pill);
-        background: var(--dig-surface-elevated);
-        box-shadow: var(--dig-shadow-soft);
-        z-index: 9999;
-      }
-      .theme-switch-capsule[hidden] { display: none; }
-      .theme-btn {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0 12px;
-        border: 0;
-        border-radius: var(--dig-radius-pill);
-        background: transparent;
-        color: var(--dig-text-muted);
-        font: 600 12px/1 var(--dig-font-sans);
-        cursor: pointer;
-      }
-      .theme-btn[aria-pressed="true"] {
-        background: var(--dig-accent);
-        color: var(--dig-bg);
-      }
-      .theme-btn:focus-visible {
-        outline: 2px solid var(--dig-accent-2);
-        outline-offset: 2px;
-      }
     </style>
   </head>
-  <body data-render-archetype="editorial-story">
-    <!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->
-    <div class="theme-switch-capsule" data-theme-switcher hidden>
-      <button type="button" class="theme-btn" data-theme-mode="light" data-zh="亮" data-en="Light" aria-pressed="false">亮</button>
-      <button type="button" class="theme-btn" data-theme-mode="dark" data-zh="暗" data-en="Dark" aria-pressed="false">暗</button>
-    </div>
-    <!-- Floating Language Switcher Capsule -->
-    <div class="lang-switch-capsule">
-      <button class="lang-btn" data-lang="zh">中</button>
-      <span class="lang-split">/</span>
-      <button class="lang-btn" data-lang="en">EN</button>
-    </div>
-
-    <main class="preview-shell">
+  <body data-render-archetype="editorial-story" data-render-canvas="noir-dual" data-style-theme-default="">
+    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
+    </div><main class="preview-shell">
       <section class="hero">
         <div class="surface hero-main">
           <span class="eyebrow"><span class="brand-name-label" data-zh="中世纪黑色现代主义" data-en="Midcentury Noir">中世纪黑色现代主义</span> Catalog / Dig UI</span>
@@ -191,7 +114,7 @@
 
           <section class="surface section" id="sample">
             <div class="section-head"><h3 data-zh="社论叙事" data-en="Editorial Story">社论叙事</h3><p data-zh="一个主张、一个支撑信号和一个行动共同建立阅读路径。" data-en="One proposition, one supporting signal, and one action establish the reading path.">一个主张、一个支撑信号和一个行动共同建立阅读路径。</p></div>
-            <div class="type-grid"><article class="type-card"><strong data-zh="信号" data-en="Signal">信号</strong><div class="type-showcase type-hero" data-zh="让下一步行动清晰可见。" data-en="Make the next move visible.">让下一步行动清晰可见。</div></article><article class="type-card"><strong data-zh="上下文" data-en="Context">上下文</strong><div class="type-showcase type-body" data-zh="紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。" data-en="A compact supporting frame gives the claim evidence without turning the page into a card wall.">紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。</div></article></div>
+            <div class="type-grid"><article class="type-card"><strong data-zh="信号" data-en="Signal">信号</strong><div class="type-showcase type-statement" data-zh="让下一步行动清晰可见。" data-en="Make the next move visible.">让下一步行动清晰可见。</div></article><article class="type-card"><strong data-zh="上下文" data-en="Context">上下文</strong><div class="type-showcase type-body" data-zh="紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。" data-en="A compact supporting frame gives the claim evidence without turning the page into a card wall.">紧凑的支撑框架为主张提供证据，而不是把页面堆成卡片墙。</div></article></div>
           </section>
 
             <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for: [premium service landing, product story, portfolio, cultural guide, design-forward onboarding]
@@ -272,9 +195,60 @@ motion_language:
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
-                  <p data-zh="把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。" data-en="Export this style's visual grammar, render archetype, and tokens as a user-local customstyle asset.">把当前 style 的视觉语法、render archetype 和 token 导出为用户本地 customstyle 资产。</p>
+                  <p data-zh="在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。" data-en="Temporarily tune the active theme; switch Light / Dark to adjust each set independently. Export keeps both token sets in one customstyle.">在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。</p>
                 </div>
-                <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-style-copy data-zh="复制当前主题 Token" data-en="Copy Active Theme Tokens">复制当前主题 Token</button>
+                  <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                </div>
+              </div>
+              <div class="style-lab-tuner" aria-live="polite">
+                <div class="palette-lab-controls">
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="画布" data-en="Canvas">画布</span>
+                <span class="palette-lab-token">--dig-bg</span>
+                <input class="palette-lab-input" data-style-input="canvas" inputmode="text" maxlength="9" aria-label="Canvas hex" />
+                <input class="palette-lab-color" data-style-color="canvas" type="color" aria-label="Canvas color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="面板" data-en="Surface">面板</span>
+                <span class="palette-lab-token">--dig-surface</span>
+                <input class="palette-lab-input" data-style-input="surface" inputmode="text" maxlength="9" aria-label="Surface hex" />
+                <input class="palette-lab-color" data-style-color="surface" type="color" aria-label="Surface color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="文字" data-en="Ink">文字</span>
+                <span class="palette-lab-token">--dig-text</span>
+                <input class="palette-lab-input" data-style-input="ink" inputmode="text" maxlength="9" aria-label="Ink hex" />
+                <input class="palette-lab-color" data-style-color="ink" type="color" aria-label="Ink color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="主强调色" data-en="Primary">主强调色</span>
+                <span class="palette-lab-token">--dig-accent</span>
+                <input class="palette-lab-input" data-style-input="primary" inputmode="text" maxlength="9" aria-label="Primary hex" />
+                <input class="palette-lab-color" data-style-color="primary" type="color" aria-label="Primary color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="第二强调色" data-en="Support">第二强调色</span>
+                <span class="palette-lab-token">--dig-accent-2</span>
+                <input class="palette-lab-input" data-style-input="support" inputmode="text" maxlength="9" aria-label="Support hex" />
+                <input class="palette-lab-color" data-style-color="support" type="color" aria-label="Support color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="边框" data-en="Border">边框</span>
+                <span class="palette-lab-token">--dig-border</span>
+                <input class="palette-lab-input" data-style-input="border" inputmode="text" maxlength="9" aria-label="Border hex" />
+                <input class="palette-lab-color" data-style-color="border" type="color" aria-label="Border color picker" />
+              </label>
+                </div>
+                <div class="palette-token-diff">
+                  <div><code>--dig-bg</code><span data-style-token="--dig-bg"></span></div>
+                  <div><code>--dig-surface</code><span data-style-token="--dig-surface"></span></div>
+                  <div><code>--dig-text</code><span data-style-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-style-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-2</code><span data-style-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-border</code><span data-style-token="--dig-border"></span></div>
+                </div>
               </div>
               <div class="style-lab-grid">
                 <article>
@@ -289,6 +263,7 @@ motion_language:
                 </article>
               </div>
             </section>
+
 
           <section class="surface section" id="colors">
             <div class="section-head">
@@ -345,7 +320,9 @@ motion_language:
 
         // Toggle active classes on switcher buttons
         document.querySelectorAll('.lang-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
         });
 
         // Translate all data-zh/data-en text nodes
@@ -395,6 +372,17 @@ motion_language:
         const paletteExportTokens = [
           ...paletteTrackedTokens
         ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
 
         function normalizeHex(raw) {
           const value = (raw || '').trim();
@@ -457,15 +445,11 @@ motion_language:
             const value = cssColorToHex(getTokenValue(token));
             const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
             const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
-            const swatch = lab.querySelector(`[data-palette-swatch="${role}"]`);
             if (textInput && value && textInput.value.toUpperCase() !== value) {
               textInput.value = value;
             }
             if (colorInput && value && colorInput.value.toUpperCase() !== value) {
               colorInput.value = value;
-            }
-            if (swatch && value) {
-              swatch.style.background = value;
             }
           });
 
@@ -874,6 +858,54 @@ motion_language:
           return lines.join('\n');
         }
 
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
         function initStyleTheme() {
           const lab = document.querySelector('[data-style-lab]');
           const switcher = document.querySelector('[data-theme-switcher]');
@@ -886,13 +918,16 @@ motion_language:
             document.documentElement.dataset.styleTheme = resolvedMode;
             document.documentElement.style.colorScheme = resolvedMode;
             localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
             switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
               button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
             });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
           };
 
           const savedTheme = localStorage.getItem('dig-ui-style-theme');
-          applyStyleTheme(savedTheme === 'dark' ? 'dark' : 'light');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
           switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
             button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
           });
@@ -906,10 +941,13 @@ motion_language:
           const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
           const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
           const styleTokens = {
-            ...parseStyleTokenCss(styleTokenCss),
-            ...collectStyleTokens()
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
           };
-          const styleDarkTokens = parseStyleTokenCss(styleDarkTokenCss);
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
           const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
           const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
           return {
@@ -963,19 +1001,55 @@ motion_language:
         function initStyleLab() {
           const lab = document.querySelector('[data-style-lab]');
           if (!lab) return;
-          const exportButton = lab.querySelector('[data-style-export]');
-          if (!exportButton) return;
-          exportButton.addEventListener('click', () => {
-            const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
-            const payload = buildStyleExportPayload(lab);
-            downloadStyleZip(payload);
-            exportButton.dataset.exportState = 'success';
-            exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
-            window.setTimeout(() => {
-              delete exportButton.dataset.exportState;
-              setLanguage(activeLang);
-            }, 1200);
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
           });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
         }
 
         function initPaletteLab() {
@@ -994,9 +1068,7 @@ motion_language:
           });
 
           lab.querySelectorAll('[data-palette-color]').forEach(input => {
-            input.addEventListener('input', () => {
-              setPaletteRole(input.getAttribute('data-palette-color'), input.value);
-            });
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
           });
 
           lab.querySelectorAll('[data-palette-candidate]').forEach(button => {

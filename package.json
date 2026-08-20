@@ -36,6 +36,7 @@
     "validate:renders": "node validate-dig-render-ops.mjs"
   },
   "devDependencies": {
+    "bootstrap-icons": "^1.11.3",
     "playwright": "^1.49.0"
   }
 }

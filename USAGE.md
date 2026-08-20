@@ -60,7 +60,7 @@ npx dig-ui-skill palette sync --all
 
 ### Style
 
-Style catalogs package the wider visual grammar: material, surface behavior, component tone, render archetype, and light/dark token maps. Style Lab exports them as `customstyle` assets.
+Style catalogs package the wider visual grammar: material, surface behavior, component tone, render archetype, and light/dark token maps. Style Lab temporarily tunes six core color roles in the active mode; Light and Dark remain independent and export together as one `customstyle` asset.
 
 ```bash
 npx dig-ui-skill style import ~/Downloads/style.customstyle.zip codex
@@ -74,6 +74,8 @@ Both user-owned asset types remain outside this repository:
 ~/.config/dig-ui-skill/palettes/
 ~/.config/dig-ui-skill/styles/
 ```
+
+Brand catalog previews expose Brand Lab as well. It temporarily tunes the same reusable color roles and exports a `custompalette`, which uses the existing palette import and sync workflow.
 
 They are synced into an installed skill's `references/local/` directory, not written back to the built-in catalog set.
 

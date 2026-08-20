@@ -16,7 +16,30 @@
   --preview-hero-tracking: -0.04em;
   --preview-copy-size: var(--dig-text-lg);
   --preview-copy-leading: 1.7;
+  --preview-control-active: #0071e3;
 }
+
+@font-face {
+  font-family: "bootstrap-icons";
+  src: url("./fonts/bootstrap-icons.woff2") format("woff2");
+  font-display: block;
+}
+
+.bi::before {
+  display: inline-block;
+  font-family: "bootstrap-icons";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-transform: none;
+  vertical-align: -0.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-brightness-high-fill::before { content: "\f1d1"; }
+.bi-moon-stars-fill::before { content: "\f495"; }
 
 * {
   box-sizing: border-box;
@@ -39,6 +62,123 @@ body {
     radial-gradient(circle at 82% 16%, color-mix(in srgb, var(--dig-accent-2), transparent 90%), transparent 24rem),
     linear-gradient(135deg, var(--dig-bg), var(--dig-bg-soft));
   color: var(--dig-text);
+}
+
+.preview-control-dock {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 9999;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 4px;
+  border: 1px solid var(--dig-border);
+  border-radius: var(--dig-radius-pill);
+  background: var(--dig-surface-elevated);
+  box-shadow: var(--dig-shadow-soft);
+}
+
+.lang-switch-capsule {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  margin-left: 4px;
+  padding-left: 6px;
+  border-left: 1px solid var(--dig-border);
+}
+
+.lang-btn {
+  min-width: 24px;
+  min-height: 32px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: var(--dig-radius-pill);
+  background: transparent;
+  color: var(--dig-text-muted);
+  font: 700 12px/1 var(--dig-font-sans);
+  cursor: pointer;
+}
+
+.lang-btn.active {
+  background: transparent;
+  color: var(--dig-text);
+}
+
+.lang-btn:hover:not(.active) { color: var(--dig-text); }
+
+.lang-split {
+  color: var(--dig-text-soft);
+  font: 700 12px/1 var(--dig-font-sans);
+  user-select: none;
+}
+
+.lang-btn:focus-visible,
+.theme-btn:focus-visible {
+  outline: 2px solid var(--dig-accent-2);
+  outline-offset: 2px;
+}
+
+.theme-switch-capsule {
+  position: relative;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 1fr);
+  width: 68px;
+  min-height: 32px;
+  padding: 2px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.theme-switch-capsule[hidden] { display: none; }
+
+.preview-control-dock:has(.theme-switch-capsule[hidden]) .lang-switch-capsule {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+.theme-indicator {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--preview-control-active);
+  transition: transform 180ms ease;
+}
+
+.theme-switch-capsule[data-active-theme="dark"] .theme-indicator {
+  transform: translateX(32px);
+}
+
+.theme-btn {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  place-items: center;
+  background: transparent;
+  color: var(--dig-text-muted);
+  cursor: pointer;
+}
+
+.theme-btn .bi {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.theme-btn[aria-pressed="true"] { color: #ffffff; }
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-indicator { transition: none; }
 }
 
 body[data-render-archetype="media-player-shell"] {
@@ -67,6 +207,58 @@ body[data-render-archetype="creative-canvas-workspace"] {
   --preview-copy-size: clamp(18px, 1.6vw, 24px);
   --preview-copy-leading: 1.55;
 }
+
+body[data-render-canvas="pearlescent-moire"] {
+  --holo-frame-cyan: color-mix(in srgb, var(--dig-holo-mint), var(--dig-accent) 46%);
+  --holo-frame-blue: var(--dig-accent);
+  --holo-frame-pink: color-mix(in srgb, var(--dig-holo-pink), var(--dig-text) 28%);
+  --holo-frame-gold: color-mix(in srgb, var(--dig-holo-butter), var(--dig-text) 26%);
+  background:
+    linear-gradient(rgba(248, 250, 255, 0.42), rgba(237, 241, 250, 0.5)),
+    url("./hologram-moire-light-tile.png");
+  background-position: 50% 50%, 0 0;
+  background-size: 100% 100%, 360px 360px;
+  background-repeat: no-repeat, repeat;
+  background-attachment: fixed, fixed;
+  animation: none;
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] {
+  background:
+    linear-gradient(rgba(4, 3, 9, 0.38), rgba(4, 3, 9, 0.5)),
+    url("./hologram-moire-dark-tile.png");
+  background-position: 50% 50%, 0 0;
+  background-size: 100% 100%, 360px 360px;
+  background-repeat: no-repeat, repeat;
+  background-attachment: fixed, fixed;
+  animation: none;
+}
+
+body[data-render-canvas="pearlescent-moire"] .hero h1 {
+  background: linear-gradient(
+    105deg,
+    var(--dig-accent) 0%,
+    var(--dig-accent-2) 35%,
+    color-mix(in srgb, var(--dig-holo-pink), var(--dig-text) 34%) 68%,
+    color-mix(in srgb, var(--dig-holo-butter), var(--dig-text) 34%) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: flow-root;
+  overflow: visible;
+  padding-bottom: 0.16em;
+  margin-bottom: 0;
+  line-height: 1.16;
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] .hero h1 {
+  background: linear-gradient(105deg, #f4ddff 0%, #7ee8ff 34%, #a873ff 64%, #f0be68 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 
 body[data-render-archetype="command-palette-marketing"] {
   --preview-hero-size: clamp(54px, 5.4vw, 82px);
@@ -129,6 +321,18 @@ body::before {
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.56));
 }
 
+body[data-render-canvas="pearlescent-moire"]::before {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-render-canvas="pearlescent-moire"],
+  body[data-render-canvas="pearlescent-moire"]::before,
+  html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] {
+    animation: none;
+  }
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -159,6 +363,77 @@ a {
 
 .surface-strong {
   background: var(--dig-surface-strong);
+}
+
+body[data-render-canvas="pearlescent-moire"] :is(.hero > .surface, .side-rail, .archetype-section, [data-style-lab]) {
+  border-color: transparent;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface), var(--dig-holo-mint) 5%), var(--dig-surface)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+  box-shadow: var(--dig-shadow-panel), 0 0 0 1px color-mix(in srgb, var(--dig-holo-mint), transparent 86%);
+}
+
+body[data-render-canvas="pearlescent-moire"] .hero > .surface-strong {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface-strong), var(--dig-holo-mint) 7%), var(--dig-surface-strong)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] :is(.hero > .surface, .side-rail, .archetype-section, [data-style-lab]) {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface), #27163d 18%), var(--dig-surface)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+  box-shadow: var(--dig-shadow-panel), 0 0 0 1px rgba(70, 217, 255, 0.06), 0 0 26px rgba(126, 92, 255, 0.1);
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] .hero > .surface-strong {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface-strong), #2a1746 20%), var(--dig-surface-strong)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+}
+
+body[data-render-canvas="neon-signal-frame"] :is(.hero > .surface, .side-rail, .archetype-section, [data-style-lab]) {
+  position: relative;
+  overflow: hidden;
+  border-color: transparent;
+  background:
+    linear-gradient(var(--dig-surface), var(--dig-surface)) padding-box,
+    linear-gradient(104deg, var(--dig-neon-border, var(--dig-accent)), color-mix(in srgb, var(--dig-neon-border, var(--dig-accent)), var(--dig-neon-window, var(--dig-accent-2)) 52%), var(--dig-neon-window, var(--dig-accent-2)), color-mix(in srgb, var(--dig-neon-window, var(--dig-accent-2)), var(--dig-neon-border, var(--dig-accent)) 52%), var(--dig-neon-border, var(--dig-accent))) border-box;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--dig-neon-border, var(--dig-accent)), transparent 72%), var(--dig-shadow-panel), 0 0 24px color-mix(in srgb, var(--dig-neon-window, var(--dig-accent-2)), transparent 88%);
+}
+
+body[data-render-canvas="neon-signal-frame"] .hero > .surface-strong {
+  background:
+    linear-gradient(var(--dig-surface-strong), var(--dig-surface-strong)) padding-box,
+    linear-gradient(104deg, var(--dig-neon-border, var(--dig-accent)), color-mix(in srgb, var(--dig-neon-border, var(--dig-accent)), var(--dig-neon-window, var(--dig-accent-2)) 52%), var(--dig-neon-window, var(--dig-accent-2)), color-mix(in srgb, var(--dig-neon-window, var(--dig-accent-2)), var(--dig-neon-border, var(--dig-accent)) 52%), var(--dig-neon-border, var(--dig-accent))) border-box;
+}
+
+body[data-render-canvas="neon-signal-frame"] .type-card {
+  border-color: transparent;
+  background:
+    linear-gradient(var(--dig-surface-strong), var(--dig-surface-strong)) padding-box,
+    linear-gradient(104deg, var(--dig-neon-border, var(--dig-accent)), color-mix(in srgb, var(--dig-neon-border, var(--dig-accent)), var(--dig-neon-window, var(--dig-accent-2)) 52%), var(--dig-neon-window, var(--dig-accent-2)), color-mix(in srgb, var(--dig-neon-window, var(--dig-accent-2)), var(--dig-neon-border, var(--dig-accent)) 52%), var(--dig-neon-border, var(--dig-accent))) border-box;
+  box-shadow: var(--dig-shadow-panel), 0 0 18px color-mix(in srgb, var(--dig-neon-window, var(--dig-accent-2)), transparent 90%);
+}
+
+body[data-render-canvas="neon-signal-frame"] :is(.hero > .surface, .side-rail, .archetype-section, [data-style-lab])::after {
+  position: absolute;
+  top: 0;
+  right: 12%;
+  left: 12%;
+  height: 1px;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(90deg, transparent, var(--dig-neon-border, var(--dig-accent)), var(--dig-neon-window, var(--dig-accent-2)), transparent);
+  box-shadow: 0 0 14px var(--dig-neon-border, var(--dig-accent));
+}
+
+body[data-render-canvas="neon-signal-frame"] .hero h1 {
+  background: linear-gradient(104deg, var(--dig-neon-title-start, var(--dig-neon-border, var(--dig-accent))), var(--dig-neon-title-end, var(--dig-neon-window, var(--dig-accent-2))));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
 }
 
 .hero-main {
@@ -380,6 +655,14 @@ a {
   line-height: 1.03;
   letter-spacing: -0.04em;
   font-weight: 800;
+}
+
+.type-statement {
+  max-inline-size: 12ch;
+  font-size: clamp(36px, 3.5vw, 56px);
+  line-height: 1.13;
+  letter-spacing: -0.035em;
+  font-weight: 760;
 }
 
 .type-section {
@@ -634,11 +917,16 @@ a {
   font-family: var(--font-serif);
 }
 
+.palette-lab-shell,
+.style-lab-shell {
+  position: relative;
+}
+
 .palette-lab-shell {
   display: grid;
   gap: 18px;
   margin-bottom: 18px;
-  padding: 18px;
+  padding: 18px 12px;
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-md);
   background: color-mix(in srgb, var(--dig-surface-strong), transparent 8%);
@@ -687,14 +975,14 @@ a {
 
 .palette-lab-row {
   display: grid;
-  grid-template-columns: minmax(74px, 0.6fr) minmax(112px, 0.8fr) minmax(112px, 1fr) 28px;
+  grid-template-columns: minmax(104px, 128px) minmax(132px, 0.82fr) minmax(132px, 1fr) 28px;
   align-items: center;
   gap: 10px;
   min-height: 58px;
   padding: 8px 10px;
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-md);
-  background: var(--dig-control-bg);
+  background: color-mix(in srgb, var(--dig-surface), var(--dig-bg) 24%);
 }
 
 .palette-lab-role {
@@ -723,8 +1011,9 @@ a {
   height: 44px;
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-pill);
-  background: var(--dig-control-bg);
+  background: color-mix(in srgb, var(--dig-surface-elevated), var(--dig-bg) 12%);
   color: var(--dig-text);
+  caret-color: var(--dig-text);
 }
 
 .palette-lab-input {
@@ -797,7 +1086,7 @@ a {
   padding: 8px 10px;
   border: 1px solid var(--dig-border);
   border-radius: var(--dig-radius-pill);
-  background: var(--dig-control-bg);
+  background: color-mix(in srgb, var(--dig-surface), var(--dig-bg) 24%);
   color: var(--dig-text);
   text-align: left;
   cursor: pointer;
@@ -810,7 +1099,7 @@ a {
 .palette-candidate:hover,
 .palette-candidate.active {
   border-color: var(--dig-border-strong);
-  background: var(--dig-control-bg-hover);
+  background: color-mix(in srgb, var(--dig-surface-elevated), var(--dig-bg) 12%);
 }
 
 .palette-copy-btn[data-copy-state="error"] {
@@ -855,6 +1144,16 @@ a {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.style-lab-tuner {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(260px, 0.9fr);
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--dig-border);
+  border-radius: var(--dig-radius-md);
+  background: color-mix(in srgb, var(--dig-surface-strong), transparent 8%);
 }
 
 .style-lab-grid article {
@@ -2222,6 +2521,37 @@ a {
   color: var(--dig-accent);
 }
 
+body[data-render-canvas="pearlescent-moire"] :is(.tool-strip, .canvas-board, .canvas-shell aside, .artboard, .floating-node) {
+  border-color: transparent;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface-strong), var(--dig-holo-mint) 6%), var(--dig-surface)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+}
+
+body[data-render-canvas="pearlescent-moire"] .canvas-board {
+  background:
+    linear-gradient(var(--dig-grid-line) 1px, transparent 1px) padding-box,
+    linear-gradient(90deg, var(--dig-grid-line) 1px, transparent 1px) padding-box,
+    var(--dig-surface) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+  background-size: 28px 28px, 28px 28px, auto, auto;
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] :is(.tool-strip, .canvas-board, .canvas-shell aside, .artboard, .floating-node) {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--dig-surface-strong), #28183f 18%), var(--dig-surface)) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+}
+
+html[data-style-theme="dark"] body[data-render-canvas="pearlescent-moire"] .canvas-board {
+  background:
+    linear-gradient(var(--dig-grid-line) 1px, transparent 1px) padding-box,
+    linear-gradient(90deg, var(--dig-grid-line) 1px, transparent 1px) padding-box,
+    var(--dig-surface) padding-box,
+    linear-gradient(108deg, var(--holo-frame-cyan), var(--holo-frame-blue), var(--holo-frame-pink), var(--holo-frame-gold), var(--holo-frame-cyan)) border-box;
+  background-size: 28px 28px, 28px 28px, auto, auto;
+}
+
 .canvas-shell aside {
   display: grid;
   align-content: start;
@@ -2327,7 +2657,8 @@ a {
   .finance-shell,
   .signal-dual-shell,
   .signal-main-grid,
-  .palette-lab-grid {
+  .palette-lab-grid,
+  .style-lab-tuner {
     grid-template-columns: 1fr;
   }
 
@@ -2362,7 +2693,8 @@ a {
   }
 
   .hero h1,
-  .type-hero {
+  .type-hero,
+  .type-statement {
     font-size: 42px;
   }
 

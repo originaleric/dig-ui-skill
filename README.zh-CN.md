@@ -17,15 +17,14 @@
   <a href="./INSTALL.zh-CN.md">安装指南</a> ·
   <a href="./USAGE.zh-CN.md">使用指南</a> ·
   <a href="./renders/index.html">Catalog 预览</a> ·
-  <a href="#user-content-personal-customization">个人定制</a> ·
-  <a href="#最新动态">最新动态</a> ·
+  <a href="#personal-customization">个人定制</a> ·
   <a href="#你可以构建什么">你可以构建什么</a>
 </p>
 
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-86-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-88-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -79,9 +78,35 @@ npx dig-ui-skill install codex --lang en
 
 安装与更新详见[安装指南](./INSTALL.zh-CN.md#installation)。
 
+## 新增 Style
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="全息" width="196"></a>
+      <h3>Hologram<br>全息</h3>
+    </td>
+    <td width="168" aria-hidden="true">&nbsp;</td>
+    <td align="center">
+      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="赛博" width="196"></a>
+      <h3>Cyberpunk<br>赛博</h3>
+    </td>
+  </tr>
+</table>
+
+在 Prompt 中写，“**使用全息 Style**”或“**使用赛博 Style**”，Agent 会按对应视觉语法生成页面。
+
+## 即时试色与导出
+
+点一下颜色格就能直接预览整页，满意后即可导出为自己的 Style 或 Palette。
+
+<p align="center">
+  <img src="./assets/readme-brand-lab-colors.png" alt="Brand Lab 的颜色选择区与调色板" width="760">
+</p>
+
 <a name="personal-customization"></a>
 
-## <img src="./assets/readme-personalization-title-zh-CN.png" alt="个人定制" height="24">
+## 100% 个人定制
 
 让 Agent 记住你希望长期保留的 UI 判断。Dig UI Skill 会将自然语言偏好沉淀为用户拥有的规则、palette 与 style，并在 Codex、Cursor 和 Claude Code 之间保持一致。
 
@@ -118,16 +143,6 @@ npx dig-ui-skill local sync --all --from-config
 ```
 
 Local 自定义规则详见[使用文档](./USAGE.zh-CN.md#local-rules)。
-
-## 最新动态
-
-| 日期 | 更新 | 意义 |
-| --- | --- | --- |
-| **2026-08-04** | **Local Rules 导入/导出与 Host Agent 工作流**上线。 | 可以导入已有 Markdown，也可以直接用自然语言让 Host Agent 写入；两条路径共用一个用户真源，并只同步至已安装工具。 |
-| **2026-07-23** | **Style 路由与双主题预览**上线。 | 内置 style 按任务和避坑边界路由；Style Lab 将完整的 light/dark token map 作为用户资产导出。 |
-| **2026-07-10** | **Color Palette Catalog 与 Palette Lab**上线。 | 可以从颜色优先的 catalog 开始，在 Palette Lab 调整锚点色，导出 ZIP，并在工具间同步自定义 palette。 |
-| **2026-06-29** | **Layout 与 Block render**不再作为规范预览。 | Catalog 保留视觉 render；layout 与 block 保持为 Markdown contract，避免结构和行为出现第二份视觉真源。 |
-| **2026-06-28** | **Dig Read、dials、anti-tells、preflight 与 workflows**完成整合。 | Agent 会在写 UI 前选择 layout、catalog、block、密度、品牌表达、交互能量和交付检查。 |
 
 ## 你可以构建什么
 
@@ -201,9 +216,9 @@ Palette 详见[使用文档](./USAGE.zh-CN.md#palette)。
 
 当你需要的不只是主题色时，从这里开始。Style 会将材质选择、surface 行为、组件气质、render archetype 和完整 light/dark token contract 一起带入任务。
 
-**包含：**12 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`business-editorial` 与 `research-lab`。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
+**包含：**14 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`cyberpunk-neon`、`hologram-moire`、`business-editorial` 与 `research-lab`。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
 
-**如何定制：**从 Style Lab 导出 `customstyle`，再导入并同步到各工具：
+**如何定制：**Style Lab 可分别在 Light / Dark 下临时调整六个核心颜色角色；导出时两套 token 会一起写入 `customstyle`，再导入并同步到各工具：
 
 ```bash
 npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle.zip codex
@@ -212,6 +227,8 @@ npx dig-ui-skill style sync --all
 ```
 
 用户 style 保存在 `~/.config/dig-ui-skill/styles/`，同步到 `references/local/styles/`。它们始终是用户资产，不会成为内置 catalog 条目。
+
+每个品牌 catalog 页面也提供 Brand Lab，使用同一套临时调色控件，并导出与既有 import / sync 流程兼容的 `custompalette`。
 
 Style 详见[使用文档](./USAGE.zh-CN.md#style)。
 

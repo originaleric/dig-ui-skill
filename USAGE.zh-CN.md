@@ -194,7 +194,7 @@ Style catalog 的 source of truth 仍是 Markdown：
 - `## Dig UI CSS Tokens` 与 `## Dig UI Dark Tokens` 的 fenced CSS block 分别定义 light/dark token；两套都必须完整覆盖 surface、text、border、control 与 semantic-state token。
 - `renders/styles/*.html` 只是运维预览和导出界面，不自动写回 Markdown。
 
-Style Lab 支持把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 导出为 `dig.style.export.v1` 的 customstyle 资产，其中 `theme_tokens.light` / `theme_tokens.dark` 与对应两份 CSS 都会同时打包。确认后有两条路径：
+Style Lab 支持在当前 Light / Dark mode 临时调整 `canvas`、`surface`、`ink`、`primary`、`support` 与 `border`；两个 mode 独立保留。导出时会把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 写入 `dig.style.export.v1` 的 customstyle，其中 `theme_tokens.light` / `theme_tokens.dark` 与对应两份 CSS 会同时打包。确认后有两条路径：
 
 1. 内置 catalog 维护：把确认后的 contract/token 回写到对应 style Markdown，再运行 render/validate。
 2. 用户个人资产：点击 Style Lab 的导出 ZIP，再通过 CLI 导入到用户配置中心。
@@ -214,6 +214,8 @@ npx dig-ui-skill style sync --all
 ```
 
 导入的 customstyle 只属于用户资产，不写回内置 `references/catalogs/styles/`，也不进入内置 manifest。CLI 会校验 `schema`、`token_contract`、`render.archetype`、Style Contract 和 required `--dig-*` token；带双主题的资产还会逐项校验两个 mode。缺少核心 token 或使用不可用占位值会被拒绝；旧版没有 `theme_tokens` 的资产仍可导入，但不能作为双主题 source of truth。
+
+品牌 catalog 页面同样提供 Brand Lab：临时调整核心颜色角色并导出 `custompalette`。它复用 Palette CLI 的 import / sync，不引入另一套不兼容的品牌资产格式。
 
 ---
 
@@ -608,7 +610,7 @@ npx dig-ui-skill local sync --all --from-config
 
 ## 🎨 史诗级毛玻璃 Hub 手册导航中心 (`renders/index.html`)
 
-为了方便设计师和开发者在 86 个 catalog 预览中探索，我们提供了设计系统 Hub 首页：
+为了方便设计师和开发者在 88 个 catalog 预览中探索，我们提供了设计系统 Hub 首页：
 
 - **专属强调色 Glow Hover 动效**：每个品牌卡片在 hover 时，会自动读取并在背景散发该品牌专属强调色（如 Stripe 的紫色、Claude 的暖色、Ferrari 的红色）的柔和光影。
 - **实时模糊搜索 (Search)**：支持在顶部输入框输入任意品牌名称或关键词进行毫秒级过滤。

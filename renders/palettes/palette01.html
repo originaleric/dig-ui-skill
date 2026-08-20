@@ -66,100 +66,22 @@
         background-size: 8px 8px;
         opacity: 0.62;
       }
-
-      /* Floating Language Switcher */
-      .lang-switch-capsule {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
-        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 4px 8px;
-        border-radius: 99px;
-        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
-        z-index: 9999;
-      }
-      .lang-btn {
-        background: transparent;
-        border: none;
-        color: var(--dig-text-soft, #62798c);
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 99px;
-        transition: all 0.2s ease;
-        font-family: var(--dig-font-sans), sans-serif;
-      }
-      .lang-btn.active {
-        background: var(--dig-accent, #0071e3);
-        color: var(--dig-bg, #000000);
-      }
-      .lang-btn:hover:not(.active) {
-        color: var(--dig-text, #ecf3f8);
-      }
-      .lang-split {
-        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
-        font-size: 12px;
-        user-select: none;
-      }
-
-      /* Floating Theme Switcher */
-      .theme-switch-capsule {
-        position: fixed;
-        top: 72px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 4px;
-        border: 1px solid var(--dig-border);
-        border-radius: var(--dig-radius-pill);
-        background: var(--dig-surface-elevated);
-        box-shadow: var(--dig-shadow-soft);
-        z-index: 9999;
-      }
-      .theme-switch-capsule[hidden] { display: none; }
-      .theme-btn {
-        min-height: 44px;
-        min-width: 44px;
-        padding: 0 12px;
-        border: 0;
-        border-radius: var(--dig-radius-pill);
-        background: transparent;
-        color: var(--dig-text-muted);
-        font: 600 12px/1 var(--dig-font-sans);
-        cursor: pointer;
-      }
-      .theme-btn[aria-pressed="true"] {
-        background: var(--dig-accent);
-        color: var(--dig-bg);
-      }
-      .theme-btn:focus-visible {
-        outline: 2px solid var(--dig-accent-2);
-        outline-offset: 2px;
-      }
     </style>
   </head>
-  <body data-render-archetype="site-palette-showcase">
-    <!-- Floating Theme Switcher Capsule; revealed only for dual-theme styles -->
-    <div class="theme-switch-capsule" data-theme-switcher hidden>
-      <button type="button" class="theme-btn" data-theme-mode="light" data-zh="亮" data-en="Light" aria-pressed="false">亮</button>
-      <button type="button" class="theme-btn" data-theme-mode="dark" data-zh="暗" data-en="Dark" aria-pressed="false">暗</button>
-    </div>
-    <!-- Floating Language Switcher Capsule -->
-    <div class="lang-switch-capsule">
-      <button class="lang-btn" data-lang="zh">中</button>
-      <span class="lang-split">/</span>
-      <button class="lang-btn" data-lang="en">EN</button>
-    </div>
-
-    <main class="preview-shell">
+  <body data-render-archetype="site-palette-showcase" data-render-canvas="" data-style-theme-default="">
+    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
+    </div><main class="preview-shell">
       <section class="hero">
         <div class="surface hero-main">
           <span class="eyebrow"><span class="brand-name-label" data-zh="默认系统蓝" data-en="System Blue">默认系统蓝</span> Catalog / Dig UI</span>
@@ -301,6 +223,7 @@
           </section>
 
 
+
           <section class="surface section" id="colors">
             <div class="section-head">
               <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
@@ -356,7 +279,9 @@
 
         // Toggle active classes on switcher buttons
         document.querySelectorAll('.lang-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
         });
 
         // Translate all data-zh/data-en text nodes
@@ -406,6 +331,17 @@
         const paletteExportTokens = [
           ...paletteTrackedTokens
         ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
 
         function normalizeHex(raw) {
           const value = (raw || '').trim();
@@ -881,6 +817,54 @@
           return lines.join('\n');
         }
 
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
         function initStyleTheme() {
           const lab = document.querySelector('[data-style-lab]');
           const switcher = document.querySelector('[data-theme-switcher]');
@@ -893,13 +877,16 @@
             document.documentElement.dataset.styleTheme = resolvedMode;
             document.documentElement.style.colorScheme = resolvedMode;
             localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
             switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
               button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
             });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
           };
 
           const savedTheme = localStorage.getItem('dig-ui-style-theme');
-          applyStyleTheme(savedTheme === 'dark' ? 'dark' : 'light');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
           switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
             button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
           });
@@ -913,10 +900,13 @@
           const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
           const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
           const styleTokens = {
-            ...parseStyleTokenCss(styleTokenCss),
-            ...collectStyleTokens()
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
           };
-          const styleDarkTokens = parseStyleTokenCss(styleDarkTokenCss);
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
           const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
           const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
           return {
@@ -970,19 +960,55 @@
         function initStyleLab() {
           const lab = document.querySelector('[data-style-lab]');
           if (!lab) return;
-          const exportButton = lab.querySelector('[data-style-export]');
-          if (!exportButton) return;
-          exportButton.addEventListener('click', () => {
-            const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
-            const payload = buildStyleExportPayload(lab);
-            downloadStyleZip(payload);
-            exportButton.dataset.exportState = 'success';
-            exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
-            window.setTimeout(() => {
-              delete exportButton.dataset.exportState;
-              setLanguage(activeLang);
-            }, 1200);
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
           });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
         }
 
         function initPaletteLab() {
@@ -1001,9 +1027,7 @@
           });
 
           lab.querySelectorAll('[data-palette-color]').forEach(input => {
-            input.addEventListener('input', () => {
-              setPaletteRole(input.getAttribute('data-palette-color'), input.value);
-            });
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
           });
 
           lab.querySelectorAll('[data-palette-candidate]').forEach(button => {

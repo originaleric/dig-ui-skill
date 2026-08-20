@@ -17,15 +17,14 @@
   <a href="./INSTALL.md">Installation</a> ·
   <a href="./USAGE.md">Usage Guide</a> ·
   <a href="./renders/index.html">Catalog Previews</a> ·
-  <a href="#user-content-personal-customization">Personal Customization</a> ·
-  <a href="#latest-highlights">Latest Highlights</a> ·
+  <a href="#personal-customization">Personal Customization</a> ·
   <a href="#what-you-can-build">What You Can Build</a>
 </p>
 
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-86-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-88-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -78,9 +77,35 @@ To use Dig UI in WorkBuddy, see [WorkBuddy](#workbuddy).
 
 For installation and update details, see the [installation guide](./INSTALL.md#installation).
 
+## New Styles
+
+<table align="center">
+  <tr>
+    <td align="center">
+      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="Hologram" width="196"></a>
+      <h3>Hologram<br>全息</h3>
+    </td>
+    <td width="168" aria-hidden="true">&nbsp;</td>
+    <td align="center">
+      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="Cyberpunk" width="196"></a>
+      <h3>Cyberpunk<br>赛博</h3>
+    </td>
+  </tr>
+</table>
+
+In your prompt, write “**Use Hologram Style**” or “**Use Cyberpunk Style**”, and the agent will generate the page with that visual language.
+
+## Tune Colors Live
+
+Click any color tile to preview it across the page instantly, then export the result as your own Style or Palette.
+
+<p align="center">
+  <img src="./assets/readme-brand-lab-colors.png" alt="Brand Lab color controls and palette choices" width="760">
+</p>
+
 <a name="personal-customization"></a>
 
-## <img src="./assets/readme-personalization-title-en.png" alt="Personal Customization" height="24">
+## 100% Personal Customization
 
 Teach your agent the UI decisions you want to keep. Dig UI Skill turns natural-language preferences into user-owned rules, palettes, and styles that stay aligned across Codex, Cursor, and Claude Code.
 
@@ -117,16 +142,6 @@ Use #0071e3 as the default blue accent, with white text on primary buttons.
 ```
 
 See the [usage guide](./USAGE.md#local-rules) for Local Rules.
-
-## Latest Highlights
-
-| Date | Highlight | Why it matters |
-| --- | --- | --- |
-| **2026-08-04** | **Local Rules import/export and Host Agent workflows** landed. | Bring an existing Markdown file or ask a Host Agent in natural language; both maintain one user-owned source of truth and sync only to installed tools. |
-| **2026-07-23** | **Style routing and dual-theme previews** landed. | Built-in style catalogs now route by task and avoid boundary, while Style Lab exports complete light/dark token maps as a user-owned contract. |
-| **2026-07-10** | **Color Palette Catalog and Palette Lab** landed. | Users can start from color-first catalogs, tune anchors in Palette Lab, export ZIP assets, and sync custom palettes across tools. |
-| **2026-06-29** | **Layout and block renders were retired** as canonical UI previews. | Catalogs remain visual renders; layouts and blocks stay Markdown contracts so structure and behavior do not become a second visual source of truth. |
-| **2026-06-28** | **Dig Read, dials, anti-tells, preflight, and workflows** were consolidated. | Agents now choose layout, catalog, blocks, density, brand energy, interaction energy, and delivery checks before writing UI. |
 
 ## What You Can Build
 
@@ -200,9 +215,9 @@ Palette details: [usage guide](./USAGE.md#palette).
 
 Start here when you need more than a color theme. A style carries material choices, surface behavior, component tone, render archetype, and a complete light/dark token contract together.
 
-**Includes:** 12 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `business-editorial`, and `research-lab`. The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
+**Includes:** 14 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `cyberpunk-neon`, `hologram-moire`, `business-editorial`, and `research-lab`. The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
 
-**Customize:** export a `customstyle` from Style Lab, then import and sync it across tools:
+**Customize:** Style Lab temporarily tunes six core color roles in Light or Dark mode; export preserves both token maps in one `customstyle`, then import and sync it across tools:
 
 ```bash
 npx dig-ui-skill style import ~/Downloads/quant-signal-console.customstyle.zip codex
@@ -211,6 +226,8 @@ npx dig-ui-skill style sync --all
 ```
 
 User-owned styles live in `~/.config/dig-ui-skill/styles/` and sync into `references/local/styles/`. They remain user assets, not built-in catalog entries.
+
+Every brand catalog preview also includes Brand Lab. It uses the same temporary color controls and exports a compatible `custompalette` for the existing palette import and sync workflow.
 
 Style details: [usage guide](./USAGE.md#style).
 

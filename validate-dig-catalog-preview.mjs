@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.argv[2] || "renders";
+const sharedPreviewCss = fs.readFileSync("assets/catalog-preview.css", "utf8");
 const requiredTokens = [
   "--dig-bg",
   "--dig-surface",
@@ -22,6 +23,12 @@ const forbiddenRuntimeCopy = [
   "Queue: 24",
   "Region: HKG-1",
 ];
+
+function selectorRule(selector) {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = sharedPreviewCss.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\}`, "m"));
+  return match?.[1] || "";
+}
 
 function walk(dir) {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
@@ -81,6 +88,23 @@ function contrast(a, b) {
 
 const files = walk(root);
 const problems = [];
+
+for (const selector of [".palette-lab-row", ".palette-lab-input", ".palette-candidate"]) {
+  const rule = selectorRule(selector);
+  if (!rule) {
+    problems.push(`assets/catalog-preview.css: missing shared Lab rule ${selector}`);
+    continue;
+  }
+  if (/background:\s*var\(--dig-control-bg(?:-hover)?\)/.test(rule)) {
+    problems.push(`assets/catalog-preview.css: ${selector} uses --dig-control-bg directly and can create unreadable dark-mode Lab content`);
+  }
+}
+
+for (const match of sharedPreviewCss.matchAll(/\.palette-(?:lab-row|lab-input|candidate)[^{]*\{([\s\S]*?)\}/g)) {
+  if (/background:\s*var\(--dig-control-bg(?:-hover)?\)/.test(match[1])) {
+    problems.push("assets/catalog-preview.css: a Lab surface state uses --dig-control-bg directly and can create unreadable dark-mode content");
+  }
+}
 
 for (const filePath of files) {
   const content = fs.readFileSync(filePath, "utf8");

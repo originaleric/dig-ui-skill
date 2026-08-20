@@ -16,6 +16,8 @@ Style catalogs are a third base-catalog line alongside brand catalogs and color 
 | `torn-editorial-collage` | creator, culture, community, event surface | forms, finance, or enterprise admin | `editorial-story` |
 | `midcentury-noir` | premium service or design-forward product story | data-dense workspace | `editorial-story` |
 | `cel-sci-fi` | experimental AI, developer education, launch narrative | persistent operational interface | `editorial-story` |
+| `cyberpunk-neon` | experimental launch, creator culture, immersive product narrative | critical operations or dense data entry | `editorial-story` |
+| `hologram-moire` | creative workspace, personal AI space, calm product exploration | high-density observability or destructive admin flow | `creative-canvas-workspace` |
 
 When several rows match, choose the one whose **avoid** boundary least conflicts with the task. If no row has a clear fit, use the layout's recommended brand catalog rather than forcing a style.
 

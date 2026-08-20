@@ -71,63 +71,26 @@
         --dig-grid-gutter-mobile: 16px;
         --dig-grid-cell-min: 68px;
     }
-      
-      /* Floating Language Switcher */
-      .lang-switch-capsule {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: var(--dig-surface-elevated, rgba(20, 39, 53, 0.85));
-        border: 1px solid var(--dig-border, rgba(138, 160, 178, 0.2));
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 4px 8px;
-        border-radius: 99px;
-        box-shadow: var(--dig-shadow-soft, 0 8px 32px rgba(0, 0, 0, 0.15));
-        z-index: 9999;
-      }
-      .lang-btn {
-        background: transparent;
-        border: none;
-        color: var(--dig-text-soft, #62798c);
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 4px 10px;
-        border-radius: 99px;
-        transition: all 0.2s ease;
-        font-family: var(--dig-font-sans), sans-serif;
-      }
-      .lang-btn.active {
-        background: var(--dig-accent, #37d67a);
-        color: var(--dig-bg, #06121a);
-      }
-      .lang-btn:hover:not(.active) {
-        color: var(--dig-text, #ecf3f8);
-      }
-      .lang-split {
-        color: var(--dig-border-strong, rgba(138, 160, 178, 0.3));
-        font-size: 12px;
-        user-select: none;
-      }
     </style>
   </head>
-  <body data-render-archetype="token-sheet">
-    <!-- Floating Language Switcher Capsule -->
-    <div class="lang-switch-capsule">
-      <button class="lang-btn" data-lang="zh">中</button>
-      <span class="lang-split">/</span>
-      <button class="lang-btn" data-lang="en">EN</button>
-    </div>
-
-    <main class="preview-shell">
+  <body data-render-archetype="token-sheet" data-render-canvas="" data-style-theme-default="">
+    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
+    </div><main class="preview-shell">
       <section class="hero">
         <div class="surface hero-main">
-          <span class="eyebrow"><span class="brand-name-label">Mono</span> Catalog / Dig UI</span>
-          <h1 class="brand-title-h1">Mono</h1>
+          <span class="eyebrow"><span class="brand-name-label" data-zh="Mono" data-en="Mono">Mono</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1" data-zh="Mono" data-en="Mono">Mono</h1>
           <p class="brand-description-p" data-zh="Standard Mono design system catalog featuring specialized components and typography schemas." data-en="Standard Mono design system catalog featuring specialized components and typography schemas.">Standard Mono design system catalog featuring specialized components and typography schemas.</p>
         </div>
 
@@ -146,6 +109,7 @@
           <h2 data-zh="目录" data-en="Contents">目录</h2>
           <nav class="nav-list">
             <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
+            <a href="#brand-lab" data-zh="品牌试色" data-en="Brand Lab">品牌试色</a>
             <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
             <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
           </nav>
@@ -163,6 +127,98 @@
               <article class="type-card"><strong>Body</strong><div class="type-showcase type-body">Tokenized typography, color, radius, and elevation should remain coherent across reusable components.</div><div class="meta-small mono">var(--dig-text-md)</div></article>
             </div>
           </section>
+
+
+            <div class="palette-lab-shell" id="brand-lab" data-palette-lab>
+              <div class="palette-lab-head">
+                <div>
+                  <h4 data-zh="Brand Lab" data-en="Brand Lab">Brand Lab</h4>
+                  <p data-zh="临时调整当前品牌 preview 的核心颜色角色；导出为可复用的 custompalette 用户资产。" data-en="Temporarily tune this brand preview's core color roles, then export a reusable custompalette user asset.">临时调整当前品牌 preview 的核心颜色角色；导出为可复用的 custompalette 用户资产。</p>
+                </div>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-palette-copy data-zh="复制 Token" data-en="Copy Tokens">复制 Token</button>
+                  <button type="button" class="btn palette-export-btn" data-palette-export data-zh="导出 ZIP" data-en="Export ZIP">导出 ZIP</button>
+                </div>
+              </div>
+              <div class="palette-lab-grid">
+                <div class="palette-lab-controls">
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="画布" data-en="Canvas">画布</span>
+                <span class="palette-lab-token">--dig-bg</span>
+                <input class="palette-lab-input" data-palette-input="canvas" inputmode="text" maxlength="9" aria-label="Canvas hex" />
+                <input class="palette-lab-color" data-palette-color="canvas" type="color" aria-label="Canvas color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="文字" data-en="Ink">文字</span>
+                <span class="palette-lab-token">--dig-text</span>
+                <input class="palette-lab-input" data-palette-input="ink" inputmode="text" maxlength="9" aria-label="Ink hex" />
+                <input class="palette-lab-color" data-palette-color="ink" type="color" aria-label="Ink color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="主强调色" data-en="Primary">主强调色</span>
+                <span class="palette-lab-token">--dig-accent</span>
+                <input class="palette-lab-input" data-palette-input="primary" inputmode="text" maxlength="9" aria-label="Primary hex" />
+                <input class="palette-lab-color" data-palette-color="primary" type="color" aria-label="Primary color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="强主强调色" data-en="Primary Strong">强主强调色</span>
+                <span class="palette-lab-token">--dig-accent-strong</span>
+                <input class="palette-lab-input" data-palette-input="primaryStrong" inputmode="text" maxlength="9" aria-label="Primary Strong hex" />
+                <input class="palette-lab-color" data-palette-color="primaryStrong" type="color" aria-label="Primary Strong color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="第二强调色" data-en="Support">第二强调色</span>
+                <span class="palette-lab-token">--dig-accent-2</span>
+                <input class="palette-lab-input" data-palette-input="support" inputmode="text" maxlength="9" aria-label="Support hex" />
+                <input class="palette-lab-color" data-palette-color="support" type="color" aria-label="Support color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="强第二强调色" data-en="Support Strong">强第二强调色</span>
+                <span class="palette-lab-token">--dig-accent-2-strong</span>
+                <input class="palette-lab-input" data-palette-input="supportStrong" inputmode="text" maxlength="9" aria-label="Support Strong hex" />
+                <input class="palette-lab-color" data-palette-color="supportStrong" type="color" aria-label="Support Strong color picker" />
+              </label>
+                </div>
+                <div class="palette-candidate-panel">
+                  <strong data-zh="第二强调色候选" data-en="Support Candidates">第二强调色候选</strong>
+                  <div class="palette-candidate-grid">
+                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="#4FB3FF" data-strong="#2697EB">
+                  <span class="palette-candidate-dot" style="--candidate-color: #4FB3FF; --candidate-strong: #2697EB;"></span>
+                  <span>Sky Information</span>
+                  <code>#4FB3FF</code>
+                </button>
+                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="#0071E3" data-strong="#006EDB">
+                  <span class="palette-candidate-dot" style="--candidate-color: #0071E3; --candidate-strong: #006EDB;"></span>
+                  <span>System Blue</span>
+                  <code>#0071E3</code>
+                </button>
+                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="#7A7FAD" data-strong="#5E6390">
+                  <span class="palette-candidate-dot" style="--candidate-color: #7A7FAD; --candidate-strong: #5E6390;"></span>
+                  <span>Periwinkle</span>
+                  <code>#7A7FAD</code>
+                </button>
+                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="#B68A35" data-strong="#8A6724">
+                  <span class="palette-candidate-dot" style="--candidate-color: #B68A35; --candidate-strong: #8A6724;"></span>
+                  <span>Soft Gold</span>
+                  <code>#B68A35</code>
+                </button>
+                <button type="button" class="palette-candidate" data-palette-candidate data-role="support" data-value="#6F8F7A" data-strong="#4F6F59">
+                  <span class="palette-candidate-dot" style="--candidate-color: #6F8F7A; --candidate-strong: #4F6F59;"></span>
+                  <span>Sage Gray</span>
+                  <code>#6F8F7A</code>
+                </button>
+                  </div>
+                </div>
+                <div class="palette-token-diff" aria-live="polite">
+                  <div><code>--dig-bg</code><span data-palette-token="--dig-bg"></span></div>
+                  <div><code>--dig-text</code><span data-palette-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-palette-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-strong</code><span data-palette-token="--dig-accent-strong"></span></div>
+                  <div><code>--dig-accent-2</code><span data-palette-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-accent-2-strong</code><span data-palette-token="--dig-accent-2-strong"></span></div>
+                </div>
+              </div>
+            </div>
 
           <section class="surface section" id="colors">
             <div class="section-head">
@@ -209,19 +265,21 @@
         </div>
       </div>
     </main>
-  
+
     <script>
 
       // Interactive Language Switcher Controller
       function setLanguage(lang) {
         localStorage.setItem('dig-ui-lang', lang);
         document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
-        
+
         // Toggle active classes on switcher buttons
         document.querySelectorAll('.lang-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
         });
-        
+
         // Translate all data-zh/data-en text nodes
         document.querySelectorAll('[data-zh][data-en]').forEach(el => {
           el.textContent = el.getAttribute(`data-${lang}`);
@@ -232,7 +290,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
         setLanguage(savedLang);
-        
+
         document.querySelectorAll('.lang-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             setLanguage(btn.getAttribute('data-lang'));
@@ -249,27 +307,776 @@
           });
         });
 
-        // Dynamic Token Visualizer
-        const rootStyles = getComputedStyle(document.documentElement);
-        document.querySelectorAll('.token-val').forEach(el => {
-          const tokenName = el.getAttribute('data-token');
-          if (tokenName) {
-            let value = rootStyles.getPropertyValue(tokenName).trim();
-            if (value) {
-              if (value.startsWith('#')) {
-                value = value.toUpperCase();
-              }
-              el.textContent = '';
-              if (/^#[0-9A-F]{3}(?:[0-9A-F]{3})?$/.test(value)) {
-                const dot = document.createElement('span');
-                dot.className = 'token-color-dot';
-                dot.style.background = value;
-                el.appendChild(dot);
-              }
-              el.appendChild(document.createTextNode(value));
+        const root = document.documentElement;
+        const paletteRoleTokens = {
+          canvas: '--dig-bg',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          primaryStrong: '--dig-accent-strong',
+          support: '--dig-accent-2',
+          supportStrong: '--dig-accent-2-strong'
+        };
+        const paletteTrackedTokens = [
+          '--dig-bg',
+          '--dig-text',
+          '--dig-accent',
+          '--dig-accent-strong',
+          '--dig-accent-2',
+          '--dig-accent-2-strong'
+        ];
+        const paletteExportTokens = [
+          ...paletteTrackedTokens
+        ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
+
+        function normalizeHex(raw) {
+          const value = (raw || '').trim();
+          if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+            return '#' + value.slice(1).split('').map(char => char + char).join('').toUpperCase();
+          }
+          if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+            return value.toUpperCase();
+          }
+          return '';
+        }
+
+        function cssColorToHex(raw) {
+          const value = (raw || '').trim();
+          const hex = normalizeHex(value);
+          if (hex) return hex;
+          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (!rgbMatch) return '';
+          return '#' + rgbMatch.slice(1, 4).map(part => {
+            const channel = Math.max(0, Math.min(255, Number(part)));
+            return channel.toString(16).padStart(2, '0');
+          }).join('').toUpperCase();
+        }
+
+        function getTokenValue(token) {
+          return getComputedStyle(root).getPropertyValue(token).trim();
+        }
+
+        function renderTokenValue(el, value) {
+          let displayValue = (value || '').trim();
+          if (!displayValue) return;
+          const hexValue = normalizeHex(displayValue);
+          if (hexValue) {
+            displayValue = hexValue;
+          }
+          el.textContent = '';
+          if (hexValue) {
+            const dot = document.createElement('span');
+            dot.className = 'token-color-dot';
+            dot.style.background = hexValue;
+            el.appendChild(dot);
+          }
+          el.appendChild(document.createTextNode(displayValue));
+        }
+
+        function refreshTokenVisualizers() {
+          document.querySelectorAll('.token-val').forEach(el => {
+            const tokenName = el.getAttribute('data-token');
+            if (tokenName) {
+              renderTokenValue(el, getTokenValue(tokenName));
+            }
+          });
+        }
+
+        function updatePaletteLabState() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          Object.entries(paletteRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) {
+              textInput.value = value;
+            }
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+
+          paletteTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-palette-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setPaletteRoles(updates) {
+          let changed = false;
+          Object.entries(updates).forEach(([role, value]) => {
+            const token = paletteRoleTokens[role];
+            const hex = normalizeHex(value);
+            if (!token || !hex) return;
+            root.style.setProperty(token, hex);
+            changed = true;
+          });
+          if (changed) {
+            updatePaletteLabState();
+          }
+        }
+
+        function setPaletteRole(role, value) {
+          setPaletteRoles({ [role]: value });
+        }
+
+        function fallbackCopyText(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            return document.execCommand('copy');
+          } catch (error) {
+            console.warn('Palette fallback copy failed', error);
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        async function copyPaletteTokens(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (error) {
+              console.warn('Palette clipboard copy failed', error);
             }
           }
-        });
+          return fallbackCopyText(text);
+        }
+
+        function buildPaletteTokenCss(tokens = paletteTrackedTokens) {
+          return tokens.map(token => {
+            const value = getTokenValue(token);
+            return `${token}: ${normalizeHex(value) || value};`;
+          }).join('\n');
+        }
+
+        function getPaletteSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-palette';
+          return fileName.replace(/\.html$/i, '') || 'dig-palette';
+        }
+
+        function formatPaletteTimestamp(date = new Date()) {
+          const pad = value => String(value).padStart(2, '0');
+          return [
+            date.getFullYear(),
+            pad(date.getMonth() + 1),
+            pad(date.getDate())
+          ].join('') + '-' + [
+            pad(date.getHours()),
+            pad(date.getMinutes()),
+            pad(date.getSeconds())
+          ].join('');
+        }
+
+        function collectPaletteCandidates(lab) {
+          const support = Array.from(lab.querySelectorAll('[data-palette-candidate]')).map(button => {
+            const label = button.querySelector('span:not(.palette-candidate-dot)')?.textContent?.trim() || '';
+            return {
+              label,
+              value: normalizeHex(button.getAttribute('data-value')) || button.getAttribute('data-value'),
+              strong: normalizeHex(button.getAttribute('data-strong')) || button.getAttribute('data-strong')
+            };
+          });
+          return { support };
+        }
+
+        function buildPaletteExportPayload(lab) {
+          const tokens = {};
+          paletteExportTokens.forEach(token => {
+            const value = getTokenValue(token);
+            if (value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          return {
+            schema: 'dig.palette.export.v1',
+            token_contract: 'palette_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug: getPaletteSlug(),
+            export_id: `${getPaletteSlug()}.custompalette-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            anchors: {
+              canvas: tokens['--dig-bg'],
+              ink: tokens['--dig-text'],
+              primary: tokens['--dig-accent'],
+              support: tokens['--dig-accent-2']
+            },
+            roles: {
+              primary_strong: tokens['--dig-accent-strong'],
+              support_strong: tokens['--dig-accent-2-strong']
+            },
+            tokens,
+            css: buildPaletteTokenCss(paletteExportTokens),
+            candidates: collectPaletteCandidates(lab),
+            derivation: {
+              status: 'anchors-only',
+              note: 'This custom palette exports only Palette Lab managed role tokens. Downstream systems should derive extended scales from these anchors.'
+            }
+          };
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[char]);
+        }
+
+        function hexToRgb(hex) {
+          const normalized = normalizeHex(hex);
+          if (!normalized) return null;
+          return {
+            r: parseInt(normalized.slice(1, 3), 16),
+            g: parseInt(normalized.slice(3, 5), 16),
+            b: parseInt(normalized.slice(5, 7), 16)
+          };
+        }
+
+        function relativeLuminance(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 1;
+          const channels = [rgb.r, rgb.g, rgb.b].map(channel => {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+        }
+
+        function contrastRatio(hexA, hexB) {
+          const lumA = relativeLuminance(hexA);
+          const lumB = relativeLuminance(hexB);
+          const lighter = Math.max(lumA, lumB);
+          const darker = Math.min(lumA, lumB);
+          return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function readableTextOn(hex) {
+          return contrastRatio(hex, '#000000') >= contrastRatio(hex, '#FFFFFF') ? '#000000' : '#FFFFFF';
+        }
+
+        function buildPalettePreviewHtml(payload) {
+          const tokens = payload.tokens || {};
+          const onPrimary = readableTextOn(payload.anchors.primary);
+          const swatches = [
+            ['Canvas', payload.anchors.canvas],
+            ['Ink', payload.anchors.ink],
+            ['Primary', payload.anchors.primary],
+            ['Primary Strong', payload.roles.primary_strong],
+            ['Support', payload.anchors.support],
+            ['Support Strong', payload.roles.support_strong]
+          ].map(([label, value]) => `
+              <article class="swatch">
+                <span style="background:${escapeHtml(value)}"></span>
+                <strong>${escapeHtml(label)}</strong>
+                <code>${escapeHtml(value)}</code>
+              </article>`).join('');
+          const tokenRows = Object.entries(tokens).map(([token, value]) => `
+              <tr><td><code>${escapeHtml(token)}</code></td><td>${escapeHtml(value)}</td></tr>`).join('');
+          return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)} Palette Export</title>
+    <style>
+      :root {
+        --bg: ${escapeHtml(payload.anchors.canvas)};
+        --ink: ${escapeHtml(payload.anchors.ink)};
+        --primary: ${escapeHtml(payload.anchors.primary)};
+        --primary-strong: ${escapeHtml(payload.roles.primary_strong)};
+        --support: ${escapeHtml(payload.anchors.support)};
+        --support-strong: ${escapeHtml(payload.roles.support_strong)};
+        --on-primary: ${escapeHtml(onPrimary)};
+        --surface: color-mix(in srgb, var(--bg), var(--ink) 6%);
+        --surface-strong: color-mix(in srgb, var(--bg), var(--ink) 11%);
+        --border: color-mix(in srgb, var(--ink), transparent 76%);
+        --border-strong: color-mix(in srgb, var(--ink), transparent 56%);
+        --muted: color-mix(in srgb, var(--ink), transparent 32%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+      .hero { display: grid; gap: 20px; padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface), var(--support) 18%)); }
+      h1 { margin: 0; font-size: clamp(42px, 8vw, 92px); line-height: .92; letter-spacing: -0.03em; }
+      p { max-width: 68ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary-strong); border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+      .button.secondary { background: transparent; color: var(--primary); }
+      .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+      .swatch { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      .swatch span { width: 42px; height: 42px; border: 1px solid var(--border-strong); border-radius: 999px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      table { width: 100%; border-collapse: collapse; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      tr:last-child td { border-bottom: 0; }
+      td:last-child { text-align: right; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <code>${escapeHtml(payload.export_id)}</code>
+        <h1>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)}</h1>
+        <p>${escapeHtml(payload.description.zh || payload.description.en || '')}</p>
+        <div class="actions">
+          <span class="button">Primary Action</span>
+          <span class="button secondary">Secondary Action</span>
+        </div>
+      </section>
+      <section class="swatches">${swatches}
+      </section>
+      <table>${tokenRows}
+      </table>
+    </main>
+  </body>
+</html>
+`;
+        }
+
+        const zipCrcTable = (() => {
+          const table = new Uint32Array(256);
+          for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+              value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+          }
+          return table;
+        })();
+
+        function crc32(bytes) {
+          let crc = 0xFFFFFFFF;
+          for (const byte of bytes) {
+            crc = zipCrcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+          }
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function zipDateParts(date = new Date()) {
+          const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+          const day = (date.getFullYear() - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+          return { time, day };
+        }
+
+        function makeZip(files) {
+          const encoder = new TextEncoder();
+          const localParts = [];
+          const centralParts = [];
+          let offset = 0;
+          const { time, day } = zipDateParts();
+
+          files.forEach(file => {
+            const nameBytes = encoder.encode(file.name);
+            const dataBytes = encoder.encode(file.content);
+            const crc = crc32(dataBytes);
+            const local = new ArrayBuffer(30 + nameBytes.length);
+            const localView = new DataView(local);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0x0800, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, time, true);
+            localView.setUint16(12, day, true);
+            localView.setUint32(14, crc, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            new Uint8Array(local, 30).set(nameBytes);
+            localParts.push(local, dataBytes);
+
+            const central = new ArrayBuffer(46 + nameBytes.length);
+            const centralView = new DataView(central);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0x0800, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, time, true);
+            centralView.setUint16(14, day, true);
+            centralView.setUint32(16, crc, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint32(42, offset, true);
+            new Uint8Array(central, 46).set(nameBytes);
+            centralParts.push(central);
+            offset += local.byteLength + dataBytes.length;
+          });
+
+          const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+          const end = new ArrayBuffer(22);
+          const endView = new DataView(end);
+          endView.setUint32(0, 0x06054b50, true);
+          endView.setUint16(8, files.length, true);
+          endView.setUint16(10, files.length, true);
+          endView.setUint32(12, centralSize, true);
+          endView.setUint32(16, offset, true);
+          return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+        }
+
+        function downloadPaletteZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-palette'}.custompalette-${formatPaletteTimestamp()}`;
+          const jsonName = `${baseName}.json`;
+          const htmlName = `${baseName}.html`;
+          const zip = makeZip([
+            { name: jsonName, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: htmlName, content: buildPalettePreviewHtml(payload) }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function getStyleSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-style';
+          return fileName.replace(/\.html$/i, '') || 'dig-style';
+        }
+
+        function collectStyleTokens() {
+          const tokens = {};
+          document.querySelectorAll('.token-val[data-token]').forEach(el => {
+            const token = el.getAttribute('data-token');
+            const value = getTokenValue(token);
+            if (token && token.startsWith('--dig-') && value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          return tokens;
+        }
+
+        function parseStyleTokenCss(cssText) {
+          const tokens = {};
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+            tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
+          }
+          return tokens;
+        }
+
+        function buildStyleTokenCss(tokens, cssText = '') {
+          const lines = [];
+          const seen = new Set();
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
+            const token = match[1];
+            if (Object.prototype.hasOwnProperty.call(tokens, token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+              seen.add(token);
+            }
+          }
+          Object.keys(tokens).sort().forEach(token => {
+            if (!seen.has(token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+            }
+          });
+          return lines.join('\n');
+        }
+
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
+        function initStyleTheme() {
+          const lab = document.querySelector('[data-style-lab]');
+          const switcher = document.querySelector('[data-theme-switcher]');
+          const darkTokens = parseStyleTokenCss(lab?.getAttribute('data-style-dark-token-block') || '');
+          if (!lab || !switcher || Object.keys(darkTokens).length === 0) return;
+
+          switcher.hidden = false;
+          const applyStyleTheme = mode => {
+            const resolvedMode = mode === 'dark' ? 'dark' : 'light';
+            document.documentElement.dataset.styleTheme = resolvedMode;
+            document.documentElement.style.colorScheme = resolvedMode;
+            localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
+            switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+              button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
+            });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
+          };
+
+          const savedTheme = localStorage.getItem('dig-ui-style-theme');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
+          switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+            button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
+          });
+        }
+
+        function buildStyleExportPayload(lab) {
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          const slug = getStyleSlug();
+          const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
+          const styleTokens = {
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
+          };
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
+          const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
+          return {
+            schema: 'dig.style.export.v1',
+            token_contract: 'style_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug,
+            export_id: `${slug}.customstyle-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            render: {
+              archetype: document.body.getAttribute('data-render-archetype') || 'token-sheet'
+            },
+            style_contract: lab.getAttribute('data-style-contract') || '',
+            tokens: styleTokens,
+            css: styleCss,
+            theme_tokens: { light: styleTokens, dark: styleDarkTokens },
+            theme_css: { light: styleCss, dark: styleDarkCss },
+            derivation: {
+              status: 'style-contract-export',
+              note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
+            }
+          };
+        }
+
+        function downloadStyleZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-style'}.customstyle-${formatPaletteTimestamp()}`;
+          const zip = makeZip([
+            { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\n` },
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\n` },
+            { name: `${baseName}.dark.tokens.css`, content: `${payload.theme_css?.dark || ''}\n` }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initStyleLab() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab) return;
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
+          });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
+        }
+
+        function initPaletteLab() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          lab.querySelectorAll('[data-palette-input]').forEach(input => {
+            input.addEventListener('change', () => {
+              setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+            });
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) {
+                setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+              }
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-color]').forEach(input => {
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
+          });
+
+          lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
+            button.addEventListener('click', () => {
+              lab.querySelectorAll('[data-palette-candidate]').forEach(item => item.classList.remove('active'));
+              button.classList.add('active');
+              setPaletteRoles({
+                [button.getAttribute('data-role')]: button.getAttribute('data-value'),
+                supportStrong: button.getAttribute('data-strong')
+              });
+            });
+          });
+
+          const copyButton = lab.querySelector('[data-palette-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const tokenCss = buildPaletteTokenCss();
+              const copied = await copyPaletteTokens(tokenCss);
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          const exportButton = lab.querySelector('[data-palette-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildPaletteExportPayload(lab);
+              downloadPaletteZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          updatePaletteLabState();
+        }
+
+        // Dynamic Token Visualizer
+        refreshTokenVisualizers();
+        initPaletteLab();
+        initStyleLab();
+        initStyleTheme();
       });
     </script>
   </body>

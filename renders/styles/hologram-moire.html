@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Hologram Moiré Render</title>
+    <link rel="stylesheet" href="../../assets/catalog-preview.css" />
+    <style>
+      :root {
+        color-scheme: light;
+        --dig-bg: #f3f2f4;
+        --dig-bg-soft: #e5e9f1;
+        --dig-surface: #fbfbfc;
+        --dig-surface-strong: #e9edf4;
+        --dig-surface-elevated: #ffffff;
+        --dig-text: #253249;
+        --dig-text-muted: #66738a;
+        --dig-text-soft: #919bad;
+        --dig-accent: #5579c7;
+        --dig-accent-strong: #3e60a8;
+        --dig-accent-2: #67cbe3;
+        --dig-accent-2-strong: #3babc5;
+        --dig-border: #c6cfdf;
+        --dig-border-strong: #7181a0;
+        --dig-grid-line: rgba(255, 255, 255, 0.78);
+        --dig-control-bg: #f0f3f8;
+        --dig-control-bg-hover: #e3e9f3;
+        --dig-success: #397e6c;
+        --dig-warning: #a37b34;
+        --dig-danger: #b75168;
+        --dig-info: #5579c7;
+        --dig-holo-pink: #ecd9e2;
+        --dig-holo-mint: #cde8df;
+        --dig-holo-butter: #ece8c9;
+        --dig-holo-flow-duration: 28s;
+        --dig-holo-dot-size: 1.2px;
+        --dig-holo-dot-opacity: 0.68;
+        --dig-font-sans: "Inter", "PingFang SC", "Noto Sans SC", sans-serif;
+        --dig-font-display: "Manrope", "PingFang SC", sans-serif;
+        --dig-font-mono: "IBM Plex Mono", Consolas, monospace;
+        --dig-font-serif: "Source Han Serif SC", Georgia, serif;
+        --dig-text-xs: 11px;
+        --dig-text-sm: 13px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 20px;
+        --dig-text-xl: 28px;
+        --dig-text-2xl: 40px;
+        --dig-text-3xl: 56px;
+        --dig-text-4xl: 76px;
+        --dig-text-5xl: 98px;
+        --dig-leading-tight: 1.02;
+        --dig-leading-normal: 1.5;
+        --dig-tracking-tight: -0.03em;
+        --dig-radius-sm: 8px;
+        --dig-radius-md: 14px;
+        --dig-radius-lg: 22px;
+        --dig-radius-xl: 32px;
+        --dig-radius-pill: 999px;
+        --dig-stroke-width: 1px;
+        --dig-stroke-width-strong: 2px;
+        --dig-shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 30px rgba(74, 100, 143, 0.1);
+        --dig-shadow-soft: 0 22px 52px rgba(99, 137, 190, 0.14);
+        --dig-shadow-chunky: 0 2px 0 #d8e1ef;
+        --dig-glow-accent: 0 0 20px rgba(103, 203, 227, 0.16);
+        --dig-glow-secondary: 0 0 20px rgba(236, 217, 226, 0.28);
+        --dig-motion-bounce: cubic-bezier(0.2, 0.78, 0.22, 1);
+    }
+      html[data-style-theme="dark"] {
+        color-scheme: dark;
+        --dig-bg: #050409; --dig-bg-soft: #0b0913; --dig-surface: #0b0a12; --dig-surface-strong: #12101d; --dig-surface-elevated: #191627;
+--dig-text: #f4effc; --dig-text-muted: #c1b7cf; --dig-text-soft: #81758f; --dig-accent: #46d9ff; --dig-accent-strong: #16b5e3; --dig-accent-2: #a768ff; --dig-accent-2-strong: #7d43d0;
+--dig-border: #2e2545; --dig-border-strong: #7557a4; --dig-grid-line: rgba(142, 116, 255, .09); --dig-control-bg: #14111f; --dig-control-bg-hover: #1e1830;
+--dig-success: #48d7c4; --dig-warning: #efc16b; --dig-danger: #e96ebd; --dig-info: #46d9ff;
+--dig-holo-pink: #e351e7; --dig-holo-mint: #21daf6; --dig-holo-butter: #f0be68; --dig-holo-flow-duration: 38s; --dig-holo-dot-size: 1px; --dig-holo-dot-opacity: 0.06;
+--dig-shadow-panel: 0 1px 0 rgba(255, 255, 255, .03), 0 18px 44px rgba(0, 0, 0, .52); --dig-shadow-soft: 0 26px 64px rgba(0, 0, 0, .58); --dig-glow-accent: 0 0 24px rgba(70, 217, 255, .18); --dig-glow-secondary: 0 0 24px rgba(167, 104, 255, .18);
+      }
+    </style>
+  </head>
+  <body data-render-archetype="creative-canvas-workspace" data-render-canvas="pearlescent-moire" data-style-theme-default="">
+    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
+    </div><main class="preview-shell">
+      <section class="hero">
+        <div class="surface hero-main">
+          <span class="eyebrow"><span class="brand-name-label" data-zh="珠光全息" data-en="Hologram Moiré">珠光全息</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1" data-zh="珠光全息" data-en="Hologram Moiré">珠光全息</h1>
+          <p class="brand-description-p" data-zh="以珠光柔雾、流体粉蓝色带和微网点干涉纹构成的安静未来主义视觉语法。" data-en="A soft-future language of pearlescent haze, flowing pastel ribbons, and fine moiré dots.">以珠光柔雾、流体粉蓝色带和微网点干涉纹构成的安静未来主义视觉语法。</p>
+        </div>
+
+        <aside class="surface surface-strong hero-side">
+          <div class="hero-meta">
+            <div class="meta-row"><span>Accent</span><span class="token-val" data-token="--dig-accent">--dig-accent</span></div>
+            <div class="meta-row"><span>Support</span><span class="token-val" data-token="--dig-accent-2">--dig-accent-2</span></div>
+            <div class="meta-row"><span>Body</span><span><span class="token-val" data-token="--dig-text-md">--dig-text-md</span> / <span class="token-val" data-token="--dig-leading-normal">--dig-leading-normal</span></span></div>
+            <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
+            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+
+          <section class="surface section archetype-section canvas-preview" id="sample">
+            <div class="section-head">
+              <h3 data-zh="创作画布样张" data-en="Creative Canvas Sample">创作画布样张</h3>
+              <p data-zh="展示工具栏、图层、画布对象和多人协作状态。" data-en="Shows toolbar, layers, canvas objects, and collaborative presence.">展示工具栏、图层、画布对象和多人协作状态。</p>
+            </div>
+            <div class="canvas-shell">
+              <div class="tool-strip"><span>Move</span><span>Frame</span><span>Pen</span><span>Comment</span></div>
+              <div class="canvas-board">
+                <article class="artboard"><strong>Hologram Moiré Workspace</strong><p>Component set · Variant preview</p></article>
+                <article class="floating-node">Prototype</article>
+              </div>
+              <aside><strong>Layers</strong><span>Hero frame</span><span>Button / Primary</span><span>Token swatches</span></aside>
+            </div>
+          </section>
+
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for: [creative workspace, personal AI space, product onboarding, calm product launch, exploration and empty states]
+avoid_for: [high-density observability, incident response, trading interface, destructive admin flow, long repetitive data table]
+mood: [luminous, tactile, calm, optimistic, dreamlike]
+shape_language:
+  stroke: &quot;Fine pearl-gray contours, gently displaced dot fields, and fluid ribbon crops create depth without hard sci-fi geometry.&quot;
+  radius: &quot;Soft medium panels and stable pill controls; avoid inflated blob components or full glass capsules.&quot;
+  density: &quot;Open focal surfaces with a calm reading rhythm; dense work regions revert to clear rows and conventional tables.&quot;
+  controls: &quot;A stable blue solid identifies actions; cyan, pink, mint, and butter remain atmospheric or secondary signal colors.&quot;
+surface_language:
+  canvas: &quot;Pearl white and mist blue carry one low-contrast flowing color field with a localized moiré dot layer.&quot;
+  panels: &quot;Mostly opaque white or ice surfaces with a low-contrast cool border; transparency is subtle and never the sole grouping cue.&quot;
+  emphasis: &quot;Use a soft color ribbon, halo, or dot-density shift to orient attention, while text and state remain explicit.&quot;
+illustration_language:
+  imagery: &quot;Abstract optical film, contour rivers, iridescent folds, and dotted interference maps suggest motion and dimensionality.&quot;
+  diagrams: &quot;Use layered paths, sampled points, and softly connected regions to explain exploration or synthesis.&quot;
+component_mapping:
+  moire_hero: &quot;One spacious pearl field with a central product proposition, a focused action, and a restrained dot-flow illustration.&quot;
+  discovery_panel: &quot;A white information panel that uses a small color-ribbon edge or dot sample for orientation.&quot;
+  layered_canvas: &quot;A calm canvas with clear tools, layers, and collaborative presence above a non-interactive optical background.&quot;
+  soft_empty_state: &quot;An abstract low-contrast contour field paired with a practical next action.&quot;
+motion_language:
+  energy: &quot;Slow ribbon drift, opacity changes, and a single dot-field reveal support orientation.&quot;
+  limits: &quot;No rapid shimmer, full-screen moving gradients, distortion around text, or motion that affects reading; honor prefers-reduced-motion.&quot;" data-style-token-block="--dig-bg: #f3f2f4;
+--dig-bg-soft: #e5e9f1;
+--dig-surface: #fbfbfc;
+--dig-surface-strong: #e9edf4;
+--dig-surface-elevated: #ffffff;
+--dig-text: #253249;
+--dig-text-muted: #66738a;
+--dig-text-soft: #919bad;
+--dig-accent: #5579c7;
+--dig-accent-strong: #3e60a8;
+--dig-accent-2: #67cbe3;
+--dig-accent-2-strong: #3babc5;
+--dig-border: #c6cfdf;
+--dig-border-strong: #7181a0;
+--dig-grid-line: rgba(255, 255, 255, 0.78);
+--dig-control-bg: #f0f3f8;
+--dig-control-bg-hover: #e3e9f3;
+--dig-success: #397e6c;
+--dig-warning: #a37b34;
+--dig-danger: #b75168;
+--dig-info: #5579c7;
+--dig-holo-pink: #ecd9e2;
+--dig-holo-mint: #cde8df;
+--dig-holo-butter: #ece8c9;
+--dig-holo-flow-duration: 28s;
+--dig-holo-dot-size: 1.2px;
+--dig-holo-dot-opacity: 0.68;
+--dig-font-sans: &quot;Inter&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, sans-serif;
+--dig-font-display: &quot;Manrope&quot;, &quot;PingFang SC&quot;, sans-serif;
+--dig-font-mono: &quot;IBM Plex Mono&quot;, Consolas, monospace;
+--dig-font-serif: &quot;Source Han Serif SC&quot;, Georgia, serif;
+--dig-text-xs: 11px;
+--dig-text-sm: 13px;
+--dig-text-md: 16px;
+--dig-text-lg: 20px;
+--dig-text-xl: 28px;
+--dig-text-2xl: 40px;
+--dig-text-3xl: 56px;
+--dig-text-4xl: 76px;
+--dig-text-5xl: 98px;
+--dig-leading-tight: 1.02;
+--dig-leading-normal: 1.5;
+--dig-tracking-tight: -0.03em;
+--dig-radius-sm: 8px;
+--dig-radius-md: 14px;
+--dig-radius-lg: 22px;
+--dig-radius-xl: 32px;
+--dig-radius-pill: 999px;
+--dig-stroke-width: 1px;
+--dig-stroke-width-strong: 2px;
+--dig-shadow-panel: 0 1px 0 rgba(255, 255, 255, 0.92), 0 12px 30px rgba(74, 100, 143, 0.1);
+--dig-shadow-soft: 0 22px 52px rgba(99, 137, 190, 0.14);
+--dig-shadow-chunky: 0 2px 0 #d8e1ef;
+--dig-glow-accent: 0 0 20px rgba(103, 203, 227, 0.16);
+--dig-glow-secondary: 0 0 20px rgba(236, 217, 226, 0.28);
+--dig-motion-bounce: cubic-bezier(0.2, 0.78, 0.22, 1);" data-style-dark-token-block="--dig-bg: #050409; --dig-bg-soft: #0b0913; --dig-surface: #0b0a12; --dig-surface-strong: #12101d; --dig-surface-elevated: #191627;
+--dig-text: #f4effc; --dig-text-muted: #c1b7cf; --dig-text-soft: #81758f; --dig-accent: #46d9ff; --dig-accent-strong: #16b5e3; --dig-accent-2: #a768ff; --dig-accent-2-strong: #7d43d0;
+--dig-border: #2e2545; --dig-border-strong: #7557a4; --dig-grid-line: rgba(142, 116, 255, .09); --dig-control-bg: #14111f; --dig-control-bg-hover: #1e1830;
+--dig-success: #48d7c4; --dig-warning: #efc16b; --dig-danger: #e96ebd; --dig-info: #46d9ff;
+--dig-holo-pink: #e351e7; --dig-holo-mint: #21daf6; --dig-holo-butter: #f0be68; --dig-holo-flow-duration: 38s; --dig-holo-dot-size: 1px; --dig-holo-dot-opacity: 0.06;
+--dig-shadow-panel: 0 1px 0 rgba(255, 255, 255, .03), 0 18px 44px rgba(0, 0, 0, .52); --dig-shadow-soft: 0 26px 64px rgba(0, 0, 0, .58); --dig-glow-accent: 0 0 24px rgba(70, 217, 255, .18); --dig-glow-secondary: 0 0 24px rgba(167, 104, 255, .18);">
+              <div class="style-lab-head">
+                <div>
+                  <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
+                  <p data-zh="在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。" data-en="Temporarily tune the active theme; switch Light / Dark to adjust each set independently. Export keeps both token sets in one customstyle.">在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。</p>
+                </div>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-style-copy data-zh="复制当前主题 Token" data-en="Copy Active Theme Tokens">复制当前主题 Token</button>
+                  <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                </div>
+              </div>
+              <div class="style-lab-tuner" aria-live="polite">
+                <div class="palette-lab-controls">
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="画布" data-en="Canvas">画布</span>
+                <span class="palette-lab-token">--dig-bg</span>
+                <input class="palette-lab-input" data-style-input="canvas" inputmode="text" maxlength="9" aria-label="Canvas hex" />
+                <input class="palette-lab-color" data-style-color="canvas" type="color" aria-label="Canvas color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="面板" data-en="Surface">面板</span>
+                <span class="palette-lab-token">--dig-surface</span>
+                <input class="palette-lab-input" data-style-input="surface" inputmode="text" maxlength="9" aria-label="Surface hex" />
+                <input class="palette-lab-color" data-style-color="surface" type="color" aria-label="Surface color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="文字" data-en="Ink">文字</span>
+                <span class="palette-lab-token">--dig-text</span>
+                <input class="palette-lab-input" data-style-input="ink" inputmode="text" maxlength="9" aria-label="Ink hex" />
+                <input class="palette-lab-color" data-style-color="ink" type="color" aria-label="Ink color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="主强调色" data-en="Primary">主强调色</span>
+                <span class="palette-lab-token">--dig-accent</span>
+                <input class="palette-lab-input" data-style-input="primary" inputmode="text" maxlength="9" aria-label="Primary hex" />
+                <input class="palette-lab-color" data-style-color="primary" type="color" aria-label="Primary color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="第二强调色" data-en="Support">第二强调色</span>
+                <span class="palette-lab-token">--dig-accent-2</span>
+                <input class="palette-lab-input" data-style-input="support" inputmode="text" maxlength="9" aria-label="Support hex" />
+                <input class="palette-lab-color" data-style-color="support" type="color" aria-label="Support color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="边框" data-en="Border">边框</span>
+                <span class="palette-lab-token">--dig-border</span>
+                <input class="palette-lab-input" data-style-input="border" inputmode="text" maxlength="9" aria-label="Border hex" />
+                <input class="palette-lab-color" data-style-color="border" type="color" aria-label="Border color picker" />
+              </label>
+                </div>
+                <div class="palette-token-diff">
+                  <div><code>--dig-bg</code><span data-style-token="--dig-bg"></span></div>
+                  <div><code>--dig-surface</code><span data-style-token="--dig-surface"></span></div>
+                  <div><code>--dig-text</code><span data-style-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-style-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-2</code><span data-style-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-border</code><span data-style-token="--dig-border"></span></div>
+                </div>
+              </div>
+              <div class="style-lab-grid">
+                <article>
+                  <span data-zh="资产边界" data-en="Asset Boundary">资产边界</span>
+                  <strong>customstyle</strong>
+                  <p data-zh="导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。" data-en="Exported styles belong to the user, imported under ~/.config/dig-ui-skill/styles/ and synced to references/local/styles/.">导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。</p>
+                </article>
+                <article>
+                  <span data-zh="包含内容" data-en="Contents">包含内容</span>
+                  <strong>contract + tokens</strong>
+                  <p data-zh="包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。" data-en="Includes Style Contract, render archetype, page metadata, and current --dig-* token values.">包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。</p>
+                </article>
+              </div>
+            </section>
+
+
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <table class="token-table">
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+                <tr><td><code>--dig-bg</code></td><td class="mono token-val" data-token="--dig-bg">--dig-bg</td></tr>
+                <tr><td><code>--dig-bg-soft</code></td><td class="mono token-val" data-token="--dig-bg-soft">--dig-bg-soft</td></tr>
+                <tr><td><code>--dig-surface</code></td><td class="mono token-val" data-token="--dig-surface">--dig-surface</td></tr>
+                <tr><td><code>--dig-surface-strong</code></td><td class="mono token-val" data-token="--dig-surface-strong">--dig-surface-strong</td></tr>
+                <tr><td><code>--dig-text</code></td><td class="mono token-val" data-token="--dig-text">--dig-text</td></tr>
+                <tr><td><code>--dig-text-muted</code></td><td class="mono token-val" data-token="--dig-text-muted">--dig-text-muted</td></tr>
+                <tr><td><code>--dig-accent</code></td><td class="mono token-val" data-token="--dig-accent">--dig-accent</td></tr>
+                <tr><td><code>--dig-accent-2</code></td><td class="mono token-val" data-token="--dig-accent-2">--dig-accent-2</td></tr>
+                <tr><td><code>--dig-border</code></td><td class="mono token-val" data-token="--dig-border">--dig-border</td></tr>
+                <tr><td><code>--dig-border-strong</code></td><td class="mono token-val" data-token="--dig-border-strong">--dig-border-strong</td></tr>
+                <tr><td><code>--dig-grid-line</code></td><td class="mono token-val" data-token="--dig-grid-line">--dig-grid-line</td></tr>
+                <tr><td><code>--dig-radius-md</code></td><td class="mono token-val" data-token="--dig-radius-md">--dig-radius-md</td></tr>
+                <tr><td><code>--dig-text-5xl</code></td><td class="mono token-val" data-token="--dig-text-5xl">--dig-text-5xl</td></tr>
+                <tr><td><code>--dig-shadow-panel</code></td><td class="mono token-val" data-token="--dig-shadow-panel">--dig-shadow-panel</td></tr>
+                  </tbody>
+                </table>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+
+      // Interactive Language Switcher Controller
+      function setLanguage(lang) {
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+        // Toggle active classes on switcher buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
+        });
+
+        // Translate all data-zh/data-en text nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+
+      // Initialise state
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
+        const root = document.documentElement;
+        const paletteRoleTokens = {
+          canvas: '--dig-bg',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          primaryStrong: '--dig-accent-strong',
+          support: '--dig-accent-2',
+          supportStrong: '--dig-accent-2-strong'
+        };
+        const paletteTrackedTokens = [
+          '--dig-bg',
+          '--dig-text',
+          '--dig-accent',
+          '--dig-accent-strong',
+          '--dig-accent-2',
+          '--dig-accent-2-strong'
+        ];
+        const paletteExportTokens = [
+          ...paletteTrackedTokens
+        ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
+
+        function normalizeHex(raw) {
+          const value = (raw || '').trim();
+          if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+            return '#' + value.slice(1).split('').map(char => char + char).join('').toUpperCase();
+          }
+          if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+            return value.toUpperCase();
+          }
+          return '';
+        }
+
+        function cssColorToHex(raw) {
+          const value = (raw || '').trim();
+          const hex = normalizeHex(value);
+          if (hex) return hex;
+          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (!rgbMatch) return '';
+          return '#' + rgbMatch.slice(1, 4).map(part => {
+            const channel = Math.max(0, Math.min(255, Number(part)));
+            return channel.toString(16).padStart(2, '0');
+          }).join('').toUpperCase();
+        }
+
+        function getTokenValue(token) {
+          return getComputedStyle(root).getPropertyValue(token).trim();
+        }
+
+        function renderTokenValue(el, value) {
+          let displayValue = (value || '').trim();
+          if (!displayValue) return;
+          const hexValue = normalizeHex(displayValue);
+          if (hexValue) {
+            displayValue = hexValue;
+          }
+          el.textContent = '';
+          if (hexValue) {
+            const dot = document.createElement('span');
+            dot.className = 'token-color-dot';
+            dot.style.background = hexValue;
+            el.appendChild(dot);
+          }
+          el.appendChild(document.createTextNode(displayValue));
+        }
+
+        function refreshTokenVisualizers() {
+          document.querySelectorAll('.token-val').forEach(el => {
+            const tokenName = el.getAttribute('data-token');
+            if (tokenName) {
+              renderTokenValue(el, getTokenValue(tokenName));
+            }
+          });
+        }
+
+        function updatePaletteLabState() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          Object.entries(paletteRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) {
+              textInput.value = value;
+            }
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+
+          paletteTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-palette-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setPaletteRoles(updates) {
+          let changed = false;
+          Object.entries(updates).forEach(([role, value]) => {
+            const token = paletteRoleTokens[role];
+            const hex = normalizeHex(value);
+            if (!token || !hex) return;
+            root.style.setProperty(token, hex);
+            changed = true;
+          });
+          if (changed) {
+            updatePaletteLabState();
+          }
+        }
+
+        function setPaletteRole(role, value) {
+          setPaletteRoles({ [role]: value });
+        }
+
+        function fallbackCopyText(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            return document.execCommand('copy');
+          } catch (error) {
+            console.warn('Palette fallback copy failed', error);
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        async function copyPaletteTokens(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (error) {
+              console.warn('Palette clipboard copy failed', error);
+            }
+          }
+          return fallbackCopyText(text);
+        }
+
+        function buildPaletteTokenCss(tokens = paletteTrackedTokens) {
+          return tokens.map(token => {
+            const value = getTokenValue(token);
+            return `${token}: ${normalizeHex(value) || value};`;
+          }).join('\n');
+        }
+
+        function getPaletteSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-palette';
+          return fileName.replace(/\.html$/i, '') || 'dig-palette';
+        }
+
+        function formatPaletteTimestamp(date = new Date()) {
+          const pad = value => String(value).padStart(2, '0');
+          return [
+            date.getFullYear(),
+            pad(date.getMonth() + 1),
+            pad(date.getDate())
+          ].join('') + '-' + [
+            pad(date.getHours()),
+            pad(date.getMinutes()),
+            pad(date.getSeconds())
+          ].join('');
+        }
+
+        function collectPaletteCandidates(lab) {
+          const support = Array.from(lab.querySelectorAll('[data-palette-candidate]')).map(button => {
+            const label = button.querySelector('span:not(.palette-candidate-dot)')?.textContent?.trim() || '';
+            return {
+              label,
+              value: normalizeHex(button.getAttribute('data-value')) || button.getAttribute('data-value'),
+              strong: normalizeHex(button.getAttribute('data-strong')) || button.getAttribute('data-strong')
+            };
+          });
+          return { support };
+        }
+
+        function buildPaletteExportPayload(lab) {
+          const tokens = {};
+          paletteExportTokens.forEach(token => {
+            const value = getTokenValue(token);
+            if (value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          return {
+            schema: 'dig.palette.export.v1',
+            token_contract: 'palette_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug: getPaletteSlug(),
+            export_id: `${getPaletteSlug()}.custompalette-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            anchors: {
+              canvas: tokens['--dig-bg'],
+              ink: tokens['--dig-text'],
+              primary: tokens['--dig-accent'],
+              support: tokens['--dig-accent-2']
+            },
+            roles: {
+              primary_strong: tokens['--dig-accent-strong'],
+              support_strong: tokens['--dig-accent-2-strong']
+            },
+            tokens,
+            css: buildPaletteTokenCss(paletteExportTokens),
+            candidates: collectPaletteCandidates(lab),
+            derivation: {
+              status: 'anchors-only',
+              note: 'This custom palette exports only Palette Lab managed role tokens. Downstream systems should derive extended scales from these anchors.'
+            }
+          };
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[char]);
+        }
+
+        function hexToRgb(hex) {
+          const normalized = normalizeHex(hex);
+          if (!normalized) return null;
+          return {
+            r: parseInt(normalized.slice(1, 3), 16),
+            g: parseInt(normalized.slice(3, 5), 16),
+            b: parseInt(normalized.slice(5, 7), 16)
+          };
+        }
+
+        function relativeLuminance(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 1;
+          const channels = [rgb.r, rgb.g, rgb.b].map(channel => {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+        }
+
+        function contrastRatio(hexA, hexB) {
+          const lumA = relativeLuminance(hexA);
+          const lumB = relativeLuminance(hexB);
+          const lighter = Math.max(lumA, lumB);
+          const darker = Math.min(lumA, lumB);
+          return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function readableTextOn(hex) {
+          return contrastRatio(hex, '#000000') >= contrastRatio(hex, '#FFFFFF') ? '#000000' : '#FFFFFF';
+        }
+
+        function buildPalettePreviewHtml(payload) {
+          const tokens = payload.tokens || {};
+          const onPrimary = readableTextOn(payload.anchors.primary);
+          const swatches = [
+            ['Canvas', payload.anchors.canvas],
+            ['Ink', payload.anchors.ink],
+            ['Primary', payload.anchors.primary],
+            ['Primary Strong', payload.roles.primary_strong],
+            ['Support', payload.anchors.support],
+            ['Support Strong', payload.roles.support_strong]
+          ].map(([label, value]) => `
+              <article class="swatch">
+                <span style="background:${escapeHtml(value)}"></span>
+                <strong>${escapeHtml(label)}</strong>
+                <code>${escapeHtml(value)}</code>
+              </article>`).join('');
+          const tokenRows = Object.entries(tokens).map(([token, value]) => `
+              <tr><td><code>${escapeHtml(token)}</code></td><td>${escapeHtml(value)}</td></tr>`).join('');
+          return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)} Palette Export</title>
+    <style>
+      :root {
+        --bg: ${escapeHtml(payload.anchors.canvas)};
+        --ink: ${escapeHtml(payload.anchors.ink)};
+        --primary: ${escapeHtml(payload.anchors.primary)};
+        --primary-strong: ${escapeHtml(payload.roles.primary_strong)};
+        --support: ${escapeHtml(payload.anchors.support)};
+        --support-strong: ${escapeHtml(payload.roles.support_strong)};
+        --on-primary: ${escapeHtml(onPrimary)};
+        --surface: color-mix(in srgb, var(--bg), var(--ink) 6%);
+        --surface-strong: color-mix(in srgb, var(--bg), var(--ink) 11%);
+        --border: color-mix(in srgb, var(--ink), transparent 76%);
+        --border-strong: color-mix(in srgb, var(--ink), transparent 56%);
+        --muted: color-mix(in srgb, var(--ink), transparent 32%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+      .hero { display: grid; gap: 20px; padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface), var(--support) 18%)); }
+      h1 { margin: 0; font-size: clamp(42px, 8vw, 92px); line-height: .92; letter-spacing: -0.03em; }
+      p { max-width: 68ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary-strong); border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+      .button.secondary { background: transparent; color: var(--primary); }
+      .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+      .swatch { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      .swatch span { width: 42px; height: 42px; border: 1px solid var(--border-strong); border-radius: 999px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      table { width: 100%; border-collapse: collapse; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      tr:last-child td { border-bottom: 0; }
+      td:last-child { text-align: right; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <code>${escapeHtml(payload.export_id)}</code>
+        <h1>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)}</h1>
+        <p>${escapeHtml(payload.description.zh || payload.description.en || '')}</p>
+        <div class="actions">
+          <span class="button">Primary Action</span>
+          <span class="button secondary">Secondary Action</span>
+        </div>
+      </section>
+      <section class="swatches">${swatches}
+      </section>
+      <table>${tokenRows}
+      </table>
+    </main>
+  </body>
+</html>
+`;
+        }
+
+        const zipCrcTable = (() => {
+          const table = new Uint32Array(256);
+          for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+              value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+          }
+          return table;
+        })();
+
+        function crc32(bytes) {
+          let crc = 0xFFFFFFFF;
+          for (const byte of bytes) {
+            crc = zipCrcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+          }
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function zipDateParts(date = new Date()) {
+          const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+          const day = (date.getFullYear() - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+          return { time, day };
+        }
+
+        function makeZip(files) {
+          const encoder = new TextEncoder();
+          const localParts = [];
+          const centralParts = [];
+          let offset = 0;
+          const { time, day } = zipDateParts();
+
+          files.forEach(file => {
+            const nameBytes = encoder.encode(file.name);
+            const dataBytes = encoder.encode(file.content);
+            const crc = crc32(dataBytes);
+            const local = new ArrayBuffer(30 + nameBytes.length);
+            const localView = new DataView(local);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0x0800, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, time, true);
+            localView.setUint16(12, day, true);
+            localView.setUint32(14, crc, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            new Uint8Array(local, 30).set(nameBytes);
+            localParts.push(local, dataBytes);
+
+            const central = new ArrayBuffer(46 + nameBytes.length);
+            const centralView = new DataView(central);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0x0800, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, time, true);
+            centralView.setUint16(14, day, true);
+            centralView.setUint32(16, crc, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint32(42, offset, true);
+            new Uint8Array(central, 46).set(nameBytes);
+            centralParts.push(central);
+            offset += local.byteLength + dataBytes.length;
+          });
+
+          const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+          const end = new ArrayBuffer(22);
+          const endView = new DataView(end);
+          endView.setUint32(0, 0x06054b50, true);
+          endView.setUint16(8, files.length, true);
+          endView.setUint16(10, files.length, true);
+          endView.setUint32(12, centralSize, true);
+          endView.setUint32(16, offset, true);
+          return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+        }
+
+        function downloadPaletteZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-palette'}.custompalette-${formatPaletteTimestamp()}`;
+          const jsonName = `${baseName}.json`;
+          const htmlName = `${baseName}.html`;
+          const zip = makeZip([
+            { name: jsonName, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: htmlName, content: buildPalettePreviewHtml(payload) }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function getStyleSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-style';
+          return fileName.replace(/\.html$/i, '') || 'dig-style';
+        }
+
+        function collectStyleTokens() {
+          const tokens = {};
+          document.querySelectorAll('.token-val[data-token]').forEach(el => {
+            const token = el.getAttribute('data-token');
+            const value = getTokenValue(token);
+            if (token && token.startsWith('--dig-') && value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          return tokens;
+        }
+
+        function parseStyleTokenCss(cssText) {
+          const tokens = {};
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+            tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
+          }
+          return tokens;
+        }
+
+        function buildStyleTokenCss(tokens, cssText = '') {
+          const lines = [];
+          const seen = new Set();
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
+            const token = match[1];
+            if (Object.prototype.hasOwnProperty.call(tokens, token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+              seen.add(token);
+            }
+          }
+          Object.keys(tokens).sort().forEach(token => {
+            if (!seen.has(token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+            }
+          });
+          return lines.join('\n');
+        }
+
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
+        function initStyleTheme() {
+          const lab = document.querySelector('[data-style-lab]');
+          const switcher = document.querySelector('[data-theme-switcher]');
+          const darkTokens = parseStyleTokenCss(lab?.getAttribute('data-style-dark-token-block') || '');
+          if (!lab || !switcher || Object.keys(darkTokens).length === 0) return;
+
+          switcher.hidden = false;
+          const applyStyleTheme = mode => {
+            const resolvedMode = mode === 'dark' ? 'dark' : 'light';
+            document.documentElement.dataset.styleTheme = resolvedMode;
+            document.documentElement.style.colorScheme = resolvedMode;
+            localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
+            switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+              button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
+            });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
+          };
+
+          const savedTheme = localStorage.getItem('dig-ui-style-theme');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
+          switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+            button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
+          });
+        }
+
+        function buildStyleExportPayload(lab) {
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          const slug = getStyleSlug();
+          const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
+          const styleTokens = {
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
+          };
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
+          const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
+          return {
+            schema: 'dig.style.export.v1',
+            token_contract: 'style_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug,
+            export_id: `${slug}.customstyle-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            render: {
+              archetype: document.body.getAttribute('data-render-archetype') || 'token-sheet'
+            },
+            style_contract: lab.getAttribute('data-style-contract') || '',
+            tokens: styleTokens,
+            css: styleCss,
+            theme_tokens: { light: styleTokens, dark: styleDarkTokens },
+            theme_css: { light: styleCss, dark: styleDarkCss },
+            derivation: {
+              status: 'style-contract-export',
+              note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
+            }
+          };
+        }
+
+        function downloadStyleZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-style'}.customstyle-${formatPaletteTimestamp()}`;
+          const zip = makeZip([
+            { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\n` },
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\n` },
+            { name: `${baseName}.dark.tokens.css`, content: `${payload.theme_css?.dark || ''}\n` }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initStyleLab() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab) return;
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
+          });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
+        }
+
+        function initPaletteLab() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          lab.querySelectorAll('[data-palette-input]').forEach(input => {
+            input.addEventListener('change', () => {
+              setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+            });
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) {
+                setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+              }
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-color]').forEach(input => {
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
+          });
+
+          lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
+            button.addEventListener('click', () => {
+              lab.querySelectorAll('[data-palette-candidate]').forEach(item => item.classList.remove('active'));
+              button.classList.add('active');
+              setPaletteRoles({
+                [button.getAttribute('data-role')]: button.getAttribute('data-value'),
+                supportStrong: button.getAttribute('data-strong')
+              });
+            });
+          });
+
+          const copyButton = lab.querySelector('[data-palette-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const tokenCss = buildPaletteTokenCss();
+              const copied = await copyPaletteTokens(tokenCss);
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          const exportButton = lab.querySelector('[data-palette-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildPaletteExportPayload(lab);
+              downloadPaletteZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          updatePaletteLabState();
+        }
+
+        // Dynamic Token Visualizer
+        refreshTokenVisualizers();
+        initPaletteLab();
+        initStyleLab();
+        initStyleTheme();
+      });
+    </script>
+  </body>
+</html>
