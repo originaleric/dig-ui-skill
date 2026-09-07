@@ -11,6 +11,7 @@ import urllib.request
 import urllib.parse
 import json
 import html
+from datetime import date, timedelta
 
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 CATALOG_DIR = os.path.join(PROJECT_DIR, "references", "catalogs")
@@ -72,6 +73,10 @@ STYLE_THEME_TOKEN_ROLES = [
     "--dig-accent", "--dig-accent-2", "--dig-border", "--dig-border-strong",
     "--dig-grid-line", "--dig-control-bg", "--dig-control-bg-hover", "--dig-success",
     "--dig-warning", "--dig-danger", "--dig-info",
+]
+MONOCHROME_WORKSPACE_TOKEN_ROLES = [
+    "--dig-on-accent", "--dig-chart-line", "--dig-chart-fill",
+    "--dig-field-line", "--dig-field-node", "--dig-field-halo",
 ]
 MOBILE_GAME_COMPANION_TOKEN_ROLES = [
     "--dig-game-sky-start",
@@ -484,7 +489,10 @@ def validate_palette_contract(md_content, category_slug, catalog_slug, rel_path)
                 fail_catalog(f"Style {catalog_slug} missing token role '{token}'")
             if not has_meaningful_value(tokens[token]):
                 fail_catalog(f"Style {catalog_slug} token role '{token}' has empty value")
-        for token in STYLE_THEME_TOKEN_ROLES:
+        theme_roles = list(STYLE_THEME_TOKEN_ROLES)
+        if parse_render_setting(md_content, "archetype") == "monochrome-workspace":
+            theme_roles.extend(MONOCHROME_WORKSPACE_TOKEN_ROLES)
+        for token in theme_roles:
             if token not in tokens or not has_meaningful_value(tokens[token]):
                 fail_catalog(f"Style {catalog_slug} light theme missing token role '{token}'")
         dark_token_block = extract_fenced_code_block_from_section(md_content, "Dig UI Dark Tokens", "css")
@@ -492,7 +500,7 @@ def validate_palette_contract(md_content, category_slug, catalog_slug, rel_path)
             fail_catalog(f"Style {catalog_slug} missing canonical dark token block: ## Dig UI Dark Tokens fenced css block")
         else:
             dark_tokens = parse_css_tokens(dark_token_block)
-            for token in STYLE_THEME_TOKEN_ROLES:
+            for token in theme_roles:
                 if token not in dark_tokens or not has_meaningful_value(dark_tokens[token]):
                     fail_catalog(f"Style {catalog_slug} dark theme missing token role '{token}'")
         return
@@ -758,7 +766,153 @@ def bilingual_element(tag, zh, en, attrs=""):
         f'{html.escape(zh)}</{tag}>'
     )
 
+def build_monochrome_section():
+    """A neutral product specimen; color and material come from catalog tokens."""
+    b = bilingual_element
+    metrics = "".join(
+        f'<div>{b("span", zh, en)}<strong>{value}</strong>{b("small", note_zh, note_en)}</div>'
+        for zh, en, value, note_zh, note_en in [
+            ("项目", "Projects", "24", "本月新增 3 个", "3 added this month"),
+            ("已完成", "Completed", "1,157", "较上期 +12.8%", "+12.8% vs previous period"),
+            ("存储空间", "Storage", "10.44 GB", "共 50 GB", "of 50 GB"),
+        ]
+    )
+    # Deterministic SVG paths keep regeneration reproducible. This is an optional
+    # illustration specimen, not fabricated live telemetry or a required motif.
+    field_lines = "".join(
+        f'<path d="M0 {12 + i * 9} C180 {310 - i * 7} 310 {i * 11} 490 {28 + i * 7} S640 {260 - i * 5} 720 {45 + i * 8}"/>'
+        for i in range(32)
+    )
+    field_points = "".join(
+        f'<circle cx="{24 + (i * 83) % 672}" cy="{20 + (i * 47) % 270}" r="{1 if i % 5 else 2}"/>'
+        for i in range(70)
+    )
+    status_attrs = 'class="mc-status"'
+    rows = "".join(
+        f'<li><div>{b("strong", zh, en)}{b("span", sub_zh, sub_en)}</div>{b("span", state_zh, state_en, status_attrs)}</li>'
+        for zh, en, sub_zh, sub_en, state_zh, state_en in [
+            ("设计资料库", "Design library", "12 个文件 · 今天", "12 files · Today", "已更新", "Updated"),
+            ("每周回顾", "Weekly review", "4 个章节 · 昨天", "4 sections · Yesterday", "草稿", "Draft"),
+            ("品牌资源", "Brand assets", "8 个文件 · 9 月 5 日", "8 files · Sep 5", "已共享", "Shared"),
+        ]
+    )
+    # One dataset owns the plotted values, totals, accessible descriptions, and
+    # table. Group each period's output so the native radio switches it together.
+    week_values = [6, 34, 18, 14, 22, 12, 22]
+    month_values = [5, 7, 8, 6, 10, 12, 9, 14, 12, 16, 18, 15, 12, 17, 21,
+                    18, 33, 20, 35, 18, 20, 17, 15] + week_values
+    charts = []
+    for period, start, values, previous_total in [
+        ("week", date(2026, 9, 1), week_values, 118),
+        ("month", date(2026, 8, 9), month_values, 431),
+    ]:
+        dates = [start + timedelta(days=i) for i in range(len(values))]
+        total = sum(values)
+        change = (total - previous_total) / previous_total * 100
+        points = [(36 + 354 * i / (len(values) - 1), 190 - 4 * value)
+                  for i, value in enumerate(values)]
+        curve = f"M{points[0][0]:.2f} {points[0][1]:.2f}"
+        for (px, py), (x, y) in zip(points, points[1:]):
+            midpoint = (px + x) / 2
+            curve += f" C{midpoint:.2f} {py:.2f} {midpoint:.2f} {y:.2f} {x:.2f} {y:.2f}"
+        title = b("title", f"近 {len(values)} 天每日完成记录", f"Daily completions over {len(values)} days", f'id="mc-chart-title-{period}"')
+        description = b(
+            "desc",
+            f"{dates[0].isoformat()} 至 {dates[-1].isoformat()}，共 {total} 项。每天最少 {min(values)} 项，最多 {max(values)} 项；首日 {values[0]} 项，末日 {values[-1]} 项。完整数值见下方每日数据表。",
+            f"{dates[0].isoformat()} to {dates[-1].isoformat()}: {total} items total. Daily values range from {min(values)} to {max(values)}; first day {values[0]}, last day {values[-1]}. Exact values are available in the daily data table below.",
+            f'id="mc-chart-desc-{period}"',
+        )
+        data_rows = "".join(f'<tr><th scope="row">{day.isoformat()}</th><td>{value}</td></tr>' for day, value in zip(dates, values))
+        axis = "".join(f'<span>{dates[i].strftime("%m.%d")}</span>' for i in [0, len(values) // 2, len(values) - 1])
+        charts.append(f"""
+                  <div class="mc-chart-period" data-range="{period}">
+                    <p class="mc-chart-total"><strong>{total}</strong> {b("span", f"项已完成 · 较上期 {change:+.1f}%", f"completed · {change:+.1f}% vs previous")}</p>
+                    <svg class="mc-chart" viewBox="0 0 420 220" role="img" aria-labelledby="mc-chart-title-{period}" aria-describedby="mc-chart-desc-{period}" focusable="false">
+                      {title}{description}
+                      <g class="mc-chart-grid"><path d="M36 30 H390 M36 110 H390 M36 190 H390"/></g>
+                      <g class="mc-chart-labels"><text x="0" y="34">40</text><text x="0" y="114">20</text><text x="8" y="194">0</text></g>
+                      <path class="mc-area" d="{curve} L390 190 H36 Z"/><path class="mc-line" d="{curve}"/>
+                    </svg>
+                    <div class="mc-chart-axis">{axis}</div>
+                    <details class="mc-chart-data">
+                      <summary>{b("span", "查看每日数据", "View daily data")}</summary>
+                      <table>
+                        {b("caption", f"近 {len(values)} 天完成记录（项 / 天）", f"{len(values)}-day completions (items / day)")}
+                        <thead><tr>{b("th", "日期", "Date", 'scope="col"')}{b("th", "完成数量", "Completed items", 'scope="col"')}</tr></thead>
+                        <tbody>{data_rows}</tbody>
+                      </table>
+                    </details>
+                  </div>""")
+    charts = "".join(charts)
+    return f"""
+          <section class="section archetype-section mc-preview" id="sample" data-layout="dashboard-overview">
+            <header class="mc-topbar" data-slot="topbar">
+              <div>{b("h3", "工作空间", "Workspace")}{b("p", "让日常工作清晰有序。", "A clear view of your everyday work.")}</div>
+              <a class="mc-button mc-primary" href="#mc-library">{b("span", "查看资料库", "View library")}</a>
+            </header>
+            <div class="mc-metrics" data-slot="kpi_strip">{metrics}</div>
+            <div class="mc-layout">
+              <div class="mc-stack" data-slot="primary_panel">
+                <figure class="mc-panel mc-field">
+                  <figcaption class="mc-panel-head">{b("h4", "简单，也可以有层次。", "Simple, with depth.")}{b("span", "图形样张", "Graphic study", 'class="mc-meta"')}</figcaption>
+                  <svg viewBox="0 0 720 320" aria-hidden="true" focusable="false">
+                    <defs><radialGradient id="mc-halo"><stop stop-color="var(--dig-field-halo)"/><stop offset="1" stop-color="var(--dig-field-halo)" stop-opacity="0"/></radialGradient></defs>
+                    <g class="mc-field-lines">{field_lines}</g><g class="mc-field-points">{field_points}</g>
+                    <circle cx="490" cy="168" r="48" fill="url(#mc-halo)"/>
+                    <g class="mc-field-nodes"><circle cx="490" cy="168" r="6"/><circle cx="490" cy="84" r="4"/><circle cx="490" cy="224" r="3"/></g>
+                  </svg>
+                  <div class="mc-field-caption">{b("span", "线条 · 留白 · 灰阶", "Lines · Space · Grayscale")}{b("span", "静态图形 / 非实时数据", "Static illustration / Not live data")}</div>
+                </figure>
+                <section class="mc-panel" id="mc-library">
+                  <div class="mc-panel-head">{b("h4", "最近的资料", "Recent files")}{b("span", "3 项", "3 items", 'class="mc-meta"')}</div>
+                  <ul class="mc-list">{rows}</ul>
+                </section>
+                <details class="mc-panel mc-states">
+                  <summary>{b("span", "组件状态样张", "Component states")}</summary>
+                  <div class="mc-state-list">
+                    {b("p", "已保存 — 所有修改均已保留。", "Saved — All changes are retained.")}
+                    {b("p", "注意 — 存储空间即将用尽。", "Warning — Storage is nearly full.")}
+                    {b("p", "加载中 — 正在读取资料。", "Loading — Fetching your files.")}
+                    {b("p", "暂无资料 — 添加第一个文件即可开始。", "No files yet — Add your first file to begin.")}
+                    <label for="mc-invalid">{b("span", "名称（错误态示例）", "Name (error example)")}</label>
+                    <input id="mc-invalid" value="" aria-invalid="true" aria-describedby="mc-error" readonly>
+                    {b("p", "错误 — 名称不能为空，请填写后重试。", "Error — Name is required. Enter a name and retry.", 'id="mc-error"')}
+                    <button class="mc-button" type="button" disabled>{b("span", "导出不可用", "Export unavailable")}</button>
+                  </div>
+                </details>
+              </div>
+              <aside class="mc-stack" data-slot="secondary_panel">
+                <section class="mc-panel mc-progress">
+                  <div class="mc-panel-head">{b("h4", "本周进度", "Weekly progress")}{b("span", "进行中", "In progress", 'class="mc-status"')}</div>
+                  <div class="mc-progress-value"><strong>72<span>%</span></strong>{b("span", "18 / 25 项已完成", "18 / 25 items complete")}</div>
+                  <label class="mc-meta" for="mc-progress">{b("span", "目标完成度", "Goal completion")}</label>
+                  <progress id="mc-progress" value="72" max="100">72%</progress>
+                </section>
+                <section class="mc-panel mc-trend">
+                  <div class="mc-panel-head">{b("h4", "完成记录", "Completion history")}</div>
+                  <fieldset class="mc-period"><legend>{b("span", "时间范围", "Time range")}</legend>
+                    <label><input type="radio" name="mc-period" value="week" checked>{b("span", "近 7 天", "7 days")}</label>
+                    <label><input type="radio" name="mc-period" value="month">{b("span", "近 30 天", "30 days")}</label>
+                  </fieldset>
+                  {charts}
+                  {b("p", "示例数据 · 单位：项 / 天", "Sample data · Items / day", 'class="mc-meta"')}
+                </section>
+                <section class="mc-panel mc-preferences">
+                  <div class="mc-panel-head">{b("h4", "偏好设置", "Preferences")}</div>
+                  <label for="mc-name">{b("span", "工作空间名称", "Workspace name")}</label>
+                  <input id="mc-name" value="Studio" autocomplete="off" aria-describedby="mc-local-note">
+                  <label class="mc-checkbox"><input type="checkbox" checked>{b("span", "显示辅助说明", "Show helper text")}</label>
+                  {b("p", "清晰的名称，方便查找与识别。", "A clear name makes your workspace easy to find.", 'class="mc-helper"')}
+                  {b("p", "仅本页演示，不会保存。", "Preview only. Changes are not saved.", 'id="mc-local-note" class="mc-meta"')}
+                </section>
+              </aside>
+            </div>
+          </section>"""
+
+
 def build_archetype_section(archetype, brand_name, palette_candidates=None):
+    if archetype == "monochrome-workspace":
+        return build_monochrome_section()
     brand = html.escape(brand_name)
     templates = {
         "strategy-workspace": f"""

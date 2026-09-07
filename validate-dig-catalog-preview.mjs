@@ -89,6 +89,15 @@ function contrast(a, b) {
 const files = walk(root);
 const problems = [];
 
+const baseCanvasRule = [...sharedPreviewCss.matchAll(/^body\s*\{([^}]+)\}/gm)]
+  .map(match => match[1]).find(rule => rule.includes("font-family:")) || "";
+if (!/background:\s*var\(--dig-bg\)\s*;/.test(baseCanvasRule) || /gradient\(/.test(baseCanvasRule)) {
+  problems.push("assets/catalog-preview.css: default preview canvas must use the catalog's solid --dig-bg");
+}
+if (!/content:\s*none\s*;/.test(selectorRule("body::before"))) {
+  problems.push("assets/catalog-preview.css: default preview canvas must not generate a decorative grid overlay");
+}
+
 for (const selector of [".palette-lab-row", ".palette-lab-input", ".palette-candidate"]) {
   const rule = selectorRule(selector);
   if (!rule) {

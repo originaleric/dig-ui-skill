@@ -271,6 +271,12 @@ catalogs:
     token_contract: style_v1
     status: draft
     default_for: [creative-workspace, personal-ai-space, calm-product-launch, exploration-empty-state]
+  - slug: monochrome
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: draft
+    default_for: [neutral-product, workspace, dashboard, content-library, settings, focused-product-page]
 # Legacy alias for older tooling. Keep this equal to token_contracts.brand_v1
 # so palette-only requirements do not break existing brand catalogs.
 required_token_roles:

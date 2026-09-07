@@ -135,6 +135,10 @@ const styleRequiredContractMarkers = [
   "component_mapping:",
   "motion_language:",
 ];
+const monochromeWorkspaceTokenRoles = [
+  "--dig-on-accent", "--dig-chart-line", "--dig-chart-fill",
+  "--dig-field-line", "--dig-field-node", "--dig-field-halo",
+];
 const styleThemeTokenRoles = [
   "--dig-bg", "--dig-bg-soft", "--dig-surface", "--dig-surface-strong",
   "--dig-surface-elevated", "--dig-text", "--dig-text-muted", "--dig-text-soft",
@@ -971,6 +975,11 @@ function validateStyleCatalogs() {
       issues.push(fail(`Style ${slug} missing explicit render archetype`, "render.archetype is required for style catalogs"));
     }
 
+    const archetype = normalizeYamlScalar(parseYamlSectionMap(content.split("---")[1] || "", "render").archetype || "");
+    const requiredThemeRoles = [
+      ...styleThemeTokenRoles,
+      ...(archetype === "monochrome-workspace" ? monochromeWorkspaceTokenRoles : []),
+    ];
     const tokenBlock = extractFencedCodeBlockFromSection(content, "Dig UI CSS Tokens", "css");
     if (!tokenBlock) {
       issues.push(fail(`Style ${slug} missing canonical CSS token block`, "## Dig UI CSS Tokens fenced css block"));
@@ -991,7 +1000,7 @@ function validateStyleCatalogs() {
           issues.push(fail(`Style ${slug} token role has empty value`, token));
         }
       }
-      for (const token of styleThemeTokenRoles) {
+      for (const token of requiredThemeRoles) {
         if (!Object.hasOwn(tokens, token) || !hasMeaningfulValue(tokens[token])) {
           issues.push(fail(`Style ${slug} light theme missing token role`, token));
         }
@@ -1002,7 +1011,7 @@ function validateStyleCatalogs() {
       issues.push(fail(`Style ${slug} missing canonical dark token block`, "## Dig UI Dark Tokens fenced css block"));
     } else {
       const darkTokens = parseCssTokens(darkTokenBlock);
-      for (const token of styleThemeTokenRoles) {
+      for (const token of requiredThemeRoles) {
         if (!Object.hasOwn(darkTokens, token) || !hasMeaningfulValue(darkTokens[token])) {
           issues.push(fail(`Style ${slug} dark theme missing token role`, token));
         }
@@ -1096,6 +1105,68 @@ function validateCustomStyleCliWorkflow() {
     }
     if (!showOutput.includes('"export_id": "validator-style.customstyle-20260712-160000"')) {
       issues.push(fail("style show <slug> returned the wrong customstyle asset", "expected Style Lab export_id fixture"));
+    }
+
+    // Exercise actual import boundaries using the canonical Monochrome maps.
+    const monochromeMd = read("references/catalogs/styles/monochrome.md");
+    const blocks = Object.fromEntries([
+      ["light", "Dig UI CSS Tokens"], ["dark", "Dig UI Dark Tokens"],
+    ].map(([mode, heading]) => [mode, extractFencedCodeBlockFromSection(monochromeMd, heading, "css")]));
+    const monochrome = buildStyleJsonFixture({
+      slug: "monochrome-import-test", export_id: "monochrome-import-test",
+      render: { archetype: "monochrome-workspace" },
+      style_contract: extractFencedCodeBlockFromSection(monochromeMd, "Style Contract", "yaml"),
+      tokens: parseCssTokens(blocks.light),
+      theme_tokens: { light: parseCssTokens(blocks.light), dark: parseCssTokens(blocks.dark) },
+    });
+    const monoPath = path.join(tempRoot, "monochrome.json");
+    const monoMdPath = path.join(tempRoot, "monochrome.md");
+    fs.writeFileSync(monoPath, JSON.stringify(monochrome));
+    fs.writeFileSync(monoMdPath, monochromeMd);
+    runSkillCli(["style", "import", monoPath], tempRoot);
+    runSkillCli(["style", "import", monoMdPath], tempRoot);
+    const imported = JSON.parse(runSkillCli(["style", "show", monochrome.slug], tempRoot));
+    if (JSON.stringify(imported.theme_tokens) !== JSON.stringify(monochrome.theme_tokens)) {
+      issues.push(fail("Monochrome import must preserve both theme maps"));
+    }
+    const legacyMonochrome = { ...monochrome, export_id: "monochrome-legacy-test" };
+    delete legacyMonochrome.theme_tokens;
+    fs.writeFileSync(monoPath, JSON.stringify(legacyMonochrome));
+    runSkillCli(["style", "import", monoPath], tempRoot);
+    const importedDir = path.join(tempRoot, ".config/dig-ui-skill/styles");
+    const beforeInvalidImports = fs.readdirSync(importedDir).sort().join("\n");
+    for (const token of monochromeWorkspaceTokenRoles) {
+      for (const mode of ["tokens", "light", "dark"]) {
+        for (const value of [null, ""]) {
+          const broken = JSON.parse(JSON.stringify(monochrome));
+          const map = mode === "tokens" ? broken.tokens : broken.theme_tokens[mode];
+          if (value === null) delete map[token];
+          else map[token] = value;
+          fs.writeFileSync(monoPath, JSON.stringify(broken));
+          const paths = [monoPath];
+          if (mode !== "tokens") {
+            const brokenBlock = blocks[mode].split("\n").map(line =>
+              line.startsWith(`${token}:`) ? (value === null ? "" : `${token}: ;`) : line,
+            ).join("\n");
+            fs.writeFileSync(monoMdPath, monochromeMd.replace(blocks[mode], brokenBlock));
+            paths.push(monoMdPath);
+          }
+          for (const fixturePath of paths) {
+            try {
+              runSkillCli(["style", "import", fixturePath], tempRoot);
+              issues.push(fail(`Monochrome import accepted invalid ${mode} token`, token));
+            } catch (error) {
+              const output = `${error.stdout || ""}${error.stderr || ""}`;
+              if (!output.includes(`missing token role ${token}`)) {
+                issues.push(fail("Monochrome rejection must identify the invalid token", output.slice(0, 240)));
+              }
+            }
+          }
+        }
+      }
+    }
+    if (fs.readdirSync(importedDir).sort().join("\n") !== beforeInvalidImports) {
+      issues.push(fail("Rejected Monochrome imports must not persist user assets"));
     }
 
     const incompleteThemeFixturePath = path.join(tempRoot, "incomplete-theme-style.json");
@@ -1486,6 +1557,22 @@ function validateRenderRegistryContract() {
   return issues;
 }
 
+function validateRenderTemplates() {
+  // Check actual interpreters, not just generated HTML or source-text markers.
+  // macOS's system Python caught the f-string compatibility regression.
+  const interpreters = ["python3"];
+  if (process.platform === "darwin" && fs.existsSync("/usr/bin/python3")) {
+    interpreters.push("/usr/bin/python3");
+  }
+  return interpreters.flatMap((python) => {
+    const result = childProcess.spawnSync(python, [path.join(__dirname, "bin/validate-render-templates.py")], {
+      encoding: "utf8",
+      timeout: 30000,
+    });
+    return result.status === 0 ? [] : [fail(`Render template regression failed (${python})`, result.error?.message || result.stderr || result.stdout)];
+  });
+}
+
 function main() {
   const issues = [];
   if (exists("references/locales")) {
@@ -1511,6 +1598,7 @@ function main() {
   issues.push(...validateInstallerCanonicalCatalogPassthrough());
   issues.push(...validateCustomStyleCliWorkflow());
   issues.push(...validateRenderRegistryContract());
+  issues.push(...validateRenderTemplates());
 
   const fails = issues.filter((issue) => issue.level === "FAIL");
   const warns = issues.filter((issue) => issue.level === "WARN");

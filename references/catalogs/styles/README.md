@@ -18,6 +18,7 @@ Style catalogs are a third base-catalog line alongside brand catalogs and color 
 | `cel-sci-fi` | experimental AI, developer education, launch narrative | persistent operational interface | `editorial-story` |
 | `cyberpunk-neon` | experimental launch, creator culture, immersive product narrative | critical operations or dense data entry | `editorial-story` |
 | `hologram-moire` | creative workspace, personal AI space, calm product exploration | high-density observability or destructive admin flow | `creative-canvas-workspace` |
+| `monochrome` | simple black/white/gray products across workspaces, dashboards, libraries, settings, and focused pages | color-critical work or mandatory semantic color coding | `monochrome-workspace` |
 
 When several rows match, choose the one whose **avoid** boundary least conflicts with the task. If no row has a clear fit, use the layout's recommended brand catalog rather than forcing a style.
 

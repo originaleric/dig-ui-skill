@@ -79,6 +79,7 @@ render:
 - `research-workbench`：样本、方法、证据和解释的研究工作台。
 - `builder-journey`：模块化学习、搭建和协作路径。
 - `editorial-story`：一个主张、一个支撑信号和一个明确行动的叙事型产品页面。
+- `monochrome-workspace`：跨场景黑白灰产品样张，展示图形、指标、资料列表、趋势和设置，支持深浅主题。
 - `token-sheet`：默认 fallback，仅展示通用 token 样张。
 
 新增 catalog 时，若它有清晰行业场景，应优先声明 `render.archetype`。如果暂时没有，保留 fallback 即可。

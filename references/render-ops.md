@@ -13,6 +13,8 @@ Layout recipes and block contracts are Markdown protocol assets. They are review
 
 Catalog render output must be generated from Markdown frontmatter, body sections, shared manifests, and catalog tokens. If render output conflicts with Markdown, the Markdown and manifest win, and validation should report stale render output.
 
+The shared preview canvas defaults to a solid `--dig-bg`, without a decorative page-wide grid or accent gradient. Explicit catalog canvases (such as pearlescent moiré) may retain their own treatment. Chart grids and local sample textures are not part of the shared page background.
+
 ## Required Metadata
 
 Every generated render page should show:

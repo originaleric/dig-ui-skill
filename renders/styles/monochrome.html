@@ -1,0 +1,1302 @@
+<!doctype html>
+<html data-style-theme="dark" lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dig UI Monochrome Render</title>
+    <link rel="stylesheet" href="../../assets/catalog-preview.css" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --dig-bg: #ffffff;
+        --dig-bg-soft: #f4f4f4;
+        --dig-surface: #ffffff;
+        --dig-surface-strong: #f0f0f0;
+        --dig-surface-elevated: #ffffff;
+        --dig-text: #161616;
+        --dig-text-muted: #595959;
+        --dig-text-soft: #707070;
+        --dig-accent: #161616;
+        --dig-accent-strong: #000000;
+        --dig-accent-2: #666666;
+        --dig-accent-2-strong: #444444;
+        --dig-on-accent: #ffffff;
+        --dig-border: #d8d8d8;
+        --dig-border-strong: #808080;
+        --dig-grid-line: rgba(0, 0, 0, 0.08);
+        --dig-control-bg: #ededed;
+        --dig-control-bg-hover: #e2e2e2;
+        --dig-success: #343434;
+        --dig-warning: #515151;
+        --dig-danger: #161616;
+        --dig-info: #595959;
+        --dig-chart-line: #444444;
+        --dig-chart-fill: rgba(0, 0, 0, 0.08);
+        --dig-field-line: rgba(0, 0, 0, 0.12);
+        --dig-field-node: #444444;
+        --dig-field-halo: rgba(0, 0, 0, 0.12);
+        --dig-font-sans: "Inter", "PingFang SC", "Noto Sans SC", sans-serif;
+        --dig-font-display: "Inter", "PingFang SC", sans-serif;
+        --dig-font-mono: "IBM Plex Mono", Consolas, monospace;
+        --dig-font-serif: Georgia, serif;
+        --dig-text-xs: 12px;
+        --dig-text-sm: 14px;
+        --dig-text-md: 16px;
+        --dig-text-lg: 20px;
+        --dig-text-xl: 24px;
+        --dig-text-2xl: 32px;
+        --dig-text-3xl: 40px;
+        --dig-text-4xl: 48px;
+        --dig-text-5xl: 64px;
+        --dig-leading-tight: 1.08;
+        --dig-leading-normal: 1.5;
+        --dig-tracking-tight: -0.03em;
+        --dig-radius-sm: 8px;
+        --dig-radius-md: 14px;
+        --dig-radius-lg: 22px;
+        --dig-radius-xl: 28px;
+        --dig-radius-pill: 999px;
+        --dig-space-2: 8px;
+        --dig-space-3: 12px;
+        --dig-space-4: 16px;
+        --dig-space-5: 24px;
+        --dig-space-6: 32px;
+        --dig-stroke-width: 1px;
+        --dig-stroke-width-strong: 2px;
+        --dig-shadow-panel: none;
+        --dig-shadow-soft: none;
+        --dig-shadow-chunky: none;
+        --dig-glow-accent: none;
+        --dig-glow-secondary: none;
+        --dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+      html[data-style-theme="dark"] {
+        color-scheme: dark;
+        --dig-bg: #101010;
+--dig-bg-soft: #171717;
+--dig-surface: #000000;
+--dig-surface-strong: #202020;
+--dig-surface-elevated: #282828;
+--dig-text: #f5f5f5;
+--dig-text-muted: #b0b0b0;
+--dig-text-soft: #949494;
+--dig-accent: #f5f5f5;
+--dig-accent-strong: #ffffff;
+--dig-accent-2: #b3b3b3;
+--dig-accent-2-strong: #d1d1d1;
+--dig-on-accent: #000000;
+--dig-border: #303030;
+--dig-border-strong: #858585;
+--dig-grid-line: rgba(255, 255, 255, 0.09);
+--dig-control-bg: #222222;
+--dig-control-bg-hover: #333333;
+--dig-success: #dedede;
+--dig-warning: #bcbcbc;
+--dig-danger: #f5f5f5;
+--dig-info: #b0b0b0;
+--dig-chart-line: #dedede;
+--dig-chart-fill: rgba(255, 255, 255, 0.12);
+--dig-field-line: rgba(255, 255, 255, 0.14);
+--dig-field-node: #ededed;
+--dig-field-halo: rgba(255, 255, 255, 0.24);
+--dig-shadow-panel: none;
+--dig-shadow-soft: none;
+--dig-shadow-chunky: none;
+--dig-glow-accent: none;
+--dig-glow-secondary: none;
+      }
+</style>
+  </head>
+  <body data-render-archetype="monochrome-workspace" data-render-canvas="theme-dual" data-style-theme-default="dark">
+    <!-- Preview Control Dock -->
+    <div class="preview-control-dock">
+      <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
+        <span class="theme-indicator" aria-hidden="true"></span>
+        <button type="button" class="theme-btn" data-theme-mode="light" aria-label="亮色模式" title="亮色模式" aria-pressed="false"><i class="bi bi-brightness-high-fill" aria-hidden="true"></i></button>
+        <button type="button" class="theme-btn" data-theme-mode="dark" aria-label="暗色模式" title="暗色模式" aria-pressed="false"><i class="bi bi-moon-stars-fill" aria-hidden="true"></i></button>
+      </div>
+      <div class="lang-switch-capsule" role="group" aria-label="Language">
+        <button type="button" class="lang-btn" data-lang="zh" aria-pressed="false" aria-label="中文" title="中文">中</button>
+        <span class="lang-split" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en" aria-pressed="false" aria-label="English" title="English">EN</button>
+      </div>
+    </div><main class="preview-shell">
+      <section class="hero">
+        <div class="surface hero-main">
+          <span class="eyebrow"><span class="brand-name-label" data-zh="单色" data-en="Monochrome">单色</span> Catalog / Dig UI</span>
+          <h1 class="brand-title-h1" data-zh="单色" data-en="Monochrome">单色</h1>
+          <p class="brand-description-p" data-zh="只用黑、白与中性灰，通过细边框、圆角面板和清晰排版建立层次的简洁产品视觉语法。" data-en="A simple product language using only black, white, and neutral grays, with fine borders, rounded panels, and clear typography.">只用黑、白与中性灰，通过细边框、圆角面板和清晰排版建立层次的简洁产品视觉语法。</p>
+        </div>
+
+        <aside class="surface surface-strong hero-side">
+          <div class="hero-meta">
+            <div class="meta-row"><span>Accent</span><span class="token-val" data-token="--dig-accent">--dig-accent</span></div>
+            <div class="meta-row"><span>Support</span><span class="token-val" data-token="--dig-accent-2">--dig-accent-2</span></div>
+            <div class="meta-row"><span>Body</span><span><span class="token-val" data-token="--dig-text-md">--dig-text-md</span> / <span class="token-val" data-token="--dig-leading-normal">--dig-leading-normal</span></span></div>
+            <div class="meta-row"><span>Title</span><span><span class="token-val" data-token="--dig-text-5xl">--dig-text-5xl</span> / <span class="token-val" data-token="--dig-leading-tight">--dig-leading-tight</span></span></div>
+          </div>
+        </aside>
+      </section>
+
+      <div class="page-grid">
+        <aside class="surface side-rail">
+          <h2 data-zh="目录" data-en="Contents">目录</h2>
+          <nav class="nav-list">
+            <a href="#sample" data-zh="风格样张" data-en="Style Sample">风格样张</a>
+            <a href="#style-lab" data-zh="Style Lab" data-en="Style Lab">Style Lab</a>
+            <a href="#colors" data-zh="颜色" data-en="Colors">颜色</a>
+            <a href="#tokens" data-zh="关键 Token" data-en="Key Tokens">关键 Token</a>
+          </nav>
+        </aside>
+
+        <div class="content">
+
+          <section class="section archetype-section mc-preview" id="sample" data-layout="dashboard-overview">
+            <header class="mc-topbar" data-slot="topbar">
+              <div><h3 data-zh="工作空间" data-en="Workspace">工作空间</h3><p data-zh="让日常工作清晰有序。" data-en="A clear view of your everyday work.">让日常工作清晰有序。</p></div>
+              <a class="mc-button mc-primary" href="#mc-library"><span data-zh="查看资料库" data-en="View library">查看资料库</span></a>
+            </header>
+            <div class="mc-metrics" data-slot="kpi_strip"><div><span data-zh="项目" data-en="Projects">项目</span><strong>24</strong><small data-zh="本月新增 3 个" data-en="3 added this month">本月新增 3 个</small></div><div><span data-zh="已完成" data-en="Completed">已完成</span><strong>1,157</strong><small data-zh="较上期 +12.8%" data-en="+12.8% vs previous period">较上期 +12.8%</small></div><div><span data-zh="存储空间" data-en="Storage">存储空间</span><strong>10.44 GB</strong><small data-zh="共 50 GB" data-en="of 50 GB">共 50 GB</small></div></div>
+            <div class="mc-layout">
+              <div class="mc-stack" data-slot="primary_panel">
+                <figure class="mc-panel mc-field">
+                  <figcaption class="mc-panel-head"><h4 data-zh="简单，也可以有层次。" data-en="Simple, with depth.">简单，也可以有层次。</h4><span class="mc-meta" data-zh="图形样张" data-en="Graphic study">图形样张</span></figcaption>
+                  <svg viewBox="0 0 720 320" aria-hidden="true" focusable="false">
+                    <defs><radialGradient id="mc-halo"><stop stop-color="var(--dig-field-halo)"/><stop offset="1" stop-color="var(--dig-field-halo)" stop-opacity="0"/></radialGradient></defs>
+                    <g class="mc-field-lines"><path d="M0 12 C180 310 310 0 490 28 S640 260 720 45"/><path d="M0 21 C180 303 310 11 490 35 S640 255 720 53"/><path d="M0 30 C180 296 310 22 490 42 S640 250 720 61"/><path d="M0 39 C180 289 310 33 490 49 S640 245 720 69"/><path d="M0 48 C180 282 310 44 490 56 S640 240 720 77"/><path d="M0 57 C180 275 310 55 490 63 S640 235 720 85"/><path d="M0 66 C180 268 310 66 490 70 S640 230 720 93"/><path d="M0 75 C180 261 310 77 490 77 S640 225 720 101"/><path d="M0 84 C180 254 310 88 490 84 S640 220 720 109"/><path d="M0 93 C180 247 310 99 490 91 S640 215 720 117"/><path d="M0 102 C180 240 310 110 490 98 S640 210 720 125"/><path d="M0 111 C180 233 310 121 490 105 S640 205 720 133"/><path d="M0 120 C180 226 310 132 490 112 S640 200 720 141"/><path d="M0 129 C180 219 310 143 490 119 S640 195 720 149"/><path d="M0 138 C180 212 310 154 490 126 S640 190 720 157"/><path d="M0 147 C180 205 310 165 490 133 S640 185 720 165"/><path d="M0 156 C180 198 310 176 490 140 S640 180 720 173"/><path d="M0 165 C180 191 310 187 490 147 S640 175 720 181"/><path d="M0 174 C180 184 310 198 490 154 S640 170 720 189"/><path d="M0 183 C180 177 310 209 490 161 S640 165 720 197"/><path d="M0 192 C180 170 310 220 490 168 S640 160 720 205"/><path d="M0 201 C180 163 310 231 490 175 S640 155 720 213"/><path d="M0 210 C180 156 310 242 490 182 S640 150 720 221"/><path d="M0 219 C180 149 310 253 490 189 S640 145 720 229"/><path d="M0 228 C180 142 310 264 490 196 S640 140 720 237"/><path d="M0 237 C180 135 310 275 490 203 S640 135 720 245"/><path d="M0 246 C180 128 310 286 490 210 S640 130 720 253"/><path d="M0 255 C180 121 310 297 490 217 S640 125 720 261"/><path d="M0 264 C180 114 310 308 490 224 S640 120 720 269"/><path d="M0 273 C180 107 310 319 490 231 S640 115 720 277"/><path d="M0 282 C180 100 310 330 490 238 S640 110 720 285"/><path d="M0 291 C180 93 310 341 490 245 S640 105 720 293"/></g><g class="mc-field-points"><circle cx="24" cy="20" r="2"/><circle cx="107" cy="67" r="1"/><circle cx="190" cy="114" r="1"/><circle cx="273" cy="161" r="1"/><circle cx="356" cy="208" r="1"/><circle cx="439" cy="255" r="2"/><circle cx="522" cy="32" r="1"/><circle cx="605" cy="79" r="1"/><circle cx="688" cy="126" r="1"/><circle cx="99" cy="173" r="1"/><circle cx="182" cy="220" r="2"/><circle cx="265" cy="267" r="1"/><circle cx="348" cy="44" r="1"/><circle cx="431" cy="91" r="1"/><circle cx="514" cy="138" r="1"/><circle cx="597" cy="185" r="2"/><circle cx="680" cy="232" r="1"/><circle cx="91" cy="279" r="1"/><circle cx="174" cy="56" r="1"/><circle cx="257" cy="103" r="1"/><circle cx="340" cy="150" r="2"/><circle cx="423" cy="197" r="1"/><circle cx="506" cy="244" r="1"/><circle cx="589" cy="21" r="1"/><circle cx="672" cy="68" r="1"/><circle cx="83" cy="115" r="2"/><circle cx="166" cy="162" r="1"/><circle cx="249" cy="209" r="1"/><circle cx="332" cy="256" r="1"/><circle cx="415" cy="33" r="1"/><circle cx="498" cy="80" r="2"/><circle cx="581" cy="127" r="1"/><circle cx="664" cy="174" r="1"/><circle cx="75" cy="221" r="1"/><circle cx="158" cy="268" r="1"/><circle cx="241" cy="45" r="2"/><circle cx="324" cy="92" r="1"/><circle cx="407" cy="139" r="1"/><circle cx="490" cy="186" r="1"/><circle cx="573" cy="233" r="1"/><circle cx="656" cy="280" r="2"/><circle cx="67" cy="57" r="1"/><circle cx="150" cy="104" r="1"/><circle cx="233" cy="151" r="1"/><circle cx="316" cy="198" r="1"/><circle cx="399" cy="245" r="2"/><circle cx="482" cy="22" r="1"/><circle cx="565" cy="69" r="1"/><circle cx="648" cy="116" r="1"/><circle cx="59" cy="163" r="1"/><circle cx="142" cy="210" r="2"/><circle cx="225" cy="257" r="1"/><circle cx="308" cy="34" r="1"/><circle cx="391" cy="81" r="1"/><circle cx="474" cy="128" r="1"/><circle cx="557" cy="175" r="2"/><circle cx="640" cy="222" r="1"/><circle cx="51" cy="269" r="1"/><circle cx="134" cy="46" r="1"/><circle cx="217" cy="93" r="1"/><circle cx="300" cy="140" r="2"/><circle cx="383" cy="187" r="1"/><circle cx="466" cy="234" r="1"/><circle cx="549" cy="281" r="1"/><circle cx="632" cy="58" r="1"/><circle cx="43" cy="105" r="2"/><circle cx="126" cy="152" r="1"/><circle cx="209" cy="199" r="1"/><circle cx="292" cy="246" r="1"/><circle cx="375" cy="23" r="1"/></g>
+                    <circle cx="490" cy="168" r="48" fill="url(#mc-halo)"/>
+                    <g class="mc-field-nodes"><circle cx="490" cy="168" r="6"/><circle cx="490" cy="84" r="4"/><circle cx="490" cy="224" r="3"/></g>
+                  </svg>
+                  <div class="mc-field-caption"><span data-zh="线条 · 留白 · 灰阶" data-en="Lines · Space · Grayscale">线条 · 留白 · 灰阶</span><span data-zh="静态图形 / 非实时数据" data-en="Static illustration / Not live data">静态图形 / 非实时数据</span></div>
+                </figure>
+                <section class="mc-panel" id="mc-library">
+                  <div class="mc-panel-head"><h4 data-zh="最近的资料" data-en="Recent files">最近的资料</h4><span class="mc-meta" data-zh="3 项" data-en="3 items">3 项</span></div>
+                  <ul class="mc-list"><li><div><strong data-zh="设计资料库" data-en="Design library">设计资料库</strong><span data-zh="12 个文件 · 今天" data-en="12 files · Today">12 个文件 · 今天</span></div><span class="mc-status" data-zh="已更新" data-en="Updated">已更新</span></li><li><div><strong data-zh="每周回顾" data-en="Weekly review">每周回顾</strong><span data-zh="4 个章节 · 昨天" data-en="4 sections · Yesterday">4 个章节 · 昨天</span></div><span class="mc-status" data-zh="草稿" data-en="Draft">草稿</span></li><li><div><strong data-zh="品牌资源" data-en="Brand assets">品牌资源</strong><span data-zh="8 个文件 · 9 月 5 日" data-en="8 files · Sep 5">8 个文件 · 9 月 5 日</span></div><span class="mc-status" data-zh="已共享" data-en="Shared">已共享</span></li></ul>
+                </section>
+                <details class="mc-panel mc-states">
+                  <summary><span data-zh="组件状态样张" data-en="Component states">组件状态样张</span></summary>
+                  <div class="mc-state-list">
+                    <p data-zh="已保存 — 所有修改均已保留。" data-en="Saved — All changes are retained.">已保存 — 所有修改均已保留。</p>
+                    <p data-zh="注意 — 存储空间即将用尽。" data-en="Warning — Storage is nearly full.">注意 — 存储空间即将用尽。</p>
+                    <p data-zh="加载中 — 正在读取资料。" data-en="Loading — Fetching your files.">加载中 — 正在读取资料。</p>
+                    <p data-zh="暂无资料 — 添加第一个文件即可开始。" data-en="No files yet — Add your first file to begin.">暂无资料 — 添加第一个文件即可开始。</p>
+                    <label for="mc-invalid"><span data-zh="名称（错误态示例）" data-en="Name (error example)">名称（错误态示例）</span></label>
+                    <input id="mc-invalid" value="" aria-invalid="true" aria-describedby="mc-error" readonly>
+                    <p id="mc-error" data-zh="错误 — 名称不能为空，请填写后重试。" data-en="Error — Name is required. Enter a name and retry.">错误 — 名称不能为空，请填写后重试。</p>
+                    <button class="mc-button" type="button" disabled><span data-zh="导出不可用" data-en="Export unavailable">导出不可用</span></button>
+                  </div>
+                </details>
+              </div>
+              <aside class="mc-stack" data-slot="secondary_panel">
+                <section class="mc-panel mc-progress">
+                  <div class="mc-panel-head"><h4 data-zh="本周进度" data-en="Weekly progress">本周进度</h4><span class="mc-status" data-zh="进行中" data-en="In progress">进行中</span></div>
+                  <div class="mc-progress-value"><strong>72<span>%</span></strong><span data-zh="18 / 25 项已完成" data-en="18 / 25 items complete">18 / 25 项已完成</span></div>
+                  <label class="mc-meta" for="mc-progress"><span data-zh="目标完成度" data-en="Goal completion">目标完成度</span></label>
+                  <progress id="mc-progress" value="72" max="100">72%</progress>
+                </section>
+                <section class="mc-panel mc-trend">
+                  <div class="mc-panel-head"><h4 data-zh="完成记录" data-en="Completion history">完成记录</h4></div>
+                  <fieldset class="mc-period"><legend><span data-zh="时间范围" data-en="Time range">时间范围</span></legend>
+                    <label><input type="radio" name="mc-period" value="week" checked><span data-zh="近 7 天" data-en="7 days">近 7 天</span></label>
+                    <label><input type="radio" name="mc-period" value="month"><span data-zh="近 30 天" data-en="30 days">近 30 天</span></label>
+                  </fieldset>
+
+                  <div class="mc-chart-period" data-range="week">
+                    <p class="mc-chart-total"><strong>128</strong> <span data-zh="项已完成 · 较上期 +8.5%" data-en="completed · +8.5% vs previous">项已完成 · 较上期 +8.5%</span></p>
+                    <svg class="mc-chart" viewBox="0 0 420 220" role="img" aria-labelledby="mc-chart-title-week" aria-describedby="mc-chart-desc-week" focusable="false">
+                      <title id="mc-chart-title-week" data-zh="近 7 天每日完成记录" data-en="Daily completions over 7 days">近 7 天每日完成记录</title><desc id="mc-chart-desc-week" data-zh="2026-09-01 至 2026-09-07，共 128 项。每天最少 6 项，最多 34 项；首日 6 项，末日 22 项。完整数值见下方每日数据表。" data-en="2026-09-01 to 2026-09-07: 128 items total. Daily values range from 6 to 34; first day 6, last day 22. Exact values are available in the daily data table below.">2026-09-01 至 2026-09-07，共 128 项。每天最少 6 项，最多 34 项；首日 6 项，末日 22 项。完整数值见下方每日数据表。</desc>
+                      <g class="mc-chart-grid"><path d="M36 30 H390 M36 110 H390 M36 190 H390"/></g>
+                      <g class="mc-chart-labels"><text x="0" y="34">40</text><text x="0" y="114">20</text><text x="8" y="194">0</text></g>
+                      <path class="mc-area" d="M36.00 166.00 C65.50 166.00 65.50 54.00 95.00 54.00 C124.50 54.00 124.50 118.00 154.00 118.00 C183.50 118.00 183.50 134.00 213.00 134.00 C242.50 134.00 242.50 102.00 272.00 102.00 C301.50 102.00 301.50 142.00 331.00 142.00 C360.50 142.00 360.50 102.00 390.00 102.00 L390 190 H36 Z"/><path class="mc-line" d="M36.00 166.00 C65.50 166.00 65.50 54.00 95.00 54.00 C124.50 54.00 124.50 118.00 154.00 118.00 C183.50 118.00 183.50 134.00 213.00 134.00 C242.50 134.00 242.50 102.00 272.00 102.00 C301.50 102.00 301.50 142.00 331.00 142.00 C360.50 142.00 360.50 102.00 390.00 102.00"/>
+                    </svg>
+                    <div class="mc-chart-axis"><span>09.01</span><span>09.04</span><span>09.07</span></div>
+                    <details class="mc-chart-data">
+                      <summary><span data-zh="查看每日数据" data-en="View daily data">查看每日数据</span></summary>
+                      <table>
+                        <caption data-zh="近 7 天完成记录（项 / 天）" data-en="7-day completions (items / day)">近 7 天完成记录（项 / 天）</caption>
+                        <thead><tr><th scope="col" data-zh="日期" data-en="Date">日期</th><th scope="col" data-zh="完成数量" data-en="Completed items">完成数量</th></tr></thead>
+                        <tbody><tr><th scope="row">2026-09-01</th><td>6</td></tr><tr><th scope="row">2026-09-02</th><td>34</td></tr><tr><th scope="row">2026-09-03</th><td>18</td></tr><tr><th scope="row">2026-09-04</th><td>14</td></tr><tr><th scope="row">2026-09-05</th><td>22</td></tr><tr><th scope="row">2026-09-06</th><td>12</td></tr><tr><th scope="row">2026-09-07</th><td>22</td></tr></tbody>
+                      </table>
+                    </details>
+                  </div>
+                  <div class="mc-chart-period" data-range="month">
+                    <p class="mc-chart-total"><strong>486</strong> <span data-zh="项已完成 · 较上期 +12.8%" data-en="completed · +12.8% vs previous">项已完成 · 较上期 +12.8%</span></p>
+                    <svg class="mc-chart" viewBox="0 0 420 220" role="img" aria-labelledby="mc-chart-title-month" aria-describedby="mc-chart-desc-month" focusable="false">
+                      <title id="mc-chart-title-month" data-zh="近 30 天每日完成记录" data-en="Daily completions over 30 days">近 30 天每日完成记录</title><desc id="mc-chart-desc-month" data-zh="2026-08-09 至 2026-09-07，共 486 项。每天最少 5 项，最多 35 项；首日 5 项，末日 22 项。完整数值见下方每日数据表。" data-en="2026-08-09 to 2026-09-07: 486 items total. Daily values range from 5 to 35; first day 5, last day 22. Exact values are available in the daily data table below.">2026-08-09 至 2026-09-07，共 486 项。每天最少 5 项，最多 35 项；首日 5 项，末日 22 项。完整数值见下方每日数据表。</desc>
+                      <g class="mc-chart-grid"><path d="M36 30 H390 M36 110 H390 M36 190 H390"/></g>
+                      <g class="mc-chart-labels"><text x="0" y="34">40</text><text x="0" y="114">20</text><text x="8" y="194">0</text></g>
+                      <path class="mc-area" d="M36.00 170.00 C42.10 170.00 42.10 162.00 48.21 162.00 C54.31 162.00 54.31 158.00 60.41 158.00 C66.52 158.00 66.52 166.00 72.62 166.00 C78.72 166.00 78.72 150.00 84.83 150.00 C90.93 150.00 90.93 142.00 97.03 142.00 C103.14 142.00 103.14 154.00 109.24 154.00 C115.34 154.00 115.34 134.00 121.45 134.00 C127.55 134.00 127.55 142.00 133.66 142.00 C139.76 142.00 139.76 126.00 145.86 126.00 C151.97 126.00 151.97 118.00 158.07 118.00 C164.17 118.00 164.17 130.00 170.28 130.00 C176.38 130.00 176.38 142.00 182.48 142.00 C188.59 142.00 188.59 122.00 194.69 122.00 C200.79 122.00 200.79 106.00 206.90 106.00 C213.00 106.00 213.00 118.00 219.10 118.00 C225.21 118.00 225.21 58.00 231.31 58.00 C237.41 58.00 237.41 110.00 243.52 110.00 C249.62 110.00 249.62 50.00 255.72 50.00 C261.83 50.00 261.83 118.00 267.93 118.00 C274.03 118.00 274.03 110.00 280.14 110.00 C286.24 110.00 286.24 122.00 292.34 122.00 C298.45 122.00 298.45 130.00 304.55 130.00 C310.66 130.00 310.66 166.00 316.76 166.00 C322.86 166.00 322.86 54.00 328.97 54.00 C335.07 54.00 335.07 118.00 341.17 118.00 C347.28 118.00 347.28 134.00 353.38 134.00 C359.48 134.00 359.48 102.00 365.59 102.00 C371.69 102.00 371.69 142.00 377.79 142.00 C383.90 142.00 383.90 102.00 390.00 102.00 L390 190 H36 Z"/><path class="mc-line" d="M36.00 170.00 C42.10 170.00 42.10 162.00 48.21 162.00 C54.31 162.00 54.31 158.00 60.41 158.00 C66.52 158.00 66.52 166.00 72.62 166.00 C78.72 166.00 78.72 150.00 84.83 150.00 C90.93 150.00 90.93 142.00 97.03 142.00 C103.14 142.00 103.14 154.00 109.24 154.00 C115.34 154.00 115.34 134.00 121.45 134.00 C127.55 134.00 127.55 142.00 133.66 142.00 C139.76 142.00 139.76 126.00 145.86 126.00 C151.97 126.00 151.97 118.00 158.07 118.00 C164.17 118.00 164.17 130.00 170.28 130.00 C176.38 130.00 176.38 142.00 182.48 142.00 C188.59 142.00 188.59 122.00 194.69 122.00 C200.79 122.00 200.79 106.00 206.90 106.00 C213.00 106.00 213.00 118.00 219.10 118.00 C225.21 118.00 225.21 58.00 231.31 58.00 C237.41 58.00 237.41 110.00 243.52 110.00 C249.62 110.00 249.62 50.00 255.72 50.00 C261.83 50.00 261.83 118.00 267.93 118.00 C274.03 118.00 274.03 110.00 280.14 110.00 C286.24 110.00 286.24 122.00 292.34 122.00 C298.45 122.00 298.45 130.00 304.55 130.00 C310.66 130.00 310.66 166.00 316.76 166.00 C322.86 166.00 322.86 54.00 328.97 54.00 C335.07 54.00 335.07 118.00 341.17 118.00 C347.28 118.00 347.28 134.00 353.38 134.00 C359.48 134.00 359.48 102.00 365.59 102.00 C371.69 102.00 371.69 142.00 377.79 142.00 C383.90 142.00 383.90 102.00 390.00 102.00"/>
+                    </svg>
+                    <div class="mc-chart-axis"><span>08.09</span><span>08.24</span><span>09.07</span></div>
+                    <details class="mc-chart-data">
+                      <summary><span data-zh="查看每日数据" data-en="View daily data">查看每日数据</span></summary>
+                      <table>
+                        <caption data-zh="近 30 天完成记录（项 / 天）" data-en="30-day completions (items / day)">近 30 天完成记录（项 / 天）</caption>
+                        <thead><tr><th scope="col" data-zh="日期" data-en="Date">日期</th><th scope="col" data-zh="完成数量" data-en="Completed items">完成数量</th></tr></thead>
+                        <tbody><tr><th scope="row">2026-08-09</th><td>5</td></tr><tr><th scope="row">2026-08-10</th><td>7</td></tr><tr><th scope="row">2026-08-11</th><td>8</td></tr><tr><th scope="row">2026-08-12</th><td>6</td></tr><tr><th scope="row">2026-08-13</th><td>10</td></tr><tr><th scope="row">2026-08-14</th><td>12</td></tr><tr><th scope="row">2026-08-15</th><td>9</td></tr><tr><th scope="row">2026-08-16</th><td>14</td></tr><tr><th scope="row">2026-08-17</th><td>12</td></tr><tr><th scope="row">2026-08-18</th><td>16</td></tr><tr><th scope="row">2026-08-19</th><td>18</td></tr><tr><th scope="row">2026-08-20</th><td>15</td></tr><tr><th scope="row">2026-08-21</th><td>12</td></tr><tr><th scope="row">2026-08-22</th><td>17</td></tr><tr><th scope="row">2026-08-23</th><td>21</td></tr><tr><th scope="row">2026-08-24</th><td>18</td></tr><tr><th scope="row">2026-08-25</th><td>33</td></tr><tr><th scope="row">2026-08-26</th><td>20</td></tr><tr><th scope="row">2026-08-27</th><td>35</td></tr><tr><th scope="row">2026-08-28</th><td>18</td></tr><tr><th scope="row">2026-08-29</th><td>20</td></tr><tr><th scope="row">2026-08-30</th><td>17</td></tr><tr><th scope="row">2026-08-31</th><td>15</td></tr><tr><th scope="row">2026-09-01</th><td>6</td></tr><tr><th scope="row">2026-09-02</th><td>34</td></tr><tr><th scope="row">2026-09-03</th><td>18</td></tr><tr><th scope="row">2026-09-04</th><td>14</td></tr><tr><th scope="row">2026-09-05</th><td>22</td></tr><tr><th scope="row">2026-09-06</th><td>12</td></tr><tr><th scope="row">2026-09-07</th><td>22</td></tr></tbody>
+                      </table>
+                    </details>
+                  </div>
+                  <p class="mc-meta" data-zh="示例数据 · 单位：项 / 天" data-en="Sample data · Items / day">示例数据 · 单位：项 / 天</p>
+                </section>
+                <section class="mc-panel mc-preferences">
+                  <div class="mc-panel-head"><h4 data-zh="偏好设置" data-en="Preferences">偏好设置</h4></div>
+                  <label for="mc-name"><span data-zh="工作空间名称" data-en="Workspace name">工作空间名称</span></label>
+                  <input id="mc-name" value="Studio" autocomplete="off" aria-describedby="mc-local-note">
+                  <label class="mc-checkbox"><input type="checkbox" checked><span data-zh="显示辅助说明" data-en="Show helper text">显示辅助说明</span></label>
+                  <p class="mc-helper" data-zh="清晰的名称，方便查找与识别。" data-en="A clear name makes your workspace easy to find.">清晰的名称，方便查找与识别。</p>
+                  <p id="mc-local-note" class="mc-meta" data-zh="仅本页演示，不会保存。" data-en="Preview only. Changes are not saved.">仅本页演示，不会保存。</p>
+                </section>
+              </aside>
+            </div>
+          </section>
+
+            <section class="surface section style-lab-shell" id="style-lab" data-style-lab data-style-contract="best_for: [neutral product workspace, dashboard, content library, settings, personal tools, focused product page]
+avoid_for: [color-critical editing, mandatory semantic color coding, categorical charts that cannot be distinguished without color, multicolor brand storytelling]
+mood: [simple, neutral, quiet, precise, understated]
+shape_language:
+  stroke: &quot;Fine neutral borders and separators; use stronger strokes only for focus, selected controls, and meaningful chart series.&quot;
+  radius: &quot;Consistent softly rounded panels, smaller inset surfaces, and pill controls; no ornamental cut corners or inflated blobs.&quot;
+  density: &quot;Adjust spacing to the task. Dense information is welcome when aligned and grouped; minimal color does not imply sparse content.&quot;
+  controls: &quot;Black actions on light surfaces, white actions on dark surfaces, with an explicit inverse foreground. Secondary actions use gray fills or fine outlines.&quot;
+surface_language:
+  canvas: &quot;Light uses a white canvas and pale gray grouping. Dark uses a near-black canvas and black panels. All chromatic channels remain equal.&quot;
+  panels: &quot;Opaque matte surfaces, restrained borders, and almost no shadow. No tinted gray, glass blur, metallic sheen, or colored accents.&quot;
+  emphasis: &quot;Use luminance, size, weight, spacing, and line style. Local monochrome node glow is optional; it never replaces a status label or focus indicator.&quot;
+illustration_language:
+  imagery: &quot;Optional grayscale line fields, point samples, or monochrome images belong to a relevant focal region. Network imagery is not required.&quot;
+  diagrams: &quot;Differentiate series using solid and dashed strokes, direct labels, markers, or hatching. Keep diagram texture away from body text and controls.&quot;
+component_mapping:
+  panel: &quot;A fine rounded frame with a stable heading, body, and optional contextual action. Avoid wrapping every text group in a card.&quot;
+  metric_group: &quot;Aligned labels, tabular numbers, units, and explicit signed changes; shared separators instead of one card per number.&quot;
+  collection: &quot;Consistent rows or tables with readable metadata, named states, and nearby actions.&quot;
+  form: &quot;Stacked labels, neutral inputs, pill actions, visible focus, and explicit helper and error text.&quot;
+  chart: &quot;A neutral grid and clearly labeled series, with optional low-contrast grayscale area fill or fine texture.&quot;
+motion_language:
+  energy: &quot;Brief opacity or border transitions. A static interface is the default.&quot;
+  limits: &quot;No continuous background motion, bouncing controls, pulsing text, or global glow. Honor prefers-reduced-motion.&quot;" data-style-token-block="--dig-bg: #ffffff;
+--dig-bg-soft: #f4f4f4;
+--dig-surface: #ffffff;
+--dig-surface-strong: #f0f0f0;
+--dig-surface-elevated: #ffffff;
+--dig-text: #161616;
+--dig-text-muted: #595959;
+--dig-text-soft: #707070;
+--dig-accent: #161616;
+--dig-accent-strong: #000000;
+--dig-accent-2: #666666;
+--dig-accent-2-strong: #444444;
+--dig-on-accent: #ffffff;
+--dig-border: #d8d8d8;
+--dig-border-strong: #808080;
+--dig-grid-line: rgba(0, 0, 0, 0.08);
+--dig-control-bg: #ededed;
+--dig-control-bg-hover: #e2e2e2;
+--dig-success: #343434;
+--dig-warning: #515151;
+--dig-danger: #161616;
+--dig-info: #595959;
+--dig-chart-line: #444444;
+--dig-chart-fill: rgba(0, 0, 0, 0.08);
+--dig-field-line: rgba(0, 0, 0, 0.12);
+--dig-field-node: #444444;
+--dig-field-halo: rgba(0, 0, 0, 0.12);
+--dig-font-sans: &quot;Inter&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, sans-serif;
+--dig-font-display: &quot;Inter&quot;, &quot;PingFang SC&quot;, sans-serif;
+--dig-font-mono: &quot;IBM Plex Mono&quot;, Consolas, monospace;
+--dig-font-serif: Georgia, serif;
+--dig-text-xs: 12px;
+--dig-text-sm: 14px;
+--dig-text-md: 16px;
+--dig-text-lg: 20px;
+--dig-text-xl: 24px;
+--dig-text-2xl: 32px;
+--dig-text-3xl: 40px;
+--dig-text-4xl: 48px;
+--dig-text-5xl: 64px;
+--dig-leading-tight: 1.08;
+--dig-leading-normal: 1.5;
+--dig-tracking-tight: -0.03em;
+--dig-radius-sm: 8px;
+--dig-radius-md: 14px;
+--dig-radius-lg: 22px;
+--dig-radius-xl: 28px;
+--dig-radius-pill: 999px;
+--dig-space-2: 8px;
+--dig-space-3: 12px;
+--dig-space-4: 16px;
+--dig-space-5: 24px;
+--dig-space-6: 32px;
+--dig-stroke-width: 1px;
+--dig-stroke-width-strong: 2px;
+--dig-shadow-panel: none;
+--dig-shadow-soft: none;
+--dig-shadow-chunky: none;
+--dig-glow-accent: none;
+--dig-glow-secondary: none;
+--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);" data-style-dark-token-block="--dig-bg: #101010;
+--dig-bg-soft: #171717;
+--dig-surface: #000000;
+--dig-surface-strong: #202020;
+--dig-surface-elevated: #282828;
+--dig-text: #f5f5f5;
+--dig-text-muted: #b0b0b0;
+--dig-text-soft: #949494;
+--dig-accent: #f5f5f5;
+--dig-accent-strong: #ffffff;
+--dig-accent-2: #b3b3b3;
+--dig-accent-2-strong: #d1d1d1;
+--dig-on-accent: #000000;
+--dig-border: #303030;
+--dig-border-strong: #858585;
+--dig-grid-line: rgba(255, 255, 255, 0.09);
+--dig-control-bg: #222222;
+--dig-control-bg-hover: #333333;
+--dig-success: #dedede;
+--dig-warning: #bcbcbc;
+--dig-danger: #f5f5f5;
+--dig-info: #b0b0b0;
+--dig-chart-line: #dedede;
+--dig-chart-fill: rgba(255, 255, 255, 0.12);
+--dig-field-line: rgba(255, 255, 255, 0.14);
+--dig-field-node: #ededed;
+--dig-field-halo: rgba(255, 255, 255, 0.24);
+--dig-shadow-panel: none;
+--dig-shadow-soft: none;
+--dig-shadow-chunky: none;
+--dig-glow-accent: none;
+--dig-glow-secondary: none;">
+              <div class="style-lab-head">
+                <div>
+                  <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
+                  <p data-zh="在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。" data-en="Temporarily tune the active theme; switch Light / Dark to adjust each set independently. Export keeps both token sets in one customstyle.">在当前主题内临时试色，切换 Light / Dark 后可分别调整；导出时两套 token 会一起写入 customstyle。</p>
+                </div>
+                <div class="palette-lab-actions">
+                  <button type="button" class="btn btn-secondary palette-copy-btn" data-style-copy data-zh="复制当前主题 Token" data-en="Copy Active Theme Tokens">复制当前主题 Token</button>
+                  <button type="button" class="btn style-export-btn" data-style-export data-zh="导出 Style" data-en="Export Style">导出 Style</button>
+                </div>
+              </div>
+              <div class="style-lab-tuner" aria-live="polite">
+                <div class="palette-lab-controls">
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="画布" data-en="Canvas">画布</span>
+                <span class="palette-lab-token">--dig-bg</span>
+                <input class="palette-lab-input" data-style-input="canvas" inputmode="text" maxlength="9" aria-label="Canvas hex" />
+                <input class="palette-lab-color" data-style-color="canvas" type="color" aria-label="Canvas color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="面板" data-en="Surface">面板</span>
+                <span class="palette-lab-token">--dig-surface</span>
+                <input class="palette-lab-input" data-style-input="surface" inputmode="text" maxlength="9" aria-label="Surface hex" />
+                <input class="palette-lab-color" data-style-color="surface" type="color" aria-label="Surface color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="文字" data-en="Ink">文字</span>
+                <span class="palette-lab-token">--dig-text</span>
+                <input class="palette-lab-input" data-style-input="ink" inputmode="text" maxlength="9" aria-label="Ink hex" />
+                <input class="palette-lab-color" data-style-color="ink" type="color" aria-label="Ink color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="主强调色" data-en="Primary">主强调色</span>
+                <span class="palette-lab-token">--dig-accent</span>
+                <input class="palette-lab-input" data-style-input="primary" inputmode="text" maxlength="9" aria-label="Primary hex" />
+                <input class="palette-lab-color" data-style-color="primary" type="color" aria-label="Primary color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="第二强调色" data-en="Support">第二强调色</span>
+                <span class="palette-lab-token">--dig-accent-2</span>
+                <input class="palette-lab-input" data-style-input="support" inputmode="text" maxlength="9" aria-label="Support hex" />
+                <input class="palette-lab-color" data-style-color="support" type="color" aria-label="Support color picker" />
+              </label>
+              <label class="palette-lab-row">
+                <span class="palette-lab-role" data-zh="边框" data-en="Border">边框</span>
+                <span class="palette-lab-token">--dig-border</span>
+                <input class="palette-lab-input" data-style-input="border" inputmode="text" maxlength="9" aria-label="Border hex" />
+                <input class="palette-lab-color" data-style-color="border" type="color" aria-label="Border color picker" />
+              </label>
+                </div>
+                <div class="palette-token-diff">
+                  <div><code>--dig-bg</code><span data-style-token="--dig-bg"></span></div>
+                  <div><code>--dig-surface</code><span data-style-token="--dig-surface"></span></div>
+                  <div><code>--dig-text</code><span data-style-token="--dig-text"></span></div>
+                  <div><code>--dig-accent</code><span data-style-token="--dig-accent"></span></div>
+                  <div><code>--dig-accent-2</code><span data-style-token="--dig-accent-2"></span></div>
+                  <div><code>--dig-border</code><span data-style-token="--dig-border"></span></div>
+                </div>
+              </div>
+              <div class="style-lab-grid">
+                <article>
+                  <span data-zh="资产边界" data-en="Asset Boundary">资产边界</span>
+                  <strong>customstyle</strong>
+                  <p data-zh="导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。" data-en="Exported styles belong to the user, imported under ~/.config/dig-ui-skill/styles/ and synced to references/local/styles/.">导出的 style 属于用户资产，应导入到 ~/.config/dig-ui-skill/styles/，再同步到 references/local/styles/。</p>
+                </article>
+                <article>
+                  <span data-zh="包含内容" data-en="Contents">包含内容</span>
+                  <strong>contract + tokens</strong>
+                  <p data-zh="包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。" data-en="Includes Style Contract, render archetype, page metadata, and current --dig-* token values.">包含 Style Contract、render archetype、页面元信息和当前 --dig-* token 值。</p>
+                </article>
+              </div>
+            </section>
+
+
+          <section class="surface section" id="colors">
+            <div class="section-head">
+              <h3 data-zh="颜色系统" data-en="Color System">颜色系统</h3>
+              <p data-zh="用当前 catalog token 检查背景、强调色和 surface 层级。" data-en="Inspect background, accent, and surface hierarchy from the active catalog tokens.">用当前 catalog token 检查背景、强调色和 surface 层级。</p>
+            </div>
+            <div class="swatch-grid">
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-bg)"></div><div class="swatch-meta"><strong>Background</strong><div class="meta-small mono token-val" data-token="--dig-bg">--dig-bg</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-surface)"></div><div class="swatch-meta"><strong>Surface</strong><div class="meta-small mono token-val" data-token="--dig-surface">--dig-surface</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent)"></div><div class="swatch-meta"><strong>Accent</strong><div class="meta-small mono token-val" data-token="--dig-accent">--dig-accent</div></div></article>
+              <article class="swatch"><div class="swatch-tone" style="background:var(--dig-accent-2)"></div><div class="swatch-meta"><strong>Accent 2</strong><div class="meta-small mono token-val" data-token="--dig-accent-2">--dig-accent-2</div></div></article>
+            </div>
+          </section>
+
+          <section class="surface section" id="tokens">
+            <div class="section-head">
+              <h3 data-zh="关键 Token" data-en="Key Tokens">关键 Token</h3>
+              <p data-zh="这部分方便你对照 HTML 直接回写 catalog 文档。" data-en="This section serves as a direct reference for catalog document definitions.">这部分方便你对照 HTML 直接回写 catalog 文档。</p>
+            </div>
+            <div class="table-grid">
+              <article class="table-card">
+                <table class="token-table">
+                  <thead><tr><th data-zh="变量" data-en="Token">Token</th><th data-zh="编译值" data-en="Value">Value</th></tr></thead>
+                  <tbody>
+                <tr><td><code>--dig-bg</code></td><td class="mono token-val" data-token="--dig-bg">--dig-bg</td></tr>
+                <tr><td><code>--dig-bg-soft</code></td><td class="mono token-val" data-token="--dig-bg-soft">--dig-bg-soft</td></tr>
+                <tr><td><code>--dig-surface</code></td><td class="mono token-val" data-token="--dig-surface">--dig-surface</td></tr>
+                <tr><td><code>--dig-surface-strong</code></td><td class="mono token-val" data-token="--dig-surface-strong">--dig-surface-strong</td></tr>
+                <tr><td><code>--dig-text</code></td><td class="mono token-val" data-token="--dig-text">--dig-text</td></tr>
+                <tr><td><code>--dig-text-muted</code></td><td class="mono token-val" data-token="--dig-text-muted">--dig-text-muted</td></tr>
+                <tr><td><code>--dig-accent</code></td><td class="mono token-val" data-token="--dig-accent">--dig-accent</td></tr>
+                <tr><td><code>--dig-accent-2</code></td><td class="mono token-val" data-token="--dig-accent-2">--dig-accent-2</td></tr>
+                <tr><td><code>--dig-border</code></td><td class="mono token-val" data-token="--dig-border">--dig-border</td></tr>
+                <tr><td><code>--dig-border-strong</code></td><td class="mono token-val" data-token="--dig-border-strong">--dig-border-strong</td></tr>
+                <tr><td><code>--dig-grid-line</code></td><td class="mono token-val" data-token="--dig-grid-line">--dig-grid-line</td></tr>
+                <tr><td><code>--dig-radius-md</code></td><td class="mono token-val" data-token="--dig-radius-md">--dig-radius-md</td></tr>
+                <tr><td><code>--dig-text-5xl</code></td><td class="mono token-val" data-token="--dig-text-5xl">--dig-text-5xl</td></tr>
+                <tr><td><code>--dig-shadow-panel</code></td><td class="mono token-val" data-token="--dig-shadow-panel">--dig-shadow-panel</td></tr>
+                  </tbody>
+                </table>
+              </article>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+
+      // Interactive Language Switcher Controller
+      function setLanguage(lang) {
+        localStorage.setItem('dig-ui-lang', lang);
+        document.documentElement.setAttribute('lang', lang === 'zh' ? 'zh-CN' : 'en');
+
+        // Toggle active classes on switcher buttons
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          const isActive = btn.getAttribute('data-lang') === lang;
+          btn.classList.toggle('active', isActive);
+          btn.setAttribute('aria-pressed', String(isActive));
+        });
+
+        // Translate all data-zh/data-en text nodes
+        document.querySelectorAll('[data-zh][data-en]').forEach(el => {
+          el.textContent = el.getAttribute(`data-${lang}`);
+        });
+      }
+
+      // Initialise state
+      document.addEventListener('DOMContentLoaded', () => {
+        const savedLang = localStorage.getItem('dig-ui-lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+        setLanguage(savedLang);
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            setLanguage(btn.getAttribute('data-lang'));
+          });
+        });
+
+        document.querySelectorAll('.nav-list a[href^="#"]').forEach(link => {
+          link.addEventListener('click', event => {
+            const target = document.querySelector(link.getAttribute('href'));
+            if (!target) return;
+            event.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', link.getAttribute('href'));
+          });
+        });
+
+        const root = document.documentElement;
+        const paletteRoleTokens = {
+          canvas: '--dig-bg',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          primaryStrong: '--dig-accent-strong',
+          support: '--dig-accent-2',
+          supportStrong: '--dig-accent-2-strong'
+        };
+        const paletteTrackedTokens = [
+          '--dig-bg',
+          '--dig-text',
+          '--dig-accent',
+          '--dig-accent-strong',
+          '--dig-accent-2',
+          '--dig-accent-2-strong'
+        ];
+        const paletteExportTokens = [
+          ...paletteTrackedTokens
+        ];
+        const styleLabRoleTokens = {
+          canvas: '--dig-bg',
+          surface: '--dig-surface',
+          ink: '--dig-text',
+          primary: '--dig-accent',
+          support: '--dig-accent-2',
+          border: '--dig-border'
+        };
+        const styleLabTrackedTokens = Object.values(styleLabRoleTokens);
+        let styleLabBaseTokens = null;
+        const styleLabOverrides = { light: {}, dark: {} };
+
+        function normalizeHex(raw) {
+          const value = (raw || '').trim();
+          if (/^#[0-9a-fA-F]{3}$/.test(value)) {
+            return '#' + value.slice(1).split('').map(char => char + char).join('').toUpperCase();
+          }
+          if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+            return value.toUpperCase();
+          }
+          return '';
+        }
+
+        function cssColorToHex(raw) {
+          const value = (raw || '').trim();
+          const hex = normalizeHex(value);
+          if (hex) return hex;
+          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (!rgbMatch) return '';
+          return '#' + rgbMatch.slice(1, 4).map(part => {
+            const channel = Math.max(0, Math.min(255, Number(part)));
+            return channel.toString(16).padStart(2, '0');
+          }).join('').toUpperCase();
+        }
+
+        function getTokenValue(token) {
+          return getComputedStyle(root).getPropertyValue(token).trim();
+        }
+
+        function renderTokenValue(el, value) {
+          let displayValue = (value || '').trim();
+          if (!displayValue) return;
+          const hexValue = normalizeHex(displayValue);
+          if (hexValue) {
+            displayValue = hexValue;
+          }
+          el.textContent = '';
+          if (hexValue) {
+            const dot = document.createElement('span');
+            dot.className = 'token-color-dot';
+            dot.style.background = hexValue;
+            el.appendChild(dot);
+          }
+          el.appendChild(document.createTextNode(displayValue));
+        }
+
+        function refreshTokenVisualizers() {
+          document.querySelectorAll('.token-val').forEach(el => {
+            const tokenName = el.getAttribute('data-token');
+            if (tokenName) {
+              renderTokenValue(el, getTokenValue(tokenName));
+            }
+          });
+        }
+
+        function updatePaletteLabState() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          Object.entries(paletteRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-palette-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-palette-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) {
+              textInput.value = value;
+            }
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+
+          paletteTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-palette-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setPaletteRoles(updates) {
+          let changed = false;
+          Object.entries(updates).forEach(([role, value]) => {
+            const token = paletteRoleTokens[role];
+            const hex = normalizeHex(value);
+            if (!token || !hex) return;
+            root.style.setProperty(token, hex);
+            changed = true;
+          });
+          if (changed) {
+            updatePaletteLabState();
+          }
+        }
+
+        function setPaletteRole(role, value) {
+          setPaletteRoles({ [role]: value });
+        }
+
+        function fallbackCopyText(text) {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          textarea.style.top = '0';
+          document.body.appendChild(textarea);
+          textarea.select();
+          try {
+            return document.execCommand('copy');
+          } catch (error) {
+            console.warn('Palette fallback copy failed', error);
+            return false;
+          } finally {
+            document.body.removeChild(textarea);
+          }
+        }
+
+        async function copyPaletteTokens(text) {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            try {
+              await navigator.clipboard.writeText(text);
+              return true;
+            } catch (error) {
+              console.warn('Palette clipboard copy failed', error);
+            }
+          }
+          return fallbackCopyText(text);
+        }
+
+        function buildPaletteTokenCss(tokens = paletteTrackedTokens) {
+          return tokens.map(token => {
+            const value = getTokenValue(token);
+            return `${token}: ${normalizeHex(value) || value};`;
+          }).join('\n');
+        }
+
+        function getPaletteSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-palette';
+          return fileName.replace(/\.html$/i, '') || 'dig-palette';
+        }
+
+        function formatPaletteTimestamp(date = new Date()) {
+          const pad = value => String(value).padStart(2, '0');
+          return [
+            date.getFullYear(),
+            pad(date.getMonth() + 1),
+            pad(date.getDate())
+          ].join('') + '-' + [
+            pad(date.getHours()),
+            pad(date.getMinutes()),
+            pad(date.getSeconds())
+          ].join('');
+        }
+
+        function collectPaletteCandidates(lab) {
+          const support = Array.from(lab.querySelectorAll('[data-palette-candidate]')).map(button => {
+            const label = button.querySelector('span:not(.palette-candidate-dot)')?.textContent?.trim() || '';
+            return {
+              label,
+              value: normalizeHex(button.getAttribute('data-value')) || button.getAttribute('data-value'),
+              strong: normalizeHex(button.getAttribute('data-strong')) || button.getAttribute('data-strong')
+            };
+          });
+          return { support };
+        }
+
+        function buildPaletteExportPayload(lab) {
+          const tokens = {};
+          paletteExportTokens.forEach(token => {
+            const value = getTokenValue(token);
+            if (value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          return {
+            schema: 'dig.palette.export.v1',
+            token_contract: 'palette_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug: getPaletteSlug(),
+            export_id: `${getPaletteSlug()}.custompalette-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            anchors: {
+              canvas: tokens['--dig-bg'],
+              ink: tokens['--dig-text'],
+              primary: tokens['--dig-accent'],
+              support: tokens['--dig-accent-2']
+            },
+            roles: {
+              primary_strong: tokens['--dig-accent-strong'],
+              support_strong: tokens['--dig-accent-2-strong']
+            },
+            tokens,
+            css: buildPaletteTokenCss(paletteExportTokens),
+            candidates: collectPaletteCandidates(lab),
+            derivation: {
+              status: 'anchors-only',
+              note: 'This custom palette exports only Palette Lab managed role tokens. Downstream systems should derive extended scales from these anchors.'
+            }
+          };
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          })[char]);
+        }
+
+        function hexToRgb(hex) {
+          const normalized = normalizeHex(hex);
+          if (!normalized) return null;
+          return {
+            r: parseInt(normalized.slice(1, 3), 16),
+            g: parseInt(normalized.slice(3, 5), 16),
+            b: parseInt(normalized.slice(5, 7), 16)
+          };
+        }
+
+        function relativeLuminance(hex) {
+          const rgb = hexToRgb(hex);
+          if (!rgb) return 1;
+          const channels = [rgb.r, rgb.g, rgb.b].map(channel => {
+            const value = channel / 255;
+            return value <= 0.03928 ? value / 12.92 : Math.pow((value + 0.055) / 1.055, 2.4);
+          });
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722;
+        }
+
+        function contrastRatio(hexA, hexB) {
+          const lumA = relativeLuminance(hexA);
+          const lumB = relativeLuminance(hexB);
+          const lighter = Math.max(lumA, lumB);
+          const darker = Math.min(lumA, lumB);
+          return (lighter + 0.05) / (darker + 0.05);
+        }
+
+        function readableTextOn(hex) {
+          return contrastRatio(hex, '#000000') >= contrastRatio(hex, '#FFFFFF') ? '#000000' : '#FFFFFF';
+        }
+
+        function buildPalettePreviewHtml(payload) {
+          const tokens = payload.tokens || {};
+          const onPrimary = readableTextOn(payload.anchors.primary);
+          const swatches = [
+            ['Canvas', payload.anchors.canvas],
+            ['Ink', payload.anchors.ink],
+            ['Primary', payload.anchors.primary],
+            ['Primary Strong', payload.roles.primary_strong],
+            ['Support', payload.anchors.support],
+            ['Support Strong', payload.roles.support_strong]
+          ].map(([label, value]) => `
+              <article class="swatch">
+                <span style="background:${escapeHtml(value)}"></span>
+                <strong>${escapeHtml(label)}</strong>
+                <code>${escapeHtml(value)}</code>
+              </article>`).join('');
+          const tokenRows = Object.entries(tokens).map(([token, value]) => `
+              <tr><td><code>${escapeHtml(token)}</code></td><td>${escapeHtml(value)}</td></tr>`).join('');
+          return `<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)} Palette Export</title>
+    <style>
+      :root {
+        --bg: ${escapeHtml(payload.anchors.canvas)};
+        --ink: ${escapeHtml(payload.anchors.ink)};
+        --primary: ${escapeHtml(payload.anchors.primary)};
+        --primary-strong: ${escapeHtml(payload.roles.primary_strong)};
+        --support: ${escapeHtml(payload.anchors.support)};
+        --support-strong: ${escapeHtml(payload.roles.support_strong)};
+        --on-primary: ${escapeHtml(onPrimary)};
+        --surface: color-mix(in srgb, var(--bg), var(--ink) 6%);
+        --surface-strong: color-mix(in srgb, var(--bg), var(--ink) 11%);
+        --border: color-mix(in srgb, var(--ink), transparent 76%);
+        --border-strong: color-mix(in srgb, var(--ink), transparent 56%);
+        --muted: color-mix(in srgb, var(--ink), transparent 32%);
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0; }
+      .hero { display: grid; gap: 20px; padding: 32px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(135deg, var(--surface), color-mix(in srgb, var(--surface), var(--support) 18%)); }
+      h1 { margin: 0; font-size: clamp(42px, 8vw, 92px); line-height: .92; letter-spacing: -0.03em; }
+      p { max-width: 68ch; color: var(--muted); font-size: 18px; line-height: 1.7; }
+      .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+      .button { min-height: 44px; padding: 0 18px; border: 1px solid var(--primary-strong); border-radius: 999px; background: var(--primary); color: var(--on-primary); font-weight: 700; }
+      .button.secondary { background: transparent; color: var(--primary); }
+      .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+      .swatch { display: grid; gap: 8px; padding: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      .swatch span { width: 42px; height: 42px; border: 1px solid var(--border-strong); border-radius: 999px; }
+      code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      table { width: 100%; border-collapse: collapse; overflow: hidden; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+      td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+      tr:last-child td { border-bottom: 0; }
+      td:last-child { text-align: right; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <code>${escapeHtml(payload.export_id)}</code>
+        <h1>${escapeHtml(payload.name.zh || payload.name.en || payload.slug)}</h1>
+        <p>${escapeHtml(payload.description.zh || payload.description.en || '')}</p>
+        <div class="actions">
+          <span class="button">Primary Action</span>
+          <span class="button secondary">Secondary Action</span>
+        </div>
+      </section>
+      <section class="swatches">${swatches}
+      </section>
+      <table>${tokenRows}
+      </table>
+    </main>
+  </body>
+</html>
+`;
+        }
+
+        const zipCrcTable = (() => {
+          const table = new Uint32Array(256);
+          for (let index = 0; index < 256; index += 1) {
+            let value = index;
+            for (let bit = 0; bit < 8; bit += 1) {
+              value = (value & 1) ? (0xEDB88320 ^ (value >>> 1)) : (value >>> 1);
+            }
+            table[index] = value >>> 0;
+          }
+          return table;
+        })();
+
+        function crc32(bytes) {
+          let crc = 0xFFFFFFFF;
+          for (const byte of bytes) {
+            crc = zipCrcTable[(crc ^ byte) & 0xFF] ^ (crc >>> 8);
+          }
+          return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+
+        function zipDateParts(date = new Date()) {
+          const time = (date.getHours() << 11) | (date.getMinutes() << 5) | Math.floor(date.getSeconds() / 2);
+          const day = (date.getFullYear() - 1980) << 9 | ((date.getMonth() + 1) << 5) | date.getDate();
+          return { time, day };
+        }
+
+        function makeZip(files) {
+          const encoder = new TextEncoder();
+          const localParts = [];
+          const centralParts = [];
+          let offset = 0;
+          const { time, day } = zipDateParts();
+
+          files.forEach(file => {
+            const nameBytes = encoder.encode(file.name);
+            const dataBytes = encoder.encode(file.content);
+            const crc = crc32(dataBytes);
+            const local = new ArrayBuffer(30 + nameBytes.length);
+            const localView = new DataView(local);
+            localView.setUint32(0, 0x04034b50, true);
+            localView.setUint16(4, 20, true);
+            localView.setUint16(6, 0x0800, true);
+            localView.setUint16(8, 0, true);
+            localView.setUint16(10, time, true);
+            localView.setUint16(12, day, true);
+            localView.setUint32(14, crc, true);
+            localView.setUint32(18, dataBytes.length, true);
+            localView.setUint32(22, dataBytes.length, true);
+            localView.setUint16(26, nameBytes.length, true);
+            new Uint8Array(local, 30).set(nameBytes);
+            localParts.push(local, dataBytes);
+
+            const central = new ArrayBuffer(46 + nameBytes.length);
+            const centralView = new DataView(central);
+            centralView.setUint32(0, 0x02014b50, true);
+            centralView.setUint16(4, 20, true);
+            centralView.setUint16(6, 20, true);
+            centralView.setUint16(8, 0x0800, true);
+            centralView.setUint16(10, 0, true);
+            centralView.setUint16(12, time, true);
+            centralView.setUint16(14, day, true);
+            centralView.setUint32(16, crc, true);
+            centralView.setUint32(20, dataBytes.length, true);
+            centralView.setUint32(24, dataBytes.length, true);
+            centralView.setUint16(28, nameBytes.length, true);
+            centralView.setUint32(42, offset, true);
+            new Uint8Array(central, 46).set(nameBytes);
+            centralParts.push(central);
+            offset += local.byteLength + dataBytes.length;
+          });
+
+          const centralSize = centralParts.reduce((sum, part) => sum + part.byteLength, 0);
+          const end = new ArrayBuffer(22);
+          const endView = new DataView(end);
+          endView.setUint32(0, 0x06054b50, true);
+          endView.setUint16(8, files.length, true);
+          endView.setUint16(10, files.length, true);
+          endView.setUint32(12, centralSize, true);
+          endView.setUint32(16, offset, true);
+          return new Blob([...localParts, ...centralParts, end], { type: 'application/zip' });
+        }
+
+        function downloadPaletteZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-palette'}.custompalette-${formatPaletteTimestamp()}`;
+          const jsonName = `${baseName}.json`;
+          const htmlName = `${baseName}.html`;
+          const zip = makeZip([
+            { name: jsonName, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: htmlName, content: buildPalettePreviewHtml(payload) }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function getStyleSlug() {
+          const fileName = window.location.pathname.split('/').pop() || 'dig-style';
+          return fileName.replace(/\.html$/i, '') || 'dig-style';
+        }
+
+        function collectStyleTokens() {
+          const tokens = {};
+          document.querySelectorAll('.token-val[data-token]').forEach(el => {
+            const token = el.getAttribute('data-token');
+            const value = getTokenValue(token);
+            if (token && token.startsWith('--dig-') && value) {
+              tokens[token] = normalizeHex(value) || value;
+            }
+          });
+          return tokens;
+        }
+
+        function parseStyleTokenCss(cssText) {
+          const tokens = {};
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+            tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
+          }
+          return tokens;
+        }
+
+        function buildStyleTokenCss(tokens, cssText = '') {
+          const lines = [];
+          const seen = new Set();
+          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
+            const token = match[1];
+            if (Object.prototype.hasOwnProperty.call(tokens, token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+              seen.add(token);
+            }
+          }
+          Object.keys(tokens).sort().forEach(token => {
+            if (!seen.has(token)) {
+              lines.push(`${token}: ${tokens[token]};`);
+            }
+          });
+          return lines.join('\n');
+        }
+
+        function getStyleLabMode() {
+          return root.dataset.styleTheme === 'dark' ? 'dark' : 'light';
+        }
+
+        function applyStyleLabOverrides() {
+          let style = document.getElementById('dig-style-lab-overrides');
+          if (!style) {
+            style = document.createElement('style');
+            style.id = 'dig-style-lab-overrides';
+            document.head.appendChild(style);
+          }
+          style.textContent = ['light', 'dark'].map(mode => {
+            const entries = Object.entries(styleLabOverrides[mode]);
+            if (!entries.length) return '';
+            return `html[data-style-theme="${mode}"] { ${entries.map(([token, value]) => `${token}: ${value};`).join(' ')} }`;
+          }).join('\n');
+        }
+
+        function updateStyleLabState() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab || !styleLabBaseTokens) return;
+          Object.entries(styleLabRoleTokens).forEach(([role, token]) => {
+            const value = cssColorToHex(getTokenValue(token));
+            const textInput = lab.querySelector(`[data-style-input="${role}"]`);
+            const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
+            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
+              colorInput.value = value;
+            }
+          });
+          styleLabTrackedTokens.forEach(token => {
+            const value = getTokenValue(token);
+            lab.querySelectorAll(`[data-style-token="${token}"]`).forEach(el => {
+              el.textContent = normalizeHex(value) || value;
+            });
+          });
+          refreshTokenVisualizers();
+        }
+
+        function setStyleLabRole(role, value) {
+          const token = styleLabRoleTokens[role];
+          const hex = normalizeHex(value);
+          if (!token || !hex || !styleLabBaseTokens) return;
+          styleLabOverrides[getStyleLabMode()][token] = hex;
+          applyStyleLabOverrides();
+          updateStyleLabState();
+        }
+
+        function initStyleTheme() {
+          const lab = document.querySelector('[data-style-lab]');
+          const switcher = document.querySelector('[data-theme-switcher]');
+          const darkTokens = parseStyleTokenCss(lab?.getAttribute('data-style-dark-token-block') || '');
+          if (!lab || !switcher || Object.keys(darkTokens).length === 0) return;
+
+          switcher.hidden = false;
+          const applyStyleTheme = mode => {
+            const resolvedMode = mode === 'dark' ? 'dark' : 'light';
+            document.documentElement.dataset.styleTheme = resolvedMode;
+            document.documentElement.style.colorScheme = resolvedMode;
+            localStorage.setItem('dig-ui-style-theme', resolvedMode);
+            switcher.dataset.activeTheme = resolvedMode;
+            switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+              button.setAttribute('aria-pressed', String(button.getAttribute('data-theme-mode') === resolvedMode));
+            });
+            root.dispatchEvent(new CustomEvent('dig-ui-style-theme-change', { detail: { mode: resolvedMode } }));
+          };
+
+          const savedTheme = localStorage.getItem('dig-ui-style-theme');
+          const defaultTheme = document.body?.dataset.styleThemeDefault === 'dark' ? 'dark' : 'light';
+          applyStyleTheme(savedTheme === 'dark' ? 'dark' : savedTheme === 'light' ? 'light' : defaultTheme);
+          switcher.querySelectorAll('[data-theme-mode]').forEach(button => {
+            button.addEventListener('click', () => applyStyleTheme(button.getAttribute('data-theme-mode')));
+          });
+        }
+
+        function buildStyleExportPayload(lab) {
+          const title = document.querySelector('.brand-title-h1');
+          const description = document.querySelector('.brand-description-p');
+          const timestamp = formatPaletteTimestamp();
+          const slug = getStyleSlug();
+          const styleTokenCss = lab.getAttribute('data-style-token-block') || '';
+          const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block') || '';
+          const styleTokens = {
+            ...(styleLabBaseTokens?.light || parseStyleTokenCss(styleTokenCss)),
+            ...styleLabOverrides.light
+          };
+          const styleDarkTokens = {
+            ...(styleLabBaseTokens?.dark || parseStyleTokenCss(styleDarkTokenCss)),
+            ...styleLabOverrides.dark
+          };
+          const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss);
+          const styleDarkCss = buildStyleTokenCss(styleDarkTokens, styleDarkTokenCss);
+          return {
+            schema: 'dig.style.export.v1',
+            token_contract: 'style_v1',
+            source: 'dig-ui-skill/render',
+            exported_at: new Date().toISOString(),
+            slug,
+            export_id: `${slug}.customstyle-${timestamp}`,
+            name: {
+              zh: title?.getAttribute('data-zh') || title?.textContent?.trim() || '',
+              en: title?.getAttribute('data-en') || title?.textContent?.trim() || ''
+            },
+            description: {
+              zh: description?.getAttribute('data-zh') || '',
+              en: description?.getAttribute('data-en') || ''
+            },
+            render: {
+              archetype: document.body.getAttribute('data-render-archetype') || 'token-sheet'
+            },
+            style_contract: lab.getAttribute('data-style-contract') || '',
+            tokens: styleTokens,
+            css: styleCss,
+            theme_tokens: { light: styleTokens, dark: styleDarkTokens },
+            theme_css: { light: styleCss, dark: styleDarkCss },
+            derivation: {
+              status: 'style-contract-export',
+              note: 'This custom style export preserves the canonical Style Contract, render archetype, and visible Dig tokens from the render page.'
+            }
+          };
+        }
+
+        function downloadStyleZip(payload) {
+          const baseName = payload.export_id || `${payload.slug || 'dig-style'}.customstyle-${formatPaletteTimestamp()}`;
+          const zip = makeZip([
+            { name: `${baseName}.json`, content: JSON.stringify(payload, null, 2) + '\n' },
+            { name: `${baseName}.style-contract.yaml`, content: `${payload.style_contract || ''}\n` },
+            { name: `${baseName}.tokens.css`, content: `${payload.css || ''}\n` },
+            { name: `${baseName}.dark.tokens.css`, content: `${payload.theme_css?.dark || ''}\n` }
+          ]);
+          const url = URL.createObjectURL(zip);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = `${baseName}.zip`;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
+
+        function initStyleLab() {
+          const lab = document.querySelector('[data-style-lab]');
+          if (!lab) return;
+          styleLabBaseTokens = {
+            light: parseStyleTokenCss(lab.getAttribute('data-style-token-block') || ''),
+            dark: parseStyleTokenCss(lab.getAttribute('data-style-dark-token-block') || '')
+          };
+          lab.querySelectorAll('[data-style-input]').forEach(input => {
+            input.addEventListener('change', () => setStyleLabRole(input.getAttribute('data-style-input'), input.value));
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) setStyleLabRole(input.getAttribute('data-style-input'), input.value);
+            });
+          });
+          lab.querySelectorAll('[data-style-color]').forEach(input => {
+            input.addEventListener('input', () => setStyleLabRole(input.getAttribute('data-style-color'), input.value));
+          });
+          root.addEventListener('dig-ui-style-theme-change', updateStyleLabState);
+          const copyButton = lab.querySelector('[data-style-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const mode = getStyleLabMode();
+              const sourceCss = mode === 'dark'
+                ? (lab.getAttribute('data-style-dark-token-block') || '')
+                : (lab.getAttribute('data-style-token-block') || '');
+              const tokens = { ...styleLabBaseTokens[mode], ...styleLabOverrides[mode] };
+              const copied = await copyPaletteTokens(buildStyleTokenCss(tokens, sourceCss));
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          const exportButton = lab.querySelector('[data-style-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildStyleExportPayload(lab);
+              downloadStyleZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+          updateStyleLabState();
+        }
+
+        function initPaletteLab() {
+          const lab = document.querySelector('[data-palette-lab]');
+          if (!lab) return;
+
+          lab.querySelectorAll('[data-palette-input]').forEach(input => {
+            input.addEventListener('change', () => {
+              setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+            });
+            input.addEventListener('keyup', () => {
+              if (normalizeHex(input.value)) {
+                setPaletteRole(input.getAttribute('data-palette-input'), input.value);
+              }
+            });
+          });
+
+          lab.querySelectorAll('[data-palette-color]').forEach(input => {
+            input.addEventListener('input', () => setPaletteRole(input.getAttribute('data-palette-color'), input.value));
+          });
+
+          lab.querySelectorAll('[data-palette-candidate]').forEach(button => {
+            button.addEventListener('click', () => {
+              lab.querySelectorAll('[data-palette-candidate]').forEach(item => item.classList.remove('active'));
+              button.classList.add('active');
+              setPaletteRoles({
+                [button.getAttribute('data-role')]: button.getAttribute('data-value'),
+                supportStrong: button.getAttribute('data-strong')
+              });
+            });
+          });
+
+          const copyButton = lab.querySelector('[data-palette-copy]');
+          if (copyButton) {
+            copyButton.addEventListener('click', async () => {
+              const tokenCss = buildPaletteTokenCss();
+              const copied = await copyPaletteTokens(tokenCss);
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              copyButton.dataset.copyState = copied ? 'success' : 'error';
+              copyButton.textContent = copied
+                ? (activeLang === 'zh' ? '已复制' : 'Copied')
+                : (activeLang === 'zh' ? '复制不可用' : 'Copy unavailable');
+              window.setTimeout(() => {
+                delete copyButton.dataset.copyState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          const exportButton = lab.querySelector('[data-palette-export]');
+          if (exportButton) {
+            exportButton.addEventListener('click', () => {
+              const activeLang = localStorage.getItem('dig-ui-lang') || 'zh';
+              const payload = buildPaletteExportPayload(lab);
+              downloadPaletteZip(payload);
+              exportButton.dataset.exportState = 'success';
+              exportButton.textContent = activeLang === 'zh' ? '已导出' : 'Exported';
+              window.setTimeout(() => {
+                delete exportButton.dataset.exportState;
+                setLanguage(activeLang);
+              }, 1200);
+            });
+          }
+
+          updatePaletteLabState();
+        }
+
+        // Dynamic Token Visualizer
+        refreshTokenVisualizers();
+        initPaletteLab();
+        initStyleLab();
+        initStyleTheme();
+      });
+    </script>
+  </body>
+</html>

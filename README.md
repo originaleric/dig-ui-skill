@@ -81,6 +81,12 @@ For installation and update details, see the [installation guide](./INSTALL.md#i
 
 <table align="center">
   <tr>
+    <td align="center" colspan="3">
+      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="Monochrome — black and white linework with luminous nodes" width="196"></a>
+      <h3>Monochrome<br>单色</h3>
+    </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="Hologram" width="196"></a>
       <h3>Hologram<br>全息</h3>
@@ -93,7 +99,7 @@ For installation and update details, see the [installation guide](./INSTALL.md#i
   </tr>
 </table>
 
-In your prompt, write “**Use Hologram Style**” or “**Use Cyberpunk Style**”, and the agent will generate the page with that visual language.
+In your prompt, write “**Use Monochrome Style**”, “**Use Hologram Style**”, or “**Use Cyberpunk Style**”, and the agent will generate the page with that visual language.
 
 ## Tune Colors Live
 
@@ -215,7 +221,7 @@ Palette details: [usage guide](./USAGE.md#palette).
 
 Start here when you need more than a color theme. A style carries material choices, surface behavior, component tone, render archetype, and a complete light/dark token contract together.
 
-**Includes:** 14 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `cyberpunk-neon`, `hologram-moire`, `business-editorial`, and `research-lab`. The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
+**Includes:** 15 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `cyberpunk-neon`, `hologram-moire`, `business-editorial`, `research-lab`, and [Monochrome](./renders/styles/monochrome.html). The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
 
 **Customize:** Style Lab temporarily tunes six core color roles in Light or Dark mode; export preserves both token maps in one `customstyle`, then import and sync it across tools:
 

@@ -106,6 +106,7 @@ Currently supported `archetype` values:
 - `research-workbench`: Samples, methods, evidence, and interpretation in a research workspace.
 - `builder-journey`: Modular learning, construction, and collaboration paths.
 - `editorial-story`: A narrative product page with one thesis, one supporting signal, and one clear action.
+- `monochrome-workspace`: A neutral grayscale product sample with a figure, metrics, library rows, trends, and settings across light and dark themes.
 - `token-sheet`: Default fallback that shows only the generic token sample.
 
 When adding a catalog with a clear industry scenario, prefer declaring `render.archetype`. If there is no clear scenario yet, keep the fallback.

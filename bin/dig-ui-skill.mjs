@@ -128,6 +128,10 @@ const STYLE_V1_ADDITIONAL_TOKEN_ROLES = [
 ];
 
 const STYLE_ARCHETYPE_TOKEN_ROLES = {
+  "monochrome-workspace": [
+    "--dig-on-accent", "--dig-chart-line", "--dig-chart-fill",
+    "--dig-field-line", "--dig-field-node", "--dig-field-halo",
+  ],
   "mobile-game-companion": [
     "--dig-game-sky-start",
     "--dig-game-sky-mid",
@@ -1585,6 +1589,8 @@ function assertStyleThemeTokenContract(themeTokens, archetype, sourcePath, label
     "--dig-text", "--dig-text-muted", "--dig-text-soft", "--dig-accent", "--dig-accent-2",
     "--dig-border", "--dig-border-strong", "--dig-grid-line", "--dig-control-bg", "--dig-control-bg-hover",
     "--dig-success", "--dig-warning", "--dig-danger", "--dig-info",
+    // Monochrome's inverse foreground and graphics must not inherit light values in dark mode.
+    ...(archetype === "monochrome-workspace" ? STYLE_ARCHETYPE_TOKEN_ROLES[archetype] : []),
   ];
   for (const mode of ["light", "dark"]) {
     for (const tokenRole of requiredThemeRoles) {

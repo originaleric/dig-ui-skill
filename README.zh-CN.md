@@ -82,6 +82,12 @@ npx dig-ui-skill install codex --lang en
 
 <table align="center">
   <tr>
+    <td align="center" colspan="3">
+      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="单色——黑白线条与微光节点" width="196"></a>
+      <h3>Monochrome<br>单色</h3>
+    </td>
+  </tr>
+  <tr>
     <td align="center">
       <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="全息" width="196"></a>
       <h3>Hologram<br>全息</h3>
@@ -94,7 +100,7 @@ npx dig-ui-skill install codex --lang en
   </tr>
 </table>
 
-在 Prompt 中写，“**使用全息 Style**”或“**使用赛博 Style**”，Agent 会按对应视觉语法生成页面。
+在 Prompt 中写，“**使用 Monochrome Style**”、“**使用全息 Style**”或“**使用赛博 Style**”，Agent 会按对应视觉语法生成页面。
 
 ## 即时试色与导出
 
@@ -216,7 +222,7 @@ Palette 详见[使用文档](./USAGE.zh-CN.md#palette)。
 
 当你需要的不只是主题色时，从这里开始。Style 会将材质选择、surface 行为、组件气质、render archetype 和完整 light/dark token contract 一起带入任务。
 
-**包含：**14 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`cyberpunk-neon`、`hologram-moire`、`business-editorial` 与 `research-lab`。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
+**包含：**15 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`cyberpunk-neon`、`hologram-moire`、`business-editorial`、`research-lab` 与 [Monochrome 单色](./renders/styles/monochrome.html)。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
 
 **如何定制：**Style Lab 可分别在 Light / Dark 下临时调整六个核心颜色角色；导出时两套 token 会一起写入 `customstyle`，再导入并同步到各工具：
 
