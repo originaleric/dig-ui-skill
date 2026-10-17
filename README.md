@@ -17,6 +17,7 @@
   <a href="./INSTALL.md">Installation</a> ·
   <a href="./USAGE.md">Usage Guide</a> ·
   <a href="./renders/index.html">Catalog Previews</a> ·
+  <a href="#shaders-effects">Shaders Effects</a> ·
   <a href="#personal-customization">Personal Customization</a> ·
   <a href="#what-you-can-build">What You Can Build</a>
 </p>
@@ -24,7 +25,7 @@
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-88-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-89-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -40,6 +41,7 @@ Catalog gives taste.
 Palette and Style give extensibility.
 Personal rules give ownership.
 Layouts and blocks give structure.
+Shaders effects add motion and texture across visual systems.
 Workflows make it repeatable.
 ```
 
@@ -76,6 +78,20 @@ npx dig-ui-skill install codex --lang zh-CN
 To use Dig UI in WorkBuddy, see [WorkBuddy](#workbuddy).
 
 For installation and update details, see the [installation guide](./INSTALL.md#installation).
+
+## New Shaders Support
+
+<a href="https://shaders.com/"><img src="./assets/shaders-icon.svg" alt="Official Shaders icon" width="48" height="48"></a>
+
+Add flowing gradients, dot grids, noise, halos, and pointer feedback to any catalog with Shaders, then preview, tune, and export them for reuse in Effect Lab.
+
+Generate a preview with the CLI, then open it through a local development server:
+
+```bash
+npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
+```
+
+<a href="https://github.com/shader-effects-inc/shaders" style="color: #0071e3;">Shaders GitHub</a> [![GitHub stars](https://img.shields.io/github/stars/shader-effects-inc/shaders?style=flat&label=%E2%98%85&color=0071e3)](https://github.com/shader-effects-inc/shaders) · [Usage guide](#shaders-effects)
 
 ## New Styles
 
@@ -158,6 +174,7 @@ See the [usage guide](./USAGE.md#local-rules) for Local Rules.
 | Build runtime or agent execution screens | Use execution workflows, log blocks, step timelines, and high-density operational surfaces. | `references/layouts/agent-run-detail.md` |
 | Customize a color system | Start from palette catalogs, export from Palette Lab, and sync a custom palette. | `references/catalogs/palettes/` |
 | Capture a complete visual grammar | Export a style contract and sync it as a local custom style. | `references/catalogs/styles/` |
+| Add animated backgrounds and pointer feedback | Choose Shaders components, tune a recipe, and reuse it with your catalog and theme. | [Shaders usage](./USAGE.md#shaders-effects) |
 | Teach your agent personal UI taste | Persist local global rules, palettes, and styles outside the repository. | `references/local-rules-builder.md` |
 
 ## Core System
@@ -170,8 +187,47 @@ See the [usage guide](./USAGE.md#local-rules) for Local Rules.
 | **Style** | Full visual grammars, render archetypes, dual-theme tokens, and custom style exports. | `references/catalogs/styles/` |
 | **Layouts** | Information architecture, slots, responsive order, and QA notes. | `references/layouts/` |
 | **Blocks** | Reusable primitive and product-module behavior contracts. | `references/blocks/` |
+| **Effects** | Optional Shaders compositions, theme bindings, mounting, and static fallback across catalogs. | `references/effects/` |
 | **Workflows** | Repeatable review, redesign, execution, and image-reference processes. | `references/workflows/` |
 | **Preflight** | Delivery gate for states, structure, catalog choice, and anti-patterns. | `references/preflight.md` |
+
+<a name="shaders-effects"></a>
+<a name="effects"></a>
+
+## Shaders Effects
+
+Add flowing gradients, dot fields, grain, halos, and pointer feedback with Shaders. Dig UI binds these components to your existing catalog tokens and handles mounting, pause/resume, static fallback, and cleanup through an independent Effects configuration layer:
+
+```text
+Layout + one base catalog + Blocks + optional Effects
+```
+
+Use the same effect with brand, palette, style, or personal themes. The bundled provider is **Shaders 4.0.4**, with JavaScript and React adapters.
+
+| Try | Shaders components | Tune |
+| --- | --- | --- |
+| `flowing-ribbon` | FlowingGradient | Speed, distortion, variation |
+| `dot-field` | DotGrid | Density, dot size, speed |
+| `cursor-ripples` | FlowingGradient + CursorRipples | Intensity, radius, decay |
+| `soft-grain` | SimplexNoise | Scale, contrast |
+| `radial-halo` | RadialGradient | Radius |
+
+<p align="center">
+  <img src="./assets/readme-shaders-lab.png" alt="Effect Lab with a live FlowingGradient preview, theme controls and parameter editing" width="760">
+</p>
+
+Open the bilingual [Effect Lab](./renders/effects/index.html) to choose a recipe, adjust its declared controls, switch themes, and export an editable ZIP. Custom component combinations are authored in recipe JSON; the Lab previews them and exposes their declared parameters.
+
+Generate a preview and install an effect into your application:
+
+```bash
+npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
+npx dig-ui-skill effect install flowing-ribbon --project ./my-app
+```
+
+Serve the preview through your local development server on localhost/HTTPS for WebGPU. Reduced motion, pause, or unavailable GPU uses static decoration while content and controls remain usable. Exports bundle the provider locally; React is supplied by the host application. Effects commands are available in `dig-ui-skill` 1.1.0 and later. For local development, use `node bin/dig-ui-skill.mjs` in place of the npm entry.
+
+Follow the [Shaders usage guide](./USAGE.md#shaders-effects) for component composition, JS/React integration, theme binding, export, and project maintenance. See the [Effects protocol](./references/effects/README.md) for configuration and lifecycle details.
 
 ## Catalogs
 
@@ -356,13 +412,14 @@ dig-ui-skill/
 │   ├── catalogs/                    # Catalog, palette, and style assets
 │   ├── layouts/                     # Layout recipes
 │   ├── blocks/                      # Primitive and product block contracts
+│   ├── effects/                     # Shaders recipes and Effects protocol
 │   ├── workflows/                   # Repeatable agent workflows
 │   ├── local/                       # Project-level extensions
 │   ├── anti-tells.md                # Common AI UI drift filters
 │   └── preflight.md                 # Delivery gate
-├── renders/                         # Static catalog preview output
-├── assets/                          # README assets and catalog preview CSS
-├── adapters/                        # Tool-specific adapters
+├── renders/                         # Catalog previews and standalone Effect Lab
+├── assets/                          # README assets, preview CSS, and bundled Effects runtime
+├── adapters/                        # Tool adapters and React DigEffect wrapper
 ├── agents/                          # Agent metadata
 └── bin/dig-ui-skill.mjs             # Installer and sync CLI
 ```
@@ -388,6 +445,14 @@ npm run validate:catalogs
 npm run validate:renders
 ```
 
+Build and verify Shaders recipes, the provider, and the Lab:
+
+```bash
+npm run build:effects
+npm run validate:effects
+npm run test:effects:browser
+```
+
 Use the local repository as the install source while developing:
 
 ```bash
@@ -402,8 +467,9 @@ This repository is being prepared for public open source release. Until a dedica
 - Catalogs describe visual language and tokens.
 - Layouts describe information architecture and slots.
 - Blocks describe reusable UI behavior contracts.
+- Effects describe Shaders composition and runtime policy, independently of catalog selection.
 - Workflows describe repeatable agent processes.
-- User palettes, styles, and personal rules stay outside the official asset set.
+- User palettes, styles, effects, and personal rules stay outside the official asset set.
 
 ## Open Source Notes
 
@@ -414,3 +480,5 @@ If you contribute a new catalog, prefer design-system analysis over copied propr
 ## License
 
 Licensed under the [Apache License 2.0](./LICENSE).
+
+Bundled Shaders software is MIT-licensed; its license and third-party notices travel with exports. The five recipes are original Dig compositions. External presets and user resources require their own source and license records.

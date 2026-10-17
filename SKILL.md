@@ -125,3 +125,11 @@ render 只用于 catalog 视觉维护预览，不是第二套规范；layout 和
 - `catalog: runtime` 仅在未来作为视觉皮肤落地时使用
 
 保留旧的 `page_type: runtime` 只是为了兼容既有 layout 与历史资产。
+
+## 独立 Effects 能力
+
+页面按 `layout + 一个 base catalog + blocks + effects` 组合。Effects 独立于所有 brand / palette / style catalog；Shaders 只是渲染 provider，不新增 catalog 类型或兼容 catalog 白名单。
+
+用户要求动态背景、shader、材质、网点或鼠标特效时，读取 `references/effects/README.md`、`references/shared/effect-manifest.yaml` 和所选 recipe JSON。颜色通过语义 token 绑定当前主题，适用性按挂载区域、阅读密度、交互强度和任务关键性判断。保持业务 DOM、焦点和滚动可用，统一执行 reduced-motion、静态降级及资源释放。
+
+使用独立 Effect Lab 预览和调参。个人资产由 `dig-ui-skill effect import / list / show / preview / export / sync` 管理；项目应用由 `effect install / check / diff / update / restore --project` 管理。导出配置为真源，框架代码和预览均由它生成。修改 Effects 后运行 `npm run build:effects`、`npm run validate:effects` 和 `npm run test:effects:browser`。

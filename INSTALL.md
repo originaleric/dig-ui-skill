@@ -9,7 +9,7 @@
 ## Quick Start
 
 ```bash
-# From npm after publishing, or from the repository root
+# From npm, or from the repository root
 npx dig-ui-skill install cursor
 npx dig-ui-skill install codex
 npx dig-ui-skill install claude-code
@@ -91,14 +91,38 @@ npx dig-ui-skill update cursor
 npx dig-ui-skill update --all
 ```
 
-User-owned palettes and styles are stored outside the repository and remain intact:
+User-owned palettes, styles, and effects are stored outside the repository and remain intact:
 
 ```text
 ~/.config/dig-ui-skill/palettes/
 ~/.config/dig-ui-skill/styles/
+~/.config/dig-ui-skill/effects/
 ```
 
-After an update, they are synced back into each installed skill under `references/local/palettes/` and `references/local/styles/`.
+After an update, they are synced back into each installed skill under `references/local/palettes/`, `references/local/styles/`, and `references/local/effects/`.
+
+<a name="effects-installation"></a>
+
+## Shaders Assets And Application Updates
+
+The skill includes Shaders recipes, a local provider, Effect Lab, and JS/React adapters. Personal Effects can also use `DIG_UI_CONFIG_HOME/effects` as their configuration center. Installed `references/local/effects/` files are copies; valid copies remain readable offline when that configuration center is unavailable.
+
+Two update operations serve different destinations:
+
+| Operation | Updates |
+| --- | --- |
+| `dig-ui-skill update cursor` (or another tool) | The installed skill, documentation, provider/adapter, and synchronized personal assets. |
+| `dig-ui-skill effect update <id> --project <dir>` | The application's tracked effect files, with local-edit checks and recoverable snapshots. |
+
+Use `effect install` to register an application asset first. Updating the skill does not automatically rewrite an application's `components/dig-effects/` directory. From this checkout:
+
+```bash
+node bin/dig-ui-skill.mjs effect install flowing-ribbon --project ./my-app
+node bin/dig-ui-skill.mjs effect check --project ./my-app
+node bin/dig-ui-skill.mjs effect update flowing-ribbon --project ./my-app
+```
+
+Project records live in `.dig-ui-effects.json`. A forced update retains a snapshot; restore returns the latest distinct prior state. See the [Shaders usage guide](./USAGE.md#shaders-effects) for source/revision rules, JS/React mounting, export, and restoration. These commands are also available through `npx dig-ui-skill` in version 1.1.0 and later.
 
 ## Key Options
 
@@ -117,6 +141,8 @@ After an update, they are synced back into each installed skill under `reference
 | `--source <path>` | Install from a local repository. |
 | `--project <path>` | Add Cursor's project rule. |
 | `--lang <en|zh-CN>` | Install a language; `zh-CN` is the default. |
+
+This table describes the skill installer and local-rule commands. For the Effects subcommand, `--project` selects application installation/maintenance, `--output` selects preview/ZIP output, and `--force` explicitly replaces conflicting asset/project content with history preserved. Use `node bin/dig-ui-skill.mjs effect --help` for the subcommand's options.
 
 ## Custom Palettes And Styles
 

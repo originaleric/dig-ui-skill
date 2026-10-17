@@ -125,3 +125,11 @@ When a user explicitly asks to “remember,” “persist,” or “add this to 
 - `catalog: runtime` only if a future runtime visual skin is formalized
 
 Keep legacy `page_type: runtime` only for compatibility with existing layouts and historical assets.
+
+## Independent Effects
+
+Compose `layout + one base catalog + blocks + effects`. Effects work independently of every brand/palette/style catalog; Shaders is a rendering provider, not a catalog type. Do not introduce catalog allowlists.
+
+For shader, animated background, material, dot-field or cursor-effect requests, read `references/effects/README.md`, `references/shared/effect-manifest.yaml` and the chosen recipe JSON. Bind semantic colors to the active theme and select by placement, density, interaction energy and operational criticality. Preserve business DOM, focus and scrolling; enforce reduced motion, static fallback and resource cleanup.
+
+Use the independent Effect Lab for preview/editing. Manage personal assets with `dig-ui-skill effect import / list / show / preview / export / sync`; apply to projects with `effect install / check / diff / update / restore --project`. Configuration owns truth; framework code and previews are generated. After Effects changes run `npm run build:effects`, `npm run validate:effects` and `npm run test:effects:browser`.

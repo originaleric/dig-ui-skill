@@ -17,6 +17,7 @@
   <a href="./INSTALL.zh-CN.md">安装指南</a> ·
   <a href="./USAGE.zh-CN.md">使用指南</a> ·
   <a href="./renders/index.html">Catalog 预览</a> ·
+  <a href="#shaders-effects">Shaders 特效</a> ·
   <a href="#personal-customization">个人定制</a> ·
   <a href="#你可以构建什么">你可以构建什么</a>
 </p>
@@ -24,7 +25,7 @@
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-88-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-89-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -40,6 +41,7 @@ Catalog 提供品味。
 Palette 与 Style 提供扩展性。
 个人规则提供所有权。
 Layout 与 Block 提供结构。
+Shaders 特效让动态与材质跨视觉系统复用。
 Workflow 让过程可以重复。
 ```
 
@@ -77,6 +79,20 @@ npx dig-ui-skill install codex --lang en
 在 WorkBuddy 中使用请参阅 [WorkBuddy 使用](#workbuddy-使用)。
 
 安装与更新详见[安装指南](./INSTALL.zh-CN.md#installation)。
+
+## 新增 Shaders 支持
+
+<a href="https://shaders.com/"><img src="./assets/shaders-icon.svg" alt="Shaders 官方图标" width="48" height="48"></a>
+
+使用 Shaders 为任意 catalog 添加流动渐变、网点、噪声、光晕和鼠标反馈，并在 Effect Lab 中预览、调参和导出复用。
+
+运行以下命令生成预览，再通过本地开发服务打开：
+
+```bash
+npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
+```
+
+<a href="https://github.com/shader-effects-inc/shaders" style="color: #0071e3;">Shaders GitHub</a> [![GitHub 星标](https://img.shields.io/github/stars/shader-effects-inc/shaders?style=flat&label=%E2%98%85&color=0071e3)](https://github.com/shader-effects-inc/shaders) · [使用说明](#shaders-effects)
 
 ## 新增 Style
 
@@ -159,6 +175,7 @@ Local 自定义规则详见[使用文档](./USAGE.zh-CN.md#local-rules)。
 | 构建 agent/runtime 执行界面 | 使用 execution workflow、日志 block、步骤时间线和高密度操作型表面。 | `references/layouts/agent-run-detail.md` |
 | 定制色彩系统 | 从 palette catalog 开始，通过 Palette Lab 导出并同步 custom palette。 | `references/catalogs/palettes/` |
 | 沉淀完整视觉语法 | 导出 style contract，并同步为本地 custom style。 | `references/catalogs/styles/` |
+| 添加动态背景与鼠标反馈 | 选择 Shaders 组件、调整 recipe，并绑定现有 catalog 与主题。 | [Shaders 使用指南](./USAGE.zh-CN.md#shaders-effects) |
 | 教会 Agent 你的 UI 偏好 | 在仓库外持久化 local global rules、palette 和 style。 | `references/local-rules-builder.md` |
 
 ## 核心系统
@@ -171,8 +188,47 @@ Local 自定义规则详见[使用文档](./USAGE.zh-CN.md#local-rules)。
 | **Style** | 完整视觉语法、render archetype、双主题 token 与 custom style 导出。 | `references/catalogs/styles/` |
 | **Layouts** | 信息架构、slot、响应式顺序与 QA notes。 | `references/layouts/` |
 | **Blocks** | 可复用 primitive 与产品模块的行为 contract。 | `references/blocks/` |
+| **Effects** | 可选的 Shaders 组合、主题绑定、挂载和静态降级，跨 catalog 复用。 | `references/effects/` |
 | **Workflows** | 可重复的 review、redesign、execution 与 image-reference 流程。 | `references/workflows/` |
 | **Preflight** | 对状态、结构、catalog 选择和反模式的交付 gate。 | `references/preflight.md` |
+
+<a name="shaders-effects"></a>
+<a name="effects--特效"></a>
+
+## Shaders 特效
+
+使用 Shaders 为页面添加流动渐变、网点、噪声、光晕和鼠标反馈。Dig UI 通过独立 Effects 配置层，将这些组件绑定到现有 catalog token，并统一处理挂载、暂停恢复、静态降级和资源释放：
+
+```text
+Layout + 一个基础 catalog + Blocks + 可选 Effects
+```
+
+同一份特效可以搭配 brand、palette、style 及个人主题。当前内置 **Shaders 4.0.4**，提供原生 JavaScript 和 React 接入。
+
+| 试用 recipe | Shaders 组件 | 可调参数 |
+| --- | --- | --- |
+| `flowing-ribbon` | FlowingGradient | 速度、扰动、形态变化 |
+| `dot-field` | DotGrid | 密度、网点大小、速度 |
+| `cursor-ripples` | FlowingGradient + CursorRipples | 强度、半径、衰减 |
+| `soft-grain` | SimplexNoise | 尺度、对比度 |
+| `radial-halo` | RadialGradient | 半径 |
+
+<p align="center">
+  <img src="./assets/readme-shaders-lab.zh-CN.png" alt="Effect Lab 的真实 FlowingGradient 预览、主题切换与参数编辑" width="760">
+</p>
+
+打开双语 [Effect Lab](./renders/effects/index.html)，选择 recipe、调整已声明参数、切换主题，再导出可继续编辑的 ZIP。自定义组件组合通过 recipe JSON 编写，Lab 负责预览并展示配置声明的参数控件。
+
+生成预览并将特效安装到应用项目：
+
+```bash
+npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
+npx dig-ui-skill effect install flowing-ribbon --project ./my-app
+```
+
+通过项目本地开发服务在 localhost/HTTPS 下打开预览，以使用 WebGPU。减少动态效果、暂停或 GPU 不可用时，装饰层静态降级，正文和控件仍可操作。导出包包含本地 provider；React 由宿主应用提供。Effects 命令从 `dig-ui-skill` 1.1.0 起提供；本地开发时可用 `node bin/dig-ui-skill.mjs` 替换 npm 入口。
+
+组件组合、JS/React 接入、主题绑定、导出与维护见 [Shaders 使用指南](./USAGE.zh-CN.md#shaders-effects)；配置与生命周期细节见 [Effects 协议](./references/effects/README.md)。
 
 ## Catalogs
 
@@ -357,13 +413,14 @@ dig-ui-skill/
 │   ├── catalogs/                    # Catalog、palette 与 style 资产
 │   ├── layouts/                     # Layout recipe
 │   ├── blocks/                      # Primitive 与产品 block contract
+│   ├── effects/                     # Shaders recipe 与 Effects 协议
 │   ├── workflows/                   # 可重复的 Agent workflow
 │   ├── local/                       # 项目级扩展
 │   ├── anti-tells.md                # 常见 AI UI 漂移过滤器
 │   └── preflight.md                 # 交付 gate
-├── renders/                         # 静态 catalog 预览产物
-├── assets/                          # README 资源和 catalog 预览 CSS
-├── adapters/                        # 工具适配器
+├── renders/                         # Catalog 预览与独立 Effect Lab
+├── assets/                          # README 资源、预览 CSS 与打包的 Effects runtime
+├── adapters/                        # 工具适配器与 React DigEffect wrapper
 ├── agents/                          # Agent 元数据
 └── bin/dig-ui-skill.mjs             # 安装与同步 CLI
 ```
@@ -389,6 +446,14 @@ npm run validate:catalogs
 npm run validate:renders
 ```
 
+构建并验证 Shaders recipe、provider 和 Lab：
+
+```bash
+npm run build:effects
+npm run validate:effects
+npm run test:effects:browser
+```
+
 开发时从当前仓库作为安装源：
 
 ```bash
@@ -403,8 +468,9 @@ node bin/dig-ui-skill.mjs install --all --source .
 - Catalog 描述视觉语言与 token。
 - Layout 描述信息架构与 slot。
 - Block 描述可复用 UI 行为 contract。
+- Effects 描述 Shaders 组合与运行策略，独立于 catalog 选择。
 - Workflow 描述可重复的 Agent 流程。
-- 用户 palette、style 与个人规则保留在官方资产集之外。
+- 用户 palette、style、effect 与个人规则保留在官方资产集之外。
 
 ## 开源说明
 
@@ -415,3 +481,5 @@ Catalog 文件记录的是从公开产品界面抽象出的设计语言观察和
 ## 许可证
 
 本项目采用 [Apache License 2.0](./LICENSE)。
+
+打包的 Shaders 软件采用 MIT 许可，导出包保留其许可证与第三方声明。五个 recipe 为 Dig 原创组合；外部 presets 和用户资源需另行记录来源与授权。

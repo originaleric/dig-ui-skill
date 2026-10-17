@@ -10,6 +10,7 @@
 - **Catalog (`references/catalogs/`)** 是以成熟产品 UI 语言为入口的基础 catalog。每个页面或组件组只选择一个基础 catalog。
 - **Palette (`references/catalogs/palettes/` + `~/.config/dig-ui-skill/palettes/`)** 是以整体配色为入口的 catalog 线。内置 palette 属于仓库资产，用户从 Palette Lab 导入的 custom palette 属于仓库外个人资产。
 - **Style (`references/catalogs/styles/` + `~/.config/dig-ui-skill/styles/`)** 是以完整视觉语法为入口的 catalog 线。内置 style 属于仓库资产，用户从 Style Lab 导入的 custom style 属于仓库外个人资产。
+- **Effects (`references/effects/`)** 配置可选的 Shaders 组件组合、主题绑定、挂载和降级，配合现有 catalog 使用；recipe JSON 是特效配置真源。
 - **Dig Read / Anti-Tells / Preflight / Workflows** 是参照 taste-skill 落地的 agent 执行纪律：先判断任务，再选择资产，最后过滤反模式并通过校验收口。
 
 当你需要微调设计系统（例如：把 Hero Title 放大，调整主按钮圆角，或新增一个运行态详情页协议）时，优先先判断任务语义，再选择 layout/catalog/block，而不是直接从视觉皮肤或组件开始。
@@ -30,6 +31,7 @@
 1. **Layout**：读取 `references/layouts/README.md` 与最接近的 layout。layout 只负责结构、slot、响应式顺序和 QA，不负责品牌色。
 1. **Catalog**：读取选中的 catalog。catalog 负责视觉语言、token、字体、surface、组件映射，不改变 layout 的信息架构。
 1. **Block**：涉及可复用组件或产品模块时，读取 `references/blocks/README.md` 和相关 block。block 负责 slots、states、responsive rules、accessibility、anti-patterns。
+1. **可选 Shaders 特效**：需要动态背景、图案或指针反馈时，按[使用指南](#shaders-effects)选择 recipe 或组合组件，绑定当前主题并保持业务 DOM 可用。
 1. **Anti-Tells**：读取 `references/anti-tells.md`，过滤泛 AI SaaS、假 terminal、所有内容塞 card、runtime landing 化等坏味道。
 1. **Preflight**：读取 `references/preflight.md`，按交付 gate 做最终检查。
 1. **Render Ops**：如果改了 catalog/layout/block，运行同步和校验。
@@ -185,7 +187,7 @@ npx dig-ui-skill palette sync --all
 
 当用户不是从品牌或单纯配色切入，而是从「截图风格」「完整界面气质」「材质/形态/插画/组件语言」切入时，优先选择 `style-catalog`，例如 `references/catalogs/styles/cozy-arcade.md` 或 `references/catalogs/styles/quant-signal-console.md`。Style catalog 与 brand catalog、color palette catalog 并列，不替代它们。
 
-选择内置 style 前，先读 [references/catalogs/styles/README.md](references/catalogs/styles/README.md)：它用任务、avoid 边界和预览 archetype 路由 12 个 style；一次任务只选择其中一条基础 style 线。
+选择内置 style 前，先读 [references/catalogs/styles/README.md](references/catalogs/styles/README.md)：它用任务、avoid 边界和预览 archetype 路由 15 个 style；一次任务只选择其中一条基础 style 线。
 
 Style catalog 的 source of truth 仍是 Markdown：
 
@@ -216,6 +218,155 @@ npx dig-ui-skill style sync --all
 导入的 customstyle 只属于用户资产，不写回内置 `references/catalogs/styles/`，也不进入内置 manifest。CLI 会校验 `schema`、`token_contract`、`render.archetype`、Style Contract 和 required `--dig-*` token；带双主题的资产还会逐项校验两个 mode。缺少核心 token 或使用不可用占位值会被拒绝；旧版没有 `theme_tokens` 的资产仍可导入，但不能作为双主题 source of truth。
 
 品牌 catalog 页面同样提供 Brand Lab：临时调整核心颜色角色并导出 `custompalette`。它复用 Palette CLI 的 import / sync，不引入另一套不兼容的品牌资产格式。
+
+---
+
+<a name="shaders-effects"></a>
+<a name="独立-effects-能力"></a>
+
+## 在 Dig UI 中使用 Shaders 特效
+
+Shaders 为页面提供渐变、图案、噪声和鼠标反馈。先选择 layout、一个基础 catalog 和 blocks，再按区域用途添加 Effects recipe。当前接入使用 Shaders 4.0.4，支持原生 JavaScript 和 React。
+
+以下示例从当前仓库执行。使用 `dig-ui-skill` 1.1.0 或更高版本时，可用 `npx dig-ui-skill` 替换 `node bin/dig-ui-skill.mjs`。生成的预览与导出包包含本地 provider；React 接入使用宿主应用的 React 依赖。
+
+### 1. 使用现成 recipe 并预览
+
+| Recipe | 组件 | 适合作为起点的区域 |
+| --- | --- | --- |
+| `flowing-ribbon` | FlowingGradient | 动态首屏或背景 |
+| `dot-field` | DotGrid | 图案背景或局部插画 |
+| `cursor-ripples` | FlowingGradient + CursorRipples | 局部区域的指针反馈 |
+| `soft-grain` | SimplexNoise | 轻量纹理 |
+| `radial-halo` | RadialGradient | 局部色彩光晕 |
+
+```bash
+node bin/dig-ui-skill.mjs effect list
+node bin/dig-ui-skill.mjs effect show flowing-ribbon
+node bin/dig-ui-skill.mjs effect preview flowing-ribbon --output ./effect-lab.html
+```
+
+通过项目 localhost/HTTPS 开发服务打开 effect-lab.html。在 Effect Lab 中调整 recipe 声明的参数，选择基础主题或导入自定义 palette/style，切换浅色/深色，检查挂载区域、宽度、暂停或静态预览。点击“导出特效”保存，再通过“打开特效 JSON / ZIP”继续编辑。草稿、撤销重做和恢复默认按资产基线管理；不匹配的旧草稿会保留并显示提示。
+
+Lab 支持选择 recipe 和调整已声明控件。新组件树通过 JSON 编写后导入预览。
+
+### 2. 组合 Shaders 组件
+
+从完整合法 recipe 开始：
+
+```bash
+node bin/dig-ui-skill.mjs effect show flowing-ribbon > ./my-effect.json
+```
+
+将 id 改为 `my-effect`，填写中英文名称并记录自己的来源。例如，将 composition 数组替换为 FlowingGradient 加一层半透明 SimplexNoise。保留 `ribbon` 图层 ID，让已有速度、扰动和形态控件继续指向正确图层：
+
+```json
+[
+  {
+    "id": "ribbon",
+    "type": "FlowingGradient",
+    "props": {
+      "colorA": { "token": "--dig-bg" },
+      "colorB": { "token": "--dig-accent" },
+      "colorC": { "token": "--dig-accent-2" },
+      "colorD": { "token": "--dig-bg-soft" },
+      "speed": 0.2, "distortion": 0.4, "seed": 12,
+      "colorSpace": "oklch"
+    }
+  },
+  {
+    "id": "grain", "type": "SimplexNoise",
+    "props": { "opacity": 0.12, "blendMode": "softLight" }
+  }
+]
+```
+
+这是 **composition 片段**，不能单独作为完整 recipe 导入。保留原 JSON 的 schema、provider、parameters、mount、runtime、fallback 和 assets。图层顺序决定组合顺序；使用 `Group` 的 children 嵌套，用 `maskSource` / `maskType` 引用遮罩图层。固定 SDK 支持 20 种混合模式和四种遮罩：alpha、alphaInverted、luminance、luminanceInverted。
+
+组件名称与参数查阅生成的 [registry](./assets/effects/components.mjs)、[原始 recipes](./references/effects/) 和 [Effects 协议](./references/effects/README.md)。每个参数控件需绑定合法 layer/prop，并匹配其范围或选项。实时 DOM/摄像头捕获不在当前接入范围。未知组件、参数、枚举、缺失引用或循环引用会被拒绝。
+
+```bash
+node bin/dig-ui-skill.mjs effect import ./my-effect.json
+node bin/dig-ui-skill.mjs effect preview my-effect --output ./my-effect-lab.html
+```
+
+### 3. 绑定主题并保留内容可用性
+
+在 recipe 中使用 `{ "token": "--dig-accent" }` 等语义色；adapter 从宿主读取并解析成真实颜色后传给 Shaders。页面先应用所选 catalog 的 `--dig-*` token。需要显式覆写时使用 `theme_bindings.light` / `.dark` 的 layer.prop 映射；自定义 token 来源可传入 `tokens: () => resolvedTokenMap`。切换时先更新 token，再调用 `refreshTheme('dark')` 或改变 React 的 `theme` prop。
+
+宿主容器需有尺寸、定位和隔离层级，正文及原生控件位于装饰层之上。按用途选择 background、hero-background、illustration 或 local-container。SDK 按 canvas bounds 跟踪指针事件，装饰层保留 DOM 输入、焦点和滚动。
+
+减少动态效果、暂停/静态预览、页面隐藏/离屏或高密度/关键场景会采用静态降级。GPU 失败时内容仍可用。按任务与区域选择强度，并在实际目标设备上检查。
+
+### 4. 接入 JavaScript 或 React 页面
+
+将 recipe 安装到已有应用：
+
+```bash
+node bin/dig-ui-skill.mjs effect install flowing-ribbon --project ./my-app
+```
+
+生成目录为 `my-app/components/dig-effects/flowing-ribbon/`，包含 effect.json、preview.html、mount.mjs、Effect.jsx、runtime、资源和许可证。JS 模块与 JSON 通过 localhost/HTTPS 服务；React 使用支持 JSON/JSX 的宿主 bundler。
+
+应用根目录的 JavaScript 页面先建立宿主：
+
+```html
+<section id="hero" style="position:relative;isolation:isolate;min-height:320px">
+  <div style="position:relative;z-index:1">
+    <h1>你的内容</h1>
+    <button type="button">主要操作</button>
+  </div>
+</section>
+```
+
+应用 catalog token 后，在模块中挂载：
+
+```js
+import { mount } from './components/dig-effects/flowing-ribbon/mount.mjs';
+
+const effect = mount(document.querySelector('#hero'), { mode: 'light' });
+await effect.ready;
+// 在宿主页面或组件卸载时调用 effect.destroy()。
+```
+
+React 从源文件的相对路径导入生成组件：
+
+```jsx
+'use client';
+import Effect from './components/dig-effects/flowing-ribbon/Effect.jsx';
+
+export default function Hero() {
+  return (
+    <Effect theme="light" style={{ minHeight: 320 }}>
+      <h1>你的内容</h1>
+      <button type="button">主要操作</button>
+    </Effect>
+  );
+}
+```
+
+React wrapper 负责生命周期清理和 StrictMode，另支持 `paused`、`staticPreview` 和 `context`。自定义 recipe 更新使用协议中的共享 `mountEffect` / `DigEffect` adapter。更新采用完整配置替换：删除 transform 内部字段会恢复默认值，不继承前一次配置。provider 默认值仅用于运行时派生，存储与导出的原始 recipe JSON 保持不变。
+
+### 5. 导出、同步、更新与恢复
+
+```bash
+# 导出、重开并同步个人 recipe 到已安装工具
+node bin/dig-ui-skill.mjs effect export flowing-ribbon --output ./ribbon.zip
+node bin/dig-ui-skill.mjs effect import ./ribbon.zip --all
+node bin/dig-ui-skill.mjs effect sync --all
+
+# 检查并维护应用中安装的特效
+node bin/dig-ui-skill.mjs effect check --project ./my-app
+node bin/dig-ui-skill.mjs effect diff flowing-ribbon --project ./my-app
+node bin/dig-ui-skill.mjs effect update flowing-ribbon --project ./my-app
+node bin/dig-ui-skill.mjs effect restore flowing-ribbon --project ./my-app
+```
+
+个人真源位于 `~/.config/dig-ui-skill/effects/`（或 `DIG_UI_CONFIG_HOME/effects`）；`references/local/effects/` 是工具安装副本。应用的 `.dig-ui-effects.json` 记录来源、修订、生成文件 hash 与历史。skill 更新与项目特效更新分别执行，见[安装说明](./INSTALL.zh-CN.md#effects-installation)。
+
+相同内容导入/更新保持幂等。内容变化需要更高 revision；降级或相同 revision 替换需显式 `--force`。按 ID 执行项目 update/diff 会遵循安装记录的来源（资产 ID、JSON 或 ZIP），更新前先刷新该来源。项目 update 默认保留本地修改，force 替换会留下快照；restore 返回上一份不同状态，也能恢复快照中的本地编辑。restore 需要已有历史；首次安装或无变化更新不会产生上一版本。ZIP 包含可编辑 JSON、嵌入资源、预览、JS/React 入口、provider 代码和许可证；打包前记录资源来源及授权。CLI 支持 stored Dig 导出包，遇到不支持的压缩 ZIP 会给出诊断。
+
+预览保持静态时，检查减少动态效果设置、暂停/静态控件、场景 dials 和 GPU 支持。导入/更新被拒绝时，先检查 schema/引用/revision 或本地修改诊断，再决定是否显式 force。草稿不匹配时重新打开对应原 JSON/ZIP；旧草稿会保留，不会自动覆盖不同基线。
 
 ---
 
@@ -610,7 +761,7 @@ npx dig-ui-skill local sync --all --from-config
 
 ## 🎨 史诗级毛玻璃 Hub 手册导航中心 (`renders/index.html`)
 
-为了方便设计师和开发者在 88 个 catalog 预览中探索，我们提供了设计系统 Hub 首页：
+为了方便设计师和开发者在 89 个 catalog 预览中探索，我们提供了设计系统 Hub 首页：
 
 - **专属强调色 Glow Hover 动效**：每个品牌卡片在 hover 时，会自动读取并在背景散发该品牌专属强调色（如 Stripe 的紫色、Claude 的暖色、Ferrari 的红色）的柔和光影。
 - **实时模糊搜索 (Search)**：支持在顶部输入框输入任意品牌名称或关键词进行毫秒级过滤。

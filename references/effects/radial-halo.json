@@ -1,0 +1,86 @@
+{
+  "schema": "dig.effect.v1",
+  "revision": 1,
+  "source": "dig-ui-skill/original",
+  "provider": {
+    "name": "shaders",
+    "version": "4.0.4",
+    "capabilities": [
+      "webgpu"
+    ]
+  },
+  "theme_bindings": {
+    "light": {},
+    "dark": {}
+  },
+  "mount": {
+    "slot": "hero-background",
+    "pointer_events": "none",
+    "clip": "hidden",
+    "layer": "decoration",
+    "scroll": "host"
+  },
+  "runtime": {
+    "reduced_motion": "static-fallback",
+    "max_pixels": 1048576,
+    "context": {
+      "INFORMATION_DENSITY": 3,
+      "INTERACTION_ENERGY": 4,
+      "OPERATIONAL_CRITICALITY": 2
+    }
+  },
+  "fallback": {
+    "type": "css-gradient",
+    "colors": [
+      {
+        "token": "--dig-bg"
+      },
+      {
+        "token": "--dig-accent"
+      }
+    ]
+  },
+  "assets": [],
+  "id": "radial-halo",
+  "name": {
+    "en": "Radial halo",
+    "zh-CN": "径向光晕"
+  },
+  "composition": [
+    {
+      "id": "halo",
+      "type": "RadialGradient",
+      "props": {
+        "colorA": {
+          "token": "--dig-accent"
+        },
+        "colorB": {
+          "token": "--dig-bg"
+        },
+        "radius": 0.8,
+        "center": {
+          "x": 0.5,
+          "y": 0.5
+        },
+        "opacity": 0.5
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "id": "radius",
+      "layer": "halo",
+      "prop": "radius",
+      "label": {
+        "en": "Radius",
+        "zh-CN": "光晕半径"
+      },
+      "group": "effect",
+      "control": "range",
+      "default": 0.8,
+      "min": 0,
+      "max": 2,
+      "step": 0.1
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+schema_version: 1
+kind: effect-manifest
+asset_schema: dig.effect.v1
+source_of_truth: recipe-json
+provider:
+  name: shaders
+  version: 4.0.4
+  capabilities: [webgpu]
+  components: assets/effects/components.mjs
+adapters: [javascript, react]
+mount_slots: [background, hero-background, illustration, local-container]
+scene_policy:
+  dials: [INFORMATION_DENSITY, INTERACTION_ENERGY, OPERATIONAL_CRITICALITY]
+  static_when_density_at_least: 8
+  static_when_criticality_at_least: 8
+  static_when_energy_at_most: 2
+  reduced_motion: static-fallback
+recipes:
+  - id: flowing-ribbon
+    source: references/effects/flowing-ribbon.json
+  - id: dot-field
+    source: references/effects/dot-field.json
+  - id: cursor-ripples
+    source: references/effects/cursor-ripples.json
+  - id: soft-grain
+    source: references/effects/soft-grain.json
+  - id: radial-halo
+    source: references/effects/radial-halo.json

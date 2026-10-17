@@ -1,0 +1,112 @@
+{
+  "schema": "dig.effect.v1",
+  "revision": 1,
+  "source": "dig-ui-skill/original",
+  "provider": {
+    "name": "shaders",
+    "version": "4.0.4",
+    "capabilities": [
+      "webgpu"
+    ]
+  },
+  "theme_bindings": {
+    "light": {},
+    "dark": {}
+  },
+  "mount": {
+    "slot": "hero-background",
+    "pointer_events": "none",
+    "clip": "hidden",
+    "layer": "decoration",
+    "scroll": "host"
+  },
+  "runtime": {
+    "reduced_motion": "static-fallback",
+    "max_pixels": 1048576,
+    "context": {
+      "INFORMATION_DENSITY": 3,
+      "INTERACTION_ENERGY": 4,
+      "OPERATIONAL_CRITICALITY": 2
+    }
+  },
+  "fallback": {
+    "type": "css-gradient",
+    "colors": [
+      {
+        "token": "--dig-bg"
+      },
+      {
+        "token": "--dig-accent"
+      }
+    ]
+  },
+  "assets": [],
+  "id": "dot-field",
+  "name": {
+    "en": "Dot field",
+    "zh-CN": "微网点"
+  },
+  "composition": [
+    {
+      "id": "dots",
+      "type": "DotGrid",
+      "props": {
+        "color": {
+          "token": "--dig-accent"
+        },
+        "density": 45,
+        "dotSize": 0.15,
+        "speed": 0.08,
+        "twinkle": 0,
+        "opacity": 0.35
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "id": "density",
+      "layer": "dots",
+      "prop": "density",
+      "label": {
+        "en": "Density",
+        "zh-CN": "密度"
+      },
+      "group": "effect",
+      "control": "range",
+      "default": 45,
+      "min": 1,
+      "max": 150,
+      "step": 1
+    },
+    {
+      "id": "dot-size",
+      "layer": "dots",
+      "prop": "dotSize",
+      "label": {
+        "en": "Dot size",
+        "zh-CN": "网点大小"
+      },
+      "group": "effect",
+      "control": "range",
+      "default": 0.15,
+      "min": 0,
+      "max": 1,
+      "step": 0.01
+    },
+    {
+      "id": "speed",
+      "layer": "dots",
+      "prop": "speed",
+      "label": {
+        "en": "Drift speed",
+        "zh-CN": "漂移速度"
+      },
+      "group": "effect",
+      "control": "range",
+      "default": 0.08,
+      "min": -1,
+      "max": 1,
+      "step": 0.01
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "package.json": "sha256:3d404e2f285cc140a8c0d3a446331dde711c895b24d8b05827cee17030933a72",
+  "bin/build-effects.mjs": "sha256:37244d394132efee37518b8b124c1896d8e9625aefe3edb1853d6f7388354382",
+  "bin/effect-lock-entry.mjs": "sha256:3a3cfb705168b5a7a16f421f4ffb6ed7555a337f57736aa8fca7b62ad9804625",
+  "bin/effect-lock.cjs": "sha256:67cd5da2f242bbd3af797b8d9f1149b438b2e0b4b32b58e85e1364bba23a5f20",
+  "assets/effects/protocol.mjs": "sha256:beef4b197ed4333e8fec8fa2566f6c69e7a646daa1e335ede6a02861325b77b2",
+  "assets/effects/runtime.mjs": "sha256:2f05f531479bab170706ca441e486722c178b97d1a68cd1ccf5c0c42b48e877e",
+  "assets/effects/archive.mjs": "sha256:ac33ac3c4d759d6aa7336d8dc60edfe7aa694c9d4e26456bff2573e6523590f6",
+  "assets/effects/export.mjs": "sha256:3bb9ad7fa0f983b97bdf547c91aead6fb0c142918f7ff5529361e477f542fca9",
+  "assets/effects/lab.mjs": "sha256:e87e250b73af23b49da9c19733cbae0a3d1045b1b1d5f59eb315f6a5aee520cb",
+  "assets/effects/lab.css": "sha256:d21cccbdf00fc95554da03556f71da81d2e958c7b03e9212a5b1225e29e62c50",
+  "assets/effects/components.mjs": "sha256:f18d42c34aae539a86df16faf4dbaa5ec4c8bbbf8a155ffaeef875c7e85e585c",
+  "assets/effects/color.mjs": "sha256:7c91d831935954b8fdaa0d76f5a615acf91f13d2ee2ee7864c2f00216fd4560e",
+  "assets/effects/shaders-js.mjs": "sha256:e6e00b987b245df69b876292b7dec08e4ac8b35173386429f8e97a9870333c65",
+  "assets/effects/lab.bundle.js": "sha256:96a522155e336af909e01961e97ae71bf0d3d888f880ade86f35d0da8ba09463",
+  "assets/effects/SHADERS-LICENSE.txt": "sha256:eeaaa26f5c65cb6dfebf1c098ac2375fdcdb497cebf105b0542f229482b106f4",
+  "assets/effects/THIRD-PARTY-NOTICES.txt": "sha256:5d41a610878059345a5caa0416da3c45a9d3bf6ad03145369b5e71f7de6dc055",
+  "adapters/react/DigEffect.jsx": "sha256:0fd5e621de9f1dd0f33681ddb402d16dd8dd90c591b2cf8558754b691c876c14"
+}

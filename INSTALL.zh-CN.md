@@ -9,7 +9,7 @@
 ## 快速开始
 
 ```bash
-# 从 npm（发布后）或 GitHub 仓库根目录
+# 从 npm 或 GitHub 仓库根目录
 npx dig-ui-skill install cursor
 npx dig-ui-skill install codex
 npx dig-ui-skill install claude-code
@@ -98,6 +98,7 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 - `dig-ui-language.json`
 - `references/`（**除** `global-rules.local.md`）
 - `references/local/palettes/` 与 `references/local/styles/` 会从用户配置中心重新同步，不从仓库覆盖用户资产
+- `references/local/effects/` 保留个人特效副本，并从 Effects 配置中心同步
 - `assets/`
 - `renders/`
 - `bin/`
@@ -106,21 +107,47 @@ npx dig-ui-skill install cursor --project /path/to/your/repo
 
 **永远不会覆盖** `references/global-rules.local.md`。若本地尚无 personal rules，CLI 会提示可从 `references/global-rules.local.example.md` 手动复制，但不会自动创建。
 
-用户自定义 palette / style 属于仓库外资产，唯一真源在：
+用户自定义 palette / style / effect 属于仓库外资产，唯一真源在：
 
 ```bash
 ~/.config/dig-ui-skill/palettes/
 ~/.config/dig-ui-skill/styles/
+~/.config/dig-ui-skill/effects/
 ```
 
-`update` 后如果这些目录存在，CLI 会重新同步到已安装 skill 的 `references/local/palettes/` 与 `references/local/styles/`。内置仓库不会写入或覆盖这些用户自定义资产。
+`update` 后如果这些目录存在，CLI 会重新同步到已安装 skill 的 `references/local/palettes/`、`references/local/styles/` 与 `references/local/effects/`。内置仓库不会写入或覆盖这些用户自定义资产。
 
 ```bash
 npx dig-ui-skill update cursor
 npx dig-ui-skill update --all
 ```
 
+<a name="effects-installation"></a>
+
+## Shaders 资产与应用更新
+
+skill 包含 Shaders recipe、本地 provider、Effect Lab 及 JS/React adapter。个人 Effects 也可通过 `DIG_UI_CONFIG_HOME/effects` 指定配置中心。安装目录中的 `references/local/effects/` 是副本；配置中心不可用时，合法副本仍可离线读取。
+
+两类更新分别作用于不同位置：
+
+| 操作 | 更新目标 |
+| --- | --- |
+| `dig-ui-skill update cursor`（或其他工具） | 已安装 skill、文档、provider/adapter 及同步的个人资产。 |
+| `dig-ui-skill effect update <id> --project <dir>` | 应用中跟踪的特效文件，带本地修改检查和可恢复快照。 |
+
+先通过 `effect install` 注册应用资产。skill 更新不会自动重写应用的 `components/dig-effects/`。在当前仓库中执行：
+
+```bash
+node bin/dig-ui-skill.mjs effect install flowing-ribbon --project ./my-app
+node bin/dig-ui-skill.mjs effect check --project ./my-app
+node bin/dig-ui-skill.mjs effect update flowing-ribbon --project ./my-app
+```
+
+项目记录位于 `.dig-ui-effects.json`，force 更新保留快照，restore 返回上一份不同状态。来源/revision 规则、JS/React 挂载、导出和恢复见 [Shaders 使用指南](./USAGE.zh-CN.md#shaders-effects)。`dig-ui-skill` 1.1.0 起也可通过 `npx dig-ui-skill` 执行这些命令。
+
 ## CLI 选项
+
+本节选项针对 skill 安装与 local-rule 命令。Effects 子命令中的 `--project` 指定应用安装/维护位置，`--output` 指定预览/ZIP 输出，`--force` 显式替换冲突资产/项目内容并保留历史。可运行 `node bin/dig-ui-skill.mjs effect --help` 查看对应选项。
 
 | 选项 | 说明 |
 |------|------|

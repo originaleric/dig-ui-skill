@@ -8,3 +8,7 @@ references/global-rules.local.md
 plans/
 updates/
 tests/
+!tests/
+tests/*
+!tests/effects.test.mjs
+!tests/effects-browser.mjs

@@ -67,17 +67,20 @@ const USER_STYLES_DIR = path.join(USER_CONFIG_DIR, "styles");
 const LOCAL_RULES_RELATIVE = path.join("references", "global-rules.local.md");
 const LOCAL_PALETTES_RELATIVE = path.join("references", "local", "palettes");
 const LOCAL_STYLES_RELATIVE = path.join("references", "local", "styles");
+const LOCAL_EFFECTS_RELATIVE = path.join("references", "local", "effects");
 const DEFAULT_WORKBUDDY_EXPORT_FILE = path.join(USER_CONFIG_DIR, "dig-ui-workbuddy.zip");
 
 const PROTECTED_RELATIVE_PATHS = new Set([
   "references/global-rules.local.md",
   LOCAL_PALETTES_RELATIVE,
   LOCAL_STYLES_RELATIVE,
+  LOCAL_EFFECTS_RELATIVE,
 ]);
 const SKIP_COPY_RELATIVE_PATHS = new Set([
   "references/global-rules.local.md",
   LOCAL_PALETTES_RELATIVE,
   LOCAL_STYLES_RELATIVE,
+  LOCAL_EFFECTS_RELATIVE,
 ]);
 const SKIP_COPY_FILE_NAMES = new Set([".DS_Store"]);
 
@@ -195,6 +198,7 @@ Usage:
   dig-ui-skill local <action> [options]
   dig-ui-skill palette <action> [options]
   dig-ui-skill style <action> [options]
+  dig-ui-skill effect <action> [options]
   dig-ui-skill export workbuddy [options]
   dig-ui-skill status
 
@@ -2192,6 +2196,10 @@ async function copySkillAssets(sourceRoot, destRoot) {
   if (await pathExists(USER_STYLES_DIR)) {
     await syncStylesIntoSkillDir(destRoot);
   }
+  const effects = await import('./effects-cli.mjs');
+  if (await pathExists(effects.effectsDir())) {
+    await effects.syncEffectsInto(destRoot);
+  }
 }
 
 function stripLanguageSuffix(fileName, language) {
@@ -2410,6 +2418,7 @@ async function runRender(options) {
   }
   if (target === "catalogs" || target === "all") {
     runChecked("python3", [path.join(PACKAGE_ROOT, "sync_renders.py")]);
+    await (await import('./effects-cli.mjs')).buildLab(undefined, undefined, { officialOnly: true });
   }
 }
 
@@ -2779,6 +2788,10 @@ function validateSource(sourceRoot) {
 
 async function main() {
   try {
+    if (process.argv[2] === 'effect') {
+      await (await import('./effects-cli.mjs')).runEffectCLI(process.argv.slice(3), { targets: TARGETS });
+      return;
+    }
     const options = parseArgs(process.argv.slice(2));
 
     if (options.help) {

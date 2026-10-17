@@ -118,6 +118,8 @@ for (const match of sharedPreviewCss.matchAll(/\.palette-(?:lab-row|lab-input|ca
 for (const filePath of files) {
   const content = fs.readFileSync(filePath, "utf8");
   const rel = path.relative(process.cwd(), filePath);
+  // Effect Lab has its own schema/runtime/browser validation, and is not a catalog.
+  if (rel.replaceAll(path.sep, '/').endsWith('renders/effects/index.html')) continue;
   const { tokens, raw } = parseRoot(content);
 
   if (!raw) {

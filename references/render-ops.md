@@ -6,6 +6,7 @@ Render Ops defines how maintainers inspect catalog visual-language assets withou
 
 - `renders/index.html`: catalog hub.
 - `renders/<category>/<slug>.html`: visual language previews for catalog tokens and archetypes.
+- `renders/effects/index.html`: independent Effect Lab generated from recipe JSON, theme sources and bundled adapters. It is not a catalog and is validated by Effects tests.
 
 Layout recipes and block contracts are Markdown protocol assets. They are reviewed through their source files, manifests, and QA notes instead of generated HTML render pages.
 
@@ -34,6 +35,8 @@ dig-ui-skill validate renders
 ```
 
 `render all` is kept as a convenience alias for catalog render sync.
+
+The CLI render command also regenerates Effect Lab. Use `npm run build:effects` after changing the provider registry, adapter or Lab scripts, and `npm run validate:effects` / `npm run test:effects:browser` to validate effect assets and actual runtime behavior. Effect configuration, not its preview HTML or generated framework code, owns truth.
 
 ## Style Render Integrity
 
