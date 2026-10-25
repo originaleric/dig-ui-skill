@@ -2,7 +2,7 @@
 id: settings-row
 category: product
 status: active
-description: Settings item row with label, description, control, status, and optional destructive action.
+description: Settings item row with label, control, status, optional description, and optional destructive action.
 applicable_layouts: [settings-form, dashboard-overview]
 compatible_catalogs: [all]
 task_types: [configuration]
@@ -11,7 +11,7 @@ task_types: [configuration]
 # Settings Row
 
 ## Use When
-- A setting needs a stable label, explanatory text, and a control or action.
+- A setting needs a stable label and a control or action; add a description only when it provides additional information.
 
 ## Avoid When
 - The user must enter multiple fields; use form rows or a form section.

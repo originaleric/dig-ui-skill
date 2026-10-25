@@ -2,7 +2,7 @@
 id: settings-row
 category: product
 status: active
-description: 带 label、description、control、status 和可选危险操作的设置项行协议。
+description: 带 label、control、status、可选说明及可选危险操作的设置项行协议。
 applicable_layouts: [settings-form, dashboard-overview]
 compatible_catalogs: [all]
 task_types: [configuration]
@@ -11,7 +11,7 @@ task_types: [configuration]
 # Settings Row
 
 ## Use When
-- 一个设置项需要稳定 label、说明文本和控制或操作。
+- 一个设置项需要稳定 label 和控制或操作；仅在需要补充信息时提供说明。
 
 ## Avoid When
 - 用户需要填写多个字段；应使用 form rows 或 form section。

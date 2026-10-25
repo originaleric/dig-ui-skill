@@ -7,6 +7,7 @@ Dig anti-tells 用于过滤 AI 生成界面里高频出现、但不符合 Dig �
 - 不要用通用紫蓝 AI SaaS 渐变替代真实的信息层级。
 - 不要把每个 section 都塞进大 card。
 - 不要给每个 section 都加 eyebrow。
+- 不要为每个标题、设置项或弹窗机械补副标题、说明或 helper text；按 global rules 的文案取舍原则删去无信息增量的内容。
 - 不要在同一业务列表中混用 table、card、feed。
 - 不要在页面中途随机切换深色和浅色 surface。
 - 不要用 glow 替代明确的状态、严重程度、focus 或层级。

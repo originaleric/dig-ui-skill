@@ -29,6 +29,10 @@ required_sections:
   - QA Notes
 ```
 
+## Slot 使用
+
+Slots 列出可用组成，不要求每个实例都渲染全部 slot。`description` / `helper` 按需提供；必要的 label、无障碍名称、错误提示、约束与风险说明仍须保留。具体 block 若要求说明原因或下一步，可由清晰的标题、正文或操作文案表达，不必额外重复一段说明。可见文案的取舍遵循 `references/global-rules.md` 的 UI Copy / Information Hierarchy 规则。
+
 ## Index
 
 Primitive: `button`, `input`, `select`, `form-row`, `toast`, `modal`, `tooltip`, `tabs`.

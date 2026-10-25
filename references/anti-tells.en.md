@@ -7,6 +7,7 @@ Dig anti-tells are recurring AI-generated UI patterns that should be filtered ou
 - Do not use generic purple-blue AI SaaS gradients as a substitute for product hierarchy.
 - Do not place every section inside a large card.
 - Do not add an eyebrow label to every section.
+- Do not mechanically add subtitles, descriptions, or helper text to every heading, setting, or dialog; use the global UI copy rules to remove copy that adds no information.
 - Do not mix table, card, and feed patterns for the same business list.
 - Do not switch dark and light surfaces randomly mid-page.
 - Do not use glow as a substitute for clear status, severity, focus, or hierarchy.

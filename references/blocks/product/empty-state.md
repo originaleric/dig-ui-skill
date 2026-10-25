@@ -29,7 +29,7 @@ task_types: [system-state, onboarding, search]
 - 移动端 title、reason 和 primary action 位于可选 media 上方。
 
 ## Accessibility
-- 空状态必须说明原因和下一步可用操作。
+- 空状态必须说明原因和下一步可用操作；标题和操作文案已表达清楚时，可省略独立 description。
 
 ## Anti-Patterns
 - 操作型空状态不要使用泛泛的庆祝式文案。

@@ -10,7 +10,7 @@ compatible_catalogs: [all]
 # Form Row
 
 ## Use When
-- Grouping a label, input/select/control, helper text, and validation feedback.
+- Grouping a label, input/select/control, and validation feedback, with optional helper text.
 
 ## Avoid When
 - A setting needs read-only summary plus action; use `settings-row`.

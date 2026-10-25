@@ -18,7 +18,7 @@ slots:
   section_header:
     required: true
     role: main
-    description: 对比区标题与一句价值说明。
+    description: Comparison heading; add supporting copy only when the heading and table headers do not explain the scope or differences.
   comparison_table:
     required: true
     role: main

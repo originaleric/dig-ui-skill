@@ -24,9 +24,9 @@ slots:
     role: main
     description: 一句话说明当前状态。
   empty_description:
-    required: true
+    required: false
     role: main
-    description: 为何为空、下一步是什么。
+    description: Add only when the headline and action copy do not explain the reason or next step.
   primary_action:
     required: true
     role: control
@@ -56,7 +56,7 @@ dig — 控制台默认；wise — 消费级引导；apple — 轻量系统空�
 ## Layout Rules
 
 - 内容垂直居中或略偏上（40% 视口），不要贴底。
-- headline + description + CTA 顺序固定，CTA 最多 2 个。
+- Keep the order headline → optional description → CTA, with at most two CTAs; omit the description when the headline and CTA already explain the reason and next step.
 - illustration 可选，不可大于 headline 视觉权重。
 - 「无匹配结果」应提供清除筛选 action。
 - 不用大面积装饰 gradient 替代信息。

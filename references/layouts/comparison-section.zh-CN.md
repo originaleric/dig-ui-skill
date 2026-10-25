@@ -18,7 +18,7 @@ slots:
   section_header:
     required: true
     role: main
-    description: 对比区标题与一句价值说明。
+    description: 对比区标题；仅在标题与表头不足以表达对比范围或差异时添加说明。
   comparison_table:
     required: true
     role: main

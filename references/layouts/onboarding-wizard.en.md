@@ -22,7 +22,7 @@ slots:
   step_header:
     required: true
     role: main
-    description: 当前步骤标题与说明。
+    description: Current step heading; add supporting copy only for unclear actions, additional constraints, or consequences.
   step_content:
     required: true
     role: main

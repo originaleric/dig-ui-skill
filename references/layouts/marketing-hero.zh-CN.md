@@ -22,7 +22,7 @@ slots:
   hero_headline:
     required: true
     role: main
-    description: 主标题、副标题、主 CTA 组。
+    description: 主标题与主 CTA 组；副标题仅用于补充标题未表达的价值或上下文。
   hero_visual:
     required: false
     role: supporting

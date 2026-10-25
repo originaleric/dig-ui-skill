@@ -24,6 +24,13 @@ If the user explicitly says "no global rules", "skip global", or "do not use glo
 - Changing language must update `document.documentElement.lang` and persist the user's preference in localStorage or an equivalent settings store.
 - When a header or topbar exists, place the language control near the theme control, usually in the top-right control group.
 
+## UI Copy / Information Hierarchy
+
+- Avoid unnecessary secondary labels, subtitles, and descriptions. Let layout, grouping, spacing, and clear names explain relationships.
+- Add supporting copy only when it provides new information, resolves ambiguity, or explains an action's consequences; do not repeat headings, button labels, or obvious content.
+- A description or helper slot does not require visible copy. Omit unused slots and their reserved spacing instead of inventing filler to complete a template.
+- Preserve necessary form labels, accessible names, errors, constraints, and risk explanations. Layout must not be the only way to identify a control or understand a critical consequence.
+
 ## Dark / Light Theme
 
 - Every Dig product UI must provide both `dark` and `light` modes.
@@ -122,6 +129,8 @@ If the user explicitly says "no global rules", "skip global", or "do not use glo
 rules:
   - id: i18n
     summary: UI copy comes from language resources; zh-CN/en switching syncs html[lang] and persists preference
+  - id: copy-clarity
+    summary: Supporting copy adds information, resolves ambiguity, or explains consequences; preserve necessary labels and accessibility
   - id: theme-mode
     summary: Dark/light modes switch token/theme values without hard-coded colors
   - id: pill-buttons

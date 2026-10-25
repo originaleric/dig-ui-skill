@@ -10,6 +10,7 @@
 - 任务需要判断时，给出 dials。
 - 同一页面或同一组组件只使用一个基础 catalog。
 - layout required slots 已实现。
+- 辅助文案提供了新增信息、消歧义或操作后果；无重复说明或空 slot 占位，必要 label、无障碍名称、错误提示和风险说明仍完整。
 - 选择了合适 blocks，而不是临时发明结构。
 - 覆盖 loading、empty、error、disabled、focus-visible、mobile 状态。
 - execution 页面没有被做成 marketing 页面。

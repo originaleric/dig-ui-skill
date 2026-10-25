@@ -24,6 +24,13 @@
 - 切换语言时同步更新 `document.documentElement.lang`，并持久化到 localStorage 或等价用户设置。
 - 有 header / topbar 时，语言控制通常与 theme 控制同组，位于右上角。
 
+## UI Copy / Information Hierarchy（文案与信息层级）
+
+- 避免不必要的次级标签、副标题和说明。优先用布局、分组、间距与明确命名表达关系。
+- 辅助文案只在提供新增信息、消除歧义或说明操作后果时出现，不复述标题、按钮文案或显而易见的内容。
+- description 或 helper slot 不代表必须显示文案；未使用时省略该 slot 及其预留间距，不为凑齐模板编造说明。
+- 保留必要的表单 label、无障碍名称、错误提示、约束和风险说明。控件身份和关键后果不能仅靠布局表达。
+
 ## Dark / Light 主题
 
 - 所有 Dig 产品界面必须提供 `dark` / `light` 两套模式。
@@ -122,6 +129,8 @@
 rules:
   - id: i18n
     summary: 文案来自语言包；zh-CN/en 切换同步 html[lang] 并持久化
+  - id: copy-clarity
+    summary: 辅助文案仅在新增信息、消歧义或说明后果时出现；保留必要标签与无障碍语义
   - id: theme-mode
     summary: dark/light 双模式；只换 token/theme values，不写死颜色
   - id: pill-buttons

@@ -22,7 +22,7 @@ slots:
   step_header:
     required: true
     role: main
-    description: 当前步骤标题与说明。
+    description: 当前步骤标题；仅在操作不明确或有额外约束、后果时添加说明。
   step_content:
     required: true
     role: main

@@ -22,7 +22,7 @@ slots:
   hero_headline:
     required: true
     role: main
-    description: 主标题、副标题、主 CTA 组。
+    description: Headline and primary CTA group; add a subtitle only for value or context the headline does not convey.
   hero_visual:
     required: false
     role: supporting

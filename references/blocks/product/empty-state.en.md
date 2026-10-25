@@ -29,7 +29,7 @@ task_types: [system-state, onboarding, search]
 - Mobile keeps title, reason, and primary action above optional media.
 
 ## Accessibility
-- Empty state must state the reason and next available action.
+- Empty state must state the reason and next available action; omit a separate description when the title and action copy already convey both clearly.
 
 ## Anti-Patterns
 - Do not use generic celebration copy for operational empty states.

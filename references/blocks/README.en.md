@@ -29,6 +29,10 @@ required_sections:
   - QA Notes
 ```
 
+## Slot Usage
+
+Slots list available parts; an instance does not need to render every slot. Provide `description` / `helper` only as needed, while preserving necessary labels, accessible names, errors, constraints, and risk explanations. If a block requires a reason or next step, clear title, body, or action copy can convey it without a duplicate description. Apply the UI Copy / Information Hierarchy rules in `references/global-rules.md` when deciding which visible copy to keep.
+
 ## Index
 
 Primitive: `button`, `input`, `select`, `form-row`, `toast`, `modal`, `tooltip`, `tabs`.

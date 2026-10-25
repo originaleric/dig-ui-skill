@@ -47,7 +47,7 @@ dig — 产品集成页；apple — 生态展示；mono — 开发者目录
 
 ## Layout Rules
 
-- 卡片统一尺寸，logo + 名称 + 一句描述 + 状态（Connected / Available）。
+- Use consistent card dimensions with logo, name, and status (Connected / Available); add a short description only when the name does not explain the integration's purpose or differences.
 - 网格 3-4 列 desktop，gap 一致。
 - 搜索与 category 在 grid 上方，不侧边占宽。
 - featured 最多 1 个，横幅或首卡 highlight。

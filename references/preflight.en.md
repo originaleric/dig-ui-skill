@@ -10,6 +10,7 @@ Use this gate before delivering generated or reviewed UI.
 - Dials are stated when the task is broad enough to require judgment.
 - Only one base catalog is used per page or coherent component group.
 - Required layout slots are implemented.
+- Supporting copy adds information, resolves ambiguity, or explains consequences; redundant descriptions and empty slot spacing are removed while necessary labels, accessible names, errors, and risk explanations remain intact.
 - Relevant blocks are selected instead of inventing local structures.
 - Loading, empty, error, disabled, focus-visible, and mobile states are covered.
 - Execution pages are not turned into marketing pages.

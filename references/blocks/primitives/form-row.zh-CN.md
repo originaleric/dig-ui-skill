@@ -10,7 +10,7 @@ compatible_catalogs: [all]
 # Form Row
 
 ## Use When
-- 组合 label、input/select/control、helper text 与 validation feedback。
+- 组合 label、input/select/control 与 validation feedback；helper text 按需提供。
 
 ## Avoid When
 - 设置项需要只读摘要加操作；应使用 `settings-row`。
