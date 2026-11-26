@@ -71,6 +71,10 @@ using <layout> layout + <catalog> catalog.
 
 涉及常见组件或业务模块时，读取 `references/blocks/README.md` 和相关 block 文件。优先使用 block 协议，不临时发明重复结构。
 
+用户说「用 paper infographic 效果」或「用纸面图解风格」时，直接选用 [paper-infographic](references/catalogs/styles/paper-infographic.md) 并应用它完整的双主题规则。子风格与顶层风格都可单独选用。
+
+用户说「Liquid Glass」或「用液态玻璃风格」时，直接选用顶层 [liquid-glass](references/catalogs/styles/liquid-glass.md)，将玻璃用于底部导航和浮动工具栏。完整的 Apple 品牌或产品展示使用 [apple](references/catalogs/media-consumer/apple.md)。
+
 常见 blocks：
 
 - primitive：button、input、select、form-row、toast、modal、tooltip、tabs

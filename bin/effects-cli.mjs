@@ -1,9 +1,10 @@
 import fs from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { validateEffect,verifyAssets,safePath,assertEffectRevision,serializeEffect } from '../assets/effects/protocol.mjs';
+import { validateEffect,verifyAssets,safePath,assertEffectRevision,serializeEffect,readStyleThemeTokens,catalogThemeName,parseCssTokenBlock as cssTokens } from '../assets/effects/protocol.mjs';
 import { readEffectArchive, MAX_ARCHIVE_BYTES } from '../assets/effects/archive.mjs';
 import { effectFiles,exportEffect,labHTML } from '../assets/effects/export.mjs';
 globalThis.crypto ||= crypto.webcrypto;
@@ -54,7 +55,6 @@ export async function resources(){
   const result={};for(const name of names)result[name]=await fs.readFile(path.join(packageRoot,name),'utf8');
   const font=await fs.readFile(path.join(packageRoot,'assets/fonts/bootstrap-icons.woff2'));result['assets/effects/lab.css']=result['assets/effects/lab.css'].replace("url('../fonts/bootstrap-icons.woff2')",`url('data:font/woff2;base64,${font.toString('base64')}')`);return result;
 }
-function cssTokens(text){return Object.fromEntries([...text.matchAll(/(--dig-[\w-]+)\s*:\s*([^;]+);/g)].map(m=>[m[1],m[2].trim()]));}
 function sectionTokens(markdown,title){const escaped=title.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),match=markdown.match(new RegExp('## '+escaped+'\\s*\\n[\\s\\S]*?```css\\s*([\\s\\S]*?)```'));return cssTokens(match?.[1] || '');}
 function themeEntry(id,name,light,dark){
   if(!light['--dig-bg']||!light['--dig-text']||!light['--dig-accent'])throw new Error(`Incomplete theme ${id}`);
@@ -64,13 +64,87 @@ function themeEntry(id,name,light,dark){
   if(!dark['--dig-bg']){dark=isDark?light:derivedDark;light=isDark?derivedLight:light;}
   return {id,name,theme_tokens:{light,dark},derived_modes:dark===derivedDark?['dark']:light===derivedLight?['light']:[]};
 }
-export async function themes({includeLocal=true}={}){
+export async function themes({includeLocal=true,compiledStyles}={}){
   const result=[];
-  async function walk(dir){for(const entry of (await fs.readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name))){const p=path.join(dir,entry.name);if(entry.isDirectory())await walk(p);else if(entry.name.endsWith('.md')&&!/\.(en|zh-CN)\.md$/.test(entry.name)&&!['README.md','_template.md'].includes(entry.name)){const text=await fs.readFile(p,'utf8'),id=entry.name.slice(0,-3),light=sectionTokens(text,'Dig UI CSS Tokens');if(!light['--dig-bg'])Object.assign(light,cssTokens([...text.matchAll(/```css\s*([\s\S]*?)```/g)].map(m=>m[1]).join('\n')));if(!light['--dig-bg'])continue;let dark=sectionTokens(text,'Dig UI Dark Tokens');const explicitLight=sectionTokens(text,'Light Dig CSS Tokens');if(explicitLight['--dig-bg']){dark={...light};Object.assign(light,explicitLight);}
-      result.push(themeEntry(id,{en:text.match(/^name_en:\s*(.+)$/m)?.[1]||id,'zh-CN':text.match(/^name_zh:\s*(.+)$/m)?.[1]||id},light,dark));}}}
-  await walk(path.join(packageRoot,'references/catalogs'));
+  const catalogRoot=path.join(packageRoot,'references/catalogs');
+  const stylesDir=path.join(catalogRoot,'styles');
+  function addOfficialTheme(file,text,isStyle){
+    const id=path.basename(file,'.md');
+    try {
+      let light,dark;
+      if(isStyle){
+        ({light,dark}=readStyleThemeTokens(text));
+        if(dark['--dig-bg']) dark={...light,...dark};
+      }else{
+        light=sectionTokens(text,'Dig UI CSS Tokens');
+        if(!light['--dig-bg']) Object.assign(light,cssTokens([...text.matchAll(/```css\s*([\s\S]*?)```/g)].map(match=>match[1]).join('\n')));
+        if(!light['--dig-bg']) return;
+        dark=sectionTokens(text,'Dig UI Dark Tokens');
+        const explicitLight=sectionTokens(text,'Light Dig CSS Tokens');
+        if(explicitLight['--dig-bg']){
+          dark={...light};
+          Object.assign(light,explicitLight);
+        }
+      }
+      result.push(themeEntry(id,catalogThemeName(text,id),light,dark));
+    } catch (error) {
+      throw new Error(`${file}: ${error.message}`, { cause: error });
+    }
+  }
+  async function walk(dir){
+    if(dir===stylesDir && compiledStyles){
+      for(const slug of Object.keys(compiledStyles).sort((a,b)=>a.localeCompare(b))){
+        addOfficialTheme(path.join(dir,`${slug}.md`),compiledStyles[slug],true);
+      }
+      return;
+    }
+    const entries=(await fs.readdir(dir,{withFileTypes:true})).sort((a,b)=>a.name.localeCompare(b.name));
+    for(const entry of entries){
+      const file=path.join(dir,entry.name);
+      if(entry.isDirectory()){
+        await walk(file);
+        continue;
+      }
+      if(!entry.name.endsWith('.md') || /\.(en|zh-CN)\.md$/.test(entry.name) || ['README.md','_template.md'].includes(entry.name)) continue;
+      addOfficialTheme(file,await fs.readFile(file,'utf8'),dir===stylesDir);
+    }
+  }
+  await walk(catalogRoot);
   const configRoot=path.dirname(effectsDir());
-  for(const kind of includeLocal?['palettes','styles']:[]){const dir=path.join(configRoot,kind);if(!await exists(dir))continue;for(const file of await fs.readdir(dir)){if(!/\.(json|md)$/.test(file))continue;const text=await fs.readFile(path.join(dir,file),'utf8');let name,light,dark;if(file.endsWith('.json')){const p=JSON.parse(text);name={en:p.name?.en||file,'zh-CN':p.name?.zh||p.name?.['zh-CN']||file};light=p.theme_tokens?.light||p.tokens;dark=p.theme_tokens?.dark||{};}else{name={en:file,'zh-CN':file};light=sectionTokens(text,'Dig UI CSS Tokens');dark=sectionTokens(text,'Dig UI Dark Tokens');}result.push(themeEntry('local-'+kind+'-'+file.replace(/\W/g,'-'),name,light,dark));}}
+  for(const kind of includeLocal?['palettes','styles']:[]){
+    const dir=path.join(configRoot,kind);
+    if(!await exists(dir)) continue;
+    for(const file of await fs.readdir(dir)){
+      if(!/\.(json|md)$/.test(file)) continue;
+      const source=path.join(dir,file);
+      try {
+        const text=await fs.readFile(source,'utf8');
+        let name,light,dark;
+        if(file.endsWith('.json')){
+          const payload=JSON.parse(text);
+          name={en:payload.name?.en||file,'zh-CN':payload.name?.zh||payload.name?.['zh-CN']||file};
+          light=payload.theme_tokens?.light||payload.tokens;
+          dark=payload.theme_tokens?.dark||{};
+        }else{
+          name={en:file,'zh-CN':file};
+          const frontmatter=text.match(/^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$/m)?.[1]||'';
+          if(kind==='styles' && /^extends:/m.test(frontmatter)){
+            throw new Error('Import the generated Catalog Markdown or style export');
+          }
+          if(kind==='styles'){
+            ({light,dark}=readStyleThemeTokens(text));
+          }else{
+            light=sectionTokens(text,'Dig UI CSS Tokens');
+            dark=sectionTokens(text,'Dig UI Dark Tokens');
+          }
+        }
+        if(kind==='styles' && dark['--dig-bg']) dark={...light,...dark};
+        result.push(themeEntry('local-'+kind+'-'+file.replace(/\W/g,'-'),name,light,dark));
+      } catch (error) {
+        console.warn(`Local ${kind} theme ${source} skipped: ${error.message}`);
+      }
+    }
+  }
   return result;
 }
 export async function syncEffectsInto(skillDir){
@@ -178,7 +252,13 @@ async function applyProject(project,recipe,force,restore=false,sourceRef=recipe.
     }catch(e){if(await exists(path.join(project,JOURNAL)))await recover(project);throw e;}finally{await fs.rm(stage,{recursive:true,force:true});}
   }
 }
-export async function buildLab(output=path.join(packageRoot,'renders/effects/index.html'),effect,{officialOnly=false}={}){const effects=effect?[validateEffect(effect)]:await listEffects({includeLocal:!officialOnly,legacyDrivers:false}),themeList=await themes({includeLocal:!officialOnly}),res=await resources();await atomic(output,labHTML({effects,themes:themeList,selection:{effect:effects[0].id,theme:themeList.find(t=>t.id==='dig')?.id||themeList[0].id}},res));return output;}
+export async function buildLab(output=path.join(packageRoot,'renders/effects/index.html'),effect,{officialOnly=false,compiledStyles}={}){
+  const effects=effect?[validateEffect(effect)]:await listEffects({includeLocal:!officialOnly,legacyDrivers:false});
+  const themeList=await themes({includeLocal:!officialOnly,compiledStyles});
+  const res=await resources();
+  await atomic(output,labHTML({effects,themes:themeList,selection:{effect:effects[0].id,theme:themeList.find(t=>t.id==='dig')?.id||themeList[0].id}},res));
+  return output;
+}
 function parse(args){const first=args.shift()||'help',out={action:['--help','-h'].includes(first)?'help':first,values:[]};for(let i=0;i<args.length;i++){const a=args[i];if(['--force','--all'].includes(a))out[a.slice(2)]=true;else if(['--output','--project'].includes(a)){if(!args[i+1]||args[i+1].startsWith('--'))throw new Error('Missing '+a);out[a.slice(2)]=path.resolve(args[++i]);}else if(a==='--help'||a==='-h')out.action='help';else if(a.startsWith('-'))throw new Error('Unknown option '+a);else out.values.push(a);}return out;}
 export async function runEffectCLI(args,context={}){
   const o=parse([...args]),ref=o.values[0];
@@ -193,7 +273,7 @@ export async function runEffectCLI(args,context={}){
   if(o.action==='path'){console.log(effectsDir());return;}
   if(o.action==='list'){for(const e of await listEffects()){console.log(`${e.id}\tr${e.revision}\t${e.name.en}`);try{validateEffect(e);}catch(error){console.warn(`${e.id}: requires repair before use: ${error.message}`);}}return;}
   if(o.action==='show'){if(!ref)throw new Error('Effect id required');const effect=await readEffect(ref,{legacyDrivers:true});console.log(stringify(effect));try{validateEffect(effect);}catch(error){console.warn(`${effect.id}: requires repair before use: ${error.message}`);}return;}
-  if(o.action==='build'){console.log(await buildLab(o.output,undefined,{officialOnly:true}));return;}
+  if(o.action==='build'){console.log(await buildLab(o.output,undefined,{officialOnly:true,compiledStyles:context.compiledStyles}));return;}
   if(o.action==='preview'){const recipe=ref?await readEffect(ref):null;console.log(await buildLab(o.output||path.join(effectsDir(),'previews',recipe?.id||'index','index.html'),recipe));return;}
   if(o.action==='export'){if(!ref||!o.output||!o.output.endsWith('.zip'))throw new Error('export requires <id> --output <zip>');await atomic(o.output,await exportEffect(await readEffect(ref),await resources(),await themes({includeLocal:false})));console.log(o.output);return;}
   if(o.action==='import'||o.action==='sync'){
@@ -235,4 +315,15 @@ export async function runEffectCLI(args,context={}){
   }
   throw new Error('Unknown effect action '+o.action);
 }
-if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){try{await runEffectCLI(process.argv.slice(2));}catch(e){console.error(e.message);process.exitCode=1;}}
+if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
+  try {
+    const [action,...args]=process.argv.slice(2);
+    // The repository renderer passes its in-memory Catalog inputs on stdin.
+    if(action==='build' && args[0]==='--compiled-styles'){
+      const compiledStyles=JSON.parse(readFileSync(0,'utf8'));
+      await runEffectCLI([action,...args.slice(1)],{compiledStyles});
+    }else{
+      await runEffectCLI(process.argv.slice(2));
+    }
+  }catch(e){console.error(e.message);process.exitCode=1;}
+}

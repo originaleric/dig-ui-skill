@@ -187,7 +187,13 @@ npx dig-ui-skill palette sync --all
 
 当用户不是从品牌或单纯配色切入，而是从「截图风格」「完整界面气质」「材质/形态/插画/组件语言」切入时，优先选择 `style-catalog`，例如 `references/catalogs/styles/cozy-arcade.md` 或 `references/catalogs/styles/quant-signal-console.md`。Style catalog 与 brand catalog、color palette catalog 并列，不替代它们。
 
-选择内置 style 前，先读 [references/catalogs/styles/README.md](references/catalogs/styles/README.md)：它用任务、avoid 边界和预览 archetype 路由 15 个 style；一次任务只选择其中一条基础 style 线。
+选择内置 style 前，先读 [references/catalogs/styles/README.md](references/catalogs/styles/README.md)：它用任务、avoid 边界和预览 archetype 路由 17 个 style；一次任务只选择其中一条基础 style 线。
+
+说「用液态玻璃风格」直接选用顶层 [Liquid Glass](references/catalogs/styles/liquid-glass.md)，底部导航和浮动工具栏使用玻璃，正文使用实底。
+
+以角色为中心的任务、奖励和轻量移动交互，可以选**软萌街机（Cozy Arcade）**。玩法教学、规则图解和短说明，可以选它的子风格**纸面图解（Paper Infographic）**。纸面图解保留暖墨描边、药丸控件和短硬阴影，并用方格稿纸和批注组织信息，适合游戏规则手册、新手指引和普通产品的流程说明。[软萌街机定义](./references/catalogs/styles/cozy-arcade.md) · [纸面图解定义](./references/catalogs/styles/paper-infographic.md)
+
+说「用 paper infographic 效果」或「用纸面图解风格」，或直接指定 `paper-infographic`，即可选中纸面图解。父子风格都能独立选用、预览、调参和导出。导出保存所选风格当时的完整亮暗主题。[软萌街机 Style Lab](./renders/styles/cozy-arcade.html) · [纸面图解 Style Lab](./renders/styles/paper-infographic.html)
 
 Style catalog 的 source of truth 仍是 Markdown：
 
@@ -198,7 +204,7 @@ Style catalog 的 source of truth 仍是 Markdown：
 
 Style Lab 支持在当前 Light / Dark mode 临时调整 `canvas`、`surface`、`ink`、`primary`、`support` 与 `border`；两个 mode 独立保留。导出时会把当前 `Style Contract`、`render.archetype` 和最终 `--dig-*` token 写入 `dig.style.export.v1` 的 customstyle，其中 `theme_tokens.light` / `theme_tokens.dark` 与对应两份 CSS 会同时打包。确认后有两条路径：
 
-1. 内置 catalog 维护：把确认后的 contract/token 回写到对应 style Markdown，再运行 render/validate。
+1. 维护内置 catalog 时，顶层风格更新对应的 Catalog Markdown，子风格更新 `references/style-sources/` 下的作者源稿。运行 `dig-ui-skill render all` 重建完整 Catalog 和预览，再用 `dig-ui-skill validate renders` 校验。[风格构建与校验](./references/render-ops.md#style-render-integrity)。
 2. 用户个人资产：点击 Style Lab 的导出 ZIP，再通过 CLI 导入到用户配置中心。
 
 用户 style CLI：

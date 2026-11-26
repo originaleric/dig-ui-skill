@@ -107,7 +107,7 @@
       }
 </style>
   </head>
-  <body data-render-archetype="monochrome-workspace" data-render-canvas="theme-dual" data-style-theme-default="dark">
+  <body data-render-archetype="monochrome-workspace" data-render-canvas="theme-dual" data-style-theme-default="dark" data-style-source-sha256="57b41ba19554366503ea29481ede3b8fdf2051f8a73fc6a79b78e708581308bf">
     <!-- Preview Control Dock -->
     <div class="preview-control-dock">
       <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
@@ -361,11 +361,40 @@ motion_language:
 --dig-field-line: rgba(255, 255, 255, 0.14);
 --dig-field-node: #ededed;
 --dig-field-halo: rgba(255, 255, 255, 0.24);
+--dig-font-sans: &quot;Inter&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, sans-serif;
+--dig-font-display: &quot;Inter&quot;, &quot;PingFang SC&quot;, sans-serif;
+--dig-font-mono: &quot;IBM Plex Mono&quot;, Consolas, monospace;
+--dig-font-serif: Georgia, serif;
+--dig-text-xs: 12px;
+--dig-text-sm: 14px;
+--dig-text-md: 16px;
+--dig-text-lg: 20px;
+--dig-text-xl: 24px;
+--dig-text-2xl: 32px;
+--dig-text-3xl: 40px;
+--dig-text-4xl: 48px;
+--dig-text-5xl: 64px;
+--dig-leading-tight: 1.08;
+--dig-leading-normal: 1.5;
+--dig-tracking-tight: -0.03em;
+--dig-radius-sm: 8px;
+--dig-radius-md: 14px;
+--dig-radius-lg: 22px;
+--dig-radius-xl: 28px;
+--dig-radius-pill: 999px;
+--dig-space-2: 8px;
+--dig-space-3: 12px;
+--dig-space-4: 16px;
+--dig-space-5: 24px;
+--dig-space-6: 32px;
+--dig-stroke-width: 1px;
+--dig-stroke-width-strong: 2px;
 --dig-shadow-panel: none;
 --dig-shadow-soft: none;
 --dig-shadow-chunky: none;
 --dig-glow-accent: none;
---dig-glow-secondary: none;">
+--dig-glow-secondary: none;
+--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);">
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
@@ -569,16 +598,32 @@ motion_language:
           return '';
         }
 
+        let colorContext;
         function cssColorToHex(raw) {
           const value = (raw || '').trim();
           const hex = normalizeHex(value);
           if (hex) return hex;
-          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-          if (!rgbMatch) return '';
-          return '#' + rgbMatch.slice(1, 4).map(part => {
-            const channel = Math.max(0, Math.min(255, Number(part)));
-            return channel.toString(16).padStart(2, '0');
-          }).join('').toUpperCase();
+          if (!CSS.supports('color', value)) return '';
+          if (!colorContext) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 1;
+            canvas.hidden = true;
+            colorContext = canvas.getContext('2d', { willReadFrequently: true });
+          }
+          if (!colorContext) return '';
+          const sample = colorContext.canvas;
+          sample.style.color = value;
+          document.body.append(sample);
+          colorContext.fillStyle = getComputedStyle(sample).color;
+          sample.remove();
+          const normalized = normalizeHex(colorContext.fillStyle);
+          if (normalized) return normalized;
+          const rgb = colorContext.fillStyle.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (rgb) return '#' + rgb.slice(1).map(part => Number(part).toString(16).padStart(2, '0')).join('').toUpperCase();
+          colorContext.clearRect(0, 0, 1, 1);
+          colorContext.fillRect(0, 0, 1, 1);
+          const pixel = colorContext.getImageData(0, 0, 1, 1).data;
+          return '#' + [...pixel.slice(0, 3)].map(part => part.toString(16).padStart(2, '0')).join('').toUpperCase();
         }
 
         function getTokenValue(token) {
@@ -1008,7 +1053,7 @@ motion_language:
 
         function parseStyleTokenCss(cssText) {
           const tokens = {};
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+          for (const match of String(cssText || '').matchAll(/(--dig-[\w-]+)\s*:\s*((?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|[^;"'])*);/g)) {
             tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
           }
           return tokens;
@@ -1017,8 +1062,7 @@ motion_language:
         function buildStyleTokenCss(tokens, cssText = '') {
           const lines = [];
           const seen = new Set();
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
-            const token = match[1];
+          for (const token of Object.keys(parseStyleTokenCss(cssText))) {
             if (Object.prototype.hasOwnProperty.call(tokens, token)) {
               lines.push(`${token}: ${tokens[token]};`);
               seen.add(token);
@@ -1057,9 +1101,10 @@ motion_language:
             const value = cssColorToHex(getTokenValue(token));
             const textInput = lab.querySelector(`[data-style-input="${role}"]`);
             const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
-            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
-            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
-              colorInput.value = value;
+            if (textInput && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput) {
+              colorInput.disabled = !value;
+              colorInput.value = value || '#000000';
             }
           });
           styleLabTrackedTokens.forEach(token => {

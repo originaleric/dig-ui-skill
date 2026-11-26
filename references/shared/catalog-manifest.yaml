@@ -7,6 +7,8 @@ fields:
   category: catalog group
   status: draft | active | deprecated
   token_contract: versioned required Dig token roles
+  extends: public top-level parent style slug in references/style-sources author files
+  derived_from: parent style slug recorded on generated child catalogs
 categories:
   ai-llm:
     kind: brand-catalog
@@ -193,6 +195,19 @@ catalogs:
     token_contract: style_v1
     status: draft
     default_for: [gamified-mobile, mascot-companion, habit-play, kids-learning]
+  - slug: paper-infographic
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: active
+    derived_from: cozy-arcade
+    default_for: [visual-explainer, process-summary, information-card]
+  - slug: liquid-glass
+    kind: style-catalog
+    category: styles
+    token_contract: style_v1
+    status: active
+    default_for: [content-browsing, floating-navigation, floating-toolbar]
   - slug: quant-signal-console
     kind: style-catalog
     category: styles

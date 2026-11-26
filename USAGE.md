@@ -63,7 +63,15 @@ npx dig-ui-skill palette sync --all
 
 ### Style
 
-Style catalogs package the wider visual grammar: material, surface behavior, component tone, render archetype, and light/dark token maps. Style Lab temporarily tunes six core color roles in the active mode; Light and Dark remain independent and export together as one `customstyle` asset.
+Style catalogs define materials, surfaces, component character, a render archetype, and light and dark token maps.
+
+Choose **Cozy Arcade** for character-led tasks, rewards, and playful mobile flows. Choose its child **Paper Infographic** for diagrams, tutorials, and short explanations. The child retains warm outlines, pill controls, and short offset shadows, with a paper grid and annotations for explaining information. It fits a game's rulebook or onboarding guide as well as a product walkthrough. [Cozy Arcade catalog](./references/catalogs/styles/cozy-arcade.md) · [Paper Infographic catalog](./references/catalogs/styles/paper-infographic.md)
+
+Ask for “paper infographic,” `paper-infographic`, or “纸面图解” to select the child directly. Either style can be used, previewed, tuned, and exported on its own. Style Lab lets you adjust six core color roles separately in Light and Dark. An export is a complete snapshot of the chosen style with both themes in one `customstyle` asset. [Cozy Arcade Style Lab](./renders/styles/cozy-arcade.html) · [Paper Infographic Style Lab](./renders/styles/paper-infographic.html)
+
+Ask for “Liquid Glass” or “液态玻璃” to select [Liquid Glass](references/catalogs/styles/liquid-glass.md) for glass bottom navigation and floating toolbars over solid reading surfaces.
+
+When maintaining a built-in child style, edit its author file under `references/style-sources/` and run `dig-ui-skill render all` to rebuild the complete catalog and its previews. [Style build and validation](./references/render-ops.md#style-render-integrity).
 
 ```bash
 npx dig-ui-skill style import ~/Downloads/style.customstyle.zip codex

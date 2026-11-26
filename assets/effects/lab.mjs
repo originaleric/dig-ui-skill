@@ -1,4 +1,4 @@
-import { clone,validateEffect,setParameter,flattenLayers,verifyAssets,serializeEffect } from './protocol.mjs';
+import { clone,validateEffect,setParameter,flattenLayers,verifyAssets,serializeEffect,readStyleThemeTokens,parseCssTokenBlock } from './protocol.mjs';
 import { mountEffect,readThemeTokens } from './runtime.mjs';
 import { readEffectArchive,unzipFiles } from './archive.mjs';
 import { exportEffect } from './export.mjs';
@@ -102,11 +102,33 @@ function deriveTheme(base){
  return {...base,'--dig-bg-soft':base['--dig-bg-soft']||`color-mix(in srgb, ${base['--dig-bg']}, ${base['--dig-text']} 5%)`,'--dig-surface':base['--dig-surface']||`color-mix(in srgb, ${base['--dig-bg']}, ${base['--dig-text']} 8%)`,'--dig-accent-2':base['--dig-accent-2']||base['--dig-accent'],'--dig-border':base['--dig-border']||`color-mix(in srgb, ${base['--dig-text']}, transparent 82%)`,'--dig-text-muted':base['--dig-text-muted']||`color-mix(in srgb, ${base['--dig-text']}, transparent 25%)`,'--dig-control-bg':base['--dig-control-bg']||base['--dig-bg'],'--dig-control-bg-hover':base['--dig-control-bg-hover']||`color-mix(in srgb, ${base['--dig-bg']}, ${base['--dig-text']} 12%)`};
 }
 function themeFromAsset(text,file){
- let name,light,dark;
- if(file.endsWith('.md')){const parse=s=>Object.fromEntries([...s.matchAll(/(--dig-[\w-]+)\s*:\s*([^;]+);/g)].map(m=>[m[1],m[2].trim()]));const blocks=[...text.matchAll(/```css\s*([\s\S]*?)```/g)];light=parse(blocks[0]?.[1]||'');dark=parse(blocks[1]?.[1]||'');name={en:file,'zh-CN':file};}
- else{const p=JSON.parse(text);if(!['dig.palette.export.v1','dig.style.export.v1'].includes(p.schema))throw new Error('Unsupported theme schema');light=p.theme_tokens?.light||p.tokens;dark=p.theme_tokens?.dark;name={en:p.name?.en||file,'zh-CN':p.name?.['zh-CN']||p.name?.zh||file};}
+ let name,light,dark,style;
+ if(file.endsWith('.md')){
+  const frontmatter=text.match(/^---[ \t]*\r?\n([\s\S]*?)^---[ \t]*\r?$/m)?.[1]||'';
+  style=/^token_contract:[ \t]*["']?style_v1["']?[ \t]*\r?$/m.test(frontmatter);
+  if(style && /^extends:/m.test(frontmatter)) throw new Error('Import the generated Catalog Markdown or style export');
+  if(style){
+   ({light,dark}=readStyleThemeTokens(text,file));
+  }else{
+   const blocks=[...text.matchAll(/```css\s*([\s\S]*?)```/g)];
+   light=parseCssTokenBlock(blocks[0]?.[1]||'');
+   dark=parseCssTokenBlock(blocks[1]?.[1]||'');
+  }
+  name={en:file,'zh-CN':file};
+ }else{
+  const payload=JSON.parse(text);
+  style=payload.schema==='dig.style.export.v1';
+  if(!style && payload.schema!=='dig.palette.export.v1') throw new Error('Unsupported theme schema');
+  light=payload.theme_tokens?.light||payload.tokens;
+  dark=payload.theme_tokens?.dark;
+  name={en:payload.name?.en||file,'zh-CN':payload.name?.['zh-CN']||payload.name?.zh||file};
+ }
+ if(style && dark?.['--dig-bg']) dark={...light,...dark};
  light=deriveTheme(light);dark=deriveTheme(dark&&dark['--dig-bg']?dark:{...light,'--dig-bg':`color-mix(in srgb, ${light['--dig-accent']}, black 94%)`,'--dig-text':'#f5f5f5','--dig-bg-soft':`color-mix(in srgb, ${light['--dig-accent']}, black 90%)`,'--dig-surface':`color-mix(in srgb, ${light['--dig-accent']}, black 86%)`,'--dig-control-bg':`color-mix(in srgb, ${light['--dig-accent']}, black 86%)`,'--dig-control-bg-hover':`color-mix(in srgb, ${light['--dig-accent']}, black 80%)`,'--dig-border':'#555555','--dig-text-muted':'#bdbdbd'});
- for(const tokens of [light,dark])for(const [k,v] of Object.entries(tokens)){if(!/^--dig-[\w-]+$/.test(k)||typeof v!=='string'||/[<>;]/.test(v)||/url\s*\(|@import|javascript:|expression\s*\(/i.test(v))throw new Error('Invalid theme token');}
+ for(const tokens of [light,dark])for(const [k,v] of Object.entries(tokens)){
+  const unquoted=typeof v==='string'?v.replace(/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g,''):'';
+  if(!/^--dig-[\w-]+$/.test(k)||typeof v!=='string'||/[<>]/.test(v)||/;/.test(unquoted)||/url\s*\(|@import|javascript:|expression\s*\(/i.test(v))throw new Error('Invalid theme token');
+ }
  return {id:'custom-'+Date.now(),name,theme_tokens:{light,dark}};
 }
 let appliedKeys=[];

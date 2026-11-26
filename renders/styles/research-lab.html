@@ -61,14 +61,29 @@
     }
       html[data-style-theme="dark"] {
         color-scheme: dark;
-        --dig-bg: #081a22; --dig-bg-soft: #0d2630; --dig-surface: #102e39; --dig-surface-strong: #173946; --dig-surface-elevated: #1c4552;
---dig-text: #effafa; --dig-text-muted: #b7cfd1; --dig-text-soft: #819c9f; --dig-accent: #4cc6d0; --dig-accent-2: #a99af2;
---dig-border: #315967; --dig-border-strong: #c8e4e5; --dig-grid-line: rgba(239, 250, 250, .1); --dig-control-bg: #13333e; --dig-control-bg-hover: #1b4551;
---dig-success: #58b987; --dig-warning: #d5a34b; --dig-danger: #e57982; --dig-info: #4cc6d0;
+        --dig-bg: #081a22;
+--dig-bg-soft: #0d2630;
+--dig-surface: #102e39;
+--dig-surface-strong: #173946;
+--dig-surface-elevated: #1c4552;
+--dig-text: #effafa;
+--dig-text-muted: #b7cfd1;
+--dig-text-soft: #819c9f;
+--dig-accent: #4cc6d0;
+--dig-accent-2: #a99af2;
+--dig-border: #315967;
+--dig-border-strong: #c8e4e5;
+--dig-grid-line: rgba(239, 250, 250, .1);
+--dig-control-bg: #13333e;
+--dig-control-bg-hover: #1b4551;
+--dig-success: #58b987;
+--dig-warning: #d5a34b;
+--dig-danger: #e57982;
+--dig-info: #4cc6d0;
       }
     </style>
   </head>
-  <body data-render-archetype="research-workbench" data-render-canvas="scientific-light" data-style-theme-default="">
+  <body data-render-archetype="research-workbench" data-render-canvas="scientific-light" data-style-theme-default="" data-style-source-sha256="a18aa5ab6eb5ee62852068cf0ad28cfa711792ba6331f1e2bf4a4a473aa471dc">
     <!-- Preview Control Dock -->
     <div class="preview-control-dock">
       <div class="theme-switch-capsule" data-theme-switcher hidden role="group" aria-label="Theme">
@@ -188,10 +203,56 @@ motion_language:
 --dig-shadow-chunky: 0 2px 0 #2d5964;
 --dig-glow-accent: 0 0 0 1px rgba(20, 124, 147, 0.22), 0 0 22px rgba(20, 124, 147, 0.12);
 --dig-glow-secondary: 0 0 0 1px rgba(111, 92, 197, 0.18);
---dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);" data-style-dark-token-block="--dig-bg: #081a22; --dig-bg-soft: #0d2630; --dig-surface: #102e39; --dig-surface-strong: #173946; --dig-surface-elevated: #1c4552;
---dig-text: #effafa; --dig-text-muted: #b7cfd1; --dig-text-soft: #819c9f; --dig-accent: #4cc6d0; --dig-accent-2: #a99af2;
---dig-border: #315967; --dig-border-strong: #c8e4e5; --dig-grid-line: rgba(239, 250, 250, .1); --dig-control-bg: #13333e; --dig-control-bg-hover: #1b4551;
---dig-success: #58b987; --dig-warning: #d5a34b; --dig-danger: #e57982; --dig-info: #4cc6d0;">
+--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);" data-style-dark-token-block="--dig-bg: #081a22;
+--dig-bg-soft: #0d2630;
+--dig-surface: #102e39;
+--dig-surface-strong: #173946;
+--dig-surface-elevated: #1c4552;
+--dig-text: #effafa;
+--dig-text-muted: #b7cfd1;
+--dig-text-soft: #819c9f;
+--dig-accent: #4cc6d0;
+--dig-accent-strong: #0d5c6f;
+--dig-accent-2: #a99af2;
+--dig-accent-2-strong: #524592;
+--dig-border: #315967;
+--dig-border-strong: #c8e4e5;
+--dig-grid-line: rgba(239, 250, 250, .1);
+--dig-control-bg: #13333e;
+--dig-control-bg-hover: #1b4551;
+--dig-success: #58b987;
+--dig-warning: #d5a34b;
+--dig-danger: #e57982;
+--dig-info: #4cc6d0;
+--dig-font-sans: &quot;Inter&quot;, &quot;IBM Plex Sans&quot;, &quot;PingFang SC&quot;, &quot;Noto Sans SC&quot;, sans-serif;
+--dig-font-display: &quot;Space Grotesk&quot;, &quot;PingFang SC&quot;, sans-serif;
+--dig-font-mono: &quot;IBM Plex Mono&quot;, &quot;SFMono-Regular&quot;, Consolas, monospace;
+--dig-font-serif: &quot;Source Han Serif SC&quot;, Georgia, serif;
+--dig-text-xs: 11px;
+--dig-text-sm: 13px;
+--dig-text-md: 15px;
+--dig-text-lg: 18px;
+--dig-text-xl: 24px;
+--dig-text-2xl: 32px;
+--dig-text-3xl: 42px;
+--dig-text-4xl: 56px;
+--dig-text-5xl: 72px;
+--dig-leading-tight: 1.12;
+--dig-leading-normal: 1.5;
+--dig-tracking-tight: -0.01em;
+--dig-radius-sm: 8px;
+--dig-radius-md: 14px;
+--dig-radius-lg: 20px;
+--dig-radius-xl: 28px;
+--dig-radius-pill: 999px;
+--dig-stroke-width: 1px;
+--dig-stroke-width-strong: 2px;
+--dig-shadow-panel: 0 1px 0 rgba(21, 42, 53, 0.06), 0 12px 32px rgba(21, 42, 53, 0.05);
+--dig-shadow-soft: 0 16px 34px rgba(20, 124, 147, 0.09);
+--dig-shadow-chunky: 0 2px 0 #2d5964;
+--dig-glow-accent: 0 0 0 1px rgba(20, 124, 147, 0.22), 0 0 22px rgba(20, 124, 147, 0.12);
+--dig-glow-secondary: 0 0 0 1px rgba(111, 92, 197, 0.18);
+--dig-motion-bounce: cubic-bezier(0.2, 0.8, 0.2, 1);">
               <div class="style-lab-head">
                 <div>
                   <h3 data-zh="Style Lab" data-en="Style Lab">Style Lab</h3>
@@ -395,16 +456,32 @@ motion_language:
           return '';
         }
 
+        let colorContext;
         function cssColorToHex(raw) {
           const value = (raw || '').trim();
           const hex = normalizeHex(value);
           if (hex) return hex;
-          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-          if (!rgbMatch) return '';
-          return '#' + rgbMatch.slice(1, 4).map(part => {
-            const channel = Math.max(0, Math.min(255, Number(part)));
-            return channel.toString(16).padStart(2, '0');
-          }).join('').toUpperCase();
+          if (!CSS.supports('color', value)) return '';
+          if (!colorContext) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 1;
+            canvas.hidden = true;
+            colorContext = canvas.getContext('2d', { willReadFrequently: true });
+          }
+          if (!colorContext) return '';
+          const sample = colorContext.canvas;
+          sample.style.color = value;
+          document.body.append(sample);
+          colorContext.fillStyle = getComputedStyle(sample).color;
+          sample.remove();
+          const normalized = normalizeHex(colorContext.fillStyle);
+          if (normalized) return normalized;
+          const rgb = colorContext.fillStyle.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (rgb) return '#' + rgb.slice(1).map(part => Number(part).toString(16).padStart(2, '0')).join('').toUpperCase();
+          colorContext.clearRect(0, 0, 1, 1);
+          colorContext.fillRect(0, 0, 1, 1);
+          const pixel = colorContext.getImageData(0, 0, 1, 1).data;
+          return '#' + [...pixel.slice(0, 3)].map(part => part.toString(16).padStart(2, '0')).join('').toUpperCase();
         }
 
         function getTokenValue(token) {
@@ -834,7 +911,7 @@ motion_language:
 
         function parseStyleTokenCss(cssText) {
           const tokens = {};
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+          for (const match of String(cssText || '').matchAll(/(--dig-[\w-]+)\s*:\s*((?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|[^;"'])*);/g)) {
             tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
           }
           return tokens;
@@ -843,8 +920,7 @@ motion_language:
         function buildStyleTokenCss(tokens, cssText = '') {
           const lines = [];
           const seen = new Set();
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
-            const token = match[1];
+          for (const token of Object.keys(parseStyleTokenCss(cssText))) {
             if (Object.prototype.hasOwnProperty.call(tokens, token)) {
               lines.push(`${token}: ${tokens[token]};`);
               seen.add(token);
@@ -883,9 +959,10 @@ motion_language:
             const value = cssColorToHex(getTokenValue(token));
             const textInput = lab.querySelector(`[data-style-input="${role}"]`);
             const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
-            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
-            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
-              colorInput.value = value;
+            if (textInput && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput) {
+              colorInput.disabled = !value;
+              colorInput.value = value || '#000000';
             }
           });
           styleLabTrackedTokens.forEach(token => {

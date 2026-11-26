@@ -61,7 +61,7 @@ Style catalog 适合用户指定「截图风格」「非品牌风格」「材质
 
 选择具体 style 前，读取 [styles/README.md](./styles/README.md)。它按任务、avoid 边界与 render archetype 路由；多个 style 都可能适用时，优先选择与任务冲突最少的一项。
 
-新建 style catalog 必须放在 `references/catalogs/styles/`，并在 frontmatter 显式声明：
+顶层风格在 `references/catalogs/styles/` 编写，使用以下 frontmatter。子风格在 `references/style-sources/` 编写，规则见 [Render Ops](../render-ops.md#style-render-integrity)。
 
 ```yaml
 kind: style-catalog

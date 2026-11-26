@@ -347,16 +347,32 @@
           return '';
         }
 
+        let colorContext;
         function cssColorToHex(raw) {
           const value = (raw || '').trim();
           const hex = normalizeHex(value);
           if (hex) return hex;
-          const rgbMatch = value.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-          if (!rgbMatch) return '';
-          return '#' + rgbMatch.slice(1, 4).map(part => {
-            const channel = Math.max(0, Math.min(255, Number(part)));
-            return channel.toString(16).padStart(2, '0');
-          }).join('').toUpperCase();
+          if (!CSS.supports('color', value)) return '';
+          if (!colorContext) {
+            const canvas = document.createElement('canvas');
+            canvas.width = canvas.height = 1;
+            canvas.hidden = true;
+            colorContext = canvas.getContext('2d', { willReadFrequently: true });
+          }
+          if (!colorContext) return '';
+          const sample = colorContext.canvas;
+          sample.style.color = value;
+          document.body.append(sample);
+          colorContext.fillStyle = getComputedStyle(sample).color;
+          sample.remove();
+          const normalized = normalizeHex(colorContext.fillStyle);
+          if (normalized) return normalized;
+          const rgb = colorContext.fillStyle.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+          if (rgb) return '#' + rgb.slice(1).map(part => Number(part).toString(16).padStart(2, '0')).join('').toUpperCase();
+          colorContext.clearRect(0, 0, 1, 1);
+          colorContext.fillRect(0, 0, 1, 1);
+          const pixel = colorContext.getImageData(0, 0, 1, 1).data;
+          return '#' + [...pixel.slice(0, 3)].map(part => part.toString(16).padStart(2, '0')).join('').toUpperCase();
         }
 
         function getTokenValue(token) {
@@ -786,7 +802,7 @@
 
         function parseStyleTokenCss(cssText) {
           const tokens = {};
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:\s*([^;]+);/g)) {
+          for (const match of String(cssText || '').matchAll(/(--dig-[\w-]+)\s*:\s*((?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|[^;"'])*);/g)) {
             tokens[match[1]] = normalizeHex(match[2]) || match[2].trim();
           }
           return tokens;
@@ -795,8 +811,7 @@
         function buildStyleTokenCss(tokens, cssText = '') {
           const lines = [];
           const seen = new Set();
-          for (const match of String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\s*:/g)) {
-            const token = match[1];
+          for (const token of Object.keys(parseStyleTokenCss(cssText))) {
             if (Object.prototype.hasOwnProperty.call(tokens, token)) {
               lines.push(`${token}: ${tokens[token]};`);
               seen.add(token);
@@ -835,9 +850,10 @@
             const value = cssColorToHex(getTokenValue(token));
             const textInput = lab.querySelector(`[data-style-input="${role}"]`);
             const colorInput = lab.querySelector(`[data-style-color="${role}"]`);
-            if (textInput && value && textInput.value.toUpperCase() !== value) textInput.value = value;
-            if (colorInput && value && colorInput.value.toUpperCase() !== value) {
-              colorInput.value = value;
+            if (textInput && textInput.value.toUpperCase() !== value) textInput.value = value;
+            if (colorInput) {
+              colorInput.disabled = !value;
+              colorInput.value = value || '#000000';
             }
           });
           styleLabTrackedTokens.forEach(token => {

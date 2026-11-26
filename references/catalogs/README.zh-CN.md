@@ -35,7 +35,7 @@
 
 选择内置 style 前，先读 [styles/README.md](./styles/README.md)。它按任务、avoid 边界与预览 archetype 路由全部 style；一次任务只选择一条 style 作为基础视觉系统。
 
-新建 style catalog 必须放在 `references/catalogs/styles/`，并声明：
+顶层风格在 `references/catalogs/styles/` 编写，使用以下 frontmatter。子风格在 `references/style-sources/` 编写，规则见 [Render Ops](../render-ops.md#style-render-integrity)。
 
 ```yaml
 kind: style-catalog

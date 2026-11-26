@@ -27,6 +27,50 @@ try{
  await check('cross-catalog light/dark and local custom theme reuse',async()=>{for(const id of ['dig','apple','palette01','monochrome','hologram-moire']){await page.locator('#catalog').selectOption(id);for(const mode of ['light','dark']){await page.locator('#'+mode).click();await page.waitForFunction(()=>document.querySelector('[data-dig-effect]').dataset.state==='running');assert.equal(await page.locator('[data-dig-effect]').count(),1);const contrasts=await page.evaluate(async()=>{const {default:Color}=await import('/assets/effects/color.mjs');const body=new Color(getComputedStyle(document.body).backgroundColor).to('srgb');const linear=v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4;const lum=rgb=>rgb.map(linear).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);return [...document.querySelectorAll('#catalog,#recipe,#sample-form input,#pause')].map(el=>{const s=getComputedStyle(el),fg=new Color(s.color).to('srgb'),bg=new Color(s.backgroundColor).to('srgb'),back=bg.coords.map((v,i)=>v*bg.alpha+body.coords[i]*(1-bg.alpha)),a=lum(fg.coords),b=lum(back);return(Math.max(a,b)+.05)/(Math.min(a,b)+.05);});});assert.ok(contrasts.every(c=>c>=4.5),id+' '+mode+' control contrast '+contrasts);}}await page.locator('#theme-import').setInputFiles({name:'custom.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify({schema:'dig.palette.export.v1',tokens:{'--dig-bg':'#fafafa','--dig-text':'#101010','--dig-accent':'#226688','--dig-accent-2':'#775599'}}))});await page.waitForFunction(()=>document.querySelector('#catalog').value.startsWith('custom-'));await page.locator('#light').click();await page.screenshot({path:path.join(reportDir,'lab-light.png'),fullPage:true});await page.locator('#dark').click();await page.screenshot({path:path.join(reportDir,'lab-dark.png'),fullPage:true});});
  await check('native parameter editing, undo/redo, drafts and reset',async()=>{await page.locator('#recipe').selectOption('flowing-ribbon');const slider=page.locator('[data-parameter="speed"]');await slider.focus();await slider.press('End');await page.locator('#catalog').focus();await page.waitForFunction(()=>document.querySelector('[data-parameter="speed"]').value==='2');await page.locator('#undo').click();assert.equal(await slider.inputValue(),'0.2');await page.locator('#redo').click();assert.equal(await slider.inputValue(),'2');await page.reload();await page.locator('[data-parameter="speed"]').waitFor();await page.locator('#recipe').selectOption('flowing-ribbon');assert.equal(await slider.inputValue(),'2');await page.locator('#reset').click();assert.equal(await slider.inputValue(),'0.2');});
  await check('browser download, CLI import and exported preview reopen',async()=>{const slider=page.locator('[data-parameter="speed"]');await slider.focus();await slider.press('ArrowRight');const expected=await slider.inputValue();const downloadPromise=page.waitForEvent('download');await page.locator('#export').click();const download=await downloadPromise,file=path.join(dir,'export.zip');await download.saveAs(file);const archive=readEffectArchive(await fs.readFile(file));assert.equal(archive.recipe.composition[0].props.speed,Number(expected));await runEffectCLI(['import',file]);assert.deepEqual(await readEffect(archive.recipe.id),archive.recipe);await fs.writeFile(path.join(dir,'roundtrip.html'),archive.files['preview.html']);await page.goto(origin+'/roundtrip.html');await page.locator('[data-parameter="speed"]').waitFor();assert.equal(await page.locator('[data-parameter="speed"]').inputValue(),expected);await page.locator('#import').setInputFiles(file);await page.waitForFunction(()=>!document.querySelector('#message').classList.contains('error'));assert.equal(await page.locator('[data-parameter="speed"]').inputValue(),expected);});
+ await check('style Markdown import skips example sections inside fences',async()=>{
+  const isolated=await browser.newContext({reducedMotion:'reduce'});
+  try {
+   const preview=await isolated.newPage();
+   await preview.goto(origin);
+   const style=await fs.readFile(path.join(packageRoot,'references/catalogs/styles/paper-infographic.md'),'utf8');
+   const fence='```';
+   const example=[fence+'`markdown','## Dig UI CSS Tokens',fence+'css',
+    '--dig-bg: #121212;','--dig-text: #eeeeee;','--dig-accent: #ae33bf;',fence,fence+'`',''].join('\n');
+   const fixture=style.replace('## Style Contract',example+'\n## Style Contract')
+    .replace('--dig-accent: #efbb41;', '--dig-accent: #efbb41;\n/* --dig-accent: #ae33bf; */\n--dig-label: "/* literal; */";');
+   await preview.locator('#theme-import').setInputFiles({name:'paper.md',mimeType:'text/markdown',buffer:Buffer.from(fixture)});
+   await preview.waitForFunction(()=>document.getElementById('catalog').value.startsWith('custom-'));
+   for(const [mode,accent] of [['light','#efbb41'],['dark','#f3c65b']]){
+    await preview.locator('#'+mode).click();
+    assert.equal(await preview.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dig-accent').trim()),accent);
+   }
+   await preview.locator('#light').click();
+   assert.equal(await preview.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--dig-label').trim()),'"/* literal; */"');
+   const selected=await preview.locator('#catalog').inputValue();
+   const malformed=fixture.replace('--dig-accent: #f3c65b;', '/* --dig-accent: #ff0000;');
+   await preview.locator('#theme-import').setInputFiles({name:'malformed.md',mimeType:'text/markdown',buffer:Buffer.from(malformed)});
+   await preview.waitForFunction(()=>document.querySelector('#message').textContent.includes('unterminated CSS comment'));
+   assert.match(await preview.locator('#message').textContent(), /malformed\.md: ## Dig UI Dark Tokens/);
+   assert.equal(await preview.locator('#catalog').inputValue(),selected);
+  }finally{await isolated.close();}
+ });
+ await check('Style Lab controls follow a multiline RGB colour across a full theme switch',async()=>{
+  const isolated=await browser.newContext({reducedMotion:'reduce'});
+  try {
+   const preview=await isolated.newPage();
+   const render=await fs.readFile(path.join(packageRoot,'renders/styles/paper-infographic.html'),'utf8');
+   const css=await fs.readFile(path.join(packageRoot,'assets/catalog-preview.css'),'utf8');
+   const fixture=render.replaceAll('--dig-accent: #efbb41;', '--dig-accent: rgb(\n  239 187 65\n);')
+    .replace('<link rel="stylesheet" href="../../assets/catalog-preview.css" />',()=>'<style>'+css+'</style>');
+   await fs.writeFile(path.join(dir,'style-rgb.html'),fixture);
+   await preview.goto(origin+'/style-rgb.html');
+   for(const [mode,value] of [['light','#EFBB41'],['dark','#F3C65B'],['light','#EFBB41']]){
+    await preview.locator('[data-theme-mode='+mode+']').click();
+    assert.equal(await preview.locator('[data-style-input=primary]').inputValue(),value);
+    assert.equal(await preview.locator('[data-style-color=primary]').inputValue(),value.toLowerCase());
+   }
+  }finally{await isolated.close();}
+ });
  await check('consecutive exports keep identical revisions and advance edits across reload/reset',async()=>{
   async function save(name){const event=page.waitForEvent('download');await page.locator('#export').click();const download=await event,file=path.join(dir,name+'.zip');await download.saveAs(file);return{file,...readEffectArchive(await fs.readFile(file))};}
   const first=await save('repeat-first');const slider=page.locator('[data-parameter="speed"]');await slider.focus();await slider.press('ArrowRight');await page.locator('#catalog').focus();const edited=await save('repeat-edited');assert.equal(edited.recipe.revision,first.recipe.revision+1);await runEffectCLI(['import',edited.file]);

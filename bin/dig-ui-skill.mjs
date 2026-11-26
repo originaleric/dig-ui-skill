@@ -1509,70 +1509,6 @@ function parseFrontmatterFields(markdown) {
   return fields;
 }
 
-function extractMarkdownSectionOutsideFences(content, heading) {
-  const lines = String(content || "").split("\n");
-  const escapedHeading = heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const target = new RegExp(`^##\\s+${escapedHeading}\\s*$`);
-  const nextHeading = /^##\s+/;
-  const collected = [];
-  let collecting = false;
-  let inFence = false;
-  let fenceChar = "";
-  let fenceLength = 0;
-
-  for (const line of lines) {
-    const fenceMatch = line.match(/^(`{3,}|~{3,})/);
-    if (fenceMatch) {
-      const marker = fenceMatch[1];
-      if (!inFence) {
-        inFence = true;
-        fenceChar = marker[0];
-        fenceLength = marker.length;
-      } else if (marker[0] === fenceChar && marker.length >= fenceLength) {
-        inFence = false;
-        fenceChar = "";
-        fenceLength = 0;
-      }
-    }
-
-    if (!inFence && target.test(line)) {
-      collecting = true;
-      continue;
-    }
-    if (collecting && !inFence && nextHeading.test(line)) {
-      break;
-    }
-    if (collecting) {
-      collected.push(line);
-    }
-  }
-
-  return collected.join("\n").trim();
-}
-
-function extractMarkdownFencedCodeBlock(content, heading, language) {
-  const section = extractMarkdownSectionOutsideFences(content, heading);
-  if (!section) {
-    return "";
-  }
-  const escapedLanguage = language.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = section.match(new RegExp(`\`\`\`${escapedLanguage}\\s*\\n([\\s\\S]*?)\\n\`\`\``));
-  return match ? match[1].trim() : "";
-}
-
-function parseStyleCssTokens(cssText) {
-  const tokens = {};
-  for (const match of String(cssText || "").matchAll(/(--dig-[\w-]+)\s*:\s*([^;]*);/g)) {
-    tokens[match[1]] = match[2].trim();
-  }
-  return tokens;
-}
-
-function parseStyleRenderArchetype(markdown) {
-  const match = markdown.match(/\nrender:\s*\n(?:[^\n]*\n)*?\s*archetype:\s*["']?([^"'\n]+)/);
-  return match ? match[1].trim() : "";
-}
-
 function assertStyleTokenContract(tokens, archetype, sourcePath, label) {
   if (!tokens || typeof tokens !== "object" || !hasMeaningfulStyleTokenValue(tokens["--dig-bg"])) {
     throw new Error(`${label} missing Dig tokens (${sourcePath})`);
@@ -1605,8 +1541,11 @@ function assertStyleThemeTokenContract(themeTokens, archetype, sourcePath, label
   }
 }
 
-function validateStyleMarkdown(markdown, sourcePath) {
+async function validateStyleMarkdown(markdown, sourcePath) {
   const fields = parseFrontmatterFields(markdown);
+  if (Object.hasOwn(fields, "extends")) {
+    throw new Error(`Style Markdown declares extends. Import the generated Catalog Markdown or export (${sourcePath})`);
+  }
   if (fields.kind !== "style-catalog") {
     throw new Error(`Style Markdown must declare kind: style-catalog (${sourcePath})`);
   }
@@ -1619,31 +1558,17 @@ function validateStyleMarkdown(markdown, sourcePath) {
   if (!fields.slug) {
     throw new Error(`Style Markdown missing frontmatter slug (${sourcePath})`);
   }
-  const archetype = parseStyleRenderArchetype(markdown);
+  const { readStyleRenderArchetype, readStyleThemeTokens } = await import("../assets/effects/protocol.mjs");
+  const archetype = readStyleRenderArchetype(markdown);
   if (!archetype) {
     throw new Error(`Style Markdown must declare render.archetype (${sourcePath})`);
   }
   if (!markdown.includes("## Style Contract") || !markdown.includes("## Dig UI CSS Tokens")) {
     throw new Error(`Style Markdown must include Style Contract and Dig UI CSS Tokens sections (${sourcePath})`);
   }
-  const tokenBlock = extractMarkdownFencedCodeBlock(markdown, "Dig UI CSS Tokens", "css");
-  if (!tokenBlock) {
-    throw new Error(`Style Markdown must include Dig UI CSS Tokens fenced css block (${sourcePath})`);
-  }
-  assertStyleTokenContract(parseStyleCssTokens(tokenBlock), archetype, sourcePath, "Style Markdown");
-  const darkTokenBlock = extractMarkdownFencedCodeBlock(markdown, "Dig UI Dark Tokens", "css");
-  if (!darkTokenBlock) {
-    throw new Error(`Style Markdown must include Dig UI Dark Tokens fenced css block (${sourcePath})`);
-  }
-  assertStyleThemeTokenContract(
-    {
-      light: parseStyleCssTokens(tokenBlock),
-      dark: parseStyleCssTokens(darkTokenBlock),
-    },
-    archetype,
-    sourcePath,
-    "Style Markdown",
-  );
+  const themes = readStyleThemeTokens(markdown, sourcePath);
+  assertStyleTokenContract(themes.light, archetype, sourcePath, "Style Markdown");
+  assertStyleThemeTokenContract(themes, archetype, sourcePath, "Style Markdown");
   return { slug: fields.slug, name: fields.name_zh || fields.name_en || fields.name || fields.slug };
 }
 
@@ -1690,7 +1615,7 @@ async function runStyleImport(options) {
   let baseName;
   let destContent = asset.content;
   if (asset.extension === "md") {
-    const metadata = validateStyleMarkdown(asset.content, sourcePath);
+    const metadata = await validateStyleMarkdown(asset.content, sourcePath);
     baseName = sanitizeStyleAssetName(metadata.slug || path.basename(sourcePath));
     console.log("Imported local style");
     console.log(`  name: ${metadata.name}`);
@@ -1732,7 +1657,7 @@ async function runStyleList() {
         const payload = JSON.parse(content);
         console.log(`${entry}  ${payload.name?.zh || payload.name?.en || payload.slug || "-"}  ${payload.render?.archetype || "-"}`);
       } else {
-        const metadata = validateStyleMarkdown(content, fullPath);
+        const metadata = await validateStyleMarkdown(content, fullPath);
         console.log(`${entry}  ${metadata.name}  markdown`);
       }
     } catch {
@@ -1999,6 +1924,7 @@ async function runWorkBuddyExport(options) {
   try {
     await copySkillAssets(options.source, stagingRoot);
     await applyLanguagePack(options.source, stagingRoot, language);
+    runChecked("node", [path.join(PACKAGE_ROOT, "validate-dig-catalog-preview.mjs"), "--style-sources"], stagingRoot);
     if (hasLocalRules) {
       await copyFileSafe(USER_LOCAL_RULES_PATH, localRulesPath);
     }
@@ -2042,6 +1968,7 @@ async function copyFileSafe(sourcePath, destPath) {
 function shouldSkipCopy(relativePath, entryName) {
   return (
     SKIP_COPY_FILE_NAMES.has(entryName) ||
+    entryName.startsWith(".dig-render-") ||
     SKIP_COPY_RELATIVE_PATHS.has(relativePath)
   );
 }
@@ -2417,8 +2344,7 @@ async function runRender(options) {
     throw new Error("render supports catalogs only. Layout and block HTML renders have been retired.");
   }
   if (target === "catalogs" || target === "all") {
-    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_renders.py")]);
-    await (await import('./effects-cli.mjs')).buildLab(undefined, undefined, { officialOnly: true });
+    runChecked("python3", [path.join(PACKAGE_ROOT, "sync_renders.py"), "--with-effects"]);
   }
 }
 

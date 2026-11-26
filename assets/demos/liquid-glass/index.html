@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-backdrop="photo">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Earth Atlas · Liquid Glass demo</title>
+<style>
+@font-face{font-family:AtlasIcons;src:url(../../fonts/bootstrap-icons.woff2) format("woff2");font-display:block}
+:root{
+  color-scheme:light;
+  --dig-bg:#efefea;
+  --dig-surface:#f9f9f5;
+  --dig-text:#101613;
+  --dig-text-muted:#151d18;
+  --dig-accent:#123b33;
+  --dig-on-accent:#ffffff;
+  --dig-border:#cbd1ca;
+  --dig-focus-ring:#123930;
+  --dig-glass-fill:color-mix(in srgb, color-mix(in srgb, var(--dig-surface) 25%, white) 52%, transparent);
+  --dig-glass-blur:10px;
+  --dig-control-bg-hover:#e6ebe5;
+  --dig-glass-active:color-mix(in srgb, var(--dig-control-bg-hover) 85%, transparent);
+  --dig-glass-highlight-top:rgba(255, 255, 255, .64);
+  --dig-glass-highlight-bottom:rgba(255, 255, 255, .60);
+  --dig-shadow-float:0 3px 12px rgba(18, 33, 28, .15);
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --dig-bg:#191d1b;
+  --dig-surface:#242a27;
+  --dig-text:#f7faf6;
+  --dig-text-muted:#eff5f0;
+  --dig-accent:#9ce5cf;
+  --dig-on-accent:#152821;
+  --dig-border:#495750;
+  --dig-focus-ring:#9ce5cf;
+  --dig-glass-fill:color-mix(in srgb, color-mix(in srgb, var(--dig-surface) 15%, black) 59%, transparent);
+  --dig-glass-blur:12px;
+  --dig-control-bg-hover:#303933;
+  --dig-glass-active:color-mix(in srgb, var(--dig-bg) 88%, transparent);
+  --dig-glass-highlight-top:rgba(255, 255, 255, .55);
+  --dig-glass-highlight-bottom:rgba(255, 255, 255, .47);
+  --dig-shadow-float:0 3px 12px rgba(0, 0, 0, .24);
+}
+*{box-sizing:border-box}
+html{scroll-padding-bottom:max(80px,calc(68px + env(safe-area-inset-bottom)))}
+body{margin:0;background:var(--dig-bg);color:var(--dig-text);font:16px/1.6 system-ui,sans-serif}
+select,button{font:inherit;color:inherit}
+a{color:inherit}
+.qa,.masthead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:8px max(16px,calc((100% - 1152px)/2));background:var(--dig-surface);border-bottom:1px solid var(--dig-border)}
+.qa{justify-content:flex-start;column-gap:18px;font-size:13px}
+.qa label{display:flex;align-items:center;gap:6px}
+.select-wrap{position:relative;display:inline-flex}
+.select-wrap select{
+  appearance:none;min-height:44px;padding:0 34px 0 12px;
+  border:1px solid var(--dig-border);border-radius:999px;background:var(--dig-surface);
+}
+.select-wrap select option{color:var(--dig-text);background:var(--dig-surface)}
+.select-wrap::after{
+  position:absolute;content:"";width:7px;height:7px;right:15px;top:50%;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;
+  transform:translateY(-70%) rotate(45deg);pointer-events:none;
+}
+.masthead{min-height:56px;font-weight:700}
+.masthead small{font-weight:500;color:var(--dig-text-muted)}
+.stage{position:relative;min-height:630px;min-height:max(630px,100svh - 105px);display:flex;align-items:center;padding:120px max(18px,calc((100% - 1080px)/2)) 150px;background:#111815 url(earth.jpg) center 47% / cover no-repeat}
+:root[data-backdrop="light"] .stage{background:#f5f4ed}
+:root[data-backdrop="dark"] .stage{background:#161e1c}
+:root[data-backdrop="split"] .stage{background:linear-gradient(90deg,#f5f4ed 50%,#161e1c 50%)}
+.lead{position:relative;border:1px solid transparent;background:var(--dig-surface);max-width:480px;width:100%;padding:clamp(20px,4vw,46px);border-radius:12px;margin:0}
+.eyebrow{display:block;color:var(--dig-text-muted);font-size:13px;letter-spacing:.055em}
+h1{margin:9px 0;font:500 clamp(32px,6vw,61px)/1.03 Georgia,"Songti SC",serif;letter-spacing:-.035em}
+.lead p{margin-bottom:0;color:var(--dig-text-muted)}
+.article{width:min(100%,720px);margin:0 auto;padding:48px 20px 136px}
+.article section{padding:16px 0 22px;border-bottom:1px solid var(--dig-border)}
+h2{margin-bottom:5px;font:500 28px/1.2 Georgia,"Songti SC",serif}
+.article a{color:var(--dig-accent)}
+.dock{
+  position:absolute;z-index:1;display:flex;align-items:center;gap:4px;padding:5px;
+  color:var(--dig-text);background:var(--dig-surface);
+  border:1px solid transparent;border-radius:999px;
+  box-shadow:var(--dig-shadow-float);
+}
+@supports (backdrop-filter:blur(1px)) and (color:color-mix(in srgb, white 90%, transparent)){
+  :is(.dock,.glass-panel){background:var(--dig-glass-fill);backdrop-filter:blur(var(--dig-glass-blur))}
+  .glass-panel{box-shadow:var(--dig-shadow-float)}
+  @supports (mask-composite:exclude){
+    :is(.dock,.glass-panel)::after{
+      content:"";position:absolute;inset:-1px;padding:1px;border-radius:inherit;
+      background:linear-gradient(178deg,var(--dig-glass-highlight-top),transparent 46%,transparent 54%,var(--dig-glass-highlight-bottom));
+      mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+      mask-composite:exclude;
+      pointer-events:none;
+    }
+  }
+}
+:root[data-opaque] :is(.dock,.glass-panel){background:var(--dig-surface);backdrop-filter:none}
+:root[data-opaque] :is(.dock,.glass-panel)::after{content:none}
+@media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  :is(.dock,.glass-panel){background:var(--dig-surface);backdrop-filter:none;border-color:var(--dig-border)}
+  :is(.dock,.glass-panel)::after{content:none}
+}
+@media (forced-colors:active){
+  :is(.dock,.glass-panel){background:Canvas;backdrop-filter:none;border:1px solid CanvasText;box-shadow:none}
+  :is(.dock,.glass-panel)::after{content:none}
+  .control:focus-visible{outline-color:CanvasText!important}
+}
+.toolbar{top:20px;left:50%;transform:translateX(-50%)}
+.bottom-nav{position:fixed;bottom:max(12px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 20px)}
+.control{
+  position:relative;display:flex;justify-content:center;align-items:center;gap:6px;
+  min-width:44px;min-height:44px;padding:0 13px;border:0;border-radius:999px;
+  color:inherit;background:transparent;cursor:pointer;text-decoration:none;white-space:nowrap;
+  font-size:14px;font-weight:650;transition:background-color 120ms,color 120ms
+}
+.bottom-nav .control{min-width:94px;min-height:50px;padding:5px 9px;gap:2px;flex-direction:column;font-size:12px}
+.control:focus-visible{outline:2px solid var(--dig-focus-ring);outline-offset:-2px}
+.control:active:not(:disabled),.control[aria-pressed="true"]{background:var(--dig-accent);color:var(--dig-on-accent)}
+.control[aria-pressed="true"]:focus-visible{outline-color:var(--dig-on-accent)}
+.control:disabled{cursor:default;color:var(--dig-text-muted)}
+.bottom-nav .control:active,.bottom-nav .control[aria-current="page"]{background:var(--dig-control-bg-hover);color:var(--dig-text)}
+@supports (color:color-mix(in srgb, white, transparent)){
+  .bottom-nav .control:active,.bottom-nav .control[aria-current="page"]{background:var(--dig-glass-active)}
+}
+.icon{font:16px/1 AtlasIcons;display:inline-block}
+.control[aria-pressed="true"] .icon::before{content:"\f199"}
+.control[aria-pressed="true"] .icon{font-size:0}
+.control[aria-pressed="true"] .icon::before{font-size:16px}
+@media (forced-colors:active){
+  .bottom-nav .control[aria-current="page"]{background:CanvasText;color:Canvas;forced-color-adjust:none}
+  .bottom-nav .control[aria-current="page"]:focus-visible{outline-color:Canvas!important}
+}
+@media (prefers-reduced-motion:reduce){.control{transition:none}}
+</style>
+<header class="qa" aria-label="Preview controls">
+  <label><span data-copy="background">Backdrop</span> <span class="select-wrap"><select id="backdrop"><option value="photo" data-copy="photo">Photo</option><option value="light" data-copy="light">Light</option><option value="dark" data-copy="dark">Dark</option><option value="split" data-copy="split">Split</option></select></span></label>
+  <label><span data-copy="theme">Theme</span> <span class="select-wrap"><select id="theme"><option value="light" data-copy="light">Light</option><option value="dark" data-copy="dark">Dark</option></select></span></label>
+  <label><input type="checkbox" id="opaque"> <span data-copy="opaque">Opaque</span></label>
+  <label><input type="checkbox" id="glass-panel" checked> <span data-copy="panel">Glass panel</span></label>
+  <label><span data-copy="language">Language</span> <span class="select-wrap"><select id="language"><option value="en">English</option><option value="zh-CN">简体中文</option></select></span></label>
+</header>
+<header class="masthead"><span data-copy="atlas">Earth Atlas</span><small data-copy="edition">Field notes · Earth from orbit</small></header>
+<main>
+  <div class="stage">
+    <div class="lead glass-panel">
+      <span class="eyebrow" id="eyebrow">Apollo 17 · December 1972</span>
+      <h1 id="title" tabindex="-1">The whole Earth</h1>
+      <p id="summary">Read the landscape from orbit. Follow cloud, land, and ocean across one frame.</p>
+    </div>
+    <div class="toolbar dock" role="group" aria-label="Article actions">
+      <button class="control" id="save" type="button" aria-pressed="false"><span class="icon ink" aria-hidden="true">&#xf1a2;</span><span class="ink" data-copy="save">Save</span></button>
+      <button class="control" id="download" type="button" disabled><span class="icon ink" aria-hidden="true">&#xf30a;</span><span class="ink" data-copy="download">Download</span></button>
+    </div>
+  </div>
+  <article class="article" id="article" aria-labelledby="title"></article>
+</main>
+<nav class="bottom-nav dock" aria-label="Atlas views">
+  <a class="control" href="#observations" data-icon-rest="&#xf444;" data-icon-current="&#xf3b8;" aria-current="page"><span class="icon ink" aria-hidden="true">&#xf3b8;</span><span class="ink" data-copy="observations">Field notes</span></a>
+  <a class="control" href="#gallery" data-icon-rest="&#xf42a;" data-icon-current="&#xf429;"><span class="icon ink" aria-hidden="true">&#xf42a;</span><span class="ink" data-copy="gallery">Image</span></a>
+  <a class="control" href="#saved" data-icon-rest="&#xf1a2;" data-icon-current="&#xf199;"><span class="icon ink" aria-hidden="true">&#xf1a2;</span><span class="ink" data-copy="saved">Saved</span></a>
+</nav>
+<script>
+const strings = {
+  en:{atlas:"Earth Atlas",edition:"Field notes · Earth from orbit",background:"Backdrop",theme:"Theme",language:"Language",photo:"Photo",light:"Light",dark:"Dark",split:"Split",opaque:"Opaque",panel:"Glass panel",
+      save:"Save",download:"Download",observations:"Field notes",gallery:"Image",saved:"Saved",tools:"Article actions",nav:"Atlas views",qa:"Preview controls",
+      eyebrow:"Apollo 17 · December 1972",heading:"The whole Earth",summary:"Read the landscape from orbit. Follow cloud, land, and ocean across one frame.",
+      imageTitle:"The Blue Marble",imageSummary:"The Apollo 17 crew photographed this view on their way to the Moon.",
+      savedTitle:"Reading list",savedSummary:"Articles saved from the toolbar appear here.",empty:"No articles saved. Open Field notes and use Save to add this issue.",
+      sections:[["Start with the coast","Trace the shoreline on the right-hand side of Africa. Madagascar appears beyond the mainland, with cloud bands extending over the Indian Ocean."],["Follow the clouds","Look for gaps between the white cloud bands. These openings make it easier to distinguish the ocean from the brighter cloud tops."],["Look south","Antarctica is visible along the lower edge. The surrounding clouds partly obscure where the ice ends and the ocean begins."]],
+      source:"Blue Marble imagery · NASA"},
+  "zh-CN":{atlas:"地球图志",edition:"观测笔记 · 轨道上的地球",background:"背景",theme:"主题",language:"语言",photo:"照片",light:"浅色",dark:"深色",split:"明暗交界",opaque:"不透明",panel:"玻璃面板",
+      save:"收藏",download:"下载",observations:"观测笔记",gallery:"影像",saved:"已收藏",tools:"文章操作",nav:"图志导航",qa:"预览控制",
+      eyebrow:"阿波罗 17 号 · 1972 年 12 月",heading:"从轨道看地球",summary:"沿着同一幅影像中的云带、陆地与海洋，阅读地球的轮廓。",
+      imageTitle:"蓝色弹珠",imageSummary:"阿波罗 17 号的乘员在飞往月球途中拍下了这幅影像。",
+      savedTitle:"阅读清单",savedSummary:"通过工具栏收藏的文章会出现在这里。",empty:"还没有收藏。打开观测笔记，点击「收藏」添加这期文章。",
+      sections:[["从海岸线开始","沿着非洲东侧的海岸向南看，可以辨认出离开大陆的马达加斯加岛。再往东，云带延伸到印度洋上。"],["顺着云带看","寻找白色云带之间的空隙。透过这些空隙，可以把较暗的海面与较亮的云顶区分开。"],["把目光移向南方","南极洲位于画面的下缘。周围的云层遮住了部分海冰与海洋的交界。"]],
+      source:"蓝色弹珠影像 · NASA"}
+};
+const root = document.documentElement;
+const themeSelect = document.querySelector("#theme");
+const languageSelect = document.querySelector("#language");
+const panelToggle = document.querySelector("#glass-panel");
+const lead = document.querySelector(".lead");
+const title = document.querySelector("#title");
+function readPreference(key){
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+function savePreference(key,value){
+  try {
+    localStorage.setItem(key,value);
+  } catch {
+    // The current page keeps its preference when storage is unavailable.
+  }
+}
+const savedTheme = readPreference("atlas-theme");
+const savedLanguage = readPreference("atlas-language");
+if (savedTheme === "light" || savedTheme === "dark") {
+  root.dataset.theme = themeSelect.value = savedTheme;
+}
+if (Object.prototype.hasOwnProperty.call(strings,savedLanguage)) {
+  root.lang = languageSelect.value = savedLanguage;
+}
+const save = document.querySelector("#save");
+const download = document.querySelector("#download");
+const nav = document.querySelector(".bottom-nav");
+let saved = false;
+function viewFromHash(){
+  const hash = location.hash.slice(1);
+  return hash === "gallery" || hash === "saved" ? hash : "observations";
+}
+let view = viewFromHash();
+function paint(){
+  const words = strings[root.lang];
+  for(const node of document.querySelectorAll("[data-copy]")) node.textContent = words[node.dataset.copy];
+  nav.setAttribute("aria-label",words.nav);
+  document.querySelector(".qa").setAttribute("aria-label",words.qa);
+  document.querySelector(".toolbar").setAttribute("aria-label",words.tools);
+  for(const link of nav.querySelectorAll("a")){
+    const current = link.hash === "#" + view;
+    if(current) link.setAttribute("aria-current","page"); else link.removeAttribute("aria-current");
+    link.querySelector(".icon").textContent = current ? link.dataset.iconCurrent : link.dataset.iconRest;
+  }
+  save.setAttribute("aria-pressed",String(saved));
+  download.disabled = view !== "gallery";
+  document.querySelector("#eyebrow").textContent = view === "saved" ? words.atlas : words.eyebrow;
+  title.textContent = {observations:words.heading,gallery:words.imageTitle,saved:words.savedTitle}[view];
+  document.querySelector("#summary").textContent = {observations:words.summary,gallery:words.imageSummary,saved:words.savedSummary}[view];
+  const article = document.querySelector("#article");
+  article.replaceChildren();
+  const sections = view === "observations" ? words.sections : view === "gallery" ? [[words.imageTitle,words.imageSummary]] : [[saved ? words.heading : words.savedTitle,saved ? words.summary : words.empty]];
+  for(const [heading,body] of sections){
+    const section = document.createElement("section");
+    const h2 = document.createElement("h2");
+    const p = document.createElement("p");
+    h2.textContent = heading;
+    p.textContent = body;
+    section.append(h2,p);
+    article.append(section);
+  }
+  const credit = document.createElement("a");
+  credit.href = "https://science.nasa.gov/resource/blue-marble/";
+  credit.textContent = words.source;
+  const footer = document.createElement("p");
+  footer.append(credit);
+  article.append(footer);
+}
+function updateGlassPanel(){
+  lead.classList.toggle("glass-panel",panelToggle.checked);
+}
+panelToggle.addEventListener("change",updateGlassPanel);
+document.querySelector("#backdrop").addEventListener("change",event=>{root.dataset.backdrop = event.target.value});
+document.querySelector("#opaque").addEventListener("change",event=>root.toggleAttribute("data-opaque",event.target.checked));
+themeSelect.addEventListener("change",()=>{
+  root.dataset.theme = themeSelect.value;
+  savePreference("atlas-theme",themeSelect.value);
+});
+languageSelect.addEventListener("change",()=>{
+  root.lang = languageSelect.value;
+  savePreference("atlas-language",languageSelect.value);
+  paint();
+});
+save.addEventListener("click",()=>{saved=!saved;paint()});
+download.addEventListener("click",()=>{
+  const link = document.createElement("a");
+  link.href = "earth.jpg";
+  link.download = "apollo-17-blue-marble.jpg";
+  link.click();
+});
+addEventListener("hashchange",()=>{
+  const nextView = viewFromHash();
+  if (nextView === view) return;
+  view = nextView;
+  paint();
+  scrollTo(0,0);
+  title.focus({preventScroll:true});
+  title.scrollIntoView({block:"nearest"});
+});
+updateGlassPanel();
+paint();
+</script>
+</html>

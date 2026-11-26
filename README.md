@@ -25,7 +25,7 @@
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-89-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-91-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -95,27 +95,42 @@ npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
 
 ## New Styles
 
-<table align="center">
+<table align="center" width="432">
   <tr>
-    <td align="center" colspan="3">
-      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="Monochrome — black and white linework with luminous nodes" width="196"></a>
+## Sub Catalog
+
+A child style inherits shared rules from a single parent and ships with complete light and dark themes. You can select, preview, tune, and export the parent and child independently. Each exported `customstyle` saves both themes as a standalone snapshot.
+
+[Paper Infographic](./renders/styles/paper-infographic.html) builds on the outlines and rounded controls of [Cozy Arcade](./renders/styles/cozy-arcade.html). Say “**Use Paper Infographic Style**” to select the child directly.
+
+    <td align="center" width="216">
+      <a href="./renders/styles/paper-infographic.html"><img src="./assets/readme-paper-infographic-circle.png" alt="Paper Infographic — a hand-drawn guide to how plants build healthy soil" width="95%"></a>
+      <h3>Paper Infographic<br>纸面图解</h3>
+    </td>
+    <td align="center" width="216">
+      <a href="./assets/demos/liquid-glass/index.html"><img src="./assets/readme-liquid-glass-circle.png" alt="Liquid Glass — a translucent capsule with reflected edges" width="97%"></a>
+      <h3>Liquid Glass<br>液态玻璃</h3>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="Monochrome — black and white linework with luminous nodes" width="45%"></a>
       <h3>Monochrome<br>单色</h3>
     </td>
   </tr>
   <tr>
-    <td align="center">
-      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="Hologram" width="196"></a>
+    <td align="center" width="216">
+      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="Hologram" width="90%"></a>
       <h3>Hologram<br>全息</h3>
     </td>
-    <td width="168" aria-hidden="true">&nbsp;</td>
-    <td align="center">
-      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="Cyberpunk" width="196"></a>
+    <td align="center" width="216">
+      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="Cyberpunk" width="90%"></a>
       <h3>Cyberpunk<br>赛博</h3>
     </td>
   </tr>
 </table>
 
-In your prompt, write “**Use Monochrome Style**”, “**Use Hologram Style**”, or “**Use Cyberpunk Style**”, and the agent will generate the page with that visual language.
+In your prompt, write the style name, for example “**Use Paper Infographic Style**” or “**Use Liquid Glass Style**”. [Liquid Glass Style Lab](./renders/styles/liquid-glass.html)
 
 ## Tune Colors Live
 
@@ -277,7 +292,9 @@ Palette details: [usage guide](./USAGE.md#palette).
 
 Start here when you need more than a color theme. A style carries material choices, surface behavior, component tone, render archetype, and a complete light/dark token contract together.
 
-**Includes:** 15 built-in visual grammars, including `cozy-arcade`, `quant-signal-console`, `cyberpunk-neon`, `hologram-moire`, `business-editorial`, `research-lab`, and [Monochrome](./renders/styles/monochrome.html). The [style routing guide](./references/catalogs/styles/README.md) helps select one by task and avoid boundary.
+Dig UI includes **17 built-in styles**, including `quant-signal-console`, `cyberpunk-neon`, `hologram-moire`, `business-editorial`, `research-lab`, and [Monochrome](./renders/styles/monochrome.html). [Browse the style routing guide](./references/catalogs/styles/README.md).
+
+**Glass on a single component.** Try “Keep Dig as the base style and use Liquid Glass material on the bottom navigation.” Keep Dig’s colors, typography, and navigation behavior. Apply the frosted treatment, edge highlights, and opaque fallback to the navigation. [Liquid Glass style contract](./references/catalogs/styles/liquid-glass.md)
 
 **Customize:** Style Lab temporarily tunes six core color roles in Light or Dark mode; export preserves both token maps in one `customstyle`, then import and sync it across tools:
 
@@ -418,7 +435,7 @@ dig-ui-skill/
 │   ├── anti-tells.md                # Common AI UI drift filters
 │   └── preflight.md                 # Delivery gate
 ├── renders/                         # Catalog previews and standalone Effect Lab
-├── assets/                          # README assets, preview CSS, and bundled Effects runtime
+├── assets/                          # README assets, preview CSS, demos, and bundled Effects runtime
 ├── adapters/                        # Tool adapters and React DigEffect wrapper
 ├── agents/                          # Agent metadata
 └── bin/dig-ui-skill.mjs             # Installer and sync CLI
@@ -444,6 +461,8 @@ Validate catalog previews:
 npm run validate:catalogs
 npm run validate:renders
 ```
+
+Run **Cross-platform CI** from the GitHub Actions tab for manual validation on macOS, Windows, and Linux.
 
 Build and verify Shaders recipes, the provider, and the Lab:
 

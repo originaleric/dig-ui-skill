@@ -5,6 +5,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  parseCssTokenBlock as parseCssTokens, readMarkdownFencedSections, readStyleRenderArchetype, readStyleThemeTokens,
+} from "./assets/effects/protocol.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const languageSuffixPattern = /\.(en|zh-CN)\.md$/;
@@ -411,10 +414,6 @@ function parseFrontmatter(content) {
   return fields;
 }
 
-function hasExplicitRenderArchetype(content) {
-  return /\nrender:\s*\n(?:[^\n]*\n)*?\s*archetype:\s*["']?[^"'\n]+/.test(content);
-}
-
 function normalizeYamlScalar(value) {
   return value.trim().replace(/^["']|["']$/g, "").trim();
 }
@@ -518,57 +517,8 @@ function validatePaletteSupportCandidates(content, slug) {
   return issues;
 }
 
-function extractSectionOutsideFences(content, heading) {
-  const lines = content.split("\n");
-  const target = new RegExp(`^##\\s+${heading.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*$`);
-  const nextHeading = /^##\s+/;
-  const collected = [];
-  let collecting = false;
-  let inFence = false;
-  let fenceChar = "";
-  let fenceLength = 0;
-
-  for (const line of lines) {
-    const fenceMatch = line.match(/^(`{3,}|~{3,})/);
-    if (fenceMatch) {
-      const marker = fenceMatch[1];
-      if (!inFence) {
-        inFence = true;
-        fenceChar = marker[0];
-        fenceLength = marker.length;
-      } else if (marker[0] === fenceChar && marker.length >= fenceLength) {
-        inFence = false;
-        fenceChar = "";
-        fenceLength = 0;
-      }
-    }
-
-    if (!inFence && target.test(line)) {
-      collecting = true;
-      continue;
-    }
-    if (collecting && !inFence && nextHeading.test(line)) {
-      break;
-    }
-    if (collecting) collected.push(line);
-  }
-
-  return collected.join("\n").trim();
-}
-
 function extractFencedCodeBlockFromSection(content, heading, language) {
-  const section = extractSectionOutsideFences(content, heading);
-  if (!section) return "";
-  const match = section.match(new RegExp(`\`\`\`${language}\\s*\\n([\\s\\S]*?)\\n\`\`\``));
-  return match ? match[1].trim() : "";
-}
-
-function parseCssTokens(content) {
-  const tokens = {};
-  for (const match of content.matchAll(/(--dig-[\w-]+)\s*:\s*([^;]*);/g)) {
-    tokens[match[1]] = match[2].trim();
-  }
-  return tokens;
+  return readMarkdownFencedSections(content, { [heading]: language })[heading] ?? "";
 }
 
 function parseTokenContracts(content) {
@@ -971,49 +921,38 @@ function validateStyleCatalogs() {
         }
       }
     }
-    if (!hasExplicitRenderArchetype(content)) {
+    const archetype = readStyleRenderArchetype(content);
+    if (!archetype) {
       issues.push(fail(`Style ${slug} missing explicit render archetype`, "render.archetype is required for style catalogs"));
     }
-
-    const archetype = normalizeYamlScalar(parseYamlSectionMap(content.split("---")[1] || "", "render").archetype || "");
     const requiredThemeRoles = [
       ...styleThemeTokenRoles,
       ...(archetype === "monochrome-workspace" ? monochromeWorkspaceTokenRoles : []),
     ];
-    const tokenBlock = extractFencedCodeBlockFromSection(content, "Dig UI CSS Tokens", "css");
-    if (!tokenBlock) {
-      issues.push(fail(`Style ${slug} missing canonical CSS token block`, "## Dig UI CSS Tokens fenced css block"));
-    } else {
-      const tokens = parseCssTokens(tokenBlock);
-      const usesMobileGameCompanion = content.includes("archetype: mobile-game-companion");
-      const usesSignalOpsConsole = content.includes("archetype: signal-ops-console");
-      const requiredTokens = [
-        ...brandV1RequiredTokenRoles,
-        ...styleV1AdditionalTokenRoles,
-        ...(usesMobileGameCompanion ? mobileGameCompanionTokenRoles : []),
-        ...(usesSignalOpsConsole ? signalOpsConsoleTokenRoles : []),
-      ];
-      for (const token of requiredTokens) {
-        if (!Object.hasOwn(tokens, token)) {
-          issues.push(fail(`Style ${slug} missing token role`, token));
-        } else if (!hasMeaningfulValue(tokens[token])) {
-          issues.push(fail(`Style ${slug} token role has empty value`, token));
-        }
-      }
-      for (const token of requiredThemeRoles) {
-        if (!Object.hasOwn(tokens, token) || !hasMeaningfulValue(tokens[token])) {
-          issues.push(fail(`Style ${slug} light theme missing token role`, token));
-        }
+    let themes;
+    try {
+      themes = readStyleThemeTokens(content, rel);
+    } catch (error) {
+      issues.push(fail(`Style ${slug} has invalid theme declarations`, error.message));
+      continue;
+    }
+    const requiredTokens = [
+      ...brandV1RequiredTokenRoles,
+      ...styleV1AdditionalTokenRoles,
+      ...(archetype === "mobile-game-companion" ? mobileGameCompanionTokenRoles : []),
+      ...(archetype === "signal-ops-console" ? signalOpsConsoleTokenRoles : []),
+    ];
+    for (const token of requiredTokens) {
+      if (!Object.hasOwn(themes.light, token)) {
+        issues.push(fail(`Style ${slug} missing token role`, token));
+      } else if (!hasMeaningfulValue(themes.light[token])) {
+        issues.push(fail(`Style ${slug} token role has empty value`, token));
       }
     }
-    const darkTokenBlock = extractFencedCodeBlockFromSection(content, "Dig UI Dark Tokens", "css");
-    if (!darkTokenBlock) {
-      issues.push(fail(`Style ${slug} missing canonical dark token block`, "## Dig UI Dark Tokens fenced css block"));
-    } else {
-      const darkTokens = parseCssTokens(darkTokenBlock);
+    for (const [mode, tokens] of Object.entries(themes)) {
       for (const token of requiredThemeRoles) {
-        if (!Object.hasOwn(darkTokens, token) || !hasMeaningfulValue(darkTokens[token])) {
-          issues.push(fail(`Style ${slug} dark theme missing token role`, token));
+        if (!hasMeaningfulValue(tokens[token])) {
+          issues.push(fail(`Style ${slug} ${mode} theme missing token role`, token));
         }
       }
     }
@@ -1056,7 +995,7 @@ function validateInstallerCanonicalCatalogPassthrough() {
     "async function findStyleAssetPathBySlug",
     "function getRequiredStyleTokenRoles",
     "function assertStyleTokenContract",
-    "function parseStyleCssTokens",
+    "readStyleThemeTokens",
     "async function runStyleImport",
     "async function syncStylesIntoSkillDir",
     "await syncStylesIntoSkillDir(destRoot)",
@@ -1195,6 +1134,27 @@ function validateCustomStyleCliWorkflow() {
       issues.push(fail("style show <slug> must resolve valid Markdown customstyles", markdownShowOutput.slice(0, 200)));
     }
 
+    const corruptStyle = path.join(tempRoot, ".config", "dig-ui-skill", "styles", "corrupt.md");
+    fs.writeFileSync(corruptStyle, "Unreadable style Markdown\n");
+    const listed = runSkillCli(["style", "list"], tempRoot);
+    for (const entry of ["validator-md-style.md  Validator Markdown Style  markdown", "corrupt.md  unreadable"]) {
+      if (!listed.split("\n").includes(entry)) {
+        issues.push(fail("style list must show Markdown style names and isolate invalid assets", entry));
+      }
+    }
+
+    const authorFixturePath = path.join(tempRoot, "child-author-style.md");
+    fs.writeFileSync(authorFixturePath, buildStyleMarkdownFixture({ slug: "child-author-style" })
+      .replace("slug: child-author-style", "slug: child-author-style\nextends: cozy-arcade"), "utf8");
+    try {
+      runSkillCli(["style", "import", authorFixturePath], tempRoot);
+      issues.push(fail("style import accepted an unresolved child style", authorFixturePath));
+    } catch (error) {
+      if (!String(error.stderr).includes("Import the generated Catalog Markdown or export")) {
+        issues.push(fail("style import must identify unresolved child styles", error.stderr));
+      }
+    }
+
     const incompleteThemeMarkdownPath = path.join(tempRoot, "incomplete-theme-style.md");
     fs.writeFileSync(
       incompleteThemeMarkdownPath,
@@ -1225,7 +1185,7 @@ function validateCustomStyleCliWorkflow() {
       issues.push(fail("style import must reject style_v1 Markdown without a dark token block", "legacy-style.md imported successfully"));
     } catch (error) {
       const output = `${error.stdout || ""}${error.stderr || ""}`;
-      if (!output.includes("must include Dig UI Dark Tokens fenced css block")) {
+      if (!output.includes("missing ## Dig UI Dark Tokens fenced css block")) {
         issues.push(fail("legacy Markdown failure should identify the missing dark token block", output.slice(0, 240)));
       }
     }
@@ -1320,13 +1280,10 @@ function validateRenderRegistryContract() {
   if (!syncContent.includes('"styles": "token-sheet"')) {
     issues.push(fail("sync_renders.py style render archetype default must be neutral", "token-sheet"));
   }
-  for (const requiredHelper of ["parse_existing_catalog_data", "merge_catalog_data", "write_catalog_registry"]) {
+  for (const requiredHelper of ["parse_existing_catalog_data", "merge_catalog_data", "render_catalog_registry"]) {
     if (!syncContent.includes(`def ${requiredHelper}(`)) {
       issues.push(fail("sync_renders.py missing target-safe registry helper", requiredHelper));
     }
-  }
-  if (!syncContent.includes("target_catalog=target_catalog")) {
-    issues.push(fail("sync_renders.py registry update must receive target_catalog for merge writes"));
   }
   for (const requiredSnippet of [
     "PALETTE_REQUIRED_FRONTMATTER",
@@ -1371,7 +1328,6 @@ function validateRenderRegistryContract() {
     "function buildStyleExportPayload(",
     "function parseStyleTokenCss(",
     "function buildStyleTokenCss(",
-    "String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\\\s*:\\\\s*([^;]+);/g)",
     "const styleTokenCss = lab.getAttribute('data-style-token-block')",
     "const styleDarkTokenCss = lab.getAttribute('data-style-dark-token-block')",
     "const styleCss = buildStyleTokenCss(styleTokens, styleTokenCss)",
@@ -1451,13 +1407,13 @@ function validateRenderRegistryContract() {
       'class="theme-switch-capsule" data-theme-switcher hidden',
       "html[data-style-theme=\"dark\"]",
       "function initStyleTheme()",
-      "String(cssText || '').matchAll(/(--dig-[A-Za-z0-9_-]+)\\s*:\\s*([^;]+);/g)",
+      "function parseStyleTokenCss(",
     ]) {
       if (!styleRender.includes(requiredSnippet)) {
         issues.push(fail("Style render missing executable dual-theme behavior", `${rel}: ${requiredSnippet}`));
       }
     }
-    const themeOverrideCount = (styleRender.match(/html\[data-style-theme="dark"\]/g) || []).length;
+    const themeOverrideCount = (styleRender.match(/^\s*html\[data-style-theme="dark"\]\s*\{/gm) || []).length;
     if (themeOverrideCount !== 1) {
       issues.push(fail("Style render must contain exactly one generated dark-theme override", `${rel}: ${themeOverrideCount}`));
     }
@@ -1569,7 +1525,10 @@ function validateRenderTemplates() {
       encoding: "utf8",
       timeout: 30000,
     });
-    return result.status === 0 ? [] : [fail(`Render template regression failed (${python})`, result.error?.message || result.stderr || result.stdout)];
+    const details = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();
+    return result.status === 0 ? [] : [
+      fail(`Render template regression failed (${python})`, result.error?.message || details),
+    ];
   });
 }
 
@@ -1598,6 +1557,12 @@ function main() {
   issues.push(...validateInstallerCanonicalCatalogPassthrough());
   issues.push(...validateCustomStyleCliWorkflow());
   issues.push(...validateRenderRegistryContract());
+  const artifacts = childProcess.spawnSync(process.execPath, [
+    path.join(__dirname, "validate-dig-catalog-preview.mjs"), "--style-sources",
+  ], { cwd: __dirname, encoding: "utf8" });
+  if (artifacts.status !== 0) {
+    issues.push(fail("Style publishing artifacts are out of sync", artifacts.error?.message || artifacts.stderr));
+  }
   issues.push(...validateRenderTemplates());
 
   const fails = issues.filter((issue) => issue.level === "FAIL");

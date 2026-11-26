@@ -5,6 +5,121 @@ import Color from './color.mjs';
 export const EFFECT_SCHEMA = 'dig.effect.v1';
 export const SHADERS_VERSION = registry.version;
 export const clone = value => JSON.parse(JSON.stringify(value));
+
+export function stripCssComments(css) {
+  return css.replace(/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|\/\*[\s\S]*?(\*\/|$)/g,
+    (text, closing) => {
+      if (!text.startsWith('/*')) return text;
+      if (!closing) throw new Error('unterminated CSS comment');
+      return ' ';
+    });
+}
+
+export const cssTokenDeclaration = /(--dig-[\w-]+)[ \t\r\n\f]*:[ \t\r\n\f]*((?:"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'|[^;"'])*);/g;
+
+const trimCssWhitespace = value => value.replace(/^[ \t\r\n\f]+|[ \t\r\n\f]+$/g, '');
+
+export function parseCssTokenBlock(css) {
+  return Object.fromEntries([...stripCssComments(css).matchAll(cssTokenDeclaration)]
+    .map(([, name, value]) => [name, trimCssWhitespace(value)]));
+}
+
+function parseStyleTokenBlock(css, heading, source) {
+  const label = source ? `${source}: ## ${heading}` : `## ${heading}`;
+  let declarations;
+  try {
+    declarations = stripCssComments(css);
+  } catch (error) {
+    throw new Error(`${label}: ${error.message}`, { cause: error });
+  }
+  const invalid = `${label} must contain Dig UI token declarations ending in semicolons`;
+  const tokens = {};
+  let offset = 0;
+  for (const match of declarations.matchAll(cssTokenDeclaration)) {
+    if (trimCssWhitespace(declarations.slice(offset, match.index))) throw new Error(invalid);
+    const [, name, value] = match;
+    const unquoted = value.replace(/"(?:\\[\s\S]|[^"\\])*"|'(?:\\[\s\S]|[^'\\])*'/g, '');
+    if (/(?<![-\w])--dig-[\w-]+[ \t\r\n\f]*:/.test(unquoted)) {
+      throw new Error(`${label} is missing a semicolon after ${name}`);
+    }
+    tokens[name] = trimCssWhitespace(value.replace(/[ \t]+\n/g, '\n'));
+    offset = match.index + match[0].length;
+  }
+  if (declarations.slice(offset).trim()) throw new Error(invalid);
+  return tokens;
+}
+
+export function readMarkdownFencedSections(markdown, languages) {
+  const blocks = {};
+  const seen = new Set();
+  let section;
+  let fence;
+  let block;
+  for (const line of markdown.split(/\r\n?|\n/)) {
+    const marker = line.match(/^ {0,3}(`{3,}|~{3,})(.*)$/);
+    if (fence) {
+      if (marker && marker[1][0] === fence[0] && marker[1].length >= fence.length && /^[ \t]*$/.test(marker[2])) {
+        if (block) {
+          const content = block.join('\n');
+          blocks[section] = languages[section] === 'css' ? trimCssWhitespace(content) : content.trim();
+        }
+        fence = null;
+        block = null;
+      } else {
+        block?.push(line);
+      }
+    } else if (marker) {
+      fence = marker[1];
+      block = section && marker[2].replace(/^[ \t]+|[ \t]+$/g, '') === languages[section]
+        && !Object.hasOwn(blocks, section) ? [] : null;
+    } else {
+      const heading = line.match(/^##[ \t]+(.*?)[ \t]*$/);
+      if (heading) {
+        const name = heading[1];
+        section = Object.hasOwn(languages, name) && !seen.has(name) ? name : undefined;
+        if (section) seen.add(section);
+      }
+    }
+  }
+  return blocks;
+}
+
+export function readStyleThemeTokens(markdown, source) {
+  const headings = { light: 'Dig UI CSS Tokens', dark: 'Dig UI Dark Tokens' };
+  const blocks = readMarkdownFencedSections(markdown, { [headings.light]: 'css', [headings.dark]: 'css' });
+  const themes = {};
+  for (const [mode, heading] of Object.entries(headings)) {
+    const tokens = parseStyleTokenBlock(blocks[heading] ?? '', heading, source);
+    if (!Object.keys(tokens).length) {
+      throw new Error(`${source ? `${source}: ` : ''}missing ## ${heading} fenced css block`);
+    }
+    themes[mode] = tokens;
+  }
+  return themes;
+}
+
+export function readStyleRenderArchetype(markdown) {
+  const frontmatter = markdown.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*\r?$/m);
+  if (frontmatter?.index !== 0) return '';
+  const lines = frontmatter[1].split(/\r?\n/);
+  const start = lines.findIndex(line => /^render:[ \t]*$/.test(line));
+  if (start === -1) return '';
+  let archetype = '';
+  for (const line of lines.slice(start + 1)) {
+    if (/^\S/.test(line)) break;
+    const match = line.match(/^[ \t]+archetype:[ \t]*(.*)$/);
+    if (match) archetype = match[1];
+  }
+  return archetype.trim().replace(/^["']+|["']+$/g, '').trim();
+}
+
+export function catalogThemeName(markdown, id) {
+  return {
+    en: markdown.match(/^name_en:[ \t]*(.+)$/m)?.[1] || id,
+    'zh-CN': markdown.match(/^name_zh:[ \t]*(.+)$/m)?.[1] || id,
+  };
+}
+
 // Object field order does not change an asset; layer/parameter/resource array order still does.
 export function serializeEffect(value) {
   const ordered=v=>Array.isArray(v)?v.map(ordered):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,ordered(v[k])])):v;

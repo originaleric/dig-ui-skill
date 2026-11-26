@@ -25,7 +25,7 @@
 <p align="center">
   <a href="./LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-blue.svg"></a>
   <a href="https://www.npmjs.com/package/dig-ui-skill"><img alt="npm package" src="https://img.shields.io/badge/npm-dig--ui--skill-red.svg"></a>
-  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-89-0071e3">
+  <img alt="Catalog previews" src="https://img.shields.io/badge/catalogs-91-0071e3">
   <img alt="Layout recipes" src="https://img.shields.io/badge/layouts-20-111111">
   <img alt="AI tools" src="https://img.shields.io/badge/tools-Codex%20%7C%20Cursor%20%7C%20Claude%20Code-2aa7b8">
 </p>
@@ -96,27 +96,42 @@ npx dig-ui-skill effect preview flowing-ribbon --output ./effect-lab.html
 
 ## 新增 Style
 
-<table align="center">
+<table align="center" width="432">
   <tr>
-    <td align="center" colspan="3">
-      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="单色——黑白线条与微光节点" width="196"></a>
+## Sub Catalog 子风格
+
+子风格继承一套父风格的共享规则，同时拥有完整的亮暗主题。父子风格各自支持选用、预览、调参和导出，导出的 `customstyle` 会独立保存两套主题。
+
+例如，[纸面图解](./renders/styles/paper-infographic.html)继承[软萌街机](./renders/styles/cozy-arcade.html)的描边和圆角控件。直接说「**用纸面图解风格**」即可选用子风格。
+
+    <td align="center" width="216">
+      <a href="./renders/styles/paper-infographic.html"><img src="./assets/readme-paper-infographic-circle.png" alt="纸面图解——植物如何改善土壤的手绘图解" width="95%"></a>
+      <h3>Paper Infographic<br>纸面图解</h3>
+    </td>
+    <td align="center" width="216">
+      <a href="./assets/demos/liquid-glass/index.html"><img src="./assets/readme-liquid-glass-circle.png" alt="液态玻璃——带边缘反光的半透明胶囊" width="97%"></a>
+      <h3>Liquid Glass<br>液态玻璃</h3>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2">
+      <a href="./renders/styles/monochrome.html"><img src="./assets/readme-monochrome-circle.png" alt="单色——黑白线条与微光节点" width="45%"></a>
       <h3>Monochrome<br>单色</h3>
     </td>
   </tr>
   <tr>
-    <td align="center">
-      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="全息" width="196"></a>
+    <td align="center" width="216">
+      <a href="./renders/styles/hologram-moire.html"><img src="./assets/readme-hologram-light-circle.png" alt="全息" width="90%"></a>
       <h3>Hologram<br>全息</h3>
     </td>
-    <td width="168" aria-hidden="true">&nbsp;</td>
-    <td align="center">
-      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="赛博" width="196"></a>
+    <td align="center" width="216">
+      <a href="./renders/styles/cyberpunk-neon.html"><img src="./assets/readme-cyberpunk-neon-circle.png" alt="赛博" width="90%"></a>
       <h3>Cyberpunk<br>赛博</h3>
     </td>
   </tr>
 </table>
 
-在 Prompt 中写，“**使用 Monochrome Style**”、“**使用全息 Style**”或“**使用赛博 Style**”，Agent 会按对应视觉语法生成页面。
+在 Prompt 中写上风格名，例如「**用纸面图解风格**」或「**用液态玻璃风格**」。[液态玻璃 Style Lab](./renders/styles/liquid-glass.html)
 
 ## 即时试色与导出
 
@@ -278,7 +293,9 @@ Palette 详见[使用文档](./USAGE.zh-CN.md#palette)。
 
 当你需要的不只是主题色时，从这里开始。Style 会将材质选择、surface 行为、组件气质、render archetype 和完整 light/dark token contract 一起带入任务。
 
-**包含：**15 套内置视觉语法，包括 `cozy-arcade`、`quant-signal-console`、`cyberpunk-neon`、`hologram-moire`、`business-editorial`、`research-lab` 与 [Monochrome 单色](./renders/styles/monochrome.html)。[style 路由指南](./references/catalogs/styles/README.md) 会按任务和 avoid boundary 帮助选择基础 style。
+Dig UI 提供 **17 套内置风格**，包括 `quant-signal-console`、`cyberpunk-neon`、`hologram-moire`、`business-editorial`、`research-lab` 和 [Monochrome 单色](./renders/styles/monochrome.html)。[浏览风格选用指南](./references/catalogs/styles/README.md)。
+
+**单个组件使用玻璃材质。** 可以说「页面保持 Dig 风格，底部导航使用 Liquid Glass 材质」。页面继续用 Dig 的颜色、字体与导航交互，在导航上应用半透明磨砂、边缘高光和不透明降级。[液态玻璃风格合约](./references/catalogs/styles/liquid-glass.md)
 
 **如何定制：**Style Lab 可分别在 Light / Dark 下临时调整六个核心颜色角色；导出时两套 token 会一起写入 `customstyle`，再导入并同步到各工具：
 
@@ -419,7 +436,7 @@ dig-ui-skill/
 │   ├── anti-tells.md                # 常见 AI UI 漂移过滤器
 │   └── preflight.md                 # 交付 gate
 ├── renders/                         # Catalog 预览与独立 Effect Lab
-├── assets/                          # README 资源、预览 CSS 与打包的 Effects runtime
+├── assets/                          # README 资源、预览 CSS、交互 Demo 与打包的 Effects runtime
 ├── adapters/                        # 工具适配器与 React DigEffect wrapper
 ├── agents/                          # Agent 元数据
 └── bin/dig-ui-skill.mjs             # 安装与同步 CLI
@@ -445,6 +462,8 @@ npm install
 npm run validate:catalogs
 npm run validate:renders
 ```
+
+在 GitHub Actions 中手动运行 **Cross-platform CI**，校验 macOS、Windows 和 Linux。
 
 构建并验证 Shaders recipe、provider 和 Lab：
 

@@ -71,6 +71,10 @@ When using a built-in style catalog, read `references/catalogs/styles/README.md`
 
 When common components or product modules are involved, read `references/blocks/README.md` and relevant block files. Prefer block protocols over inventing repeated local structures.
 
+For “paper infographic”, `paper-infographic`, or “纸面图解”, select the built-in [Paper Infographic catalog](references/catalogs/styles/paper-infographic.md) and apply its complete light and dark rules. Each child style is independently selectable.
+
+For “Liquid Glass”, `liquid-glass`, or “液态玻璃”, select the top-level [Liquid Glass style](references/catalogs/styles/liquid-glass.md) for bottom navigation and floating toolbars. Requests for Apple brand or product presentation use the [Apple catalog](references/catalogs/media-consumer/apple.md).
+
 Common blocks:
 
 - primitive: button, input, select, form-row, toast, modal, tooltip, tabs

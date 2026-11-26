@@ -61,7 +61,7 @@ Style catalogs fit requests that specify a screenshot style, non-brand style, ma
 
 Before choosing a built-in style, read [styles/README.md](./styles/README.md). It routes all styles by task, avoid boundary, and preview archetype; choose one style catalog as the base visual system for a task.
 
-New style catalogs must live in `references/catalogs/styles/` and declare this frontmatter:
+Top-level style catalogs are authored in `references/catalogs/styles/` with the following frontmatter. Author child styles in `references/style-sources/` as described in [Render Ops](../render-ops.md#style-render-integrity).
 
 ```yaml
 kind: style-catalog

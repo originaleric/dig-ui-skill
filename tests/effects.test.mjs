@@ -5,7 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import {webcrypto,createHash} from 'node:crypto';
 import {spawnSync,spawn} from 'node:child_process';
-import {validateEffect,clone,setParameter,resolveComposition,verifyAssets,flattenLayers} from '../assets/effects/protocol.mjs';
+import {validateEffect,clone,setParameter,resolveComposition,verifyAssets,flattenLayers,readStyleThemeTokens} from '../assets/effects/protocol.mjs';
 import {zipFiles,unzipFiles,readEffectArchive} from '../assets/effects/archive.mjs';
 import {readEffect,listEffects,runEffectCLI,themes,syncEffectsInto,effectsDir,packageRoot,buildLab} from '../bin/effects-cli.mjs';
 globalThis.crypto ||= webcrypto;
@@ -52,6 +52,226 @@ test('all built-in catalog types and custom themes are available',async()=>{
  const customDir=path.join(root,'config','palettes');await fs.mkdir(customDir,{recursive:true});await fs.writeFile(path.join(customDir,'test.json'),JSON.stringify({schema:'dig.palette.export.v1',name:{en:'Custom'},tokens:{'--dig-bg':'#fafafa','--dig-text':'#101010','--dig-accent':'#33aa99'}}));
  const all=await themes();for(const id of ['dig','apple','palette01','monochrome','hologram-moire'])assert.ok(all.find(t=>t.id===id),id);
  assert.ok(all.find(t=>t.id.startsWith('local-palettes')));assert.notEqual(all.find(t=>t.id==='dig').theme_tokens.light['--dig-bg'],all.find(t=>t.id==='dig').theme_tokens.dark['--dig-bg']);
+});
+test('style themes read canonical sections outside Markdown examples',()=>{
+ const fence='```';
+ const theme=readStyleThemeTokens([
+  '  '+fence+'`markdown','## Dig UI CSS Tokens',fence+'css','--dig-accent: #ae33bf;',fence,'  '+fence+'`',
+  '~~~markdown','## Dig UI Dark Tokens',fence+'css','--dig-accent: #010101;',fence,'~~~',
+  '## Dig UI CSS Tokens','~~~~markdown',fence+'css','--dig-accent: #010101;',fence,'~~~~',
+  fence+'css','--dig-accent: rgb(','  239 187 65',');',
+  '/* --dig-accent: #ae33bf; */','--dig-label: "/* literal; --dig-fake: preserved; */";',fence,
+  '## Dig UI Dark Tokens',fence+'css','--dig-accent: #f3c65b;',fence,
+ ].join('\r\n'));
+ assert.equal(theme.light['--dig-accent'],'rgb(\n  239 187 65\n)');
+ assert.equal(theme.light['--dig-label'],'"/* literal; --dig-fake: preserved; */"');
+ assert.ok(!Object.hasOwn(theme.light,'--dig-fake'));
+ assert.equal(theme.dark['--dig-accent'],'#f3c65b');
+});
+test('style theme readers reject malformed CSS in either canonical mode',()=>{
+ const md='`'.repeat(3);
+ const section=(heading,css)=>[`## ${heading}`,md+'css',css,md].join('\n');
+ const light='Dig UI CSS Tokens',dark='Dig UI Dark Tokens';
+ const valid='--dig-bg: #ff0;';
+ for(const heading of [light,dark]){
+  for(const [css,error] of [
+   [valid+'\n/* --dig-bg: #000;',/unterminated CSS comment/],
+   ['--dig-bg: #ff0\n--dig-text: #000;',/missing a semicolon after --dig-bg/],
+  ]){
+   const style=[light,dark].map(mode=>section(mode,mode===heading?css:valid)).join('\n\n');
+   assert.throws(()=>readStyleThemeTokens(style,'style.md'),failure=>
+    failure.message.includes(`style.md: ## ${heading}`) && error.test(failure.message));
+  }
+ }
+});
+test('publication checks actual child Markdown, previews and embedded Effects theme values',async()=>{
+ const staging=path.join(root,'publication');
+ await fs.mkdir(path.join(staging,'references'),{recursive:true});
+ await fs.mkdir(path.join(staging,'renders/effects'),{recursive:true});
+ await fs.mkdir(path.join(staging,'references/shared'),{recursive:true});
+ for(const asset of ['SKILL.md','SKILL.en.md','references/shared/catalog-manifest.yaml','references/catalogs',
+  'references/style-sources','renders/styles','renders/index.html','renders/effects/index.html']){
+  await fs.cp(path.join(packageRoot,asset),path.join(staging,asset),{recursive:true});
+ }
+ const validate=()=>spawnSync(process.execPath,[path.join(packageRoot,'validate-dig-catalog-preview.mjs'),'--style-sources'],{cwd:staging,encoding:'utf8'});
+ const valid=validate();
+ assert.equal(valid.status,0,valid.stderr);
+ for(const [asset,edit,diagnostic] of [
+  ['references/style-sources/paper-infographic.md',text=>text+'\nEdited description.\n',/paper-infographic\.md is stale/],
+  ['references/catalogs/styles/paper-infographic.md',text=>text+'\nEdited generated copy.\n',/paper-infographic\.md is stale/],
+  ['renders/styles/paper-infographic.html',text=>text.replace('--dig-leading-normal: 1.45;', '--dig-leading-normal: 1.5;'),/paper-infographic\.html has stale/],
+  ['renders/styles/paper-infographic.html',text=>text.replace('</style>','html[data-style-theme="dark"] { --dig-leading-normal: 1.5; }\n</style>'),/paper-infographic\.html has stale/],
+  ['renders/styles/paper-infographic.html',text=>text.replace('Keep labels short and include text or shape alongside each semantic color.','Older export guidance.'),/paper-infographic\.html has a stale Style Contract/],
+  ['renders/styles/paper-infographic.html',text=>text.replace('data-render-archetype="token-sheet"','data-render-archetype="mobile-game-companion"'),/paper-infographic\.html has a stale Style Contract or render archetype/],
+  ['references/catalogs/styles/archive-dotmatrix.md',text=>text+'\nUpdated catalog guidance.\n',/archive-dotmatrix\.html was built from different style Markdown/],
+  ['renders/effects/index.html',text=>text.replace(/("id":"paper-infographic"[^]*?"--dig-leading-normal":)"1\.45"/,'$1"1.5"'),/has stale style theme paper-infographic/],
+  ['renders/index.html',text=>text.replace(/("slug": "paper-infographic", [^\n]*?"name_en": )"Paper Infographic"/,'$1"Old name"'),/has stale data for paper-infographic/],
+  ['renders/effects/index.html',null,/renders\/effects\/index\.html is missing/],
+  ['renders/index.html',null,/renders\/index\.html is missing/],
+  ['SKILL.en.md',text=>text.replace('references/catalogs/styles/paper-infographic.md','references/catalogs/styles/missing-style.md'),/SKILL\.en\.md links to missing built-in style/],
+  ['references/shared/catalog-manifest.yaml',text=>text.replace('- slug: paper-infographic','- slug: missing-style'),/catalog-manifest\.yaml declares missing built-in style missing-style/],
+ ]){
+  const file=path.join(staging,asset),original=await fs.readFile(file,'utf8');
+  if(edit){
+   const changed=edit(original);
+   assert.notEqual(changed,original);
+   await fs.writeFile(file,changed);
+  }else await fs.unlink(file);
+  const rejected=validate();
+  assert.notEqual(rejected.status,0,asset);
+  assert.match(rejected.stderr,diagnostic);
+  await fs.writeFile(file,original);
+ }
+ const restored=validate();
+ assert.equal(restored.status,0,restored.stderr);
+});
+test('Effect Lab skips invalid local themes and still exposes valid parent and child themes',async()=>{
+ const localStyles=path.join(root,'config','styles');
+ await fs.mkdir(localStyles,{recursive:true});
+ const files=['cozy-arcade.md','paper-infographic.md','unfinished.md'];
+ try {
+  for(const file of files.slice(0,2)){
+   await fs.copyFile(path.join(packageRoot,'references/catalogs/styles',file),path.join(localStyles,file));
+  }
+  const valid=await fs.readFile(path.join(localStyles,'paper-infographic.md'),'utf8');
+  await fs.writeFile(path.join(localStyles,'unfinished.md'),valid.replace('--dig-accent: #efbb41;','/* unfinished'));
+  const output=path.join(root,'local-themes.html');
+  const result=spawnSync(process.execPath,['bin/dig-ui-skill.mjs','effect','preview','flowing-ribbon','--output',output],{cwd:packageRoot,encoding:'utf8'});
+  assert.equal(result.status,0,result.stderr);
+  assert.match(result.stderr,/unfinished\.md skipped:.*unterminated CSS comment/);
+  const loaded=JSON.parse((await fs.readFile(output,'utf8')).match(/<script id="effect-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);
+  const ids=loaded.themes.map(theme=>theme.id);
+  for(const slug of ['cozy-arcade','paper-infographic']){
+   assert.ok(ids.includes(slug));
+   assert.ok(ids.includes(`local-styles-${slug}-md`));
+  }
+  assert.ok(!ids.includes('local-styles-unfinished-md'));
+ } finally {
+  await Promise.all(files.map(file=>fs.rm(path.join(localStyles,file),{force:true})));
+ }
+});
+test('full and targeted renders prepare Catalog outputs before replacing existing files',async()=>{
+ const staging=path.join(root,'render-preflight');
+ for(const asset of [
+  'sync_renders.py','bin','assets/effects','assets/fonts/bootstrap-icons.woff2','adapters/react','LICENSE',
+  'references/catalogs','references/style-sources','references/effects','renders',
+ ]){
+  const dest=path.join(staging,asset);
+  await fs.mkdir(path.dirname(dest),{recursive:true});
+  await fs.cp(path.join(packageRoot,asset),dest,{recursive:true});
+ }
+ const catalog=path.join(staging,'references/catalogs/styles/paper-infographic.md');
+ const author=path.join(staging,'references/style-sources/paper-infographic.md');
+ const preview=path.join(staging,'renders/styles/paper-infographic.html');
+ const effects=path.join(staging,'renders/effects/index.html');
+ const outputs=[catalog,preview,effects,path.join(staging,'renders/index.html')];
+ const before=await Promise.all(outputs.map(file=>fs.readFile(file)));
+ const brand=path.join(staging,'references/catalogs/saas/zapier.md');
+ const validBrand=await fs.readFile(brand,'utf8');
+ const brokenBrand=validBrand.replace(/(## Dig UI CSS Tokens\s+```css\s*[\s\S]*?)(\n```)/,'$1\n/* --dig-leading-normal: 5;$2');
+ assert.notEqual(brokenBrand,validBrand);
+ await fs.writeFile(brand,brokenBrand);
+ const originalAuthor=await fs.readFile(author,'utf8');
+ const revised=originalAuthor.replace('## Style Contract','Another note about annotations.\n\n## Style Contract');
+ await fs.writeFile(author,revised);
+ const render=()=>spawnSync(process.execPath,['bin/dig-ui-skill.mjs','render','all'],{cwd:staging,encoding:'utf8'});
+ const targeted=()=>spawnSync('python3',['sync_renders.py','cozy-arcade'],{cwd:staging,encoding:'utf8'});
+ const rejected=render();
+ assert.notEqual(rejected.status,0);
+ assert.match(rejected.stderr,/zapier\.md: unterminated CSS comment/);
+ assert.deepEqual(await Promise.all(outputs.map(file=>fs.readFile(file))),before);
+ await fs.writeFile(brand,validBrand);
+
+ const malformed=revised.replace('--dig-accent: #efbb41;','--dig-accent: #efbb41;\n--dig-批注: 1;');
+ assert.notEqual(malformed,revised);
+ await fs.writeFile(author,malformed);
+ const invalidToken=render();
+ assert.notEqual(invalidToken.status,0);
+ assert.match(invalidToken.stdout,/paper-infographic\.md.*Dig UI CSS Tokens.*ending in semicolons/);
+ assert.deepEqual(await Promise.all(outputs.map(file=>fs.readFile(file))),before);
+ await fs.writeFile(author,revised);
+
+ const index=outputs[3];
+ await fs.writeFile(index,'<html>missing catalog template</html>\n');
+ const brokenIndex=render();
+ assert.notEqual(brokenIndex.status,0);
+ assert.match(brokenIndex.stdout,/exactly one catalogData block/);
+ assert.deepEqual(await Promise.all(outputs.slice(0,3).map(file=>fs.readFile(file))),before.slice(0,3));
+ await fs.writeFile(index,before[3]);
+
+ const malformedIndex=before[3].toString().replace(/(const catalogData = )(\{[\s\S]*?\})(;\s*function getCatalogItems)/,
+  (_,prefix,data,suffix)=>{
+   const registry=JSON.parse(data);
+   registry.styles.items={};
+   return prefix+JSON.stringify(registry)+suffix;
+  });
+ assert.notEqual(malformedIndex,before[3].toString());
+ await fs.writeFile(index,malformedIndex);
+ const badRegistry=targeted();
+ assert.notEqual(badRegistry.status,0);
+ assert.match(badRegistry.stdout,/catalogData\.styles\.items must be an array/);
+ assert.deepEqual(await Promise.all(outputs.slice(0,3).map(file=>fs.readFile(file))),before.slice(0,3));
+ assert.equal(await fs.readFile(index,'utf8'),malformedIndex);
+ await fs.writeFile(index,before[3]);
+
+ await fs.unlink(index);
+ await fs.mkdir(index);
+ const blockedIndex=targeted();
+ assert.notEqual(blockedIndex.status,0);
+ assert.match(blockedIndex.stdout,/not a regular file: .*renders[\\/]index\.html/);
+ assert.deepEqual(await Promise.all(outputs.slice(0,3).map(file=>fs.readFile(file))),before.slice(0,3));
+ await fs.rmdir(index);
+ await fs.writeFile(index,before[3]);
+
+ await fs.unlink(effects);
+ await fs.mkdir(effects);
+ const blocked=render();
+ assert.notEqual(blocked.status,0);
+ assert.match(blocked.stdout,/not a regular file: .*renders[\\/]effects[\\/]index\.html/);
+ assert.doesNotMatch(blocked.stdout,/Sync completed successfully/);
+ assert.deepEqual(await Promise.all([catalog,preview,index].map(file=>fs.readFile(file))),[before[0],before[1],before[3]]);
+ assert.ok((await fs.stat(effects)).isDirectory());
+ await fs.rmdir(effects);
+ await fs.writeFile(effects,before[2]);
+
+ const parent=path.join(staging,'references/catalogs/styles/cozy-arcade.md');
+ const parentMarkdown=await fs.readFile(parent,'utf8');
+ // CSS uses ASCII whitespace in both readers, including between declarations.
+ await fs.writeFile(parent,parentMarkdown.replace('--dig-leading-normal: 1.45;','\u0085\n--dig-leading-normal: 1.45;'));
+ for(const build of [render,targeted]){
+  const invalidWhitespace=build();
+  assert.notEqual(invalidWhitespace.status,0);
+  assert.match(invalidWhitespace.stdout,/cozy-arcade\.md.*Dig UI CSS Tokens.*ending in semicolons/);
+  assert.deepEqual(await Promise.all(outputs.map(file=>fs.readFile(file))),before);
+ }
+ await fs.writeFile(parent,parentMarkdown.replace('--dig-leading-normal: 1.45;','--dig-leading-normal: calc(1.1 +  \n  0.35);'));
+ // The child compiler can replace stale generated Markdown on a successful rebuild.
+ await fs.writeFile(catalog,(await fs.readFile(catalog,'utf8')).replace('--dig-accent: #efbb41;','/* unfinished comment'));
+ const restored=render();
+ assert.equal(restored.status,0,restored.stderr);
+ assert.match(await fs.readFile(catalog,'utf8'),/Another note about annotations/);
+ const validate=spawnSync(process.execPath,[path.join(packageRoot,'validate-dig-catalog-preview.mjs'),'--style-sources'],{cwd:staging,encoding:'utf8'});
+ assert.equal(validate.status,0,validate.stderr);
+ const rebuilt=await Promise.all(outputs.map(file=>fs.readFile(file)));
+ await fs.unlink(catalog);
+ await fs.unlink(preview);
+ const recreated=render();
+ assert.equal(recreated.status,0,recreated.stderr);
+ assert.deepEqual(await Promise.all(outputs.map(file=>fs.readFile(file))),rebuilt);
+
+ const legacyIndex=rebuilt[3].toString().replace(/(const catalogData = )(\{[\s\S]*?\})(;\s*function getCatalogItems)/,
+  (_,prefix,data,suffix)=>{
+   const registry=JSON.parse(data);
+   delete registry.styles.items;
+   delete registry.palettes.brands;
+   return prefix+JSON.stringify(registry)+suffix;
+  });
+ await fs.writeFile(index,legacyIndex);
+ const merged=targeted();
+ assert.equal(merged.status,0,merged.stderr);
+ const readRegistry=html=>JSON.parse(html.match(/const catalogData = (\{[\s\S]*?\});\s*function getCatalogItems/)[1]);
+ assert.deepEqual(readRegistry(await fs.readFile(index,'utf8')),readRegistry(rebuilt[3].toString()));
+ assert.deepEqual(await Promise.all(outputs.slice(0,3).map(file=>fs.readFile(file))),rebuilt.slice(0,3));
 });
 test('sync isolates effects and preserves unrelated local assets',async()=>{
  const target=path.join(root,'skill');await fs.mkdir(path.join(target,'references/local/styles'),{recursive:true});await fs.writeFile(path.join(target,'references/local/styles/keep.json'),'keep');

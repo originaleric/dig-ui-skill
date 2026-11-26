@@ -1,0 +1,51 @@
+name: Cross-platform CI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-and-effects:
+    name: Validate on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    steps:
+      - name: Check out the requested commit
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20.19.3'
+          cache: npm
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Make python3 available on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $python = Join-Path $env:pythonLocation 'python.exe'
+          $python3 = Join-Path $env:pythonLocation 'python3.exe'
+          if (-not (Test-Path $python3)) {
+            Copy-Item $python $python3
+          }
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Validate catalog and render contracts
+        run: |
+          npm run validate:renders
+          npm run validate:catalogs
+      - name: Test Effects and style integration
+        run: npm run validate:effects
+      - name: Verify generated renders are reproducible
+        run: |
+          node bin/dig-ui-skill.mjs render all
+          git diff --exit-code -- references/catalogs/styles renders
+      - name: Check npm package contents
+        run: npm pack --dry-run
