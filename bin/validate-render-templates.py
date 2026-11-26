@@ -227,7 +227,7 @@ class StyleTokenContractTests(unittest.TestCase):
             output = io.StringIO()
             with contextlib.redirect_stdout(output), self.assertRaises(SystemExit):
                 GENERATOR["validate_style_preview_sources"](root / "references/catalogs", root / "renders", {})
-            self.assertIn("renders/styles/retired.html", output.getvalue())
+            self.assertIn(str(preview), output.getvalue())
             self.assertEqual(preview.read_text(), "old generated preview")
 
     def test_style_build_rejects_unterminated_comments_before_writing_outputs(self):
