@@ -37,15 +37,15 @@ jobs:
           }
       - name: Install locked dependencies
         run: npm ci
-      - name: Validate catalog and render contracts
-        run: |
-          npm run validate:renders
-          npm run validate:catalogs
+      - name: Validate render contracts
+        run: npm run validate:renders
+      - name: Validate catalog previews
+        run: npm run validate:catalogs
       - name: Test Effects and style integration
         run: npm run validate:effects
+      - name: Regenerate catalog and Effects previews
+        run: node bin/dig-ui-skill.mjs render all
       - name: Verify generated renders are reproducible
-        run: |
-          node bin/dig-ui-skill.mjs render all
-          git diff --exit-code -- references/catalogs/styles renders
+        run: git diff --exit-code -- references/catalogs/styles renders
       - name: Check npm package contents
         run: npm pack --dry-run

@@ -207,7 +207,7 @@ function listMarkdownFiles(dirRel) {
   const out = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    const rel = path.relative(__dirname, full);
+    const rel = path.relative(__dirname, full).split(path.sep).join("/");
     if (entry.isDirectory()) {
       out.push(...listMarkdownFiles(rel));
     } else if (entry.name.endsWith(".md") && entry.name !== "README.md") {
@@ -223,7 +223,7 @@ function listHtmlFiles(dirRel) {
   const out = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    const rel = path.relative(__dirname, full);
+    const rel = path.relative(__dirname, full).split(path.sep).join("/");
     if (entry.isDirectory()) {
       out.push(...listHtmlFiles(rel));
     } else if (entry.name.endsWith(".html")) {
@@ -240,7 +240,7 @@ function stripLanguageSuffix(rel, language) {
 function listLocalizedMarkdownFiles(dirRel, language) {
   return listMarkdownFiles(dirRel)
     .filter((rel) => rel.endsWith(`.${language}.md`))
-    .map((rel) => stripLanguageSuffix(path.relative(dirRel, rel), language))
+    .map((rel) => stripLanguageSuffix(path.posix.relative(dirRel, rel), language))
     .sort();
 }
 
@@ -770,7 +770,7 @@ function validatePaletteCatalogs() {
   for (const rel of files) {
     const content = read(rel);
     const fields = parseFrontmatter(content);
-    const parentDir = path.dirname(rel);
+    const parentDir = path.posix.dirname(rel);
     const fileSlug = path.basename(rel, ".md");
     const slug = fields.slug || fileSlug;
 
@@ -850,7 +850,7 @@ function validatePaletteCatalogPlacement() {
 
   for (const rel of files) {
     const fields = parseFrontmatter(read(rel));
-    const parentDir = path.dirname(rel);
+    const parentDir = path.posix.dirname(rel);
     const paletteMarkers = Object.entries(paletteRequiredFrontmatter).filter(
       ([key, expected]) => fields[key] === expected,
     );
@@ -895,7 +895,7 @@ function validateStyleCatalogs() {
   for (const rel of files) {
     const content = read(rel);
     const fields = parseFrontmatter(content);
-    const parentDir = path.dirname(rel);
+    const parentDir = path.posix.dirname(rel);
     const fileSlug = path.basename(rel, ".md");
     const slug = fields.slug || fileSlug;
 
@@ -1023,7 +1023,7 @@ function runSkillCli(args, homeDir) {
     [path.join(__dirname, "bin", "dig-ui-skill.mjs"), ...args],
     {
       cwd: __dirname,
-      env: { ...process.env, HOME: homeDir },
+      env: { ...process.env, HOME: homeDir, USERPROFILE: homeDir },
       encoding: "utf8",
       stdio: ["ignore", "pipe", "pipe"],
     },
@@ -1523,6 +1523,7 @@ function validateRenderTemplates() {
   return interpreters.flatMap((python) => {
     const result = childProcess.spawnSync(python, [path.join(__dirname, "bin/validate-render-templates.py")], {
       encoding: "utf8",
+      env: { ...process.env, PYTHONUTF8: "1" },
       timeout: 30000,
     });
     const details = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();

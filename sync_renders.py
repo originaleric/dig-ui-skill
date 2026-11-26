@@ -1749,9 +1749,11 @@ def render_catalog_registry(index_content, catalog_data, existing_registry, acti
                 item for item in registry_data["styles"][list_name] if item["slug"] in active_styles
             ]
 
-    # Keep the style registry stable when a generated Markdown file is recreated.
-    for list_name in ("items", "brands"):
-        registry_data["styles"][list_name].sort(key=lambda item: item["slug"])
+    # Keep registry output independent of filesystem iteration order.
+    for group in registry_data.values():
+        for list_name in ("items", "brands"):
+            if list_name in group:
+                group[list_name].sort(key=lambda item: item["slug"])
 
     catalog_json = json.dumps(registry_data, ensure_ascii=False).replace("<", "\\u003c")
     return CATALOG_DATA_BLOCK.sub(
@@ -1777,7 +1779,7 @@ def publish_render_outputs(outputs):
                 parent.mkdir(parents=True, exist_ok=True)
                 staging_dirs[parent] = Path(stack.enter_context(TemporaryDirectory(prefix=".dig-render-", dir=parent)))
             staged_file = staging_dirs[parent] / f"{destination.name}.tmp"
-            staged_file.write_text(content, encoding="utf-8")
+            staged_file.write_bytes(content.encode("utf-8"))
             if exists:
                 staged_file.chmod(S_IMODE(destination.stat().st_mode))
             staged[destination] = staged_file
@@ -3121,6 +3123,7 @@ def render_catalogs(target_catalog=None, effects_output=None):
     return outputs
 
 def main():
+    sys.stdout.reconfigure(encoding="utf-8")
     target = sys.argv[1] if len(sys.argv) > 1 else None
     try:
         if target == "--with-effects":

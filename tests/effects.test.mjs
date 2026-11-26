@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import os from 'node:os';
+import {pathToFileURL} from 'node:url';
 import {webcrypto,createHash} from 'node:crypto';
 import {spawnSync,spawn} from 'node:child_process';
 import {validateEffect,clone,setParameter,resolveComposition,verifyAssets,flattenLayers,readStyleThemeTokens} from '../assets/effects/protocol.mjs';
@@ -119,7 +120,7 @@ test('publication checks actual child Markdown, previews and embedded Effects th
   }else await fs.unlink(file);
   const rejected=validate();
   assert.notEqual(rejected.status,0,asset);
-  assert.match(rejected.stderr,diagnostic);
+  assert.match(rejected.stderr.replaceAll(path.sep,'/'),diagnostic);
   await fs.writeFile(file,original);
  }
  const restored=validate();
@@ -316,10 +317,10 @@ test('isolated skill installation/update includes tooling and protects local eff
  // Existing --project scopes only Cursor rules. Isolate every os.homedir() call in this child
  // process; never alter the real user environment or installed skills.
  await fs.writeFile(preload,`import os from 'node:os';os.homedir=()=>${JSON.stringify(fakeUser)};`);
- for(const command of ['install','update']){const result=spawnSync(process.execPath,['--import',preload,'bin/dig-ui-skill.mjs',command,'cursor','--source',packageRootForTest(),'--project',project],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);}
+ for(const command of ['install','update']){const result=spawnSync(process.execPath,['--import',pathToFileURL(preload).href,'bin/dig-ui-skill.mjs',command,'cursor','--source',packageRootForTest(),'--project',project],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);}
  const installed=path.join(fakeUser,'.cursor/skills/dig-ui');assert.ok(await fs.stat(path.join(installed,'assets/effects/runtime.mjs')));assert.ok(await fs.stat(path.join(installed,'bin/effect-lock.cjs')));assert.ok(await fs.stat(path.join(installed,'references/local/effects/flowing-ribbon.json')));
- const result=spawnSync(process.execPath,['--import',preload,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','list'],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/flowing-ribbon/);
- const offline=spawnSync(process.execPath,['--import',preload,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','show','flowing-ribbon'],{encoding:'utf8',env:{...env,DIG_UI_CONFIG_HOME:path.join(root,'offline-config')}});assert.equal(offline.status,0,offline.stderr);assert.equal(JSON.parse(offline.stdout).revision,3);
+ const result=spawnSync(process.execPath,['--import',pathToFileURL(preload).href,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','list'],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);assert.match(result.stdout,/flowing-ribbon/);
+ const offline=spawnSync(process.execPath,['--import',pathToFileURL(preload).href,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','show','flowing-ribbon'],{encoding:'utf8',env:{...env,DIG_UI_CONFIG_HOME:path.join(root,'offline-config')}});assert.equal(offline.status,0,offline.stderr);assert.equal(JSON.parse(offline.stdout).revision,3);
 });
 function packageRootForTest(){return packageRoot;}
 test('concurrent project writers serialize and stale locks recover',async()=>{
@@ -368,9 +369,18 @@ test('project ID update/diff follow recorded file provenance and reject changed 
 
 test('native snapshot names restore byte-for-byte and unsafe backup records reject before writes',async()=>{
  const project=path.join(root,'native-snapshot');await runEffectCLI(['install','flowing-ribbon','--project',project]);const dir=path.join(project,'components/dig-effects/flowing-ribbon');
- await fs.mkdir(path.join(dir,'空目录'));await fs.writeFile(path.join(dir,'user-script.sh'),'#!/bin/sh\necho ok\n');await fs.chmod(path.join(dir,'user-script.sh'),0o755);
+ const script=path.join(dir,'user-script.sh'),scriptContents='#!/bin/sh\necho ok\n';
+ await fs.mkdir(path.join(dir,'空目录'));
+ await fs.writeFile(script,scriptContents);
+ await fs.chmod(script,process.platform==='win32'?0o444:0o755);
+ const scriptMode=(await fs.stat(script)).mode&0o777;
  const names=['设计说明.md','notes copy.txt','__proto__','constructor','文档目录/主题 参数.md'];for(const name of names){await fs.mkdir(path.dirname(path.join(dir,name)),{recursive:true});await fs.writeFile(path.join(dir,name),'keep '+name);}
- await runEffectCLI(['update','flowing-ribbon','--project',project,'--force']);await runEffectCLI(['restore','flowing-ribbon','--project',project]);assert.ok((await fs.stat(path.join(dir,'user-script.sh'))).mode&0o111);assert.ok((await fs.stat(path.join(dir,'空目录'))).isDirectory());for(const name of names)assert.equal(await fs.readFile(path.join(dir,name),'utf8'),'keep '+name);
+ await runEffectCLI(['update','flowing-ribbon','--project',project,'--force']);
+ await runEffectCLI(['restore','flowing-ribbon','--project',project]);
+ assert.equal(await fs.readFile(script,'utf8'),scriptContents);
+ assert.equal((await fs.stat(script)).mode&0o777,scriptMode);
+ assert.ok((await fs.stat(path.join(dir,'空目录'))).isDirectory());
+ for(const name of names)assert.equal(await fs.readFile(path.join(dir,name),'utf8'),'keep '+name);
  await assert.rejects(()=>runEffectCLI(['update','flowing-ribbon','--project',project]),/Local edits/);
  const recordPath=path.join(project,'.dig-ui-effects.json'),good=JSON.parse(await fs.readFile(recordPath)),bad=clone(good);bad.effects['flowing-ribbon'].backups.at(-1).entry.files['../outside']='sha256:'+'0'.repeat(64);await fs.writeFile(recordPath,JSON.stringify(bad));await assert.rejects(()=>runEffectCLI(['restore','flowing-ribbon','--project',project,'--force']),/Invalid installed file/);assert.equal(await fs.readFile(path.join(dir,names[0]),'utf8'),'keep '+names[0]);await fs.writeFile(recordPath,JSON.stringify(good));
 });
@@ -484,13 +494,24 @@ test('restore skips legacy duplicate snapshots and fails closed on corrupt snaps
  const only=path.join(root,'only-duplicates');recipe.revision=1;await fs.writeFile(file,JSON.stringify(recipe));await runEffectCLI(['install',file,'--project',only]);const onlyPath=path.join(only,'.dig-ui-effects.json'),onlyRecord=JSON.parse(await fs.readFile(onlyPath)),e=onlyRecord.effects[recipe.id],copy='.dig-ui-effects-backups/'+recipe.id+'-only';await fs.cp(path.join(only,e.directory),path.join(only,copy),{recursive:true});e.backups.push({path:copy,entry:{...clone(e),generated_files:clone(e.files),backups:[]}});await fs.writeFile(onlyPath,JSON.stringify(onlyRecord));const prior=await fs.readFile(onlyPath,'utf8');await assert.rejects(()=>runEffectCLI(['restore',recipe.id,'--project',only]),/No different previous version/);assert.equal(await fs.readFile(onlyPath,'utf8'),prior);
 });
 
-test('restore never skips snapshots differing only in empty directories or executable modes',async()=>{
+test('restore never skips snapshots differing only in empty directories or file modes',async()=>{
  for(const kind of ['empty','mode']){
   const recipe=clone(ribbon);recipe.id='snapshot-shape-'+kind;const file=path.join(root,'shape-'+kind+'.json'),project=path.join(root,'shape-project-'+kind);await fs.writeFile(file,JSON.stringify(recipe));await runEffectCLI(['install',file,'--project',project]);
   const recordPath=path.join(project,'.dig-ui-effects.json'),record=JSON.parse(await fs.readFile(recordPath)),entry=record.effects[recipe.id],backup='.dig-ui-effects-backups/'+recipe.id+'-shape';await fs.cp(path.join(project,entry.directory),path.join(project,backup),{recursive:true});
-  if(kind==='empty')await fs.mkdir(path.join(project,backup,'空目录'));else await fs.chmod(path.join(project,backup,'mount.mjs'),0o755);
+  const mount=path.join(project,entry.directory,'mount.mjs');
+  const savedMount=path.join(project,backup,'mount.mjs');
+  let savedMode;
+  if(kind==='empty'){
+   await fs.mkdir(path.join(project,backup,'空目录'));
+  }else{
+   // Windows represents read-only files in stat.mode. POSIX also supports execute bits.
+   await fs.chmod(savedMount,process.platform==='win32'?0o444:0o755);
+   savedMode=(await fs.stat(savedMount)).mode&0o777;
+   assert.notEqual(savedMode,(await fs.stat(mount)).mode&0o777);
+  }
   entry.backups.push({path:backup,entry:{...clone(entry),generated_files:clone(entry.files),backups:[]}});await fs.writeFile(recordPath,JSON.stringify(record));await runEffectCLI(['restore',recipe.id,'--project',project]);
-  if(kind==='empty')assert.ok((await fs.stat(path.join(project,entry.directory,'空目录'))).isDirectory());else assert.equal((await fs.stat(path.join(project,entry.directory,'mount.mjs'))).mode&0o777,0o755);
+  if(kind==='empty')assert.ok((await fs.stat(path.join(project,entry.directory,'空目录'))).isDirectory());
+  else assert.equal((await fs.stat(mount)).mode&0o777,savedMode);
  }
 });
 
@@ -500,7 +521,7 @@ test('legacy personal assets remain diagnosable and synced while invalid sources
  const preview=path.join(root,'legacy-preview.html');await buildLab(preview);const html=await fs.readFile(preview,'utf8'),payload=JSON.parse(html.match(/<script id="effect-data" type="application\/json">([\s\S]*?)<\/script>/)[1]);assert.ok(payload.effects.some(e=>e.id==='flowing-ribbon'));assert.ok(!payload.effects.some(e=>e.id===old.id));await assert.rejects(()=>buildLab(path.join(root,'invalid-preview.html'),old),/animation mode/);
  for(const args of [['import',file],['export',old.id,'--output',path.join(root,'invalid.zip')],['install',old.id,'--project',path.join(root,'invalid-project')]])await assert.rejects(()=>runEffectCLI(args),/animation mode/);
  await syncEffectsInto(target);const copy=path.join(target,'references/local/effects',old.id+'.json');assert.deepEqual(JSON.parse(await fs.readFile(copy)),old);
- const fakeUser=path.join(root,'legacy-user'),hostProject=path.join(root,'legacy-host'),preload=path.join(root,'legacy-os.mjs'),env={...process.env};await fs.mkdir(hostProject);await fs.writeFile(preload,`import os from 'node:os';os.homedir=()=>${JSON.stringify(fakeUser)};`);for(const command of ['install','update']){const result=spawnSync(process.execPath,['--import',preload,'bin/dig-ui-skill.mjs',command,'cursor','--source',packageRoot,'--project',hostProject],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);}const installed=path.join(fakeUser,'.cursor/skills/dig-ui'),offline=spawnSync(process.execPath,['--import',preload,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','show',old.id],{encoding:'utf8',env:{...env,DIG_UI_CONFIG_HOME:path.join(root,'legacy-offline')}});assert.equal(offline.status,0,offline.stderr);assert.deepEqual(JSON.parse(offline.stdout),old);assert.match(offline.stderr,/requires repair/);
+ const fakeUser=path.join(root,'legacy-user'),hostProject=path.join(root,'legacy-host'),preload=path.join(root,'legacy-os.mjs'),env={...process.env};await fs.mkdir(hostProject);await fs.writeFile(preload,`import os from 'node:os';os.homedir=()=>${JSON.stringify(fakeUser)};`);for(const command of ['install','update']){const result=spawnSync(process.execPath,['--import',pathToFileURL(preload).href,'bin/dig-ui-skill.mjs',command,'cursor','--source',packageRoot,'--project',hostProject],{encoding:'utf8',env});assert.equal(result.status,0,result.stderr);}const installed=path.join(fakeUser,'.cursor/skills/dig-ui'),offline=spawnSync(process.execPath,['--import',pathToFileURL(preload).href,path.join(installed,'bin/dig-ui-skill.mjs'),'effect','show',old.id],{encoding:'utf8',env:{...env,DIG_UI_CONFIG_HOME:path.join(root,'legacy-offline')}});assert.equal(offline.status,0,offline.stderr);assert.deepEqual(JSON.parse(offline.stdout),old);assert.match(offline.stderr,/requires repair/);
 
  await fs.writeFile(file,'{');await fs.writeFile(path.join(effectsDir(),'broken name.json'),'{');const valid=clone(ribbon);valid.id='healthy-after-broken';await fs.writeFile(path.join(effectsDir(),valid.id+'.json'),JSON.stringify(valid));assert.ok((await listEffects()).some(e=>e.id===valid.id));await buildLab(preview);await syncEffectsInto(target);assert.deepEqual(JSON.parse(await fs.readFile(copy)),old);assert.equal(JSON.parse(await fs.readFile(path.join(target,'references/local/effects',valid.id+'.json'))).id,valid.id);
  const repair=clone(ribbon);repair.id=old.id;repair.revision=2;const repairFile=path.join(root,'repair-legacy.json');await fs.writeFile(repairFile,JSON.stringify(repair));await assert.rejects(()=>runEffectCLI(['import',repairFile]),/Existing effect is invalid/);assert.equal(await fs.readFile(file,'utf8'),'{');await runEffectCLI(['import',repairFile,'--force']);assert.deepEqual(await readEffect(old.id),repair);const saved=(await fs.readdir(path.join(effectsDir(),'history'))).find(name=>name.startsWith(old.id+'-invalid-'));assert.equal(await fs.readFile(path.join(effectsDir(),'history',saved),'utf8'),'{');await syncEffectsInto(target);assert.deepEqual(JSON.parse(await fs.readFile(copy)),repair);
